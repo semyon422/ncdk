@@ -28,8 +28,9 @@ NoteDataImporter.NoteDataEnum = {
 NoteDataImporter.ShortNoteDataEnum = {
 	startMeasureTime = 4,
 	startSide = 5,
-	columnIndex = 6,
-	soundFileName = 7
+	inputType = 6,
+	inputIndex = 7,
+	soundFileName = 8
 }
 
 NoteDataImporter.LongNoteDataEnum = {
@@ -37,8 +38,9 @@ NoteDataImporter.LongNoteDataEnum = {
 	startSide = 5,
 	endMeasureTime = 6,
 	endSide = 7,
-	columnIndex = 8,
-	soundFileName = 9
+	inputType = 8,
+	inputIndex = 9,
+	soundFileName = 10
 }
 
 NoteDataImporter.getNoteData = function(self, layerData)
@@ -59,7 +61,8 @@ NoteDataImporter.getNoteData = function(self, layerData)
 		
 		local noteData = ncdk.NoteData:new(startTimePoint)
 		
-		noteData.columnIndex = tonumber(self.lineTable[self.ShortNoteDataEnum.columnIndex])
+		noteData.inputType = self.lineTable[self.ShortNoteDataEnum.inputType]
+		noteData.inputIndex = tonumber(self.lineTable[self.ShortNoteDataEnum.inputIndex])
 		if noteType == self.NoteTypeEnum.ShortNote then
 			noteData.noteType = "ShortNote"
 		else
@@ -84,7 +87,8 @@ NoteDataImporter.getNoteData = function(self, layerData)
 		
 		local noteData = ncdk.NoteData:new(startTimePoint, endTimePoint)
 		
-		noteData.columnIndex = tonumber(self.lineTable[self.LongNoteDataEnum.columnIndex])
+		noteData.inputType = self.lineTable[self.LongNoteDataEnum.inputType]
+		noteData.inputIndex = tonumber(self.lineTable[self.LongNoteDataEnum.inputIndex])
 		noteData.noteType = "LongNote"
 		noteData.soundFileName = self.lineTable[self.LongNoteDataEnum.soundFileName]
 		

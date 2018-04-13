@@ -20,14 +20,19 @@ NoteChartImporter.objectTypeEnum = {
 	NoteData = 3
 }
 
+NoteChartImporter.ObjectDataEnum = {
+	LayerDataIndex = 1,
+	ObjectType = 2
+}
+
 NoteChartImporter.import = function(self, noteChartString)
 	for _, line in ipairs(noteChartString:split("\n")) do
 		line = line:trim()
 		if #line > 0 then
 			local lineTable = line:split(",")
 			
-			local layerDataIndex = tonumber(lineTable[1])
-			local objectType = tonumber(lineTable[2])
+			local layerDataIndex = tonumber(lineTable[self.ObjectDataEnum.LayerDataIndex])
+			local objectType = tonumber(lineTable[self.ObjectDataEnum.ObjectType])
 			
 			local layerData = self.noteChart.layerDataSequence:requireLayerData(layerDataIndex)
 			
