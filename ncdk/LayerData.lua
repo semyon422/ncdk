@@ -75,10 +75,6 @@ LayerData.getVisualMeasureTime = function(self, targetMeasureTimePoint, currentM
 	return currentMeasureTimePoint.measureTime + deltaTime * localSpeed * globalSpeed
 end
 
-LayerData.getVelocityDataByTimePoint = function(self, timePoint)
-	return self.velocityDataSequence:getVelocityDataByTimePoint(timePoint)
-end
-
 LayerData.getVelocityDataVisualDuration = function(self, velocityDataIndex, startEdgeTimePoint, endEdgeTimePoint)
 	local currentVelocityData = self.velocityDataSequence:getVelocityData(velocityDataIndex)
 	local nextVelocityData = self.velocityDataSequence:getVelocityData(velocityDataIndex + 1)
@@ -183,3 +179,4 @@ LayerData.getVelocityDataCount = function(self) return self.velocityDataSequence
 LayerData.addNoteData = function(self, noteData) return self.noteDataSequence:addNoteData(noteData) end
 LayerData.getNoteData = function(self, noteDataIndex) return self.noteDataSequence:getNoteData(noteDataIndex) end
 LayerData.getNoteDataCount = function(self) return self.noteDataSequence:getNoteDataCount() end
+LayerData.getVelocityDataByTimePoint = function(self, timePoint) return self.velocityDataSequence:getVelocityDataByTimePoint(timePoint) end
