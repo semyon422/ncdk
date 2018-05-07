@@ -17,6 +17,8 @@ end
 
 NoteChartImporter.import = function(self, noteChartString)
 	self.foregroundLayerData = self.noteChart.layerDataSequence:requireLayerData(1)
+	self.backgroundLayerData = self.noteChart.layerDataSequence:requireLayerData(2)
+	self.backgroundLayerData.invisible = true
 	
 	self.noteChartString = noteChartString
 	self:stage1_process()
@@ -36,11 +38,35 @@ NoteChartImporter.stage1_process = function(self)
 	local compareByStartTime = function(a, b) return a.startTime < b.startTime end
 	table.sort(self.timingPointParsers, compareByStartTime)
 	table.sort(self.noteParsers, compareByStartTime)
+	
+	self.foregroundLayerData:updateZeroTimePoint()
+	self.backgroundLayerData:updateZeroTimePoint()
+	
+	self:processAudio()
+end
+
+NoteChartImporter.processAudio = function(self)
+	local audioFileName = self.metaData["AudioFilename"]
+	
+	if audioFileName and audioFileName ~= "virtual" then
+		local startTimePoint = self.backgroundLayerData.zeroTimePoint
+		
+		startTimePoint.velocityData = self.backgroundLayerData.velocityDataSequence:getVelocityDataByTimePoint(startTimePoint)
+		
+		noteData = ncdk.NoteData:new(startTimePoint)
+		noteData.inputType = "auto"
+		noteData.inputIndex = 0
+		noteData.soundFileName = audioFileName
+		
+		noteData.zeroClearVisualStartTime = self.backgroundLayerData:getVisualTime(startTimePoint, self.backgroundLayerData.zeroTimePoint, true)
+		noteData.currentVisualStartTime = noteData.zeroClearVisualStartTime
+	
+		noteData.noteType = "SoundNote"
+		self.backgroundLayerData:addNoteData(noteData)
+	end
 end
 
 NoteChartImporter.stage2_process = function(self)
-	self.foregroundLayerData:updateZeroTimePoint()
-	
 	local timePoint = self.foregroundLayerData:getTimePoint()
 	timePoint.absoluteTime = 0
 	local velocityData = ncdk.VelocityData:new(timePoint)
@@ -59,8 +85,8 @@ NoteChartImporter.processLine = function(self, line)
 		self.currentBlockName = line:match("^%[(.+)%]")
 	else
 		if line:find("^%a+:.*$") then
-			local key, value = line:match("^(%a+):(.*)")
-			self.metaData[key] = value
+			local key, value = line:match("^(%a+):%s?(.*)")
+			self.metaData[key] = value:trim()
 		elseif self.currentBlockName == "TimingPoints" and line:find("^.+,.+,.+,.+,.+,.+,.+,.+$") then
 			self:stage1_addTimingPointParser(line)
 		elseif self.currentBlockName == "HitObjects" and line:trim() ~= "" then
