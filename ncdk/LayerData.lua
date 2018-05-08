@@ -32,10 +32,12 @@ LayerData.addStopData = function(self, ...) self.timeData:addStopData(...) end
 LayerData.getStopData = function(self, ...) return self.timeData:getStopData(...) end
 LayerData.getTimePoint = function(self, ...) return self.timeData:getTimePoint(...) end
 
-LayerData.updateZeroTimePoint = function(self) return self.spaceData:updateZeroTimePoint() end
 LayerData.addVelocityData = function(self, ...) self.spaceData:addVelocityData(...) end
 LayerData.getVelocityDataByTimePoint = function(self, ...) return self.spaceData:getVelocityDataByTimePoint(...) end
+LayerData.getVisualMeasureTime = function(self, ...) return self.spaceData:getVisualMeasureTime(...) end
 LayerData.getVisualTime = function(self, ...) return self.spaceData:getVisualTime(...) end
+LayerData.computeVisualTime = function(self, ...) return self.spaceData:computeVisualTime(...) end
+LayerData.updateZeroTimePoint = function(self) return self.spaceData:updateZeroTimePoint() end
 LayerData.getZeroTimePoint = function(self) return self.spaceData:getZeroTimePoint() end
 
 LayerData.getColumnCount = function(self) return self.noteDataSequence:getColumnCount() end
