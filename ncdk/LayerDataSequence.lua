@@ -9,9 +9,7 @@ LayerDataSequence.new = function(self)
 	local layerDataSequence = {}
 	
 	layerDataSequence.layerDataCount = 0
-	
 	layerDataSequence.layerDataIndexes = {}
-	
 	layerDataSequence.inputExisting = {}
 	
 	setmetatable(layerDataSequence, LayerDataSequence_metatable)
