@@ -49,16 +49,16 @@ NoteChartImporter.processAudio = function(self)
 	local audioFileName = self.metaData["AudioFilename"]
 	
 	if audioFileName and audioFileName ~= "virtual" then
-		local startTimePoint = self.backgroundLayerData.zeroTimePoint
+		local startTimePoint = self.backgroundLayerData:getZeroTimePoint()
 		
-		startTimePoint.velocityData = self.backgroundLayerData.velocityDataSequence:getVelocityDataByTimePoint(startTimePoint)
+		startTimePoint.velocityData = self.backgroundLayerData:getVelocityDataByTimePoint(startTimePoint)
 		
 		noteData = ncdk.NoteData:new(startTimePoint)
 		noteData.inputType = "auto"
 		noteData.inputIndex = 0
 		noteData.soundFileName = audioFileName
 		
-		noteData.zeroClearVisualStartTime = self.backgroundLayerData:getVisualTime(startTimePoint, self.backgroundLayerData.zeroTimePoint, true)
+		noteData.zeroClearVisualStartTime = self.backgroundLayerData:getVisualTime(startTimePoint, self.backgroundLayerData:getZeroTimePoint(), true)
 		noteData.currentVisualStartTime = noteData.zeroClearVisualStartTime
 	
 		noteData.noteType = "SoundNote"

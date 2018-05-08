@@ -47,13 +47,13 @@ end
 NoteDataImporter.getNoteData = function(self)
 	local startTimePoint = self.noteChartImporter.foregroundLayerData:getTimePoint()
 	startTimePoint.absoluteTime = self.startTime / 1000
-	startTimePoint.velocityData = self.noteChartImporter.foregroundLayerData.velocityDataSequence:getVelocityDataByTimePoint(startTimePoint)
+	startTimePoint.velocityData = self.noteChartImporter.foregroundLayerData:getVelocityDataByTimePoint(startTimePoint)
 	
 	noteData = ncdk.NoteData:new(startTimePoint)
 	noteData.inputType = self.inputType
 	noteData.inputIndex = self.inputIndex
 	
-	noteData.zeroClearVisualStartTime = self.noteChartImporter.foregroundLayerData:getVisualTime(startTimePoint, self.noteChartImporter.foregroundLayerData.zeroTimePoint, true)
+	noteData.zeroClearVisualStartTime = self.noteChartImporter.foregroundLayerData:getVisualTime(startTimePoint, self.noteChartImporter.foregroundLayerData:getZeroTimePoint(), true)
 	noteData.currentVisualStartTime = noteData.zeroClearVisualStartTime
 	
 	if not self.endTime then
@@ -61,11 +61,11 @@ NoteDataImporter.getNoteData = function(self)
 	else
 		local endTimePoint = self.noteChartImporter.foregroundLayerData:getTimePoint()
 		endTimePoint.absoluteTime = self.endTime / 1000
-		endTimePoint.velocityData = self.noteChartImporter.foregroundLayerData.velocityDataSequence:getVelocityDataByTimePoint(endTimePoint)
+		endTimePoint.velocityData = self.noteChartImporter.foregroundLayerData:getVelocityDataByTimePoint(endTimePoint)
 		
 		noteData.endTimePoint = endTimePoint
 		
-		noteData.zeroClearVisualEndTime = self.noteChartImporter.foregroundLayerData:getVisualTime(endTimePoint, self.noteChartImporter.foregroundLayerData.zeroTimePoint, true)
+		noteData.zeroClearVisualEndTime = self.noteChartImporter.foregroundLayerData:getVisualTime(endTimePoint, self.noteChartImporter.foregroundLayerData:getZeroTimePoint(), true)
 		noteData.currentVisualEndTime = noteData.zeroClearVisualEndTime
 	
 		noteData.noteType = "LongNote"

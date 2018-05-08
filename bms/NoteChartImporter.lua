@@ -111,7 +111,7 @@ NoteChartImporter.importTempoData = function(self)
 		end
 	end
 	
-	self.foregroundLayerData.timingData.tempoDataSequence:sort()
+	self.foregroundLayerData.timeData.tempoDataSequence:sort()
 end
 
 NoteChartImporter.importStopData = function(self)
@@ -124,7 +124,7 @@ NoteChartImporter.importStopData = function(self)
 					
 					local stopData = ncdk.StopData:new(measureTime, measureDuration)
 					
-					local currentTempoData = self.foregroundLayerData.timingData.tempoDataSequence:getTempoDataByMeasureTime(measureTime)
+					local currentTempoData = self.foregroundLayerData.timeData.tempoDataSequence:getTempoDataByMeasureTime(measureTime)
 					local dedicatedDuration = currentTempoData:getBeatDuration() * 4
 					
 					stopData.duration = measureDuration:tonumber() * dedicatedDuration
@@ -135,7 +135,7 @@ NoteChartImporter.importStopData = function(self)
 		end
 	end
 	
-	self.foregroundLayerData.timingData.stopDataSequence:sort()
+	self.foregroundLayerData.timeData.stopDataSequence:sort()
 end
 
 NoteChartImporter.importVelocityData = function(self)
@@ -155,7 +155,7 @@ NoteChartImporter.importNoteData = function(self)
 				if channelInfo and (channelInfo.name == "Note" or channelInfo.name == "BGM") then
 					local measureTime = measureIndex + indexData.measureTimeOffset
 					local startTimePoint = self.foregroundLayerData:getTimePoint(measureTime, 1)
-					startTimePoint.velocityData = self.foregroundLayerData.velocityDataSequence:getVelocityDataByTimePoint(startTimePoint)
+					startTimePoint.velocityData = self.foregroundLayerData:getVelocityDataByTimePoint(startTimePoint)
 					
 					local noteData
 					if not (longNoteData[channelInfo.inputType] and longNoteData[channelInfo.inputType][channelInfo.inputIndex]) or
@@ -166,7 +166,7 @@ NoteChartImporter.importNoteData = function(self)
 						noteData.inputIndex = channelInfo.inputIndex
 					
 						noteData.soundFileName = self.wavDataSequence[indexData.value]
-						noteData.zeroClearVisualStartTime = self.foregroundLayerData:getVisualTime(startTimePoint, self.foregroundLayerData.zeroTimePoint, true)
+						noteData.zeroClearVisualStartTime = self.foregroundLayerData:getVisualTime(startTimePoint, self.foregroundLayerData:getZeroTimePoint(), true)
 						noteData.currentVisualStartTime = noteData.zeroClearVisualStartTime
 					
 						if channelInfo.inputType == "auto" then
@@ -185,7 +185,7 @@ NoteChartImporter.importNoteData = function(self)
 						noteData = longNoteData[channelInfo.inputType][channelInfo.inputIndex]
 						noteData.endTimePoint = startTimePoint
 					
-						noteData.zeroClearVisualEndTime = self.foregroundLayerData:getVisualTime(startTimePoint, self.foregroundLayerData.zeroTimePoint, true)
+						noteData.zeroClearVisualEndTime = self.foregroundLayerData:getVisualTime(startTimePoint, self.foregroundLayerData:getZeroTimePoint(), true)
 						noteData.currentVisualEndTime = noteData.zeroClearVisualEndTime
 						
 						longNoteData[channelInfo.inputType][channelInfo.inputIndex] = nil
