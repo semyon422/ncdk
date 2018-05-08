@@ -5,15 +5,15 @@ ncdk.TimePoint_metatable = {}
 local TimePoint_metatable = ncdk.TimePoint_metatable
 TimePoint_metatable.__index = TimePoint
 
-TimePoint.new = function(self, timingData, measureTime, side)
+TimePoint.new = function(self, timeData, measureTime, side)
 	local timePoint = {}
 	
-	timePoint.timingData = timingData
+	timePoint.timeData = timeData
 	timePoint.measureTime = measureTime
 	timePoint.side = side or 1
 	
 	if measureTime then
-		timePoint.absoluteTime = timingData:getAbsoluteTime(measureTime)
+		timePoint.absoluteTime = timeData:getAbsoluteTime(measureTime)
 	end
 	
 	setmetatable(timePoint, TimePoint_metatable)

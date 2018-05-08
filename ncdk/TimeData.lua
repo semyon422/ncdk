@@ -1,23 +1,23 @@
-ncdk.TimingData = {}
-local TimingData = ncdk.TimingData
+ncdk.TimeData = {}
+local TimeData = ncdk.TimeData
 
-ncdk.TimingData_metatable = {}
-local TimingData_metatable = ncdk.TimingData_metatable
-TimingData_metatable.__index = TimingData
+ncdk.TimeData_metatable = {}
+local TimeData_metatable = ncdk.TimeData_metatable
+TimeData_metatable.__index = TimeData
 
-TimingData.new = function(self)
-	local timingData = {}
+TimeData.new = function(self)
+	local timeData = {}
 	
-	timingData.signatureTable = ncdk.SignatureTable:new(ncdk.Fraction:new(4))
-	timingData.tempoDataSequence = ncdk.TempoDataSequence:new()
-	timingData.stopDataSequence = ncdk.StopDataSequence:new()
+	timeData.signatureTable = ncdk.SignatureTable:new(ncdk.Fraction:new(4))
+	timeData.tempoDataSequence = ncdk.TempoDataSequence:new()
+	timeData.stopDataSequence = ncdk.StopDataSequence:new()
 	
-	setmetatable(timingData, TimingData_metatable)
+	setmetatable(timeData, TimeData_metatable)
 	
-	return timingData
+	return timeData
 end
 
-TimingData.getTempoDataDuration = function(self, tempoDataIndex, startEdgeM_Time, endEdgeM_Time)
+TimeData.getTempoDataDuration = function(self, tempoDataIndex, startEdgeM_Time, endEdgeM_Time)
 	local currentTempoData = self:getTempoData(tempoDataIndex)
 	local nextTempoData = self:getTempoData(tempoDataIndex + 1)
 	
@@ -54,7 +54,7 @@ TimingData.getTempoDataDuration = function(self, tempoDataIndex, startEdgeM_Time
 	return time
 end
 
-TimingData.getStopDataDuration  = function(self, stopDataIndex, startEdgeM_Time, endEdgeM_Time)
+TimeData.getStopDataDuration  = function(self, stopDataIndex, startEdgeM_Time, endEdgeM_Time)
 	local currentStopData = self:getStopData(stopDataIndex)
 	
 	if currentStopData.measureTime >= startEdgeM_Time and currentStopData.measureTime < endEdgeM_Time then
@@ -64,7 +64,7 @@ TimingData.getStopDataDuration  = function(self, stopDataIndex, startEdgeM_Time,
 	end
 end
 
-TimingData.getAbsoluteTime = function(self, measureTime)
+TimeData.getAbsoluteTime = function(self, measureTime)
 	local time = 0
 	
 	if measureTime == ncdk.Fraction:new(0) then
@@ -88,14 +88,14 @@ TimingData.getAbsoluteTime = function(self, measureTime)
 	return time
 end
 
-TimingData.getTimePoint = function(self, measureTime, side)
+TimeData.getTimePoint = function(self, measureTime, side)
 	return ncdk.TimePoint:new(self, measureTime, side)
 end
 
-TimingData.setSignature = function(self, measureIndex, signature) self.signatureTable:setSignature(measureIndex, signature) end
-TimingData.getSignature = function(self, measureIndex) return self.signatureTable:getSignature(measureIndex) end
-TimingData.setSignatureTable = function(self, signatureTable) self.signatureTable = signatureTable end
-TimingData.addTempoData = function(self, tempoData) self.tempoDataSequence:addTempoData(tempoData) end
-TimingData.getTempoData = function(self, tempoDataIndex) return self.tempoDataSequence:getTempoData(tempoDataIndex) end
-TimingData.addStopData = function(self, stopData) self.stopDataSequence:addStopData(stopData) end
-TimingData.getStopData = function(self, stopDataIndex) return self.stopDataSequence:getStopData(stopDataIndex) end
+TimeData.setSignature = function(self, ...) self.signatureTable:setSignature(...) end
+TimeData.getSignature = function(self, ...) return self.signatureTable:getSignature(...) end
+TimeData.setSignatureTable = function(self, ...) self.signatureTable = ... end
+TimeData.addTempoData = function(self, ...) self.tempoDataSequence:addTempoData(...) end
+TimeData.getTempoData = function(self, ...) return self.tempoDataSequence:getTempoData(...) end
+TimeData.addStopData = function(self, ...) self.stopDataSequence:addStopData(...) end
+TimeData.getStopData = function(self, ...) return self.stopDataSequence:getStopData(...) end

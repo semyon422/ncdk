@@ -44,14 +44,14 @@ NoteDataImporter.LongNoteDataEnum = {
 }
 
 NoteDataImporter.getNoteData = function(self, layerData)
-	local timingData, velocityDataSequence = layerData.timingData, layerData.velocityDataSequence
+	local timeData, velocityDataSequence = layerData.timeData, layerData.velocityDataSequence
 	
 	local noteType = tonumber(self.lineTable[self.NoteDataEnum.noteType])
 	
 	if noteType == self.NoteTypeEnum.ShortNote or noteType == self.NoteTypeEnum.SoundNote then
 		local startMeasureTime = ncdk.Fraction:new():fromString(self.lineTable[self.ShortNoteDataEnum.startMeasureTime])
 		local startSide = tonumber(self.lineTable[self.ShortNoteDataEnum.startSide])
-		local startTimePoint = timingData:getTimePoint(startMeasureTime, startSide)
+		local startTimePoint = timeData:getTimePoint(startMeasureTime, startSide)
 		startTimePoint.velocityData = velocityDataSequence:getVelocityDataByTimePoint(startTimePoint)
 		
 		local noteData = ncdk.NoteData:new(startTimePoint)
@@ -65,19 +65,19 @@ NoteDataImporter.getNoteData = function(self, layerData)
 		end
 		noteData.soundFileName = self.lineTable[self.ShortNoteDataEnum.soundFileName]
 		
-		noteData.zeroClearVisualStartTime = layerData:getVisualTime(startTimePoint, layerData.zeroTimePoint, true)
+		noteData.zeroClearVisualStartTime = layerData:getVisualTime(startTimePoint, layerData:getZeroTimePoint(), true)
 		noteData.currentVisualStartTime = noteData.zeroClearVisualStartTime
 		
 		return noteData
 	elseif noteType == self.NoteTypeEnum.LongNote then
 		local startMeasureTime = ncdk.Fraction:new():fromString(self.lineTable[self.LongNoteDataEnum.startMeasureTime])
 		local startSide = tonumber(self.lineTable[self.LongNoteDataEnum.startSide])
-		local startTimePoint = timingData:getTimePoint(startMeasureTime, startSide)
+		local startTimePoint = timeData:getTimePoint(startMeasureTime, startSide)
 		startTimePoint.velocityData = velocityDataSequence:getVelocityDataByTimePoint(startTimePoint)
 		
 		local endMeasureTime = ncdk.Fraction:new():fromString(self.lineTable[self.LongNoteDataEnum.endMeasureTime])
 		local endSide = tonumber(self.lineTable[self.LongNoteDataEnum.endSide])
-		local endTimePoint = timingData:getTimePoint(endMeasureTime, endSide)
+		local endTimePoint = timeData:getTimePoint(endMeasureTime, endSide)
 		endTimePoint.velocityData = velocityDataSequence:getVelocityDataByTimePoint(endTimePoint)
 		
 		local noteData = ncdk.NoteData:new(startTimePoint, endTimePoint)
@@ -87,8 +87,8 @@ NoteDataImporter.getNoteData = function(self, layerData)
 		noteData.noteType = "LongNote"
 		noteData.soundFileName = self.lineTable[self.LongNoteDataEnum.soundFileName]
 		
-		noteData.zeroClearVisualStartTime = layerData:getVisualTime(startTimePoint, layerData.zeroTimePoint, true)
-		noteData.zeroClearVisualEndTime = layerData:getVisualTime(endTimePoint, layerData.zeroTimePoint, true)
+		noteData.zeroClearVisualStartTime = layerData:getVisualTime(startTimePoint, layerData:getZeroTimePoint(), true)
+		noteData.zeroClearVisualEndTime = layerData:getVisualTime(endTimePoint, layerData:getZeroTimePoint(), true)
 		noteData.currentVisualStartTime = noteData.zeroClearVisualStartTime
 		noteData.currentVisualEndTime = noteData.zeroClearVisualEndTime
 		

@@ -24,15 +24,15 @@ VelocityDataImporter.DataEnum = {
 	visualEndTimePoint = 8
 }
 
-VelocityDataImporter.getVelocityData = function(self, timingData)
+VelocityDataImporter.getVelocityData = function(self, timeData)
 	local measureTime = ncdk.Fraction:new():fromString(self.lineTable[self.DataEnum.measureTime])
 	local side = tonumber(self.lineTable[self.DataEnum.side])
-	local timePoint = timingData:getTimePoint(measureTime, side)
+	local timePoint = timeData:getTimePoint(measureTime, side)
 	
 	local visualEndMeasureTime, visualEndTimePoint
 	if self.lineTable[self.DataEnum.visualEndTimePoint] then
 		visualEndMeasureTime = ncdk.Fraction:new():fromString(self.lineTable[self.DataEnum.visualEndTimePoint])
-		visualEndTimePoint = timingData:getTimePoint(visualEndMeasureTime, side)
+		visualEndTimePoint = timeData:getTimePoint(visualEndMeasureTime, side)
 	end
 	
 	local velocityData = ncdk.VelocityData:new(timePoint,

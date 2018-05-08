@@ -41,7 +41,7 @@ NoteChartImporter.import = function(self, noteChartString)
 			elseif objectType == self.objectTypeEnum.SignatureTable then
 				layerData:setSignatureTable(ncdk.SignatureTableImporter:new(lineTable):getSignatureTable())
 			elseif objectType == self.objectTypeEnum.VelocityData then
-				layerData:addVelocityData(ncdk.VelocityDataImporter:new(lineTable):getVelocityData(layerData.timingData))
+				layerData:addVelocityData(ncdk.VelocityDataImporter:new(lineTable):getVelocityData(layerData.timeData))
 			elseif objectType == self.objectTypeEnum.NoteData then
 				layerData:addNoteData(ncdk.NoteDataImporter:new(lineTable):getNoteData(layerData))
 			end
