@@ -1,7 +1,19 @@
-osu.TimingPointParser = createClass()
-local TimingPointParser = osu.TimingPointParser
+osu.TimingDataImporter = {}
+local TimingDataImporter = osu.TimingDataImporter
 
-TimingPointParser.stage1_process = function(self)
+osu.TimingDataImporter_metatable = {}
+local TimingDataImporter_metatable = osu.TimingDataImporter_metatable
+TimingDataImporter_metatable.__index = TimingDataImporter
+
+TimingDataImporter.new = function(self)
+	local timingDataImporter = {}
+	
+	setmetatable(timingDataImporter, TimingDataImporter_metatable)
+	
+	return timingDataImporter
+end
+
+TimingDataImporter.init = function(self)
 	self.lineTable = self.line:split(",")
 	
 	self.offset = tonumber(self.lineTable[1])
@@ -14,8 +26,4 @@ TimingPointParser.stage1_process = function(self)
 	self.kiaiTimeActive = tonumber(self.lineTable[8])
 	
 	self.startTime = self.offset
-end
-
-TimingPointParser.stage2_process = function(self)
-
 end

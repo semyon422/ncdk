@@ -1,9 +1,21 @@
-osu.NoteParser = createClass()
-local NoteParser = osu.NoteParser
+osu.NoteDataImporter = {}
+local NoteDataImporter = osu.NoteDataImporter
 
-NoteParser.inputType = "key"
+osu.NoteDataImporter_metatable = {}
+local NoteDataImporter_metatable = osu.NoteDataImporter_metatable
+NoteDataImporter_metatable.__index = NoteDataImporter
 
-NoteParser.stage1_process = function(self)
+NoteDataImporter.new = function(self)
+	local noteDataImporter = {}
+	
+	setmetatable(noteDataImporter, NoteDataImporter_metatable)
+	
+	return noteDataImporter
+end
+
+NoteDataImporter.inputType = "key"
+
+NoteDataImporter.init = function(self)
 	self.lineTable = self.line:split(",")
 	self.additionLineTable = self.lineTable[6]:split(":")
 	
@@ -32,7 +44,7 @@ NoteParser.stage1_process = function(self)
 	end
 end
 
-NoteParser.stage2_process = function(self)
+NoteDataImporter.getNoteData = function(self)
 	local startTimePoint = self.noteChartImporter.foregroundLayerData:getTimePoint()
 	startTimePoint.absoluteTime = self.startTime / 1000
 	startTimePoint.velocityData = self.noteChartImporter.foregroundLayerData.velocityDataSequence:getVelocityDataByTimePoint(startTimePoint)
@@ -58,5 +70,6 @@ NoteParser.stage2_process = function(self)
 	
 		noteData.noteType = "LongNote"
 	end
-	self.noteChartImporter.foregroundLayerData:addNoteData(noteData)
+	
+	return noteData
 end

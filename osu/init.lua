@@ -2,5 +2,5 @@ osu = {}
 
 require("osu.NoteChart")
 require("osu.NoteChartImporter")
-require("osu.NoteParser")
-require("osu.TimingPointParser")
+require("osu.NoteDataImporter")
+require("osu.TimingDataImporter")

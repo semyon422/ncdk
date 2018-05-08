@@ -28,16 +28,16 @@ end
 NoteChartImporter.stage1_process = function(self)
 	self.metaData = {}
 	self.eventParsers = {}
-	self.timingPointParsers = {}
-	self.noteParsers = {}
+	self.timingDataImporters = {}
+	self.noteDataImporters = {}
 	
 	for _, line in ipairs(self.noteChartString:split("\n")) do
 		self:processLine(line)
 	end
 	
 	local compareByStartTime = function(a, b) return a.startTime < b.startTime end
-	table.sort(self.timingPointParsers, compareByStartTime)
-	table.sort(self.noteParsers, compareByStartTime)
+	table.sort(self.timingDataImporters, compareByStartTime)
+	table.sort(self.noteDataImporters, compareByStartTime)
 	
 	self.foregroundLayerData:updateZeroTimePoint()
 	self.backgroundLayerData:updateZeroTimePoint()
@@ -66,17 +66,18 @@ NoteChartImporter.processAudio = function(self)
 	end
 end
 
-NoteChartImporter.stage2_process = function(self)
+NoteChartImporter.addDefaultVelocityData = function(self)
 	local timePoint = self.foregroundLayerData:getTimePoint()
 	timePoint.absoluteTime = 0
 	local velocityData = ncdk.VelocityData:new(timePoint)
 	self.foregroundLayerData:addVelocityData(velocityData)
+end
+
+NoteChartImporter.stage2_process = function(self)
+	self:addDefaultVelocityData()
 	
-	for _, timingPointParser in ipairs(self.timingPointParsers) do
-		timingPointParser:stage2_process()
-	end
-	for _, noteParser in ipairs(self.noteParsers) do
-		noteParser:stage2_process()
+	for _, noteParser in ipairs(self.noteDataImporters) do
+		self.foregroundLayerData:addNoteData(noteParser:getNoteData())
 	end
 end
 
@@ -96,19 +97,19 @@ NoteChartImporter.processLine = function(self, line)
 end
 
 NoteChartImporter.stage1_addTimingPointParser = function(self, line)
-	local timingPointParser = osu.TimingPointParser:new()
-	table.insert(self.timingPointParsers, timingPointParser)
-	timingPointParser.noteChartImporter = self
-	timingPointParser.line = line
+	local timingDataImporter = osu.TimingDataImporter:new(line)
+	timingDataImporter.line = line
+	timingDataImporter.noteChartImporter = self
+	timingDataImporter:init()
 	
-	timingPointParser:stage1_process()
+	table.insert(self.timingDataImporters, timingDataImporter)
 end
 
 NoteChartImporter.stage1_addNoteParser = function(self, line)
-	local noteParser = osu.NoteParser:new()
-	table.insert(self.noteParsers, noteParser)
-	noteParser.noteChartImporter = self
-	noteParser.line = line
+	local noteDataImporter = osu.NoteDataImporter:new()
+	noteDataImporter.line = line
+	noteDataImporter.noteChartImporter = self
+	noteDataImporter:init()
 	
-	noteParser:stage1_process()
+	table.insert(self.noteDataImporters, noteDataImporter)
 end
