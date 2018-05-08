@@ -29,11 +29,13 @@ Fraction.new = function(self, numerator, denominator, maximumDenominator)
 end
 
 Fraction.fromString = function(self, line)
-	local lineTable = line:split("/")
+	local numerator, denominator = line:match("^(%d+)/(%d+)$")
 	
-	if not tonumber(lineTable[1]) then error() end
+	if not numerator then
+		error("invalid fraction detection: (" .. line .. ")")
+	end
 	
-	return ncdk.Fraction:new(tonumber(lineTable[1]), tonumber(lineTable[2]))
+	return ncdk.Fraction:new(tonumber(numerator), tonumber(denominator))
 end
 
 Fraction.fromNumber = function(self, number)
@@ -47,7 +49,7 @@ Fraction.fromNumber = function(self, number)
 end
 
 Fraction.reduce = function(self)
-	local reduceFactor = nod(self.numerator, self.denominator)
+	local reduceFactor = gcd(self.numerator, self.denominator)
 	
 	self.numerator = self.numerator / reduceFactor
 	self.denominator = self.denominator / reduceFactor
@@ -126,8 +128,6 @@ Fraction_metatable.__div = function(fa, fb)
 end
 
 Fraction_metatable.__mod = function(fa, fb)
-	
-	
 end
 
 Fraction_metatable.__pow = function(fa, fb)
@@ -168,7 +168,7 @@ Fraction_metatable.__le = function(fa, fb)
 	return fa.numerator * fb.denominator <= fa.denominator * fb.numerator
 end
 
-nod = function(a, b)
+gcd = function(a, b)
 	local a, b = math.abs(a), math.abs(b)
 	a, b = math.max(a, b), math.min(a, b)
 	
@@ -181,20 +181,12 @@ nod = function(a, b)
 	if a % b == 0 then
 		return b
 	end
-	local out
-	local delta = a - b * math.floor(a / b);
 	
-	out = nod(b, delta)
-	
-	return out
+	return gcd(b, a % b)
 end
 
-assert(nod(1, 1) == 1)
-assert(nod(1, 0) == 1)
-assert(nod(1, 2) == 1)
-assert(nod(2, 3) == 1)
-assert(nod(1000000, 3) == 1)
-
-nok = function(a, b)
-	return a * b / nod(a, b)
-end
+assert(gcd(1, 1) == 1)
+assert(gcd(1, 0) == 1)
+assert(gcd(1, 2) == 1)
+assert(gcd(2, 3) == 1)
+assert(gcd(24, 16) == 8)
