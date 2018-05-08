@@ -46,11 +46,6 @@ NoteDataImporter.LongNoteDataEnum = {
 NoteDataImporter.getNoteData = function(self, layerData)
 	local timingData, velocityDataSequence = layerData.timingData, layerData.velocityDataSequence
 	
-	if not layerData.zeroTimePoint then
-		layerData.zeroTimePoint = layerData:getTimePoint(ncdk.Fraction:new(0, 1), 1)
-		layerData.zeroTimePoint.velocityData = layerData:getVelocityDataByTimePoint(layerData.zeroTimePoint)
-	end
-	
 	local noteType = tonumber(self.lineTable[self.NoteDataEnum.noteType])
 	
 	if noteType == self.NoteTypeEnum.ShortNote or noteType == self.NoteTypeEnum.SoundNote then

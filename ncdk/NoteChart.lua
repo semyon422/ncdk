@@ -30,11 +30,7 @@ NoteChart.export = function(self)
 	return noteChartExporter:export()
 end
 
-NoteChart.getLayerDataIndexIterator = function(self)
-	return self.layerDataSequence:getLayerDataIndexIterator()
-end
-
-NoteChart.getInputIteraator = function(self)
-	return self.layerDataSequence:getInputIteraator()
-end
+NoteChart.getLayerDataIndexIterator = function(self) return self.layerDataSequence:getLayerDataIndexIterator() end
+NoteChart.getInputIteraator = function(self) return self.layerDataSequence:getInputIteraator() end
+NoteChart.requireLayerData = function(self, layerDataIndex) return self.layerDataSequence:getInputIteraator(layerDataIndex) end
 

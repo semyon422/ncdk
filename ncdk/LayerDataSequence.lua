@@ -19,10 +19,6 @@ LayerDataSequence.new = function(self)
 	return layerDataSequence
 end
 
-LayerDataSequence.getLayerData = function(self, layerDataIndex)
-	return self[layerDataIndex]
-end
-
 LayerDataSequence.requireLayerData = function(self, layerDataIndex)
 	if not self[layerDataIndex] then
 		self[layerDataIndex] = ncdk.LayerData:new()
