@@ -3,6 +3,7 @@ ncdk = {}
 require("ncdk.Fraction")
 
 require("ncdk.NoteChart")
+require("ncdk.MetaData")
 require("ncdk.LayerData")
 require("ncdk.LayerDataSequence")
 require("ncdk.SignatureTable")
