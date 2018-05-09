@@ -14,6 +14,7 @@ NoteChart.new = function(self)
 	noteChart.layerDataSequence.noteChart = noteChart
 	
 	noteChart.inputMode = ncdk.InputMode:new()
+	noteChart.metaData = ncdk.MetaData:new()
 	
 	setmetatable(noteChart, NoteChart_metatable)
 	
