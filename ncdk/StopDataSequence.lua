@@ -15,9 +15,11 @@ StopDataSequence.new = function(self)
 	return stopDataSequence
 end
 
-StopDataSequence.addStopData = function(self, stopData)
-	table.insert(self, stopData)
-	self.stopDataCount = self.stopDataCount + 1
+StopDataSequence.addStopData = function(self, ...)
+	for _, stopData in ipairs({...}) do
+		table.insert(self, stopData)
+		self.stopDataCount = self.stopDataCount + 1
+	end
 end
 
 StopDataSequence.getStopData = function(self, stopDataIndex)

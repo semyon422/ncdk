@@ -15,9 +15,11 @@ VelocityDataSequence.new = function(self)
 	return velocityDataSequence
 end
 
-VelocityDataSequence.addVelocityData = function(self, velocityData)
-	table.insert(self, velocityData)
-	self.velocityDataCount = self.velocityDataCount + 1
+VelocityDataSequence.addVelocityData = function(self, ...)
+	for _, velocityData in ipairs({...}) do
+		table.insert(self, velocityData)
+		self.velocityDataCount = self.velocityDataCount + 1
+	end
 end
 
 VelocityDataSequence.getVelocityData = function(self, velocityDataIndex)

@@ -18,11 +18,4 @@ require("ncdk.NoteDataSequence")
 require("ncdk.TimeData")
 require("ncdk.SpaceData")
 require("ncdk.TimePoint")
-
-require("ncdk.NoteChartImporter")
-require("ncdk.SignatureTableImporter")
-require("ncdk.TempoDataImporter")
-require("ncdk.VelocityDataImporter")
-require("ncdk.NoteDataImporter")
-
 require("ncdk.InputMode")

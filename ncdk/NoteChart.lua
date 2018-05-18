@@ -19,18 +19,6 @@ NoteChart.new = function(self)
 	return noteChart
 end
 
-NoteChart.import = function(self, noteChartString)
-	local noteChartImporter = ncdk.NoteChartImporter:new()
-	noteChartImporter.noteChart = self
-	noteChartImporter:import(noteChartString)
-end
-
-NoteChart.export = function(self)
-	local noteChartExporter = ncdk.NoteChartExporter:new()
-	noteChartExporter.noteChart = self
-	return noteChartExporter:export()
-end
-
 NoteChart.getLayerDataIndexIterator = function(self) return self.layerDataSequence:getLayerDataIndexIterator() end
 NoteChart.getInputIteraator = function(self) return self.layerDataSequence:getInputIteraator() end
 NoteChart.requireLayerData = function(self, ...) return self.layerDataSequence:requireLayerData(...) end

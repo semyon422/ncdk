@@ -15,9 +15,11 @@ TempoDataSequence.new = function(self)
 	return tempoDataSequence
 end
 
-TempoDataSequence.addTempoData = function(self, tempoData)
-	table.insert(self, tempoData)
-	self.tempoDataCount = self.tempoDataCount + 1
+TempoDataSequence.addTempoData = function(self, ...)
+	for _, tempoData in ipairs({...}) do
+		table.insert(self, tempoData)
+		self.tempoDataCount = self.tempoDataCount + 1
+	end
 end
 
 TempoDataSequence.getTempoData = function(self, tempoDataIndex)

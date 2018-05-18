@@ -5,11 +5,10 @@ ncdk.NoteData_metatable = {}
 local NoteData_metatable = ncdk.NoteData_metatable
 NoteData_metatable.__index = NoteData
 
-NoteData.new = function(self, startTimePoint, endTimePoint)
+NoteData.new = function(self, timePoint)
 	local noteData = {}
 	
-	noteData.startTimePoint = startTimePoint
-	noteData.endTimePoint = endTimePoint
+	noteData.timePoint = timePoint
 	
 	setmetatable(noteData, NoteData_metatable)
 	
