@@ -150,39 +150,31 @@ NoteChartImporter.importVelocityData = function(self)
 end
 
 NoteChartImporter.importNoteData = function(self)
-	local longNoteData = {}
 	for _, noteDataLine in pairs(self.noteData) do
 		for inputIndex = 1, #noteDataLine.line do
 			local noteChar = noteDataLine.line:sub(inputIndex, inputIndex)
 			
 			if noteChar ~= "." then
 				local measureTime = noteDataLine.measureTime
-				local startTimePoint = self.foregroundLayerData:getTimePoint(measureTime, 1)
-				startTimePoint.velocityData = self.foregroundLayerData:getVelocityDataByTimePoint(startTimePoint)
+				local timePoint = self.foregroundLayerData:getTimePoint(measureTime, 1)
+				timePoint.velocityData = self.foregroundLayerData:getVelocityDataByTimePoint(timePoint)
 				
-				local noteData
-				if noteChar == "M" or noteChar == "X" then
-					noteData = ncdk.NoteData:new(startTimePoint)
-					noteData.inputType = "key"
-					noteData.inputIndex = inputIndex
+				local noteData = ncdk.NoteData:new(timePoint)
+				noteData.inputType = "key"
+				noteData.inputIndex = inputIndex
 					
-					noteData.zeroClearVisualStartTime = self.foregroundLayerData:getVisualTime(startTimePoint, self.foregroundLayerData:getZeroTimePoint(), true)
-					noteData.currentVisualStartTime = noteData.zeroClearVisualStartTime
-					
+				noteData.zeroClearVisualTime = self.foregroundLayerData:getVisualTime(timePoint, self.foregroundLayerData:getZeroTimePoint(), true)
+				noteData.currentVisualTime = noteData.zeroClearVisualTime
+				
+				if noteChar == "X" then
 					noteData.noteType = "ShortNote"
-					longNoteData[inputIndex] = noteData
-					self.foregroundLayerData:addNoteData(noteData)
+				elseif noteChar == "M" then
+					noteData.noteType = "SoftLongNoteStart"
 				elseif noteChar == "W" then
-					noteData = longNoteData[inputIndex]
-					if not noteData then error(noteDataLine.lineIndex) end
-					noteData.endTimePoint = startTimePoint
-					
-					noteData.noteType = "LongNote"
-				
-					noteData.zeroClearVisualEndTime = self.foregroundLayerData:getVisualTime(startTimePoint, self.foregroundLayerData:getZeroTimePoint(), true)
-					noteData.currentVisualEndTime = noteData.zeroClearVisualEndTime
-					
-					longNoteData[inputIndex] = nil
+					noteData.noteType = "SoftLongNoteEnd"
+				end
+				if noteData.noteType then
+					self.foregroundLayerData:addNoteData(noteData)
 				end
 			end
 		end

@@ -45,31 +45,37 @@ NoteDataImporter.init = function(self)
 end
 
 NoteDataImporter.getNoteData = function(self)
+	local startNoteData, endNoteData
+	
 	local startTimePoint = self.noteChartImporter.foregroundLayerData:getTimePoint()
 	startTimePoint.absoluteTime = self.startTime / 1000
 	startTimePoint.velocityData = self.noteChartImporter.foregroundLayerData:getVelocityDataByTimePoint(startTimePoint)
 	
-	noteData = ncdk.NoteData:new(startTimePoint)
-	noteData.inputType = self.inputType
-	noteData.inputIndex = self.inputIndex
+	startNoteData = ncdk.NoteData:new(startTimePoint)
+	startNoteData.inputType = self.inputType
+	startNoteData.inputIndex = self.inputIndex
 	
-	noteData.zeroClearVisualStartTime = self.noteChartImporter.foregroundLayerData:getVisualTime(startTimePoint, self.noteChartImporter.foregroundLayerData:getZeroTimePoint(), true)
-	noteData.currentVisualStartTime = noteData.zeroClearVisualStartTime
+	startNoteData.zeroClearVisualTime = self.noteChartImporter.foregroundLayerData:getVisualTime(startTimePoint, self.noteChartImporter.foregroundLayerData:getZeroTimePoint(), true)
+	startNoteData.currentVisualTime = startNoteData.zeroClearVisualTime
 	
 	if not self.endTime then
-		noteData.noteType = "ShortNote"
+		startNoteData.noteType = "ShortNote"
 	else
+		startNoteData.noteType = "LongNoteStart"
+		
 		local endTimePoint = self.noteChartImporter.foregroundLayerData:getTimePoint()
 		endTimePoint.absoluteTime = self.endTime / 1000
 		endTimePoint.velocityData = self.noteChartImporter.foregroundLayerData:getVelocityDataByTimePoint(endTimePoint)
 		
-		noteData.endTimePoint = endTimePoint
+		endNoteData = ncdk.NoteData:new(endTimePoint)
+		endNoteData.inputType = self.inputType
+		endNoteData.inputIndex = self.inputIndex
 		
-		noteData.zeroClearVisualEndTime = self.noteChartImporter.foregroundLayerData:getVisualTime(endTimePoint, self.noteChartImporter.foregroundLayerData:getZeroTimePoint(), true)
-		noteData.currentVisualEndTime = noteData.zeroClearVisualEndTime
+		endNoteData.zeroClearVisualTime = self.noteChartImporter.foregroundLayerData:getVisualTime(endTimePoint, self.noteChartImporter.foregroundLayerData:getZeroTimePoint(), true)
+		endNoteData.currentVisualTime = endNoteData.zeroClearVisualTime
 	
-		noteData.noteType = "LongNote"
+		endNoteData.noteType = "LongNoteEnd"
 	end
 	
-	return noteData
+	return startNoteData, endNoteData
 end

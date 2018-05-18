@@ -146,7 +146,7 @@ NoteChartImporter.importVelocityData = function(self)
 end
 
 NoteChartImporter.importNoteData = function(self)
-	local longNoteData = {}
+	local longNoteDataSwitch = false
 	for measureIndex, channelDatas in pairs(self.channelDataSequence.data) do
 		for channelIndex, channelData in pairs(channelDatas) do
 			for indexDataIndex, indexData in ipairs(channelData.indexDatas) do
@@ -154,41 +154,32 @@ NoteChartImporter.importNoteData = function(self)
 				
 				if channelInfo and (channelInfo.name == "Note" or channelInfo.name == "BGM") then
 					local measureTime = measureIndex + indexData.measureTimeOffset
-					local startTimePoint = self.foregroundLayerData:getTimePoint(measureTime, 1)
-					startTimePoint.velocityData = self.foregroundLayerData:getVelocityDataByTimePoint(startTimePoint)
+					local timePoint = self.foregroundLayerData:getTimePoint(measureTime, 1)
+					timePoint.velocityData = self.foregroundLayerData:getVelocityDataByTimePoint(timePoint)
 					
-					local noteData
-					if not (longNoteData[channelInfo.inputType] and longNoteData[channelInfo.inputType][channelInfo.inputIndex]) or
-						not channelInfo.long
-					then
-						noteData = ncdk.NoteData:new(startTimePoint)
-						noteData.inputType = channelInfo.inputType
-						noteData.inputIndex = channelInfo.inputIndex
+					noteData = ncdk.NoteData:new(timePoint)
+					noteData.inputType = channelInfo.inputType
+					noteData.inputIndex = channelInfo.inputIndex
 					
-						noteData.soundFileName = self.wavDataSequence[indexData.value]
-						noteData.zeroClearVisualStartTime = self.foregroundLayerData:getVisualTime(startTimePoint, self.foregroundLayerData:getZeroTimePoint(), true)
-						noteData.currentVisualStartTime = noteData.zeroClearVisualStartTime
+					noteData.soundFileName = self.wavDataSequence[indexData.value]
+					noteData.zeroClearVisualTime = self.foregroundLayerData:getVisualTime(timePoint, self.foregroundLayerData:getZeroTimePoint(), true)
+					noteData.currentVisualTime = noteData.zeroClearVisualTime
 					
-						if channelInfo.inputType == "auto" then
-							noteData.noteType = "SoundNote"
-							self.backgroundLayerData:addNoteData(noteData)
-						elseif channelInfo.long then
-							noteData.noteType = "LongNote"
-							longNoteData[channelInfo.inputType] = longNoteData[channelInfo.inputType] or {}
-							longNoteData[channelInfo.inputType][channelInfo.inputIndex] = noteData
-							self.foregroundLayerData:addNoteData(noteData)
+					if channelInfo.inputType == "auto" then
+						noteData.noteType = "SoundNote"
+						self.backgroundLayerData:addNoteData(noteData)
+					elseif channelInfo.long then
+						if not longNoteDataSwitch then
+							noteData.noteType = "LongNoteStart"
+							longNoteDataSwitch = true
 						else
-							noteData.noteType = "ShortNote"
-							self.foregroundLayerData:addNoteData(noteData)
+							noteData.noteType = "LongNoteEnd"
+							longNoteDataSwitch = false
 						end
+						self.foregroundLayerData:addNoteData(noteData)
 					else
-						noteData = longNoteData[channelInfo.inputType][channelInfo.inputIndex]
-						noteData.endTimePoint = startTimePoint
-					
-						noteData.zeroClearVisualEndTime = self.foregroundLayerData:getVisualTime(startTimePoint, self.foregroundLayerData:getZeroTimePoint(), true)
-						noteData.currentVisualEndTime = noteData.zeroClearVisualEndTime
-						
-						longNoteData[channelInfo.inputType][channelInfo.inputIndex] = nil
+						noteData.noteType = "ShortNote"
+						self.foregroundLayerData:addNoteData(noteData)
 					end
 				end
 			end
