@@ -38,13 +38,14 @@ Fraction.fromString = function(self, line)
 	return ncdk.Fraction:new(tonumber(numerator), tonumber(denominator))
 end
 
-Fraction.fromNumber = function(self, number)
+Fraction.fromNumber = function(self, number, accuracy)
+	local number = math.floor(number * accuracy) / accuracy
 	local decimalPart = number % 1
 	if decimalPart == 0 then
 		return ncdk.Fraction:new(number, 1)
 	else
 		local power = #(tostring(number):match("^%d+%.(%d+)$"))
-		return ncdk.Fraction:new(number * 10 ^ power, 10 ^ power)
+		return ncdk.Fraction:new(math.floor(number * accuracy), accuracy)
 	end
 end
 
