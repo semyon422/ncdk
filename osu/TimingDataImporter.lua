@@ -22,7 +22,7 @@ TimingDataImporter.init = function(self)
 	self.sampleSetId = tonumber(self.lineTable[4])
 	self.customSampleIndex = tonumber(self.lineTable[5])
 	self.sampleVolume = tonumber(self.lineTable[6])
-	self.timingChange = tonumber(self.lineTable[7])
+	self.timingChange = tonumber(self.lineTable[7]) == 1
 	self.kiaiTimeActive = tonumber(self.lineTable[8])
 	
 	self.startTime = self.offset

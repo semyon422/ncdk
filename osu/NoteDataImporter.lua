@@ -42,6 +42,11 @@ NoteDataImporter.init = function(self)
 			break
 		end
 	end
+	
+	local lastTime = self.endTime or self.startTime
+	if lastTime > self.noteChartImporter.totalLength then
+		self.noteChartImporter.totalLength = lastTime
+	end
 end
 
 NoteDataImporter.getNoteData = function(self)
