@@ -42,13 +42,13 @@ VelocityDataSequence.getVelocityDataByTimePoint = function(self, timePoint)
 		if (currentVelocityDataIndex == self:getVelocityDataCount()) or
 		   (currentVelocityDataIndex == 1 and timePoint < currentVelocityData.timePoint)
 		then
-			return currentVelocityData
+			return currentVelocityData, currentVelocityDataIndex
 		end
 		
 		local nextVelocityData = self:getVelocityData(currentVelocityDataIndex + 1)
 		
 		if timePoint >= currentVelocityData.timePoint and timePoint < nextVelocityData.timePoint then
-			return currentVelocityData
+			return currentVelocityData, currentVelocityDataIndex
 		end
 	end
 end

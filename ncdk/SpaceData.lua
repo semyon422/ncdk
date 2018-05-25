@@ -153,7 +153,7 @@ SpaceData.updateZeroTimePoint = function(self)
 	end
 	
 	self.zeroTimePoint = self.layerData:getTimePoint(time)
-	self.zeroTimePoint.velocityData = self:getVelocityDataByTimePoint(self.zeroTimePoint)
+	self.zeroTimePoint.velocityData, self.zeroTimePoint.velocityDataIndex = self:getVelocityDataByTimePoint(self.zeroTimePoint)
 end
 
 SpaceData.getZeroTimePoint = function(self)
