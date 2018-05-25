@@ -46,6 +46,7 @@ LayerData.computeTimePoints = function(self)
 	local targetTimePointIndex = 1
 	local targetTimePoint = self.positiveTimePoints[targetTimePointIndex]
 	local leftTargetTimePoint = zeroTimePoint
+	local rightTargetTimePoint = zeroTimePoint
 	for currentVelocityDataIndex = zeroTimePoint.velocityDataIndex, self.spaceData:getVelocityDataCount() do
 		local currentVelocityData = self.spaceData:getVelocityData(currentVelocityDataIndex)
 		local nextVelocityData = self.spaceData:getVelocityData(currentVelocityDataIndex + 1)
@@ -57,14 +58,15 @@ LayerData.computeTimePoints = function(self)
 				currentVelocityData.timePoint
 			)
 			leftTargetTimePoint = currentVelocityData.timePoint
+			rightTargetTimePoint = nextVelocityData and nextVelocityData.timePoint
 		end
 		
 		while targetTimePointIndex <= #self.positiveTimePoints do
 			if
 				not nextVelocityData or
 				nextVelocityData and
-				(targetTimePoint <= currentVelocityData.timePoint or
-				targetTimePoint < nextVelocityData.timePoint)
+				(targetTimePoint < rightTargetTimePoint or 
+				targetTimePoint <= leftTargetTimePoint)
 			then
 				targetTimePoint.velocityData = currentVelocityData
 				
