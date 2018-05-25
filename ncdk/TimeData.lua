@@ -5,8 +5,16 @@ ncdk.TimeData_metatable = {}
 local TimeData_metatable = ncdk.TimeData_metatable
 TimeData_metatable.__index = TimeData
 
+TimeData.Modes = {
+	Absolute = 0,
+	Measure = 1
+}
+
 TimeData.new = function(self)
 	local timeData = {}
+	
+	timeData.mode = nil
+	timeData.timePoints = {}
 	
 	timeData.signatureTable = ncdk.SignatureTable:new(ncdk.Fraction:new(4))
 	timeData.tempoDataSequence = ncdk.TempoDataSequence:new()
@@ -88,8 +96,42 @@ TimeData.getAbsoluteTime = function(self, measureTime)
 	return time
 end
 
-TimeData.getTimePoint = function(self, measureTime, side)
-	return ncdk.TimePoint:new(self, measureTime, side)
+TimeData.setMode = function(self, mode)
+	self.mode = mode
+end
+
+TimeData.getTimePoint = function(self, time, side)
+	if time and self.timePoints[time] then
+		return self.timePoints[time]
+	end
+	
+	local timePoint
+	if not time then
+		timePoint = ncdk.TimePoint:new(self)
+	
+		timePoint.timeData = timeData
+		timePoint.side = side or 1
+	elseif self.mode == self.Modes.Absolute then
+		timePoint = ncdk.TimePoint:new(self)
+	
+		timePoint.timeData = timeData
+		timePoint.side = side or 1
+		timePoint.absoluteTime = time
+		
+		self.timePoints[time] = timePoint
+	elseif self.mode == self.Modes.Measure then
+		timePoint = ncdk.TimePoint:new(self)
+	
+		timePoint.timeData = timeData
+		timePoint.measureTime = time
+		timePoint.side = side or 1
+		timePoint.absoluteTime = self:getAbsoluteTime(time)
+		
+		self.timePoints[time] = timePoint
+	end
+	
+	
+	return timePoint
 end
 
 TimeData.setSignature = function(self, ...) self.signatureTable:setSignature(...) end

@@ -18,8 +18,6 @@ LayerData.new = function(self)
 	
 	setmetatable(layerData, LayerData_metatable)
 	
-	layerData:updateZeroTimePoint()
-	
 	return layerData
 end
 

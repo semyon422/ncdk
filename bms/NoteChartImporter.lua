@@ -23,6 +23,9 @@ NoteChartImporter.import = function(self, noteChartString)
 	self.backgroundLayerData = self.noteChart.layerDataSequence:requireLayerData(2)
 	self.backgroundLayerData.invisible = true
 	
+	self.foregroundLayerData.timeData:setMode(ncdk.TimeData.Modes.Measure)
+	self.backgroundLayerData.timeData:setMode(ncdk.TimeData.Modes.Measure)
+	
 	for _, line in ipairs(noteChartString:split("\n")) do
 		self:processLine(line:trim())
 	end
@@ -81,7 +84,7 @@ NoteChartImporter.importSignature = function(self)
 			if bms.ChannelEnum[channelIndex].name == "Signature" then
 				self.foregroundLayerData:setSignature(
 					measureIndex,
-					ncdk.Fraction:new():fromNumber(channelData.value * 4)
+					ncdk.Fraction:new():fromNumber(channelData.value * 4, 32768)
 				)
 			end
 		end

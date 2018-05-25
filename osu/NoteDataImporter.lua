@@ -52,8 +52,7 @@ end
 NoteDataImporter.getNoteData = function(self)
 	local startNoteData, endNoteData
 	
-	local startTimePoint = self.noteChartImporter.foregroundLayerData:getTimePoint()
-	startTimePoint.absoluteTime = self.startTime / 1000
+	local startTimePoint = self.noteChartImporter.foregroundLayerData:getTimePoint(self.startTime / 1000)
 	startTimePoint.velocityData = self.noteChartImporter.foregroundLayerData:getVelocityDataByTimePoint(startTimePoint)
 	
 	startNoteData = ncdk.NoteData:new(startTimePoint)
@@ -68,8 +67,7 @@ NoteDataImporter.getNoteData = function(self)
 	else
 		startNoteData.noteType = "LongNoteStart"
 		
-		local endTimePoint = self.noteChartImporter.foregroundLayerData:getTimePoint()
-		endTimePoint.absoluteTime = self.endTime / 1000
+		local endTimePoint = self.noteChartImporter.foregroundLayerData:getTimePoint(self.endTime / 1000)
 		endTimePoint.velocityData = self.noteChartImporter.foregroundLayerData:getVelocityDataByTimePoint(endTimePoint)
 		
 		endNoteData = ncdk.NoteData:new(endTimePoint)

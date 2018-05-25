@@ -20,6 +20,9 @@ NoteChartImporter.import = function(self, noteChartString)
 	self.backgroundLayerData = self.noteChart.layerDataSequence:requireLayerData(2)
 	self.backgroundLayerData.invisible = true
 	
+	self.foregroundLayerData.timeData:setMode(ncdk.TimeData.Modes.Absolute)
+	self.backgroundLayerData.timeData:setMode(ncdk.TimeData.Modes.Absolute)
+	
 	self.noteChartString = noteChartString
 	self:stage1_process()
 	self:stage2_process()
@@ -28,6 +31,7 @@ end
 NoteChartImporter.stage1_process = function(self)
 	self.metaData = {}
 	self.eventParsers = {}
+	self.tempTimingDataImporters = {}
 	self.timingDataImporters = {}
 	self.noteDataImporters = {}
 	
@@ -37,13 +41,8 @@ NoteChartImporter.stage1_process = function(self)
 		self:processLine(line)
 	end
 	
-	table.sort(self.timingDataImporters, function(a, b)
-		if a.startTime == b.startTime then
-			return a.timingChange
-		else
-			return a.startTime < b.startTime
-		end
-	end)
+	self:processTimingDataImporters()
+	
 	table.sort(self.noteDataImporters, function(a, b) return a.startTime < b.startTime end)
 	
 	self.foregroundLayerData:updateZeroTimePoint()
@@ -52,6 +51,36 @@ NoteChartImporter.stage1_process = function(self)
 	self:updatePrimaryBPM()
 	
 	self:processAudio()
+end
+
+NoteChartImporter.processTimingDataImporters = function(self)
+	local redTimingData = {}
+	local greenTimingData = {}
+	
+	for i = #self.tempTimingDataImporters, 1, -1 do
+		local tdi = self.tempTimingDataImporters[i]
+		if tdi.timingChange and not redTimingData[tdi.offset] then
+			redTimingData[tdi.offset] = tdi
+		elseif not tdi.timingChange and not redTimingData[tdi.offset] then
+			greenTimingData[tdi.offset] = tdi
+		end
+	end
+	
+	for _, timingDataImporter in pairs(redTimingData) do
+		table.insert(self.timingDataImporters, timingDataImporter)
+	end
+	
+	for _, timingDataImporter in pairs(greenTimingData) do
+		table.insert(self.timingDataImporters, timingDataImporter)
+	end
+	
+	table.sort(self.timingDataImporters, function(a, b)
+		if a.startTime == b.startTime then
+			return a.timingChange
+		else
+			return a.startTime < b.startTime
+		end
+	end)
 end
 
 NoteChartImporter.updatePrimaryBPM = function(self)
@@ -110,8 +139,7 @@ NoteChartImporter.processAudio = function(self)
 end
 
 NoteChartImporter.addDefaultVelocityData = function(self)
-	local timePoint = self.foregroundLayerData:getTimePoint()
-	timePoint.absoluteTime = 0
+	local timePoint = self.foregroundLayerData:getTimePoint(0)
 	local velocityData = ncdk.VelocityData:new(timePoint)
 	self.foregroundLayerData:addVelocityData(velocityData)
 end
@@ -140,8 +168,7 @@ NoteChartImporter.processVelocityData = function(self)
 	end
 	
 	for offset, value in pairs(rawVelocity) do
-		local timePoint = self.foregroundLayerData:getTimePoint()
-		timePoint.absoluteTime = offset / 1000
+		local timePoint = self.foregroundLayerData:getTimePoint(offset / 1000)
 		local velocityData = ncdk.VelocityData:new(
 			timePoint,
 			ncdk.Fraction:new():fromNumber(value, 1000)
@@ -162,6 +189,7 @@ NoteChartImporter.stage2_process = function(self)
 	for _, noteParser in ipairs(self.noteDataImporters) do
 		self.foregroundLayerData:addNoteData(noteParser:getNoteData())
 	end
+	self.foregroundLayerData.noteDataSequence:sort()
 end
 
 NoteChartImporter.processLine = function(self, line)
@@ -185,7 +213,7 @@ NoteChartImporter.stage1_addTimingPointParser = function(self, line)
 	timingDataImporter.noteChartImporter = self
 	timingDataImporter:init()
 	
-	table.insert(self.timingDataImporters, timingDataImporter)
+	table.insert(self.tempTimingDataImporters, timingDataImporter)
 end
 
 NoteChartImporter.stage1_addNoteParser = function(self, line)

@@ -145,7 +145,14 @@ SpaceData.computeVisualTime = function(self, currentTimePoint)
 end
 
 SpaceData.updateZeroTimePoint = function(self)
-	self.zeroTimePoint = self.layerData:getTimePoint(ncdk.Fraction:new(0, 1), 1)
+	local time
+	if self.layerData.timeData.mode == ncdk.TimeData.Modes.Absolute then
+		time = 0
+	elseif self.layerData.timeData.mode == ncdk.TimeData.Modes.Measure then
+		time = ncdk.Fraction:new()
+	end
+	
+	self.zeroTimePoint = self.layerData:getTimePoint(time)
 	self.zeroTimePoint.velocityData = self:getVelocityDataByTimePoint(self.zeroTimePoint)
 end
 
