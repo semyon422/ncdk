@@ -39,13 +39,13 @@ Fraction.fromString = function(self, line)
 end
 
 Fraction.fromNumber = function(self, number, accuracy)
-	local number = math.floor(number * accuracy) / accuracy
+	local sign = number / math.abs(number)
+	local number = math.floor(math.abs(number) * accuracy) / accuracy
 	local decimalPart = number % 1
 	if decimalPart == 0 then
 		return ncdk.Fraction:new(number, 1)
 	else
-		local power = #(tostring(number):match("^%d+%.(%d+)$"))
-		return ncdk.Fraction:new(math.floor(number * accuracy), accuracy)
+		return ncdk.Fraction:new(sign * math.floor(number * accuracy), accuracy)
 	end
 end
 
