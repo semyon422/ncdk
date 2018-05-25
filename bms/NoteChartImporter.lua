@@ -32,9 +32,12 @@ NoteChartImporter.import = function(self, noteChartString)
 	
 	self:importTimingData()
 	self.foregroundLayerData:updateZeroTimePoint()
+	self.backgroundLayerData:updateZeroTimePoint()
 	
 	self:importVelocityData()
 	self:importNoteData()
+	
+	self.noteChart:compute()
 end
 
 NoteChartImporter.processLine = function(self, line)
@@ -158,15 +161,15 @@ NoteChartImporter.importNoteData = function(self)
 				if channelInfo and (channelInfo.name == "Note" or channelInfo.name == "BGM") then
 					local measureTime = measureIndex + indexData.measureTimeOffset
 					local timePoint = self.foregroundLayerData:getTimePoint(measureTime, 1)
-					timePoint.velocityData = self.foregroundLayerData:getVelocityDataByTimePoint(timePoint)
+					-- timePoint.velocityData = self.foregroundLayerData:getVelocityDataByTimePoint(timePoint)
 					
 					noteData = ncdk.NoteData:new(timePoint)
 					noteData.inputType = channelInfo.inputType
 					noteData.inputIndex = channelInfo.inputIndex
 					
 					noteData.soundFileName = self.wavDataSequence[indexData.value]
-					noteData.zeroClearVisualTime = self.foregroundLayerData:getVisualTime(timePoint, self.foregroundLayerData:getZeroTimePoint(), true)
-					noteData.currentVisualTime = noteData.zeroClearVisualTime
+					-- noteData.zeroClearVisualTime = self.foregroundLayerData:getVisualTime(timePoint, self.foregroundLayerData:getZeroTimePoint(), true)
+					-- noteData.currentVisualTime = noteData.zeroClearVisualTime
 					
 					if channelInfo.inputType == "auto" then
 						noteData.noteType = "SoundNote"

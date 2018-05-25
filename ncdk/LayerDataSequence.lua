@@ -59,3 +59,9 @@ LayerDataSequence.getInputIteraator = function(self)
 		return unpack(inputData)
 	end
 end
+
+LayerDataSequence.compute = function(self)
+	for layerDataIndex in self:getLayerDataIndexIterator() do
+		self[layerDataIndex]:compute()
+	end
+end

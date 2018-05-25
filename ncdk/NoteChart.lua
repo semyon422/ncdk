@@ -25,3 +25,5 @@ NoteChart.requireLayerData = function(self, ...) return self.layerDataSequence:r
 
 NoteChart.hashSet = function(self, ...) self.metaData:hashSet(...) end
 NoteChart.hashGet = function(self, ...) self.metaData:hashGet(...) end
+
+NoteChart.compute = function(self, ...) self.layerDataSequence:compute(...) end

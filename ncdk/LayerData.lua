@@ -21,6 +21,27 @@ LayerData.new = function(self)
 	return layerData
 end
 
+LayerData.compute = function(self)
+	self:computeTimePoints()
+	self:computeNoteData()
+end
+
+LayerData.computeTimePoints = function(self)
+	for _, timePoint in pairs(self.timeData.timePoints) do
+		timePoint.velocityData = timePoint.velocityData or self:getVelocityDataByTimePoint(timePoint)
+	end
+end
+
+LayerData.computeNoteData = function(self)
+	self.noteDataSequence:sort()
+	for noteDataIndex = 1, self.noteDataSequence:getNoteDataCount() do
+		local noteData = self.noteDataSequence:getNoteData(noteDataIndex)
+		
+		noteData.zeroClearVisualTime = self:getVisualTime(noteData.timePoint, self:getZeroTimePoint(), true)
+		noteData.currentVisualTime = noteData.zeroClearVisualTime
+	end
+end
+
 LayerData.setSignature = function(self, ...) self.timeData:setSignature(...) end
 LayerData.getSignature = function(self, ...) return self.timeData:getSignature(...) end
 LayerData.setSignatureTable = function(self, ...) self.timeData:setSignatureTable(...) end

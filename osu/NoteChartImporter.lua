@@ -26,6 +26,7 @@ NoteChartImporter.import = function(self, noteChartString)
 	self.noteChartString = noteChartString
 	self:stage1_process()
 	self:stage2_process()
+	self.noteChart:compute()
 end
 
 NoteChartImporter.stage1_process = function(self)

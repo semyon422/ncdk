@@ -27,32 +27,33 @@ NoteChartImporter.import = function(self, noteChartString)
 	self.backgroundLayerData = self.noteChart.layerDataSequence:requireLayerData(2)
 	self.backgroundLayerData.invisible = true
 	
+	self.foregroundLayerData.timeData:setMode(ncdk.TimeData.Modes.Measure)
+	self.backgroundLayerData.timeData:setMode(ncdk.TimeData.Modes.Measure)
+	
 	for lineIndex, line in ipairs(noteChartString:split("\n")) do
 		self:processLine(line:trim(), lineIndex)
 	end
 	
-	self:processAudio()
-	
 	self:importTimingData()
 	self.foregroundLayerData:updateZeroTimePoint()
+	self.backgroundLayerData:updateZeroTimePoint()
 	
 	self:importVelocityData()
 	self:importNoteData()
+	
+	self:processAudio()
+	
+	self.noteChart:compute()
 end
 
 NoteChartImporter.processAudio = function(self)
 	if self.noteChart.audioFileName then
 		local startTimePoint = self.backgroundLayerData:getZeroTimePoint()
 		
-		startTimePoint.velocityData = self.backgroundLayerData:getVelocityDataByTimePoint(startTimePoint)
-		
 		noteData = ncdk.NoteData:new(startTimePoint)
 		noteData.inputType = "auto"
 		noteData.inputIndex = 0
 		noteData.soundFileName = self.noteChart.audioFileName
-		
-		noteData.zeroClearVisualStartTime = self.backgroundLayerData:getVisualTime(startTimePoint, self.backgroundLayerData:getZeroTimePoint(), true)
-		noteData.currentVisualStartTime = noteData.zeroClearVisualStartTime
 	
 		noteData.noteType = "SoundNote"
 		self.backgroundLayerData:addNoteData(noteData)
@@ -157,14 +158,10 @@ NoteChartImporter.importNoteData = function(self)
 			if noteChar ~= "." then
 				local measureTime = noteDataLine.measureTime
 				local timePoint = self.foregroundLayerData:getTimePoint(measureTime, 1)
-				timePoint.velocityData = self.foregroundLayerData:getVelocityDataByTimePoint(timePoint)
 				
 				local noteData = ncdk.NoteData:new(timePoint)
 				noteData.inputType = "key"
 				noteData.inputIndex = inputIndex
-					
-				noteData.zeroClearVisualTime = self.foregroundLayerData:getVisualTime(timePoint, self.foregroundLayerData:getZeroTimePoint(), true)
-				noteData.currentVisualTime = noteData.zeroClearVisualTime
 				
 				if noteChar == "X" then
 					noteData.noteType = "ShortNote"
