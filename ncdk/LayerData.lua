@@ -106,7 +106,6 @@ LayerData.computeTimePoints = function(self)
 				(targetTimePoint >= leftTargetTimePoint)
 			then
 				targetTimePoint.velocityData = currentVelocityData
-				print(targetTimePoint:getAbsoluteTime())
 				local targetDeltaTime = self.spaceData:getVelocityDataVisualDuration(currentVelocityDataIndex, targetTimePoint, rightTargetTimePoint)
 				targetTimePoint.zeroClearVisualTime = globalTime - targetDeltaTime
 				targetTimePointIndex = targetTimePointIndex + 1
