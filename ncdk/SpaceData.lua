@@ -128,7 +128,11 @@ SpaceData.getVisualTime = function(self, targetTimePoint, currentTimePoint, clea
 end
 
 SpaceData.computeVisualTime = function(self, currentTimePoint)
-	local currentClearVisualTime = self:getVisualTime(currentTimePoint, self.zeroTimePoint, true)
+	local currentVelocityData = currentTimePoint.velocityData
+	local currentClearVisualTime
+		= (currentTimePoint:getAbsoluteTime() - currentVelocityData.timePoint:getAbsoluteTime())
+		* currentVelocityData.currentSpeed:tonumber()
+		+ currentVelocityData.timePoint.zeroClearVisualTime
 	local globalSpeed = currentTimePoint.velocityData.globalSpeed:tonumber()
 	
 	for noteDataIndex = 1, self.layerData.noteDataSequence:getNoteDataCount() do
