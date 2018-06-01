@@ -12,7 +12,7 @@ Fraction.new = function(self, numerator, denominator, maximumDenominator)
 	fraction.denominator = denominator or 1
 	fraction.maximumDenominator = maximumDenominator
 	
-	if fraction.numerator % 1 ~= 0 or fraction.denominator % 1 ~= 0 then
+	if fraction.numerator % 1 ~= 0 or fraction.denominator % 1 ~= 0 or fraction.denominator == 0 then
 		error("invalid fraction\n" ..
 			"n -> " .. type(fraction.numerator) .. " -> " .. tostring(fraction.numerator) .. "\n" ..
 			"d -> " .. type(fraction.denominator) .. " -> " .. tostring(fraction.denominator)

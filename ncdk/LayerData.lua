@@ -28,92 +28,52 @@ LayerData.compute = function(self)
 end
 
 LayerData.computeTimePoints = function(self)
+	self.spaceData.velocityDataSequence:sort()
 	local zeroTimePoint = self:getZeroTimePoint()
 	
-	self.positiveTimePoints = {}
-	self.negativeTimePoints = {}
+	self.timePoints = {}
 	for _, timePoint in pairs(self.timeData.timePoints) do
-		if timePoint >= zeroTimePoint then
-			table.insert(self.positiveTimePoints, timePoint)
-		else
-			table.insert(self.negativeTimePoints, timePoint)
-		end
+		table.insert(self.timePoints, timePoint)
 	end
-	table.sort(self.positiveTimePoints, function(a, b) return a < b end)
-	table.sort(self.negativeTimePoints, function(a, b) return a > b end)
+	table.sort(self.timePoints)
+	local firstTimePoint = self.timePoints[1]
+	local firstZeroClearVisualTime = 0
 	
 	local globalTime = 0
 	local targetTimePointIndex = 1
-	local targetTimePoint = self.positiveTimePoints[targetTimePointIndex]
-	local leftTargetTimePoint = zeroTimePoint
-	local rightTargetTimePoint = zeroTimePoint
-	for currentVelocityDataIndex = zeroTimePoint.velocityDataIndex, self.spaceData:getVelocityDataCount() do
+	local targetTimePoint = self.timePoints[targetTimePointIndex]
+	local leftTimePoint = firstTimePoint
+	local rightTimePoint = self.spaceData:getVelocityData(1).timePoint
+	for currentVelocityDataIndex = 1, self.spaceData:getVelocityDataCount() do
 		local currentVelocityData = self.spaceData:getVelocityData(currentVelocityDataIndex)
 		local nextVelocityData = self.spaceData:getVelocityData(currentVelocityDataIndex + 1)
 		
-		if currentVelocityData.timePoint >= zeroTimePoint then
-			globalTime = globalTime + self.spaceData:getVelocityDataVisualDuration(
-				currentVelocityDataIndex == 1 and 1 or currentVelocityDataIndex - 1,
-				leftTargetTimePoint or zeroTimePoint,
-				currentVelocityData.timePoint
-			)
-			leftTargetTimePoint = currentVelocityData.timePoint
-			rightTargetTimePoint = nextVelocityData and nextVelocityData.timePoint
-		end
+		globalTime = globalTime + self.spaceData:getVelocityDataVisualDuration(
+			currentVelocityDataIndex == 1 and 1 or currentVelocityDataIndex - 1,
+			leftTimePoint,
+			rightTimePoint
+		)
+		leftTimePoint = currentVelocityData.timePoint
+		rightTimePoint = nextVelocityData and nextVelocityData.timePoint
 		
-		while targetTimePointIndex <= #self.positiveTimePoints do
-			if
-				not nextVelocityData or
-				nextVelocityData and
-				(targetTimePoint < rightTargetTimePoint or 
-				targetTimePoint <= leftTargetTimePoint)
-			then
+		while targetTimePointIndex <= #self.timePoints do
+			if not nextVelocityData or targetTimePoint < rightTimePoint then
 				targetTimePoint.velocityData = currentVelocityData
 				
-				local targetDeltaTime = self.spaceData:getVelocityDataVisualDuration(currentVelocityDataIndex, leftTargetTimePoint, targetTimePoint)
-				targetTimePoint.zeroClearVisualTime = globalTime + targetDeltaTime
+				targetTimePoint.zeroClearVisualTime = globalTime + self.spaceData:getVelocityDataVisualDuration(currentVelocityDataIndex, leftTimePoint, targetTimePoint)
+				if targetTimePoint == zeroTimePoint then
+					firstZeroClearVisualTime = targetTimePoint.zeroClearVisualTime
+				end
 				targetTimePointIndex = targetTimePointIndex + 1
-				targetTimePoint = self.positiveTimePoints[targetTimePointIndex]
+				targetTimePoint = self.timePoints[targetTimePointIndex]
 			else
 				break
 			end
 		end
 	end
 	
-	local globalTime = 0
-	local targetTimePointIndex = 1
-	local targetTimePoint = self.negativeTimePoints[targetTimePointIndex]
-	local leftTargetTimePoint = zeroTimePoint
-	local rightTargetTimePoint = zeroTimePoint
-	for currentVelocityDataIndex = zeroTimePoint.velocityDataIndex, 1, -1 do
-		local currentVelocityData = self.spaceData:getVelocityData(currentVelocityDataIndex)
-		local nextVelocityData = self.spaceData:getVelocityData(currentVelocityDataIndex - 1)
-		
-		if currentVelocityData.timePoint < zeroTimePoint then
-			globalTime = globalTime - self.spaceData:getVelocityDataVisualDuration(
-				currentVelocityDataIndex,
-				rightTargetTimePoint,
-				zeroTimePoint
-			)
-			rightTargetTimePoint = leftTargetTimePoint
-			leftTargetTimePoint = currentVelocityData.timePoint
-		end
-		
-		while targetTimePointIndex <= #self.negativeTimePoints do
-			if
-				not nextVelocityData or
-				nextVelocityData and
-				(targetTimePoint >= leftTargetTimePoint)
-			then
-				targetTimePoint.velocityData = currentVelocityData
-				local targetDeltaTime = self.spaceData:getVelocityDataVisualDuration(currentVelocityDataIndex, targetTimePoint, rightTargetTimePoint)
-				targetTimePoint.zeroClearVisualTime = globalTime - targetDeltaTime
-				targetTimePointIndex = targetTimePointIndex + 1
-				targetTimePoint = self.negativeTimePoints[targetTimePointIndex]
-			else
-				break
-			end
-		end
+	for _, timePoint in ipairs(self.timePoints) do
+		timePoint.zeroClearVisualTime = timePoint.zeroClearVisualTime - firstZeroClearVisualTime
 	end
 end
 

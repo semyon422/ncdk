@@ -31,11 +31,8 @@ NoteChartImporter.import = function(self, noteChartString)
 	end
 	
 	self:importTimingData()
-	self.foregroundLayerData:updateZeroTimePoint()
-	self.backgroundLayerData:updateZeroTimePoint()
-	
-	self:importVelocityData()
 	self:importNoteData()
+	self:importVelocityData()
 	
 	self.noteChart:compute()
 end
@@ -152,7 +149,7 @@ NoteChartImporter.importVelocityData = function(self)
 end
 
 NoteChartImporter.importNoteData = function(self)
-	local longNoteDataSwitch = false
+	local longNoteData = {}
 	for measureIndex, channelDatas in pairs(self.channelDataSequence.data) do
 		for channelIndex, channelData in pairs(channelDatas) do
 			for indexDataIndex, indexData in ipairs(channelData.indexDatas) do
@@ -161,26 +158,24 @@ NoteChartImporter.importNoteData = function(self)
 				if channelInfo and (channelInfo.name == "Note" or channelInfo.name == "BGM") then
 					local measureTime = measureIndex + indexData.measureTimeOffset
 					local timePoint = self.foregroundLayerData:getTimePoint(measureTime, 1)
-					-- timePoint.velocityData = self.foregroundLayerData:getVelocityDataByTimePoint(timePoint)
 					
 					noteData = ncdk.NoteData:new(timePoint)
 					noteData.inputType = channelInfo.inputType
 					noteData.inputIndex = channelInfo.inputIndex
 					
 					noteData.soundFileName = self.wavDataSequence[indexData.value]
-					-- noteData.zeroClearVisualTime = self.foregroundLayerData:getVisualTime(timePoint, self.foregroundLayerData:getZeroTimePoint(), true)
-					-- noteData.currentVisualTime = noteData.zeroClearVisualTime
 					
 					if channelInfo.inputType == "auto" then
 						noteData.noteType = "SoundNote"
 						self.backgroundLayerData:addNoteData(noteData)
 					elseif channelInfo.long then
-						if not longNoteDataSwitch then
+						longNoteData[channelInfo.inputType] = longNoteData[channelInfo.inputType] or {}
+						if not longNoteData[channelInfo.inputType][channelInfo.inputIndex] then
 							noteData.noteType = "LongNoteStart"
-							longNoteDataSwitch = true
+							longNoteData[channelInfo.inputType][channelInfo.inputIndex] = true
 						else
 							noteData.noteType = "LongNoteEnd"
-							longNoteDataSwitch = false
+							longNoteData[channelInfo.inputType][channelInfo.inputIndex] = false
 						end
 						self.foregroundLayerData:addNoteData(noteData)
 					else
@@ -191,7 +186,4 @@ NoteChartImporter.importNoteData = function(self)
 			end
 		end
 	end
-	
-	self.backgroundLayerData.noteDataSequence:sort()
-	self.foregroundLayerData.noteDataSequence:sort()
 end
