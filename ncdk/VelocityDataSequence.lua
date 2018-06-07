@@ -22,6 +22,11 @@ VelocityDataSequence.addVelocityData = function(self, ...)
 	end
 end
 
+VelocityDataSequence.removeLastVelocityData = function(self)
+	table.remove(self, self.velocityDataCount)
+	self.velocityDataCount = self.velocityDataCount - 1
+end
+
 VelocityDataSequence.getVelocityData = function(self, velocityDataIndex)
 	return self[velocityDataIndex]
 end

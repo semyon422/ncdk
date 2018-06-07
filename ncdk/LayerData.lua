@@ -22,13 +22,16 @@ LayerData.new = function(self)
 end
 
 LayerData.compute = function(self)
+	self.timeData:sort()
+	self.spaceData:sort()
+	self.noteDataSequence:sort()
+	
 	self:updateZeroTimePoint()
 	self:computeTimePoints()
 	self:computeNoteData()
 end
 
 LayerData.computeTimePoints = function(self)
-	self.spaceData.velocityDataSequence:sort()
 	local zeroTimePoint = self:getZeroTimePoint()
 	
 	self.timePoints = {}
@@ -44,6 +47,8 @@ LayerData.computeTimePoints = function(self)
 	local targetTimePoint = self.timePoints[targetTimePointIndex]
 	local leftTimePoint = firstTimePoint
 	local rightTimePoint = self.spaceData:getVelocityData(1).timePoint
+	
+	targetTimePoint:compute()
 	for currentVelocityDataIndex = 1, self.spaceData:getVelocityDataCount() do
 		local currentVelocityData = self.spaceData:getVelocityData(currentVelocityDataIndex)
 		local nextVelocityData = self.spaceData:getVelocityData(currentVelocityDataIndex + 1)
@@ -78,7 +83,6 @@ LayerData.computeTimePoints = function(self)
 end
 
 LayerData.computeNoteData = function(self)
-	self.noteDataSequence:sort()
 	for noteDataIndex = 1, self.noteDataSequence:getNoteDataCount() do
 		local noteData = self.noteDataSequence:getNoteData(noteDataIndex)
 		
@@ -97,6 +101,7 @@ LayerData.getStopData = function(self, ...) return self.timeData:getStopData(...
 LayerData.getTimePoint = function(self, ...) return self.timeData:getTimePoint(...) end
 
 LayerData.addVelocityData = function(self, ...) self.spaceData:addVelocityData(...) end
+LayerData.removeLastVelocityData = function(self, ...) self.spaceData:removeLastVelocityData(...) end
 LayerData.getVelocityDataByTimePoint = function(self, ...) return self.spaceData:getVelocityDataByTimePoint(...) end
 LayerData.getVisualMeasureTime = function(self, ...) return self.spaceData:getVisualMeasureTime(...) end
 LayerData.getVisualTime = function(self, ...) return self.spaceData:getVisualTime(...) end

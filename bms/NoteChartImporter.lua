@@ -8,10 +8,14 @@ NoteChartImporter_metatable.__index = NoteChartImporter
 NoteChartImporter.new = function(self)
 	local noteChartImporter = {}
 	
-	noteChartImporter.channelDataSequence = bms.ChannelDataSequence:new()
 	noteChartImporter.wavDataSequence = {}
 	noteChartImporter.bpmDataSequence = {}
 	noteChartImporter.stopDataSequence = {}
+	
+	noteChartImporter.primaryTempo = 120
+	
+	noteChartImporter.data = {}
+	noteChartImporter.data.timeMatch = {}
 	
 	setmetatable(noteChartImporter, NoteChartImporter_metatable)
 	
@@ -26,13 +30,18 @@ NoteChartImporter.import = function(self, noteChartString)
 	self.foregroundLayerData.timeData:setMode(ncdk.TimeData.Modes.Measure)
 	self.backgroundLayerData.timeData:setMode(ncdk.TimeData.Modes.Measure)
 	
+	self.backgroundLayerData.timeData = self.foregroundLayerData.timeData
+	
 	for _, line in ipairs(noteChartString:split("\n")) do
 		self:processLine(line:trim())
 	end
 	
-	self:importTimingData()
-	self:importNoteData()
-	self:importVelocityData()
+	table.sort(self.data, function(a, b)
+		return a.measureTime < b.measureTime
+	end)
+	
+	self:importBaseTimingData()
+	self:processData()
 	
 	self.noteChart:compute()
 end
@@ -48,122 +57,120 @@ NoteChartImporter.processLine = function(self, line)
 		local index, duration = line:match("^#STOP(..) (.+)$")
 		self.stopDataSequence[index] = tonumber(duration)
 	elseif line:find("^#%d+:.+$") then
-		local measureIndex, channelIndex, indexDataString = line:match("^#(%d%d%d)(%d%d):(.+)$")
-		measureIndex = tonumber(measureIndex)
-		
-		if bms.ChannelEnum[channelIndex] then
-			local channelData = self.channelDataSequence:requireChannelData(measureIndex, channelIndex)
-			channelData:addIndexData(indexDataString)
-		end
+		self:processLineData(line)
 	elseif line:find("^#[.%S]+ .+$") then
 		self:processHeaderLine(line)
 	end
 end
 
-NoteChartImporter.processHeaderLine = function(self, line)
-	if line:find("^#BPM %d+$") then
-		self.baseTempo = tonumber(line:match("^#BPM (.+)$"))
-	end
-end
-
-NoteChartImporter.importTimingData = function(self)
-	if self.baseTempo then
-		local measureTime = ncdk.Fraction:new(-1, 6)
-		local tempoData = ncdk.TempoData:new(measureTime, self.baseTempo)
-		self.foregroundLayerData:addTempoData(tempoData)
+NoteChartImporter.processLineData = function(self, line)
+	local measureIndex, channelIndex, indexDataString = line:match("^#(%d%d%d)(%d%d):(.+)$")
+	measureIndex = tonumber(measureIndex)
+	
+	if not bms.ChannelEnum[channelIndex] then
+		return
 	end
 	
-	self:importSignature()
-	self:importTempoData()
-	self:importStopData()
-end
-
-NoteChartImporter.importSignature = function(self)
-	for measureIndex, channelDatas in pairs(self.channelDataSequence.data) do
-		for channelIndex, channelData in pairs(channelDatas) do
-			if bms.ChannelEnum[channelIndex].name == "Signature" then
-				self.foregroundLayerData:setSignature(
-					measureIndex,
-					ncdk.Fraction:new():fromNumber(channelData.value * 4, 32768)
-				)
-			end
-		end
-	end
-end
-
-NoteChartImporter.importTempoData = function(self)
-	for measureIndex, channelDatas in pairs(self.channelDataSequence.data) do
-		for channelIndex, channelData in pairs(channelDatas) do
-			for indexDataIndex, indexData in ipairs(channelData.indexDatas) do
-				if bms.ChannelEnum[channelIndex].name == "Tempo" then
-					self.foregroundLayerData:addTempoData(
-						ncdk.TempoData:new(
-							measureIndex + indexData.measureTimeOffset,
-							tonumber(indexData.value, 16)
-						)
-					)
-				elseif bms.ChannelEnum[channelIndex].name == "ExtendedTempo" then
-					self.foregroundLayerData:addTempoData(
-						ncdk.TempoData:new(
-							measureIndex + indexData.measureTimeOffset,
-							self.bpmDataSequence[indexData.value]
-						)
-					)
-				end
-			end
-		end
+	if bms.ChannelEnum[channelIndex].name == "Signature" then
+		self.foregroundLayerData:setSignature(
+			measureIndex,
+			ncdk.Fraction:new():fromNumber(tonumber((indexDataString:gsub(",", "."))) * 4, 32768)
+		)
+		return
 	end
 	
-	self.foregroundLayerData.timeData.tempoDataSequence:sort()
-end
-
-NoteChartImporter.importStopData = function(self)
-	for measureIndex, channelDatas in pairs(self.channelDataSequence.data) do
-		for channelIndex, channelData in pairs(channelDatas) do
-			for indexDataIndex, indexData in ipairs(channelData.indexDatas) do
-				if bms.ChannelEnum[channelIndex].name == "Stop" then
-					local measureTime = measureIndex + indexData.measureTimeOffset
-					local measureDuration = ncdk.Fraction:new(self.stopDataSequence[indexData.value], 192)
-					
-					local stopData = ncdk.StopData:new(measureTime, measureDuration)
-					
-					local currentTempoData = self.foregroundLayerData.timeData.tempoDataSequence:getTempoDataByMeasureTime(measureTime)
-					local dedicatedDuration = currentTempoData:getBeatDuration() * 4
-					
-					stopData.duration = measureDuration:tonumber() * dedicatedDuration
-					
-					self.foregroundLayerData:addStopData(stopData)
-				end
-			end
-		end
+	local compound = bms.ChannelEnum[channelIndex].name ~= "BGM"
+	
+	if #indexDataString % 2 ~= 0 then
+		print("warning")
+		indexDataString = indexDataString:sub(1, -2)
 	end
 	
-	self.foregroundLayerData.timeData.stopDataSequence:sort()
-end
-
-NoteChartImporter.importVelocityData = function(self)
-	local measureTime = ncdk.Fraction:new(0)
-	local timePoint = self.foregroundLayerData:getTimePoint(measureTime, 1)
-	local velocityData = ncdk.VelocityData:new(timePoint)
-	self.foregroundLayerData:addVelocityData(velocityData)
-end
-
-NoteChartImporter.importNoteData = function(self)
-	local longNoteData = {}
-	for measureIndex, channelDatas in pairs(self.channelDataSequence.data) do
-		for channelIndex, channelData in pairs(channelDatas) do
-			for indexDataIndex, indexData in ipairs(channelData.indexDatas) do
-				local channelInfo = bms.ChannelEnum[channelIndex]
+	for indexDataIndex = 1, #indexDataString / 2 do
+		local value = indexDataString:sub(2 * indexDataIndex - 1, 2 * indexDataIndex)
+		if value ~= "00" then
+			local measureTime = measureIndex + ncdk.Fraction:new(indexDataIndex - 1, #indexDataString / 2)
+			local measureTimeString = tostring(measureTime)
+			
+			local timeData
+			if self.data.timeMatch[measureTimeString] then
+				timeData = self.data.timeMatch[measureTimeString]
+			else
+				timeData = {}
+				self.data.timeMatch[measureTimeString] = timeData
+				table.insert(self.data, timeData)
 				
-				if channelInfo and (channelInfo.name == "Note" or channelInfo.name == "BGM") then
-					local measureTime = measureIndex + indexData.measureTimeOffset
-					local timePoint = self.foregroundLayerData:getTimePoint(measureTime, 1)
+				timeData.measureTime = measureTime
+			end
+			
+			timeData[channelIndex] = timeData[channelIndex] or {}
+			if compound then
+				timeData[channelIndex][1] = value
+			else
+				table.insert(timeData[channelIndex], value)
+			end
+		end
+	end
+end
+
+NoteChartImporter.processData = function(self)
+	local longNoteData = {}
+	
+	for _, timeData in ipairs(self.data) do
+		if timeData[bms.BackChannelEnum["Tempo"]] then
+			local value = timeData[bms.BackChannelEnum["Tempo"]][1]
+			self.currentTempoData = ncdk.TempoData:new(
+				timeData.measureTime,
+				tonumber(value, 16)
+			)
+			self.foregroundLayerData:addTempoData(self.currentTempoData)
+			
+			local timePoint = self.foregroundLayerData:getTimePoint(timeData.measureTime, -1)
+			self.currentVelocityData = ncdk.VelocityData:new(timePoint, ncdk.Fraction:new():fromNumber(self.currentTempoData.tempo / self.primaryTempo, 1000))
+			self.foregroundLayerData:addVelocityData(self.currentVelocityData)
+		end
+		if timeData[bms.BackChannelEnum["ExtendedTempo"]] then
+			local value = timeData[bms.BackChannelEnum["ExtendedTempo"]][1]
+			self.currentTempoData = ncdk.TempoData:new(
+				timeData.measureTime,
+				self.bpmDataSequence[value]
+			)
+			self.foregroundLayerData:addTempoData(self.currentTempoData)
+			
+			local timePoint = self.foregroundLayerData:getTimePoint(timeData.measureTime, -1)
+			self.currentVelocityData = ncdk.VelocityData:new(timePoint, ncdk.Fraction:new():fromNumber(self.currentTempoData.tempo / self.primaryTempo, 1000))
+			self.foregroundLayerData:addVelocityData(self.currentVelocityData)
+		end
+		if timeData[bms.BackChannelEnum["Stop"]] then
+			local value = timeData[bms.BackChannelEnum["Stop"]][1]
+			local measureDuration = ncdk.Fraction:new(self.stopDataSequence[value], 192)
+			local stopData = ncdk.StopData:new(timeData.measureTime, measureDuration)
+			stopData.duration = measureDuration:tonumber() * self.currentTempoData:getBeatDuration() * 4
+			self.foregroundLayerData:addStopData(stopData)
+			
+			local timePoint = self.foregroundLayerData:getTimePoint(timeData.measureTime, -1)
+			if self.currentVelocityData.timePoint == timePoint then
+				self.foregroundLayerData:removeLastVelocityData()
+			end
+			self.currentVelocityData = ncdk.VelocityData:new(timePoint, ncdk.Fraction:new(0))
+			self.foregroundLayerData:addVelocityData(self.currentVelocityData)
+			
+			local timePoint = self.foregroundLayerData:getTimePoint(timeData.measureTime)
+			self.currentVelocityData = ncdk.VelocityData:new(timePoint, ncdk.Fraction:new():fromNumber(self.currentTempoData.tempo / self.primaryTempo, 1000))
+			self.foregroundLayerData:addVelocityData(self.currentVelocityData)
+		end
+		
+		for channelIndex, indexDataValues in pairs(timeData) do
+			local channelInfo = bms.ChannelEnum[channelIndex]
+			if channelInfo and (channelInfo.name == "Note" or channelInfo.name == "BGM") then
+				for _, value in ipairs(indexDataValues) do
+					local timePoint = self.foregroundLayerData:getTimePoint(timeData.measureTime, -1)
 					
-					noteData = ncdk.NoteData:new(timePoint)
+					local noteData = ncdk.NoteData:new(timePoint)
 					noteData.inputType = channelInfo.inputType
 					noteData.inputIndex = channelInfo.inputIndex
 					
-					noteData.soundFileName = self.wavDataSequence[indexData.value]
+					noteData.soundFileName = self.wavDataSequence[value]
 					
 					if channelInfo.inputType == "auto" then
 						noteData.noteType = "SoundNote"
@@ -185,5 +192,23 @@ NoteChartImporter.importNoteData = function(self)
 				end
 			end
 		end
+	end
+end
+
+NoteChartImporter.processHeaderLine = function(self, line)
+	if line:find("^#BPM %d+$") then
+		self.baseTempo = tonumber(line:match("^#BPM (.+)$"))
+	end
+end
+
+NoteChartImporter.importBaseTimingData = function(self)
+	if self.baseTempo then
+		local measureTime = ncdk.Fraction:new(-1, 6)
+		self.currentTempoData = ncdk.TempoData:new(measureTime, self.baseTempo)
+		self.foregroundLayerData:addTempoData(self.currentTempoData)
+		
+		local timePoint = self.foregroundLayerData:getTimePoint(measureTime, 1)
+		self.currentVelocityData = ncdk.VelocityData:new(timePoint, ncdk.Fraction:new():fromNumber(self.baseTempo / self.primaryTempo, 1000))
+		self.foregroundLayerData:addVelocityData(self.currentVelocityData)
 	end
 end

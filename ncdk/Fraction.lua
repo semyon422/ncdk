@@ -61,7 +61,7 @@ Fraction.tonumber = function(self)
 end
 
 Fraction_metatable.__tostring = function(self)
-	return tostring(self.number)
+	return self.numerator .. "/" .. self.denominator
 end
 
 Fraction_metatable.__unm = function(fa)
@@ -134,7 +134,8 @@ end
 Fraction_metatable.__pow = function(fa, fb)
 end
 
-Fraction_metatable.__concat = function(fa, fb)
+Fraction_metatable.__concat = function(fa, fb)	
+	return tostring(fa) .. tostring(fb)
 end
 
 Fraction.floor = function(self)

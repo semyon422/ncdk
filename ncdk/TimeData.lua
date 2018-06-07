@@ -62,17 +62,19 @@ TimeData.getTempoDataDuration = function(self, tempoDataIndex, startEdgeM_Time, 
 	return time
 end
 
-TimeData.getStopDataDuration  = function(self, stopDataIndex, startEdgeM_Time, endEdgeM_Time)
+TimeData.getStopDataDuration  = function(self, stopDataIndex, startEdgeM_Time, endEdgeM_Time, side)
 	local currentStopData = self:getStopData(stopDataIndex)
 	
-	if currentStopData.measureTime >= startEdgeM_Time and currentStopData.measureTime < endEdgeM_Time then
+	if side == -1 and currentStopData.measureTime >= startEdgeM_Time and currentStopData.measureTime < endEdgeM_Time then
 		return currentStopData.duration
-	else
-		return 0
+	elseif side == 1 and currentStopData.measureTime > startEdgeM_Time and currentStopData.measureTime <= endEdgeM_Time then
+		return currentStopData.duration
 	end
+	
+	return 0
 end
 
-TimeData.getAbsoluteTime = function(self, measureTime)
+TimeData.getAbsoluteTime = function(self, measureTime, side)
 	local time = 0
 	local zeroMeasureTime = ncdk.Fraction:new(0)
 	
@@ -88,9 +90,9 @@ TimeData.getAbsoluteTime = function(self, measureTime)
 	end
 	for currentStopDataIndex = 1, self.stopDataSequence:getStopDataCount() do
 		if measureTime > zeroMeasureTime then
-			time = time + self:getStopDataDuration(currentStopDataIndex, zeroMeasureTime, measureTime)
+			time = time + self:getStopDataDuration(currentStopDataIndex, zeroMeasureTime, measureTime, side)
 		elseif measureTime < zeroMeasureTime then
-			time = time - self:getStopDataDuration(currentStopDataIndex, measureTime, zeroMeasureTime)
+			time = time - self:getStopDataDuration(currentStopDataIndex, measureTime, zeroMeasureTime, side)
 		end
 	end
 	
@@ -103,41 +105,48 @@ end
 
 TimeData.getTimePoint = function(self, time, side)
 	local timePoint
+	local side = side or 1
+	local timePointString = (time or 0) .. "," .. side
 	
 	if not time then
 		timePoint = ncdk.TimePoint:new(self)
 	
-		timePoint.timeData = timeData
-		timePoint.side = side or 1
+		timePoint.timeData = self
+		timePoint.side = side
 	elseif self.mode == self.Modes.Absolute then
-		if self.timePoints[time] then
-			return self.timePoints[time]
+		if self.timePoints[timePointString] then
+			return self.timePoints[timePointString]
 		end
 		
 		timePoint = ncdk.TimePoint:new(self)
 	
-		timePoint.timeData = timeData
-		timePoint.side = side or 1
+		timePoint.timeData = self
 		timePoint.absoluteTime = time
+		timePoint.side = side
+		timePoint.timePointString = timePointString
 		
 		self.timePoints[time] = timePoint
 	elseif self.mode == self.Modes.Measure then
-		for currentTime in pairs(self.timePoints) do
-			if currentTime == time then
-				return self.timePoints[currentTime]
-			end
+		if self.timePoints[timePointString] then
+			return self.timePoints[timePointString]
 		end
+		
 		timePoint = ncdk.TimePoint:new(self)
 	
-		timePoint.timeData = timeData
+		timePoint.timeData = self
 		timePoint.measureTime = time
-		timePoint.side = side or 1
-		timePoint.absoluteTime = self:getAbsoluteTime(time)
+		timePoint.side = side
+		timePoint.timePointString = timePointString
 		
-		self.timePoints[time] = timePoint
+		self.timePoints[timePointString] = timePoint
 	end
 		
 	return timePoint
+end
+
+TimeData.sort = function(self)
+	self.tempoDataSequence:sort()
+	self.stopDataSequence:sort()
 end
 
 TimeData.setSignature = function(self, ...) self.signatureTable:setSignature(...) end

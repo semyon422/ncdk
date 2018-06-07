@@ -45,3 +45,11 @@ bms.ChannelEnum = {
 	
 	["66"] = {name = "Note", inputType = "scratch", inputIndex = 2, long = true},
 }
+
+bms.BackChannelEnum = {
+	["BGM"] = "01",
+	["Signature"] = "02",
+	["Tempo"] = "03",
+	["ExtendedTempo"] = "08",
+	["Stop"] = "09",
+}

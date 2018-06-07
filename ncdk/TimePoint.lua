@@ -13,7 +13,14 @@ TimePoint.new = function(self)
 	return timePoint
 end
 
+TimePoint.compute = function(self)
+	if not self.absoluteTime then
+		self.absoluteTime = self.timeData:getAbsoluteTime(self.measureTime, self.side)
+	end
+end
+
 TimePoint.getAbsoluteTime = function(self)
+	self:compute()
 	return self.absoluteTime
 end
 
