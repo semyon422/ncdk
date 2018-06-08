@@ -125,7 +125,7 @@ TimeData.getTimePoint = function(self, time, side)
 		timePoint.side = side
 		timePoint.timePointString = timePointString
 		
-		self.timePoints[time] = timePoint
+		self.timePoints[timePointString] = timePoint
 	elseif self.mode == self.Modes.Measure then
 		if self.timePoints[timePointString] then
 			return self.timePoints[timePointString]
