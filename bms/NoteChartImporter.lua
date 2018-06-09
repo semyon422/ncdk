@@ -56,15 +56,15 @@ NoteChartImporter.processLine = function(self, line)
 	elseif line:find("^#STOP.. .+$") then
 		local index, duration = line:match("^#STOP(..) (.+)$")
 		self.stopDataSequence[index] = tonumber(duration)
-	elseif line:find("^#%d+:.+$") then
+	elseif line:find("^#%d%d%d..:.+$") then
 		self:processLineData(line)
-	elseif line:find("^#[.%S]+ .+$") then
+	elseif line:find("^#[%S]+ .+$") then
 		self:processHeaderLine(line)
 	end
 end
 
 NoteChartImporter.processLineData = function(self, line)
-	local measureIndex, channelIndex, indexDataString = line:match("^#(%d%d%d)(%d%d):(.+)$")
+	local measureIndex, channelIndex, indexDataString = line:match("^#(%d%d%d)(..):(.+)$")
 	measureIndex = tonumber(measureIndex)
 	
 	if not bms.ChannelEnum[channelIndex] then
@@ -81,15 +81,11 @@ NoteChartImporter.processLineData = function(self, line)
 	
 	local compound = bms.ChannelEnum[channelIndex].name ~= "BGM"
 	
-	if #indexDataString % 2 ~= 0 then
-		print("warning")
-		indexDataString = indexDataString:sub(1, -2)
-	end
-	
-	for indexDataIndex = 1, #indexDataString / 2 do
+	local messageLength = math.floor(#indexDataString / 2)
+	for indexDataIndex = 1, messageLength do
 		local value = indexDataString:sub(2 * indexDataIndex - 1, 2 * indexDataIndex)
 		if value ~= "00" then
-			local measureTime = measureIndex + ncdk.Fraction:new(indexDataIndex - 1, #indexDataString / 2)
+			local measureTime = measureIndex + ncdk.Fraction:new(indexDataIndex - 1, messageLength)
 			local measureTimeString = tostring(measureTime)
 			
 			local timeData
@@ -176,17 +172,23 @@ NoteChartImporter.processData = function(self)
 						noteData.noteType = "SoundNote"
 						self.backgroundLayerData:addNoteData(noteData)
 					elseif channelInfo.long then
-						longNoteData[channelInfo.inputType] = longNoteData[channelInfo.inputType] or {}
-						if not longNoteData[channelInfo.inputType][channelInfo.inputIndex] then
+						if not longNoteData[channelIndex] then
 							noteData.noteType = "LongNoteStart"
-							longNoteData[channelInfo.inputType][channelInfo.inputIndex] = true
+							longNoteData[channelIndex] = noteData
 						else
 							noteData.noteType = "LongNoteEnd"
-							longNoteData[channelInfo.inputType][channelInfo.inputIndex] = false
+							longNoteData[channelIndex] = nil
 						end
 						self.foregroundLayerData:addNoteData(noteData)
 					else
-						noteData.noteType = "ShortNote"
+						if longNoteData[channelIndex] and value == self.lnobj then
+							longNoteData[channelIndex].noteType = "LongNoteStart"
+							noteData.noteType = "LongNoteEnd"
+							longNoteData[channelIndex] = nil
+						else
+							noteData.noteType = "ShortNote"
+							longNoteData[channelIndex] = noteData
+						end
 						self.foregroundLayerData:addNoteData(noteData)
 					end
 				end
@@ -196,8 +198,13 @@ NoteChartImporter.processData = function(self)
 end
 
 NoteChartImporter.processHeaderLine = function(self, line)
-	if line:find("^#BPM %d+$") then
-		self.baseTempo = tonumber(line:match("^#BPM (.+)$"))
+	local key, value = line:match("^#(%S+) (.+)$")
+	self.noteChart:hashSet(key, value)
+	
+	if key == "BPM" then
+		self.baseTempo = tonumber(value)
+	elseif key == "LNOBJ" then
+		self.lnobj = value
 	end
 end
 
