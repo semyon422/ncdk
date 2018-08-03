@@ -24,6 +24,28 @@ InputMode.getInput = function(self, inputType, inputIndex)
 	return self.inputData[inputType] and self.inputData[inputType][inputIndex]
 end
 
+InputMode.getString = function(self)
+	local inputMaxIndex = {}
+	for inputType, data in pairs(self.inputData) do
+		for inputIndex in pairs(data) do
+			inputMaxIndex[inputType] = inputMaxIndex[inputType] or 0
+			if inputIndex > inputMaxIndex[inputType] then
+				inputMaxIndex[inputType] = inputIndex
+			end
+		end
+	end
+	
+	local inputs = {}
+	for inputType, inputIndex in pairs(inputMaxIndex) do
+		if inputType ~= "auto" then
+			table.insert(inputs, inputIndex .. inputType)
+		end
+	end
+	table.sort(inputs, function(a, b) return a > b end)
+	
+	return table.concat(inputs)
+end
+
 InputMode_metatable.__le = function(a, b)
 	for inputType, inputTypeData in pairs(a.inputData) do
 		if inputType ~= "auto" then
