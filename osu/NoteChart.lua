@@ -22,13 +22,13 @@ NoteChart.new = function(self)
 end
 
 NoteChart.import = function(self, noteChartString)
-	local noteChartImporter = osu.NoteChartImporter:new()
-	noteChartImporter.noteChart = self
-	noteChartImporter:import(noteChartString)
+	self.noteChartImporter = osu.NoteChartImporter:new()
+	self.noteChartImporter.noteChart = self
+	self.noteChartImporter:import(noteChartString)
 end
 
 NoteChart.export = function(self)
-	local noteChartExporter = osu.NoteChartExporter:new()
-	noteChartExporter.noteChart = self
-	return noteChartExporter:export()
+	self.noteChartExporter = osu.NoteChartExporter:new()
+	self.noteChartExporter.noteChart = self
+	return self.noteChartExporter:export()
 end
