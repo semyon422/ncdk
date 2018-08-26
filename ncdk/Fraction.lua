@@ -65,12 +65,10 @@ Fraction_metatable.__tostring = function(self)
 end
 
 Fraction_metatable.__unm = function(fa)
-	fraction = Fraction:new(
+	return Fraction:new(
 		-fa.numerator,
 		fa.denominator
 	)
-	
-	return fraction
 end
 
 local getFractions = function(fa, fb)
@@ -85,47 +83,39 @@ local getFractions = function(fa, fb)
 end
 
 Fraction_metatable.__add = function(fa, fb)
-	fa, fb = getFractions(fa, fb)
+	local fa, fb = getFractions(fa, fb)
 	
-	fraction = Fraction:new(
+	return Fraction:new(
 		fa.numerator * fb.denominator + fa.denominator * fb.numerator,
 		fa.denominator * fb.denominator
 	)
-	
-	return fraction
 end
 
 Fraction_metatable.__sub = function(fa, fb)
-	fa, fb = getFractions(fa, fb)
+	local fa, fb = getFractions(fa, fb)
 	
-	fraction = Fraction:new(
+	return Fraction:new(
 		fa.numerator * fb.denominator - fa.denominator * fb.numerator,
 		fa.denominator * fb.denominator
 	)
-	
-	return fraction
 end
 
 Fraction_metatable.__mul = function(fa, fb)
-	fa, fb = getFractions(fa, fb)
+	local fa, fb = getFractions(fa, fb)
 	
-	fraction = Fraction:new(
+	return Fraction:new(
 		fa.numerator * fb.numerator,
 		fa.denominator * fb.denominator
 	)
-	
-	return fraction
 end
 
 Fraction_metatable.__div = function(fa, fb)
-	fa, fb = getFractions(fa, fb)
+	local fa, fb = getFractions(fa, fb)
 	
-	fraction = Fraction:new(
+	return Fraction:new(
 		fa.numerator * fb.denominator,
 		fa.denominator * fb.numerator
 	)
-	
-	return fraction
 end
 
 Fraction_metatable.__mod = function(fa, fb)
