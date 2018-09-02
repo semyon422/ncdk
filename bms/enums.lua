@@ -46,6 +46,20 @@ bms.ChannelEnum = {
 	["66"] = {name = "Note", inputType = "scratch", inputIndex = 2, long = true},
 }
 
+bms.ChannelEnum5Keys = {
+	["21"] = {name = "Note", inputType = "key", inputIndex = 6},
+	["22"] = {name = "Note", inputType = "key", inputIndex = 7},
+	["23"] = {name = "Note", inputType = "key", inputIndex = 8},
+	["24"] = {name = "Note", inputType = "key", inputIndex = 9},
+	["25"] = {name = "Note", inputType = "key", inputIndex = 10},
+	
+	["61"] = {name = "Note", inputType = "key", inputIndex = 6, long = true},
+	["62"] = {name = "Note", inputType = "key", inputIndex = 7, long = true},
+	["63"] = {name = "Note", inputType = "key", inputIndex = 8, long = true},
+	["64"] = {name = "Note", inputType = "key", inputIndex = 9, long = true},
+	["65"] = {name = "Note", inputType = "key", inputIndex = 10, long = true},
+}
+
 bms.BackChannelEnum = {
 	["BGM"] = "01",
 	["Signature"] = "02",

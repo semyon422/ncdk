@@ -17,6 +17,8 @@ NoteChartImporter.new = function(self)
 	noteChartImporter.data = {}
 	noteChartImporter.data.timeMatch = {}
 	
+	noteChartImporter.doubleType = nil
+	
 	setmetatable(noteChartImporter, NoteChartImporter_metatable)
 	
 	return noteChartImporter
@@ -69,6 +71,15 @@ NoteChartImporter.processLineData = function(self, line)
 	
 	if not bms.ChannelEnum[channelIndex] then
 		return
+	end
+	
+	local inputIndex = bms.ChannelEnum[channelIndex].inputIndex
+	if inputIndex then
+		if inputIndex > 7 and self.doubleType ~= 10 and self.doubleType ~= 14 then
+			self.doubleType = 10
+		elseif inputIndex > 12 and self.doubleType ~= 14 then
+			self.doubleType = 14
+		end
 	end
 	
 	if bms.ChannelEnum[channelIndex].name == "Signature" then
@@ -157,7 +168,13 @@ NoteChartImporter.processData = function(self)
 		end
 		
 		for channelIndex, indexDataValues in pairs(timeData) do
-			local channelInfo = bms.ChannelEnum[channelIndex]
+			local channelInfo
+			if self.doubleType == 10 then
+				channelInfo = bms.ChannelEnum5Keys[channelIndex]
+			else
+				channelInfo = bms.ChannelEnum[channelIndex]
+			end
+			
 			if channelInfo and (channelInfo.name == "Note" or channelInfo.name == "BGM") then
 				for _, value in ipairs(indexDataValues) do
 					local timePoint = self.foregroundLayerData:getTimePoint(timeData.measureTime, -1)
