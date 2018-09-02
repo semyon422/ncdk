@@ -20,15 +20,6 @@ InputMode.setInput = function(self, inputType, inputIndex, binding)
 	self.inputData[inputType][inputIndex] = binding
 end
 
-InputMode.setInputFill = function(self, inputType, inputIndex, binding)
-	self.inputData[inputType] = self.inputData[inputType] or {}
-	self.inputData[inputType][inputIndex] = binding
-	
-	for i = 1, inputIndex - 1 do
-		self.inputData[inputType][i] = self.inputData[inputType][i] or true
-	end
-end
-
 InputMode.getInput = function(self, inputType, inputIndex)
 	return self.inputData[inputType] and self.inputData[inputType][inputIndex]
 end
@@ -47,28 +38,23 @@ InputMode.getString = function(self)
 	local inputs = {}
 	for inputType, inputIndex in pairs(inputMaxIndex) do
 		if inputType ~= "auto" then
-			table.insert(inputs, inputIndex .. inputType)
+			table.insert(inputs, {inputType, inputIndex})
 		end
 	end
-	table.sort(inputs, function(a, b) return a > b end)
+	table.sort(inputs, function(a, b)
+		if a[2] ~= b[2] then
+			return a[2] > b[2]
+		else
+			return a[1] > b [1]
+		end
+	end)
+	for index, input in ipairs(inputs) do
+		inputs[index] = input[2] .. input[1]
+	end
 	
 	return table.concat(inputs)
 end
 
-InputMode_metatable.__le = function(a, b)
-	for inputType, inputTypeData in pairs(a.inputData) do
-		if inputType ~= "auto" then
-			for inputIndex in pairs(inputTypeData) do
-				if not (b.inputData[inputType] and b.inputData[inputType][inputIndex]) then
-					return
-				end
-			end
-		end
-	end
-	
-	return true
-end
-
 InputMode_metatable.__eq = function(a, b)
-	return a <= b and b <= a
+	return a:getString() == b:getString()
 end
