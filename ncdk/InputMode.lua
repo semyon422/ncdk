@@ -20,6 +20,15 @@ InputMode.setInput = function(self, inputType, inputIndex, binding)
 	self.inputData[inputType][inputIndex] = binding
 end
 
+InputMode.setInputFill = function(self, inputType, inputIndex, binding)
+	self.inputData[inputType] = self.inputData[inputType] or {}
+	self.inputData[inputType][inputIndex] = binding
+	
+	for i = 1, inputIndex - 1 do
+		self.inputData[inputType][i] = self.inputData[inputType][i] or true
+	end
+end
+
 InputMode.getInput = function(self, inputType, inputIndex)
 	return self.inputData[inputType] and self.inputData[inputType][inputIndex]
 end
@@ -58,4 +67,8 @@ InputMode_metatable.__le = function(a, b)
 	end
 	
 	return true
+end
+
+InputMode_metatable.__eq = function(a, b)
+	return a <= b and b <= a
 end
