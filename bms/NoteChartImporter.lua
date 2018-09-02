@@ -169,7 +169,7 @@ NoteChartImporter.processData = function(self)
 		
 		for channelIndex, indexDataValues in pairs(timeData) do
 			local channelInfo
-			if self.doubleType == 10 then
+			if self.doubleType == 10 and bms.ChannelEnum5Keys[channelIndex] then
 				channelInfo = bms.ChannelEnum5Keys[channelIndex]
 			else
 				channelInfo = bms.ChannelEnum[channelIndex]
