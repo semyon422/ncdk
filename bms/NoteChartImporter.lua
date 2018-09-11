@@ -123,21 +123,18 @@ NoteChartImporter.processLineData = function(self, line)
 			
 			timeData[channelIndex] = timeData[channelIndex] or {}
 			if compound then
-				if
-					bms.ChannelEnum[channelIndex].long and
-					bms.ChannelEnum[channelIndex].name == "Note"
-				then
-					if currentNoteChannelIndex then
-						timeData[currentNoteChannelIndex][1] = nil
-						timeData[currentNoteChannelIndex] = nil
+				if bms.ChannelEnum[channelIndex].name == "Note" then
+					if bms.ChannelEnum[channelIndex].long then
+						if currentNoteChannelIndex then
+							timeData[currentNoteChannelIndex][1] = nil
+							timeData[currentNoteChannelIndex] = nil
+						end
+						timeData[channelIndex][1] = value
 					end
-					timeData[channelIndex][1] = value
-				end
-				if
-					not bms.ChannelEnum[channelIndex].long and
-					bms.ChannelEnum[channelIndex].name == "Note" and
-					not currentNoteChannelIndex
-				then
+					if not bms.ChannelEnum[channelIndex].long and not currentNoteChannelIndex then
+						timeData[channelIndex][1] = value
+					end
+				else
 					timeData[channelIndex][1] = value
 				end
 			else
