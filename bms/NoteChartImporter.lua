@@ -109,10 +109,14 @@ NoteChartImporter.processLineData = function(self, line)
 				
 				timeData.measureTime = measureTime
 			end
-			local hasNote
-			for channelIndex, indexDataValues in pairs(timeData) do
-				if bms.ChannelEnum[channelIndex] and bms.ChannelEnum[channelIndex].name == "Note" then
-					hasNote = channelIndex
+			local currentNoteChannelIndex
+			for currentChannelIndex, indexDataValues in pairs(timeData) do
+				if
+					bms.ChannelEnum[currentChannelIndex] and
+					bms.ChannelEnum[currentChannelIndex].name == "Note" and
+					channelIndex == currentChannelIndex
+				then
+					currentNoteChannelIndex = currentChannelIndex
 					break
 				end
 			end
@@ -123,16 +127,16 @@ NoteChartImporter.processLineData = function(self, line)
 					bms.ChannelEnum[channelIndex].long and
 					bms.ChannelEnum[channelIndex].name == "Note"
 				then
-					if hasNote then
-						timeData[hasNote][1] = nil
-						timeData[hasNote] = nil
+					if currentNoteChannelIndex then
+						timeData[currentNoteChannelIndex][1] = nil
+						timeData[currentNoteChannelIndex] = nil
 					end
 					timeData[channelIndex][1] = value
 				end
 				if
 					not bms.ChannelEnum[channelIndex].long and
 					bms.ChannelEnum[channelIndex].name == "Note" and
-					not hasNote
+					not currentNoteChannelIndex
 				then
 					timeData[channelIndex][1] = value
 				end
