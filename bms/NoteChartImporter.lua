@@ -152,7 +152,8 @@ NoteChartImporter.processData = function(self)
 			local value = timeData[bms.BackChannelEnum["Stop"]][1]
 			local measureDuration = ncdk.Fraction:new(self.stopDataSequence[value], 192)
 			local stopData = ncdk.StopData:new(timeData.measureTime, measureDuration)
-			stopData.duration = measureDuration:tonumber() * self.currentTempoData:getBeatDuration() * 4
+			stopData.tempoData = self.currentTempoData
+			stopData.signature = ncdk.Fraction:new(4)
 			self.foregroundLayerData:addStopData(stopData)
 			
 			local timePoint = self.foregroundLayerData:getTimePoint(timeData.measureTime, -1)

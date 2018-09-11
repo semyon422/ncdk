@@ -64,6 +64,10 @@ end
 
 TimeData.getStopDataDuration  = function(self, stopDataIndex, startEdgeM_Time, endEdgeM_Time, side)
 	local currentStopData = self:getStopData(stopDataIndex)
+	currentStopData.duration
+		= currentStopData.measureDuration:tonumber()
+		* currentStopData.tempoData:getBeatDuration()
+		* currentStopData.signature:tonumber()
 	
 	if side == -1 and currentStopData.measureTime >= startEdgeM_Time and currentStopData.measureTime < endEdgeM_Time then
 		return currentStopData.duration

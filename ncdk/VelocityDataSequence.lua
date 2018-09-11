@@ -7,9 +7,7 @@ VelocityDataSequence_metatable.__index = VelocityDataSequence
 
 VelocityDataSequence.new = function(self)
 	local velocityDataSequence = {}
-	
 	velocityDataSequence.velocityDataCount = 0
-	
 	setmetatable(velocityDataSequence, VelocityDataSequence_metatable)
 	
 	return velocityDataSequence
@@ -23,6 +21,7 @@ VelocityDataSequence.addVelocityData = function(self, ...)
 end
 
 VelocityDataSequence.removeLastVelocityData = function(self)
+	self[self.velocityDataCount].timePoint.velocityData = nil
 	table.remove(self, self.velocityDataCount)
 	self.velocityDataCount = self.velocityDataCount - 1
 end
