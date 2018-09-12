@@ -62,16 +62,16 @@ OJN.readHeader = function(self)
 	self.bmp_size = byte.getInteger(self.buffer, 4)
 	self.file_version = byte.getInteger(self.buffer, 4)
 
-	self.str_title = byte.get(self.buffer, 64)
+	self.str_title = byte.tostring(byte.get(self.buffer, 64))
 	self.title = byte.bytes(self.str_title)
 
-	self.str_artist = byte.get(self.buffer, 32)
+	self.str_artist = byte.tostring(byte.get(self.buffer, 32))
 	self.artist = byte.bytes(self.str_artist)
 
-	self.str_noter = byte.get(self.buffer, 32)
+	self.str_noter = byte.tostring(byte.get(self.buffer, 32))
 	self.noter = byte.bytes(self.str_noter)
 
-	self.sample_file = byte.get(self.buffer, 32)
+	self.sample_file = byte.tostring(byte.get(self.buffer, 32))
 	self.ojm_file = self.sample_file
 
 	self.cover_size = byte.getInteger(self.buffer, 4)
