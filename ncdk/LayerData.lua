@@ -79,6 +79,8 @@ LayerData.computeTimePoints = function(self)
 	
 	for _, timePoint in ipairs(self.timePoints) do
 		timePoint.zeroClearVisualTime = timePoint.zeroClearVisualTime - firstZeroClearVisualTime
+		timePoint.firstTimePoint = self.timePoints[1]
+		timePoint.lastTimePoint = self.timePoints[#self.timePoints]
 	end
 end
 

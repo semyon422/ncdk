@@ -39,17 +39,31 @@ Fraction.fromString = function(self, line)
 end
 
 Fraction.fromNumber = function(self, number, accuracy)
-	local sign = number / math.abs(number)
+	local sign = number ~= 0 and number / math.abs(number) or 0
 	local number = math.floor(math.abs(number) * accuracy) / accuracy
 	local decimalPart = number % 1
 	if decimalPart == 0 then
-		return ncdk.Fraction:new(number, 1)
+		return ncdk.Fraction:new(sign * number, 1)
 	else
 		return ncdk.Fraction:new(sign * math.floor(number * accuracy), accuracy)
 	end
 end
 
 Fraction.reduce = function(self)
+	if self.numerator * self.denominator > 0 and self.numerator < 0 then
+		self.numerator = -self.numerator
+		self.denominator = -self.denominator
+	end
+	if self.denominator < 0 and self.numerator > 0 then
+		self.numerator = -self.numerator
+		self.denominator = -self.denominator
+	end
+	if self.numerator == 0 then
+		self.numerator = 0
+		self.denominator = 1
+		return
+	end
+	
 	local reduceFactor = gcd(self.numerator, self.denominator)
 	
 	self.numerator = self.numerator / reduceFactor
@@ -61,7 +75,11 @@ Fraction.tonumber = function(self)
 end
 
 Fraction_metatable.__tostring = function(self)
-	return self.numerator .. "/" .. self.denominator
+	if self.denominator == 1 then
+		return self.numerator
+	else
+		return self.numerator .. "/" .. self.denominator
+	end
 end
 
 Fraction_metatable.__unm = function(fa)
