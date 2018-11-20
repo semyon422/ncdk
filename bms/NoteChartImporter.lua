@@ -209,6 +209,7 @@ NoteChartImporter.processData = function(self)
 					noteData.inputIndex = channelInfo.inputIndex
 					
 					noteData.soundFileName = self.wavDataSequence[value]
+					noteData.soundFileCode = value
 					
 					if channelInfo.inputType == "auto" then
 						noteData.noteType = "SoundNote"
