@@ -44,6 +44,26 @@ bms.ChannelEnum = {
 	["69"] = {name = "Note", inputType = "key", inputIndex = 14, long = true},
 	
 	["66"] = {name = "Note", inputType = "scratch", inputIndex = 2, long = true},
+	
+	["D1"] = {name = "Note", inputType = "key", inputIndex = 1, mine = true},
+	["D2"] = {name = "Note", inputType = "key", inputIndex = 2, mine = true},
+	["D3"] = {name = "Note", inputType = "key", inputIndex = 3, mine = true},
+	["D4"] = {name = "Note", inputType = "key", inputIndex = 4, mine = true},
+	["D5"] = {name = "Note", inputType = "key", inputIndex = 5, mine = true},
+	["D8"] = {name = "Note", inputType = "key", inputIndex = 6, mine = true},
+	["D9"] = {name = "Note", inputType = "key", inputIndex = 7, mine = true},
+	
+	["D6"] = {name = "Note", inputType = "scratch", inputIndex = 1, mine = true},
+	
+	["E1"] = {name = "Note", inputType = "key", inputIndex = 8, mine = true},
+	["E2"] = {name = "Note", inputType = "key", inputIndex = 9, mine = true},
+	["E3"] = {name = "Note", inputType = "key", inputIndex = 10, mine = true},
+	["E4"] = {name = "Note", inputType = "key", inputIndex = 11, mine = true},
+	["E5"] = {name = "Note", inputType = "key", inputIndex = 12, mine = true},
+	["E8"] = {name = "Note", inputType = "key", inputIndex = 13, mine = true},
+	["E9"] = {name = "Note", inputType = "key", inputIndex = 14, mine = true},
+	
+	["E6"] = {name = "Note", inputType = "scratch", inputIndex = 2, mine = true},
 }
 
 bms.ChannelEnum5Keys = {

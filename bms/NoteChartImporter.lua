@@ -215,6 +215,9 @@ NoteChartImporter.processData = function(self)
 					if channelInfo.inputType == "auto" then
 						noteData.noteType = "SoundNote"
 						self.backgroundLayerData:addNoteData(noteData)
+					elseif channelInfo.mine then
+						noteData.noteType = "FakeNote"
+						self.foregroundLayerData:addNoteData(noteData)
 					elseif channelInfo.long then
 						if not longNoteData[channelIndex] then
 							noteData.noteType = "LongNoteStart"
