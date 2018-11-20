@@ -114,7 +114,8 @@ NoteChartImporter.processLineData = function(self, line)
 				if
 					bms.ChannelEnum[currentChannelIndex] and
 					bms.ChannelEnum[currentChannelIndex].name == "Note" and
-					channelIndex == currentChannelIndex
+					bms.ChannelEnum[channelIndex].inputType == bms.ChannelEnum[currentChannelIndex].inputType and
+					bms.ChannelEnum[channelIndex].inputIndex == bms.ChannelEnum[currentChannelIndex].inputIndex
 				then
 					currentNoteChannelIndex = currentChannelIndex
 					break
