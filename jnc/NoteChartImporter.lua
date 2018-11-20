@@ -20,74 +20,76 @@ NoteChartImporter.import = function(self, noteChartString)
 end
 
 NoteChartImporter.processData = function(self)
-	for layerDataIndex, rawLayerData in ipairs(self.data.layerDataSequence) do
-		local layerData = self.noteChart.layerDataSequence:requireLayerData(layerDataIndex)
-		layerData.invisible = rawLayerData.invisible
-		
-		local rawTimeData = rawLayerData.timeData
-		if rawTimeData.mode == "Measure" then
-			layerData.timeData:setMode(ncdk.TimeData.Modes.Measure)
-		elseif rawTimeData.mode == "Absolute" then
-			layerData.timeData:setMode(ncdk.TimeData.Modes.Absolute)
-		end
-		
-		if rawTimeData.mode == "Measure" then
-			for measureIndex, signature in pairs(rawTimeData.signatureTable) do
-				layerData:setSignature(
-					tonumber(measureIndex),
-					ncdk.Fraction:new():fromString(signature)
-				)
-			end
-			
-			for _, rawTempoData in ipairs(rawTimeData.tempoDataSequence) do
-				layerData:addTempoData(ncdk.TempoData:new(
-					ncdk.Fraction:new():fromString(rawTempoData.time),
-					rawTempoData.tempo
-				))
-			end
-			
-			for _, rawStopData in ipairs(rawTimeData.stopDataSequence) do
-				local time = ncdk.Fraction:new():fromString(rawTempoData.time)
-				local duration = ncdk.Fraction:new():fromString(rawStopData.duration)
-				local stopData = ncdk.StopData:new(time, duration)
-				layerData:addStopData(stopData)
-			end
-		end
-		
-		local rawSpaceData = rawLayerData.spaceData
-		
-		for _, rawVelocityData in ipairs(rawSpaceData.velocityDataSequence) do
-			local time, visualEndTime = tonumber(rawVelocityData.time), tonumber(rawVelocityData.visualEndTime)
-			if rawTimeData.mode == "Measure" then
-				time = ncdk.Fraction:new():fromString(rawVelocityData.time)
-				visualEndTime = ncdk.Fraction:new():fromString(rawVelocityData.visualEndTime)
-			end
-			
-			local velocityData = ncdk.VelocityData:new(
-				layerData:getTimePoint(time, rawVelocityData.side),
-				ncdk.Fraction:new():fromString(rawVelocityData.currentSpeed),
-				ncdk.Fraction:new():fromString(rawVelocityData.localSpeed),
-				ncdk.Fraction:new():fromString(rawVelocityData.globalSpeed),
-				layerData:getTimePoint(visualEndTime)
-			)
-			layerData:addVelocityData(velocityData)
-		end
-		
-		for _, rawNoteData in ipairs(rawLayerData.noteDataSequence) do
-			local time = tonumber(rawNoteData.time)
-			if rawTimeData.mode == "Measure" then
-				time = ncdk.Fraction:new():fromString(rawNoteData.time)
-			end
-			local timePoint = layerData:getTimePoint(time, rawNoteData.side)
-			
-			local noteData = ncdk.NoteData:new(timePoint)
-			noteData.inputType = rawNoteData.inputType
-			noteData.inputIndex = rawNoteData.inputIndex
-			
-			noteData.soundFileName = rawNoteData.soundFileName
-			noteData.noteType = rawNoteData.noteType
-			
-			layerData:addNoteData(noteData)
+	for _, object in ipairs(self.data) do
+		if object.object == "meta" then
+			self:processMetaData(object)
+		elseif object.object == "layer" then
+			self:processLayerData(object)
+		elseif object.object == "velocity" then
+			self:processVelocityData(object)
+		elseif object.object == "note" then
+			self:processNoteData(object)
 		end
 	end
+end
+
+NoteChartImporter.processMetaData = function(self, object)
+	for key, value in pairs(object.data) do
+		self.noteChart:hashSet(key, value)
+	end
+end
+
+NoteChartImporter.processLayerData = function(self, object)
+	local layerData = self.noteChart.layerDataSequence:requireLayerData(object.index)
+	layerData.invisible = object.invisible
+	
+	if object.mode == "Measure" then
+		layerData.timeData:setMode(ncdk.TimeData.Modes.Measure)
+	elseif object.mode == "Absolute" then
+		layerData.timeData:setMode(ncdk.TimeData.Modes.Absolute)
+	end
+end
+
+NoteChartImporter.processVelocityData = function(self, object)
+	local layerData = self.noteChart.layerDataSequence:requireLayerData(object.layer)
+	
+	local timeData = object.time:split(",")
+	local time = tonumber(timeData[1])
+	local side = tonumber(timeData[2]) or -1
+	
+	if layerData.timeData.mode == ncdk.TimeData.Modes.Measure then
+		time = ncdk.Fraction:new():fromString(time)
+	end
+	
+	local speedData = object.speed:split(",")
+	
+	local velocityData = ncdk.VelocityData:new(
+		layerData:getTimePoint(time, side),
+		ncdk.Fraction:new():fromString(speedData[1] or "1"),
+		ncdk.Fraction:new():fromString(speedData[1] or "2"),
+		ncdk.Fraction:new():fromString(speedData[1] or "3")
+	)
+	layerData:addVelocityData(velocityData)
+end
+
+NoteChartImporter.processNoteData = function(self, object)
+	local layerData = self.noteChart.layerDataSequence:requireLayerData(object.layer)
+	
+	local timeData = object.time:split(",")
+	local time = tonumber(timeData[1])
+	local side = tonumber(timeData[2]) or -1
+	
+	if layerData.timeData.mode == ncdk.TimeData.Modes.Measure then
+		time = ncdk.Fraction:new():fromString(time)
+	end
+	
+	local timePoint = layerData:getTimePoint(time, side)
+	
+	local noteData = ncdk.NoteData:new(timePoint)
+	noteData.inputType, noteData.inputIndex = object.input:match("^[a-z]+"), tonumber(object.input:match("[0-9]+$"))
+	
+	noteData.soundFileName = object.sound
+	noteData.noteType = object.type
+	
+	layerData:addNoteData(noteData)
 end
