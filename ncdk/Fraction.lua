@@ -29,13 +29,18 @@ Fraction.new = function(self, numerator, denominator, maximumDenominator)
 end
 
 Fraction.fromString = function(self, line)
-	local numerator, denominator = line:match("^([%-%=]?%d+)/(%d+)$") or line:match("^(%d+)$")
+	local numerator, denominator
+	if line:find("/") then
+		numerator, denominator = line:match("^([%-%+]?%d+)/(%d+)$")
+	else
+		numerator, denominator = line:match("^([%-%+]?%d+)$"), 1
+	end
 	
 	if not numerator then
 		error("invalid fraction detection: (" .. line .. ")")
 	end
 	
-	return ncdk.Fraction:new(tonumber(numerator), tonumber(denominator or 1))
+	return ncdk.Fraction:new(tonumber(numerator), tonumber(denominator))
 end
 
 Fraction.fromNumber = function(self, number, accuracy)

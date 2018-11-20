@@ -66,8 +66,8 @@ NoteChartImporter.processVelocityData = function(self, object)
 	local velocityData = ncdk.VelocityData:new(
 		layerData:getTimePoint(time, side),
 		ncdk.Fraction:new():fromString(speedData[1] or "1"),
-		ncdk.Fraction:new():fromString(speedData[1] or "2"),
-		ncdk.Fraction:new():fromString(speedData[1] or "3")
+		ncdk.Fraction:new():fromString(speedData[2] or "1"),
+		ncdk.Fraction:new():fromString(speedData[3] or "1")
 	)
 	layerData:addVelocityData(velocityData)
 end
