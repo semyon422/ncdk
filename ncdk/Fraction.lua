@@ -76,7 +76,7 @@ end
 
 Fraction_metatable.__tostring = function(self)
 	if self.denominator == 1 then
-		return self.numerator
+		return tostring(self.numerator)
 	else
 		return self.numerator .. "/" .. self.denominator
 	end
