@@ -29,7 +29,7 @@ Fraction.new = function(self, numerator, denominator, maximumDenominator)
 end
 
 Fraction.fromString = function(self, line)
-	local numerator, denominator = line:match("^(%d+)/(%d+)$") or line:match("^(%d+)$")
+	local numerator, denominator = line:match("^([%-%=]?%d+)/(%d+)$") or line:match("^(%d+)$")
 	
 	if not numerator then
 		error("invalid fraction detection: (" .. line .. ")")
