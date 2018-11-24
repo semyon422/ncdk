@@ -52,13 +52,14 @@ end
 
 NoteChartImporter.processVelocityData = function(self, object)
 	local layerData = self.noteChart.layerDataSequence:requireLayerData(object.layer)
+	layerData.invisible = object.invisible
 	
 	local timeData = object.time:split(",")
 	local time = tonumber(timeData[1])
 	local side = tonumber(timeData[2]) or -1
 	
 	if layerData.timeData.mode == ncdk.TimeData.Modes.Measure then
-		time = ncdk.Fraction:new():fromString(time)
+		time = ncdk.Fraction:new():fromString(timeData[1])
 	end
 	
 	local speedData = object.speed:split(",")
@@ -80,7 +81,7 @@ NoteChartImporter.processNoteData = function(self, object)
 	local side = tonumber(timeData[2]) or -1
 	
 	if layerData.timeData.mode == ncdk.TimeData.Modes.Measure then
-		time = ncdk.Fraction:new():fromString(time)
+		time = ncdk.Fraction:new():fromString(timeData[1])
 	end
 	
 	local timePoint = layerData:getTimePoint(time, side)
