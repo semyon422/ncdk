@@ -17,7 +17,7 @@ NoteChartImporter.new = function(self)
 	noteChartImporter.data = {}
 	noteChartImporter.data.timeMatch = {}
 	
-	noteChartImporter.doubleType = nil
+	noteChartImporter.inputMode = {}
 	
 	setmetatable(noteChartImporter, NoteChartImporter_metatable)
 	
@@ -45,6 +45,10 @@ NoteChartImporter.import = function(self, noteChartString)
 	self:importBaseTimingData()
 	self:processData()
 	
+	for inputType, inputCount in pairs(self.inputMode) do
+		self.noteChart.inputMode:setInputCount(inputType, inputCount)
+	end
+	
 	self.noteChart:compute()
 end
 
@@ -65,6 +69,25 @@ NoteChartImporter.processLine = function(self, line)
 	end
 end
 
+NoteChartImporter.updateInputMode = function(self, channelIndex)
+	local inputIndex = bms.ChannelEnum[channelIndex].inputIndex
+	if inputIndex then
+		self.inputMode.key = self.inputMode.key or 5
+		self.inputMode.scratch = self.inputMode.scratch or 1
+		if inputIndex > self.inputMode.key then
+			if inputIndex > 12 then
+				self.inputMode.key = 14
+				self.inputMode.scratch = 2
+			elseif inputIndex > 7 then
+				self.inputMode.key = 10
+				self.inputMode.scratch = 2
+			elseif inputIndex > 5 then
+				self.inputMode.key = 7
+			end
+		end
+	end
+end
+
 NoteChartImporter.processLineData = function(self, line)
 	local measureIndex, channelIndex, indexDataString = line:match("^#(%d%d%d)(..):(.+)$")
 	measureIndex = tonumber(measureIndex)
@@ -73,14 +96,7 @@ NoteChartImporter.processLineData = function(self, line)
 		return
 	end
 	
-	local inputIndex = bms.ChannelEnum[channelIndex].inputIndex
-	if inputIndex then
-		if inputIndex > 7 and self.doubleType ~= 10 and self.doubleType ~= 14 then
-			self.doubleType = 10
-		elseif inputIndex > 12 and self.doubleType ~= 14 then
-			self.doubleType = 14
-		end
-	end
+	self:updateInputMode(channelIndex)
 	
 	if bms.ChannelEnum[channelIndex].name == "Signature" then
 		self.foregroundLayerData:setSignature(
@@ -195,7 +211,7 @@ NoteChartImporter.processData = function(self)
 		
 		for channelIndex, indexDataValues in pairs(timeData) do
 			local channelInfo
-			if self.doubleType == 10 and bms.ChannelEnum5Keys[channelIndex] then
+			if self.inputMode.key == 10 and bms.ChannelEnum5Keys[channelIndex] then
 				channelInfo = bms.ChannelEnum5Keys[channelIndex]
 			else
 				channelInfo = bms.ChannelEnum[channelIndex]
@@ -216,7 +232,9 @@ NoteChartImporter.processData = function(self)
 						noteData.noteType = "SoundNote"
 						self.backgroundLayerData:addNoteData(noteData)
 					elseif channelInfo.mine then
-						noteData.noteType = "FakeNote"
+						noteData.noteType = "SoundNote"
+						noteData.soundFileName = nil
+						noteData.soundFileCode = nil
 						self.foregroundLayerData:addNoteData(noteData)
 					elseif channelInfo.long then
 						if not longNoteData[channelIndex] then

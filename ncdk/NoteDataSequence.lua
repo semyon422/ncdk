@@ -26,8 +26,6 @@ NoteDataSequence.addNoteData = function(self, ...)
 			self.layerData.layerDataSequence.inputExisting[noteData.inputType] = self.layerData.layerDataSequence.inputExisting[noteData.inputType] or {}
 			self.layerData.layerDataSequence.inputExisting[noteData.inputType][noteData.inputIndex] = true
 		end
-		
-		self.layerData.layerDataSequence.noteChart.inputMode:setInput(noteData.inputType, noteData.inputIndex, true)
 	end
 end
 

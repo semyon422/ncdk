@@ -8,39 +8,23 @@ InputMode_metatable.__index = InputMode
 InputMode.new = function(self)
 	local inputMode = {}
 	
-	inputMode.inputData = {}
+	inputMode.data = {}
 	
 	setmetatable(inputMode, InputMode_metatable)
 	
 	return inputMode
 end
 
-InputMode.setInput = function(self, inputType, inputIndex, binding)
-	self.inputData[inputType] = self.inputData[inputType] or {}
-	self.inputData[inputType][inputIndex] = binding
-end
-
-InputMode.getInput = function(self, inputType, inputIndex)
-	return self.inputData[inputType] and self.inputData[inputType][inputIndex]
+InputMode.setInputCount = function(self, inputType, inputCount)
+	self.data[inputType] = inputCount
 end
 
 InputMode.getString = function(self)
-	local inputMaxIndex = {}
-	for inputType, data in pairs(self.inputData) do
-		for inputIndex in pairs(data) do
-			inputMaxIndex[inputType] = inputMaxIndex[inputType] or 0
-			if inputIndex > inputMaxIndex[inputType] then
-				inputMaxIndex[inputType] = inputIndex
-			end
-		end
+	local inputs = {}
+	for inputType, inputCount in pairs(self.data) do
+		inputs[#inputs + 1] = {inputType, inputCount}
 	end
 	
-	local inputs = {}
-	for inputType, inputIndex in pairs(inputMaxIndex) do
-		if inputType ~= "auto" then
-			table.insert(inputs, {inputType, inputIndex})
-		end
-	end
 	table.sort(inputs, function(a, b)
 		if a[2] ~= b[2] then
 			return a[2] > b[2]

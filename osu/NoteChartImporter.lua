@@ -26,6 +26,9 @@ NoteChartImporter.import = function(self, noteChartString)
 	self.noteChartString = noteChartString
 	self:stage1_process()
 	self:stage2_process()
+	
+	self.noteChart.inputMode:setInputCount("key", self.metaData.CircleSize)
+	
 	self.noteChart:compute()
 end
 
