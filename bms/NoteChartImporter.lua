@@ -14,6 +14,8 @@ NoteChartImporter.new = function(self)
 	
 	noteChartImporter.primaryTempo = 120
 	
+	noteChartImporter.measureCount = 0
+	
 	noteChartImporter.data = {}
 	noteChartImporter.data.timeMatch = {}
 	
@@ -44,6 +46,7 @@ NoteChartImporter.import = function(self, noteChartString)
 	
 	self:importBaseTimingData()
 	self:processData()
+	self:processMeasureLines()
 	
 	for inputType, inputCount in pairs(self.inputMode) do
 		self.noteChart.inputMode:setInputCount(inputType, inputCount)
@@ -91,6 +94,10 @@ end
 NoteChartImporter.processLineData = function(self, line)
 	local measureIndex, channelIndex, indexDataString = line:match("^#(%d%d%d)(..):(.+)$")
 	measureIndex = tonumber(measureIndex)
+	
+	if measureIndex > self.measureCount then
+		self.measureCount = measureIndex
+	end
 	
 	if not bms.ChannelEnum[channelIndex] then
 		return
@@ -242,12 +249,16 @@ NoteChartImporter.processData = function(self)
 							longNoteData[channelIndex] = noteData
 						else
 							noteData.noteType = "LongNoteEnd"
+							noteData.startNoteData = longNoteData[channelIndex]
+							longNoteData[channelIndex].endNoteData = noteData
 							longNoteData[channelIndex] = nil
 						end
 						self.foregroundLayerData:addNoteData(noteData)
 					else
 						if longNoteData[channelIndex] and value == self.lnobj then
 							longNoteData[channelIndex].noteType = "LongNoteStart"
+							longNoteData[channelIndex].endNoteData = noteData
+							noteData.startNoteData = longNoteData[channelIndex]
 							noteData.noteType = "LongNoteEnd"
 							longNoteData[channelIndex] = nil
 						else
@@ -257,6 +268,32 @@ NoteChartImporter.processData = function(self)
 						self.foregroundLayerData:addNoteData(noteData)
 					end
 				end
+			end
+		end
+	end
+end
+
+NoteChartImporter.processMeasureLines = function(self)
+	for measureIndex = 0, self.measureCount do
+		local measureTime = ncdk.Fraction:new(measureIndex)
+		local timePoint = self.foregroundLayerData:getTimePoint(measureTime, -1)
+		
+		for inputType, inputCount in pairs(self.inputMode) do
+			for inputIndex = 1, inputCount do
+				local startNoteData = ncdk.NoteData:new(timePoint)
+				startNoteData.inputType = inputType
+				startNoteData.inputIndex = inputIndex
+				startNoteData.noteType = "LineNoteStart"
+				self.foregroundLayerData:addNoteData(startNoteData)
+				
+				local endNoteData = ncdk.NoteData:new(timePoint)
+				endNoteData.inputType = inputType
+				endNoteData.inputIndex = inputIndex
+				endNoteData.noteType = "LineNoteEnd"
+				self.foregroundLayerData:addNoteData(endNoteData)
+				
+				startNoteData.endNoteData = endNoteData
+				endNoteData.startNoteData = startNoteData
 			end
 		end
 	end
