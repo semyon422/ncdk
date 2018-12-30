@@ -13,7 +13,6 @@ NoteChartImporter.new = function(self)
 	noteChartImporter.stopDataSequence = {}
 	
 	noteChartImporter.primaryTempo = 120
-	
 	noteChartImporter.measureCount = 0
 	
 	noteChartImporter.data = {}

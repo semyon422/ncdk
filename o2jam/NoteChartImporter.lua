@@ -7,7 +7,9 @@ NoteChartImporter_metatable.__index = NoteChartImporter
 
 NoteChartImporter.new = function(self)
 	local noteChartImporter = {}
+	
 	noteChartImporter.primaryTempo = 120
+	noteChartImporter.measureCount = 0
 	
 	setmetatable(noteChartImporter, NoteChartImporter_metatable)
 	
@@ -26,6 +28,10 @@ NoteChartImporter.import = function(self, noteChartString)
 	
 	self.ojn = o2jam.OJN:new(noteChartString)
 	self:processData()
+	self:processMeasureLines()
+	
+	self.noteChart.inputMode:setInputCount("key", 7)
+	
 	self.noteChart:compute()
 end
 
@@ -33,6 +39,10 @@ NoteChartImporter.processData = function(self)
 	local longNoteData = {}
 	
 	for _, event in ipairs(self.ojn.charts[self.chartIndex].event_list) do
+		if event.measure > self.measureCount then
+			self.measureCount = event.measure
+		end
+		
 		local measureTime = ncdk.Fraction:new():fromNumber(event.measure + event.position, 1000)
 		if event.channel == "BPM_CHANGE" then
 			self.currentTempoData = ncdk.TempoData:new(
@@ -58,7 +68,6 @@ NoteChartImporter.processData = function(self)
 			noteData.inputType = event.channel:find("NOTE") and "key" or "auto"
 			noteData.inputIndex = event.channel:find("NOTE") and tonumber(event.channel:sub(-1, -1)) or 0
 			
-			-- noteData.soundFileName = tostring(event.value)
 			noteData.soundFileIndex = event.value
 			
 			if noteData.inputType == "auto" then
@@ -67,6 +76,8 @@ NoteChartImporter.processData = function(self)
 			else
 				if longNoteData[noteData.inputIndex] and event.type == "RELEASE" then
 					longNoteData[noteData.inputIndex].noteType = "LongNoteStart"
+					longNoteData[noteData.inputIndex].endNoteData = noteData
+					noteData.startNoteData = longNoteData[noteData.inputIndex]
 					noteData.noteType = "LongNoteEnd"
 					longNoteData[noteData.inputIndex] = nil
 				else
@@ -101,5 +112,29 @@ NoteChartImporter.importBaseTimingData = function(self)
 		local timePoint = self.foregroundLayerData:getTimePoint(measureTime, 1)
 		self.currentVelocityData = ncdk.VelocityData:new(timePoint, ncdk.Fraction:new():fromNumber(self.baseTempo / self.primaryTempo, 1000))
 		self.foregroundLayerData:addVelocityData(self.currentVelocityData)
+	end
+end
+
+NoteChartImporter.processMeasureLines = function(self)
+	for measureIndex = 0, self.measureCount do
+		local measureTime = ncdk.Fraction:new(measureIndex)
+		local timePoint = self.foregroundLayerData:getTimePoint(measureTime, -1)
+		
+		for inputIndex = 1, 7 do
+			local startNoteData = ncdk.NoteData:new(timePoint)
+			startNoteData.inputType = "key"
+			startNoteData.inputIndex = inputIndex
+			startNoteData.noteType = "LineNoteStart"
+			self.foregroundLayerData:addNoteData(startNoteData)
+			
+			local endNoteData = ncdk.NoteData:new(timePoint)
+			endNoteData.inputType = "key"
+			endNoteData.inputIndex = inputIndex
+			endNoteData.noteType = "LineNoteEnd"
+			self.foregroundLayerData:addNoteData(endNoteData)
+			
+			startNoteData.endNoteData = endNoteData
+			endNoteData.startNoteData = startNoteData
+		end
 	end
 end

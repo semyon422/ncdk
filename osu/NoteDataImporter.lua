@@ -70,6 +70,9 @@ NoteDataImporter.getNoteData = function(self)
 		endNoteData.inputIndex = self.inputIndex
 	
 		endNoteData.noteType = "LongNoteEnd"
+		
+		endNoteData.startNoteData = startNoteData
+		startNoteData.endNoteData = endNoteData
 	end
 	
 	return startNoteData, endNoteData
