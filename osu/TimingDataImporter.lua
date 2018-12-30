@@ -26,4 +26,5 @@ TimingDataImporter.init = function(self)
 	self.kiaiTimeActive = tonumber(self.lineTable[8])
 	
 	self.startTime = self.offset
+	self.measureLength = math.abs(self.beatLength * self.timingSignature)
 end

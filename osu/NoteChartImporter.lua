@@ -46,13 +46,13 @@ NoteChartImporter.stage1_process = function(self)
 	end
 	
 	self:processTimingDataImporters()
-	
 	table.sort(self.noteDataImporters, function(a, b) return a.startTime < b.startTime end)
 	
 	self.foregroundLayerData:updateZeroTimePoint()
 	self.backgroundLayerData:updateZeroTimePoint()
 	
 	self:updatePrimaryBPM()
+	self:processMeasureLines()
 	
 	self:processAudio()
 end
@@ -227,4 +227,77 @@ NoteChartImporter.stage1_addNoteParser = function(self, line)
 	noteDataImporter:init()
 	
 	table.insert(self.noteDataImporters, noteDataImporter)
+end
+
+NoteChartImporter.processMeasureLines = function(self)
+	local currentTime = 0
+	local offset
+	local firstTdi
+	for i = 1, #self.timingDataImporters do
+		local tdi = self.timingDataImporters[i]
+		if tdi.timingChange then
+			firstTdi = tdi
+			offset = firstTdi.offset
+			break
+		end
+	end
+	while true do
+		if offset - firstTdi.measureLength <= 0 then
+			break
+		else
+			offset = offset - firstTdi.measureLength
+		end
+	end
+	
+	local lines = {}
+	for i = 1, #self.timingDataImporters do
+		local currentTdi = self.timingDataImporters[i]
+		local nextTdi
+		for j = i + 1, #self.timingDataImporters do
+			if self.timingDataImporters[j].timingChange then
+				nextTdi = self.timingDataImporters[j]
+				break
+			end
+		end
+		local nextLastTime = nextTdi and nextTdi.offset or self.totalLength
+		if currentTdi.timingChange then
+			local measureLength
+			if currentTdi.measureLength < 1 then
+				measureLength = math.huge
+			else
+				measureLength = currentTdi.measureLength
+			end
+			while true do
+				if nextLastTime - offset > 1 then
+					table.insert(lines, offset)
+					offset = math.min(offset + measureLength, nextLastTime)
+				else
+					offset = nextLastTime
+					break
+				end
+			end
+		end
+	end
+	
+	for _, startTime in ipairs(lines) do
+		local measureTime = ncdk.Fraction:new(measureIndex)
+		local timePoint = self.foregroundLayerData:getTimePoint(startTime / 1000)
+		
+		for inputIndex = 1, self.metaData.CircleSize do
+			local startNoteData = ncdk.NoteData:new(timePoint)
+			startNoteData.inputType = "key"
+			startNoteData.inputIndex = inputIndex
+			startNoteData.noteType = "LineNoteStart"
+			self.foregroundLayerData:addNoteData(startNoteData)
+			
+			local endNoteData = ncdk.NoteData:new(timePoint)
+			endNoteData.inputType = "key"
+			endNoteData.inputIndex = inputIndex
+			endNoteData.noteType = "LineNoteEnd"
+			self.foregroundLayerData:addNoteData(endNoteData)
+			
+			startNoteData.endNoteData = endNoteData
+			endNoteData.startNoteData = startNoteData
+		end
+	end
 end
