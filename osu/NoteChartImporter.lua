@@ -283,21 +283,19 @@ NoteChartImporter.processMeasureLines = function(self)
 		local measureTime = ncdk.Fraction:new(measureIndex)
 		local timePoint = self.foregroundLayerData:getTimePoint(startTime / 1000)
 		
-		for inputIndex = 1, self.metaData.CircleSize do
-			local startNoteData = ncdk.NoteData:new(timePoint)
-			startNoteData.inputType = "key"
-			startNoteData.inputIndex = inputIndex
-			startNoteData.noteType = "LineNoteStart"
-			self.foregroundLayerData:addNoteData(startNoteData)
-			
-			local endNoteData = ncdk.NoteData:new(timePoint)
-			endNoteData.inputType = "key"
-			endNoteData.inputIndex = inputIndex
-			endNoteData.noteType = "LineNoteEnd"
-			self.foregroundLayerData:addNoteData(endNoteData)
-			
-			startNoteData.endNoteData = endNoteData
-			endNoteData.startNoteData = startNoteData
-		end
+		local startNoteData = ncdk.NoteData:new(timePoint)
+		startNoteData.inputType = "measure"
+		startNoteData.inputIndex = 1
+		startNoteData.noteType = "LineNoteStart"
+		self.foregroundLayerData:addNoteData(startNoteData)
+		
+		local endNoteData = ncdk.NoteData:new(timePoint)
+		endNoteData.inputType = "measure"
+		endNoteData.inputIndex = 1
+		endNoteData.noteType = "LineNoteEnd"
+		self.foregroundLayerData:addNoteData(endNoteData)
+		
+		startNoteData.endNoteData = endNoteData
+		endNoteData.startNoteData = startNoteData
 	end
 end
