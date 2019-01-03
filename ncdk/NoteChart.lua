@@ -23,7 +23,7 @@ NoteChart.getLayerDataIndexIterator = function(self) return self.layerDataSequen
 NoteChart.getInputIteraator = function(self) return self.layerDataSequence:getInputIteraator() end
 NoteChart.requireLayerData = function(self, ...) return self.layerDataSequence:requireLayerData(...) end
 
-NoteChart.hashSet = function(self, ...) self.metaData:hashSet(...) end
-NoteChart.hashGet = function(self, ...) self.metaData:hashGet(...) end
+NoteChart.hashSet = function(self, ...) return self.metaData:hashSet(...) end
+NoteChart.hashGet = function(self, ...) return self.metaData:hashGet(...) end
 
-NoteChart.compute = function(self, ...) self.layerDataSequence:compute(...) end
+NoteChart.compute = function(self, ...) return self.layerDataSequence:compute(...) end

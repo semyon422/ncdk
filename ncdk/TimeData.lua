@@ -114,7 +114,7 @@ TimeData.getTimePoint = function(self, time, side)
 	
 	if not time then
 		timePoint = ncdk.TimePoint:new(self)
-	
+		
 		timePoint.timeData = self
 		timePoint.side = side
 	elseif self.mode == self.Modes.Absolute then
@@ -141,6 +141,7 @@ TimeData.getTimePoint = function(self, time, side)
 		timePoint.measureTime = time
 		timePoint.side = side
 		timePoint.timePointString = timePointString
+		timePoint:compute()
 		
 		self.timePoints[timePointString] = timePoint
 	end
@@ -153,10 +154,10 @@ TimeData.sort = function(self)
 	self.stopDataSequence:sort()
 end
 
-TimeData.setSignature = function(self, ...) self.signatureTable:setSignature(...) end
+TimeData.setSignature = function(self, ...) return self.signatureTable:setSignature(...) end
 TimeData.getSignature = function(self, ...) return self.signatureTable:getSignature(...) end
 TimeData.setSignatureTable = function(self, ...) self.signatureTable = ... end
-TimeData.addTempoData = function(self, ...) self.tempoDataSequence:addTempoData(...) end
+TimeData.addTempoData = function(self, ...) return self.tempoDataSequence:addTempoData(...) end
 TimeData.getTempoData = function(self, ...) return self.tempoDataSequence:getTempoData(...) end
-TimeData.addStopData = function(self, ...) self.stopDataSequence:addStopData(...) end
+TimeData.addStopData = function(self, ...) return self.stopDataSequence:addStopData(...) end
 TimeData.getStopData = function(self, ...) return self.stopDataSequence:getStopData(...) end

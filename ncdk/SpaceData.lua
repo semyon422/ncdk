@@ -166,11 +166,11 @@ SpaceData.getZeroTimePoint = function(self)
 end
 
 SpaceData.sort = function(self)
-	self.velocityDataSequence:sort()
+	return self.velocityDataSequence:sort()
 end
 
-SpaceData.addVelocityData = function(self, ...) self.velocityDataSequence:addVelocityData(...) end
-SpaceData.removeLastVelocityData = function(self, ...) self.velocityDataSequence:removeLastVelocityData(...) end
+SpaceData.addVelocityData = function(self, ...) return self.velocityDataSequence:addVelocityData(...) end
+SpaceData.removeLastVelocityData = function(self, ...) return self.velocityDataSequence:removeLastVelocityData(...) end
 SpaceData.getVelocityData = function(self, ...) return self.velocityDataSequence:getVelocityData(...) end
 SpaceData.getVelocityDataCount = function(self) return self.velocityDataSequence:getVelocityDataCount() end
 SpaceData.getVelocityDataByTimePoint = function(self, ...) return self.velocityDataSequence:getVelocityDataByTimePoint(...) end

@@ -38,7 +38,7 @@ NoteDataSequence.getNoteDataCount = function(self)
 end
 
 NoteDataSequence.sort = function(self)
-	table.sort(self, function(noteData1, noteData2)
+	return table.sort(self, function(noteData1, noteData2)
 		return noteData1.timePoint < noteData2.timePoint
 	end)
 end

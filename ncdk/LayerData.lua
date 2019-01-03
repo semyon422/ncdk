@@ -36,7 +36,7 @@ LayerData.computeTimePoints = function(self)
 	
 	self.timePoints = {}
 	for _, timePoint in pairs(self.timeData.timePoints) do
-		table.insert(self.timePoints, timePoint)
+		self.timePoints[#self.timePoints + 1] = timePoint
 	end
 	table.sort(self.timePoints)
 	local firstTimePoint = self.timePoints[1]
@@ -48,7 +48,6 @@ LayerData.computeTimePoints = function(self)
 	local leftTimePoint = firstTimePoint
 	local rightTimePoint = self.spaceData:getVelocityData(1).timePoint
 	
-	targetTimePoint:compute()
 	for currentVelocityDataIndex = 1, self.spaceData:getVelocityDataCount() do
 		local currentVelocityData = self.spaceData:getVelocityData(currentVelocityDataIndex)
 		local nextVelocityData = self.spaceData:getVelocityData(currentVelocityDataIndex + 1)
@@ -93,17 +92,17 @@ LayerData.computeNoteData = function(self)
 	end
 end
 
-LayerData.setSignature = function(self, ...) self.timeData:setSignature(...) end
+LayerData.setSignature = function(self, ...) return self.timeData:setSignature(...) end
 LayerData.getSignature = function(self, ...) return self.timeData:getSignature(...) end
-LayerData.setSignatureTable = function(self, ...) self.timeData:setSignatureTable(...) end
-LayerData.addTempoData = function(self, ...) self.timeData:addTempoData(...) end
+LayerData.setSignatureTable = function(self, ...) return self.timeData:setSignatureTable(...) end
+LayerData.addTempoData = function(self, ...) return self.timeData:addTempoData(...) end
 LayerData.getTempoData = function(self, ...) return self.timeData:getTempoData(...) end
-LayerData.addStopData = function(self, ...) self.timeData:addStopData(...) end
+LayerData.addStopData = function(self, ...) return self.timeData:addStopData(...) end
 LayerData.getStopData = function(self, ...) return self.timeData:getStopData(...) end
 LayerData.getTimePoint = function(self, ...) return self.timeData:getTimePoint(...) end
 
-LayerData.addVelocityData = function(self, ...) self.spaceData:addVelocityData(...) end
-LayerData.removeLastVelocityData = function(self, ...) self.spaceData:removeLastVelocityData(...) end
+LayerData.addVelocityData = function(self, ...) return self.spaceData:addVelocityData(...) end
+LayerData.removeLastVelocityData = function(self, ...) return self.spaceData:removeLastVelocityData(...) end
 LayerData.getVelocityDataByTimePoint = function(self, ...) return self.spaceData:getVelocityDataByTimePoint(...) end
 LayerData.getVisualMeasureTime = function(self, ...) return self.spaceData:getVisualMeasureTime(...) end
 LayerData.getVisualTime = function(self, ...) return self.spaceData:getVisualTime(...) end
