@@ -16,7 +16,11 @@ InputMode.new = function(self)
 end
 
 InputMode.setInputCount = function(self, inputType, inputCount)
-	self.data[inputType] = inputCount
+	self.data[inputType] = tonumber(inputCount)
+end
+
+InputMode.getInputCount = function(self, inputType)
+	return self.data[inputType] or 0
 end
 
 InputMode.getString = function(self)
@@ -41,4 +45,13 @@ end
 
 InputMode_metatable.__eq = function(a, b)
 	return a:getString() == b:getString()
+end
+
+InputMode_metatable.__le = function(a, b)
+	for inputType, inputCount in pairs(a.data) do
+		if b:getInputCount(inputType) < inputCount then
+			return
+		end
+	end
+	return true
 end
