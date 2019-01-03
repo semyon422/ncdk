@@ -62,7 +62,7 @@ TimeData.getTempoDataDuration = function(self, tempoDataIndex, startEdgeM_Time, 
 	return time
 end
 
-TimeData.getStopDataDuration  = function(self, stopDataIndex, startEdgeM_Time, endEdgeM_Time, side)
+TimeData.getStopDataDuration = function(self, stopDataIndex, startEdgeM_Time, endEdgeM_Time, side)
 	local currentStopData = self:getStopData(stopDataIndex)
 	currentStopData.duration
 		= currentStopData.measureDuration:tonumber()
@@ -141,7 +141,6 @@ TimeData.getTimePoint = function(self, time, side)
 		timePoint.measureTime = time
 		timePoint.side = side
 		timePoint.timePointString = timePointString
-		timePoint:compute()
 		
 		self.timePoints[timePointString] = timePoint
 	end
@@ -154,23 +153,107 @@ TimeData.sort = function(self)
 	self.stopDataSequence:sort()
 end
 
-TimeData.computeTimePoints = function(self)
+TimeData.createTimePointList = function(self)
 	self.timePointList = {}
 	for _, timePoint in pairs(self.timePoints) do
 		self.timePointList[#self.timePointList + 1] = timePoint
 	end
 	table.sort(self.timePointList)
-	
+end
+
+TimeData.computeTimePoints = function(self)
 	if self.mode == ncdk.TimeData.Modes.Absolute then
 		return self.timePointList
 	end
 	
+	local zeroTimePoint = self:getZeroTimePoint()
+	local baseZeroTime = 0
+	
+	local globalTime = 0
+	local targetTimePointIndex = 1
+	local targetTimePoint = self.timePointList[targetTimePointIndex]
+	local leftMeasureTime = self.timePointList[1].measureTime
+	for currentTempoDataIndex = 1, self.tempoDataSequence:getTempoDataCount() do
+		local currentTempoData = self:getTempoData(currentTempoDataIndex)
+		local nextTempoData = self:getTempoData(currentTempoDataIndex + 1)
+		
+		while targetTimePointIndex <= #self.timePointList do
+			if not nextTempoData or targetTimePoint.measureTime < nextTempoData.measureTime then
+				targetTimePoint.tempoData = currentTempoData
+				targetTimePoint.absoluteTime = globalTime + self:getTempoDataDuration(currentTempoDataIndex, leftMeasureTime, targetTimePoint.measureTime)
+				if targetTimePoint == zeroTimePoint then
+					baseZeroTime = targetTimePoint.absoluteTime
+				end
+				targetTimePointIndex = targetTimePointIndex + 1
+				targetTimePoint = self.timePointList[targetTimePointIndex]
+			else
+				break
+			end
+		end
+		
+		if nextTempoData then
+			globalTime = globalTime + self:getTempoDataDuration(
+				currentTempoDataIndex,
+				leftMeasureTime,
+				nextTempoData.measureTime
+			)
+			leftMeasureTime = currentTempoData.measureTime
+		end
+	end
+	
+	local baseZeroStopDuration = 0
+	local globalTime = 0
+	local targetTimePointIndex = 1
+	local targetTimePoint = self.timePointList[targetTimePointIndex]
+	local leftMeasureTime = self.timePointList[1].measureTime
+	for currentStopDataIndex = 1, self.stopDataSequence:getStopDataCount() do
+		local currentStopData = self:getStopData(currentStopDataIndex)
+		local nextStopData = self:getStopData(currentStopDataIndex + 1)
+		
+		while targetTimePointIndex <= #self.timePointList do
+			if not nextStopData or targetTimePoint.measureTime < nextStopData.measureTime then
+				targetTimePoint.stopDuration = globalTime + self:getStopDataDuration(currentStopDataIndex, leftMeasureTime, targetTimePoint.measureTime, targetTimePoint.side)
+				if targetTimePoint == zeroTimePoint then
+					baseZeroStopDuration = targetTimePoint.stopDuration
+				end
+				targetTimePointIndex = targetTimePointIndex + 1
+				targetTimePoint = self.timePointList[targetTimePointIndex]
+			else
+				break
+			end
+		end
+		globalTime = globalTime + self:getStopDataDuration(currentStopDataIndex, leftMeasureTime, currentStopData.measureTime, 1)
+	end
+	
+	
 	for _, timePoint in ipairs(self.timePointList) do
+		timePoint.absoluteTime
+			= timePoint.absoluteTime
+			+ (timePoint.stopDuration or 0)
+			- baseZeroTime
+			- baseZeroStopDuration
 		timePoint.firstTimePoint = self.timePointList[1]
 		timePoint.lastTimePoint = self.timePointList[#self.timePointList]
 	end
 	
 	return self.timePointList
+end
+
+TimeData.updateZeroTimePoint = function(self)
+	local time
+	if self.mode == ncdk.TimeData.Modes.Absolute then
+		time = 0
+	elseif self.mode == ncdk.TimeData.Modes.Measure then
+		time = ncdk.Fraction:new(0)
+	end
+	
+	self.zeroTimePoint = self:getTimePoint(time)
+	self.zeroTimePoint.velocityData, self.zeroTimePoint.velocityDataIndex = self.layerData:getVelocityDataByTimePoint(self.zeroTimePoint)
+	self.zeroTimePoint.zeroClearVisualTime = 0
+end
+
+TimeData.getZeroTimePoint = function(self)
+	return self.zeroTimePoint
 end
 
 TimeData.setSignature = function(self, ...) return self.signatureTable:setSignature(...) end

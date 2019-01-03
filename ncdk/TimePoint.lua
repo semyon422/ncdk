@@ -22,13 +22,25 @@ TimePoint.getAbsoluteTime = function(self)
 end
 
 TimePoint_metatable.__eq = function(tpa, tpb)
-	return tpa.absoluteTime == tpb.absoluteTime and tpa.side == tpb.side
+	if tpa.measureTime and tpb.measureTime then
+		return tpa.measureTime == tpb.measureTime and tpa.side == tpb.side
+	else
+		return tpa.absoluteTime == tpb.absoluteTime and tpa.side == tpb.side
+	end
 end
 
 TimePoint_metatable.__lt = function(tpa, tpb)
-	return tpa.absoluteTime < tpb.absoluteTime or (tpa.absoluteTime == tpb.absoluteTime and tpa.side < tpb.side)
+	if tpa.measureTime and tpb.measureTime then
+		return tpa.measureTime < tpb.measureTime or (tpa.measureTime == tpb.measureTime and tpa.side < tpb.side)
+	else
+		return tpa.absoluteTime < tpb.absoluteTime or (tpa.absoluteTime == tpb.absoluteTime and tpa.side < tpb.side)
+	end
 end
 
 TimePoint_metatable.__le = function(tpa, tpb)
-	return tpa.absoluteTime < tpb.absoluteTime or (tpa.absoluteTime == tpb.absoluteTime and tpa.side == tpb.side)
+	if tpa.measureTime and tpb.measureTime then
+		return tpa.measureTime < tpb.measureTime or (tpa.measureTime == tpb.measureTime and tpa.side == tpb.side)
+	else
+		return tpa.absoluteTime < tpb.absoluteTime or (tpa.absoluteTime == tpb.absoluteTime and tpa.side == tpb.side)
+	end
 end
