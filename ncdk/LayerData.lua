@@ -34,39 +34,26 @@ end
 LayerData.computeTimePoints = function(self)
 	local zeroTimePoint = self:getZeroTimePoint()
 	
-	self.timePoints = {}
-	for _, timePoint in pairs(self.timeData.timePoints) do
-		self.timePoints[#self.timePoints + 1] = timePoint
-	end
-	table.sort(self.timePoints)
+	self.timePoints = self.timeData:computeTimePoints()
+	
 	local firstTimePoint = self.timePoints[1]
-	local firstZeroClearVisualTime = 0
+	local baseZeroClearVisualTime = 0
 	
 	local globalTime = 0
 	local targetTimePointIndex = 1
 	local targetTimePoint = self.timePoints[targetTimePointIndex]
 	local leftTimePoint = firstTimePoint
-	local rightTimePoint = self.spaceData:getVelocityData(1).timePoint
 	
 	for currentVelocityDataIndex = 1, self.spaceData:getVelocityDataCount() do
 		local currentVelocityData = self.spaceData:getVelocityData(currentVelocityDataIndex)
 		local nextVelocityData = self.spaceData:getVelocityData(currentVelocityDataIndex + 1)
 		
-		globalTime = globalTime + self.spaceData:getVelocityDataVisualDuration(
-			currentVelocityDataIndex == 1 and 1 or currentVelocityDataIndex - 1,
-			leftTimePoint,
-			rightTimePoint
-		)
-		leftTimePoint = currentVelocityData.timePoint
-		rightTimePoint = nextVelocityData and nextVelocityData.timePoint
-		
 		while targetTimePointIndex <= #self.timePoints do
-			if not nextVelocityData or targetTimePoint < rightTimePoint then
+			if not nextVelocityData or targetTimePoint < nextVelocityData.timePoint then
 				targetTimePoint.velocityData = currentVelocityData
-				
 				targetTimePoint.zeroClearVisualTime = globalTime + self.spaceData:getVelocityDataVisualDuration(currentVelocityDataIndex, leftTimePoint, targetTimePoint)
 				if targetTimePoint == zeroTimePoint then
-					firstZeroClearVisualTime = targetTimePoint.zeroClearVisualTime
+					baseZeroClearVisualTime = targetTimePoint.zeroClearVisualTime
 				end
 				targetTimePointIndex = targetTimePointIndex + 1
 				targetTimePoint = self.timePoints[targetTimePointIndex]
@@ -74,12 +61,19 @@ LayerData.computeTimePoints = function(self)
 				break
 			end
 		end
+		
+		if nextVelocityData then
+			globalTime = globalTime + self.spaceData:getVelocityDataVisualDuration(
+				currentVelocityDataIndex,
+				leftTimePoint,
+				nextVelocityData.timePoint
+			)
+			leftTimePoint = currentVelocityData.timePoint
+		end
 	end
 	
 	for _, timePoint in ipairs(self.timePoints) do
-		timePoint.zeroClearVisualTime = timePoint.zeroClearVisualTime - firstZeroClearVisualTime
-		timePoint.firstTimePoint = self.timePoints[1]
-		timePoint.lastTimePoint = self.timePoints[#self.timePoints]
+		timePoint.zeroClearVisualTime = timePoint.zeroClearVisualTime - baseZeroClearVisualTime
 	end
 end
 

@@ -154,6 +154,25 @@ TimeData.sort = function(self)
 	self.stopDataSequence:sort()
 end
 
+TimeData.computeTimePoints = function(self)
+	self.timePointList = {}
+	for _, timePoint in pairs(self.timePoints) do
+		self.timePointList[#self.timePointList + 1] = timePoint
+	end
+	table.sort(self.timePointList)
+	
+	if self.mode == ncdk.TimeData.Modes.Absolute then
+		return self.timePointList
+	end
+	
+	for _, timePoint in ipairs(self.timePointList) do
+		timePoint.firstTimePoint = self.timePointList[1]
+		timePoint.lastTimePoint = self.timePointList[#self.timePointList]
+	end
+	
+	return self.timePointList
+end
+
 TimeData.setSignature = function(self, ...) return self.signatureTable:setSignature(...) end
 TimeData.getSignature = function(self, ...) return self.signatureTable:getSignature(...) end
 TimeData.setSignatureTable = function(self, ...) self.signatureTable = ... end
