@@ -159,6 +159,12 @@ TimeData.createTimePointList = function(self)
 		self.timePointList[#self.timePointList + 1] = timePoint
 	end
 	table.sort(self.timePointList)
+	local firstTimePoint = self.timePointList[1]
+	local lastTimePoint = self.timePointList[#self.timePointList]
+	for i = 1, #self.timePointList do
+		self.timePointList[i].firstTimePoint = firstTimePoint
+		self.timePointList[i].lastTimePoint = lastTimePoint
+	end
 end
 
 TimeData.computeTimePoints = function(self)
@@ -232,8 +238,6 @@ TimeData.computeTimePoints = function(self)
 			+ (timePoint.stopDuration or 0)
 			- baseZeroTime
 			- baseZeroStopDuration
-		timePoint.firstTimePoint = self.timePointList[1]
-		timePoint.lastTimePoint = self.timePointList[#self.timePointList]
 	end
 	
 	return self.timePointList
