@@ -49,7 +49,7 @@ end
 
 InputMode_metatable.__le = function(a, b)
 	for inputType, inputCount in pairs(a.data) do
-		if b:getInputCount(inputType) < inputCount then
+		if b:getInputCount(inputType) ~= inputCount then
 			return
 		end
 	end
