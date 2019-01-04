@@ -203,6 +203,7 @@ NoteChartImporter.processLine = function(self, line)
 		if line:find("^%a+:.*$") then
 			local key, value = line:match("^(%a+):%s?(.*)")
 			self.metaData[key] = value:trim()
+			self.noteChart:hashSet(key, value:trim())
 		elseif self.currentBlockName == "TimingPoints" and line:find("^.+,.+,.+,.+,.+,.+,.+,.+$") then
 			self:stage1_addTimingPointParser(line)
 		elseif self.currentBlockName == "HitObjects" and line:trim() ~= "" then

@@ -27,12 +27,24 @@ NoteChartImporter.import = function(self, noteChartString)
 	self.backgroundLayerData.timeData = self.foregroundLayerData.timeData
 	
 	self.ojn = o2jam.OJN:new(noteChartString)
+	self:processMetaData()
 	self:processData()
 	self:processMeasureLines()
 	
 	self.noteChart.inputMode:setInputCount("key", 7)
 	
 	self.noteChart:compute()
+end
+
+NoteChartImporter.processMetaData = function(self)
+	self.noteChart:hashSet("genre", self.ojn.str_genre)
+	self.noteChart:hashSet("bpm", self.ojn.bpm)
+	self.noteChart:hashSet("title", self.ojn.str_title)
+	self.noteChart:hashSet("artist", self.ojn.str_artist)
+	self.noteChart:hashSet("noter", self.ojn.str_noter)
+	self.noteChart:hashSet("level", self.ojn.charts[self.chartIndex].level)
+	self.noteChart:hashSet("notes", self.ojn.charts[self.chartIndex].notes)
+	self.noteChart:hashSet("duration", self.ojn.charts[self.chartIndex].duration)
 end
 
 NoteChartImporter.processData = function(self)
