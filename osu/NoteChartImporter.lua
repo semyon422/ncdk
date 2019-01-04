@@ -142,17 +142,9 @@ NoteChartImporter.processAudio = function(self)
 	end
 end
 
-NoteChartImporter.addDefaultVelocityData = function(self)
-	local timePoint = self.foregroundLayerData:getTimePoint(0)
-	local velocityData = ncdk.VelocityData:new(timePoint)
-	self.foregroundLayerData:addVelocityData(velocityData)
-end
-
 NoteChartImporter.processVelocityData = function(self)
 	local currentBeatLength = self.primaryBeatLength
 	local currentVelocity = 1
-	
-	local hasDefaultVelocity = false
 	
 	local rawVelocity = {}
 	for i = 1, #self.timingDataImporters do
@@ -167,7 +159,6 @@ NoteChartImporter.processVelocityData = function(self)
 		else
 			currentVelocity = -100 / tdi.beatLength
 			rawVelocity[tdi.offset] = rawVelocity[tdi.offset] * currentVelocity
-			hasDefaultVelocity = true
 		end
 	end
 	
@@ -178,10 +169,6 @@ NoteChartImporter.processVelocityData = function(self)
 			ncdk.Fraction:new():fromNumber(value, 1000)
 		)
 		self.foregroundLayerData:addVelocityData(velocityData)
-	end
-	
-	if not hasDefaultVelocity then
-		self:addDefaultVelocityData()
 	end
 	
 	self.foregroundLayerData.spaceData.velocityDataSequence:sort()
