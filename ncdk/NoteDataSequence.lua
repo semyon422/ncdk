@@ -1,8 +1,6 @@
-ncdk.NoteDataSequence = {}
-local NoteDataSequence = ncdk.NoteDataSequence
+local NoteDataSequence = {}
 
-ncdk.NoteDataSequence_metatable = {}
-local NoteDataSequence_metatable = ncdk.NoteDataSequence_metatable
+local NoteDataSequence_metatable = {}
 NoteDataSequence_metatable.__index = NoteDataSequence
 
 NoteDataSequence.new = function(self)
@@ -42,3 +40,5 @@ NoteDataSequence.sort = function(self)
 		return noteData1.timePoint < noteData2.timePoint
 	end)
 end
+
+return NoteDataSequence

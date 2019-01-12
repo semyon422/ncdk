@@ -1,8 +1,6 @@
-ncdk.StopData = {}
-local StopData = ncdk.StopData
+local StopData = {}
 
-ncdk.StopData_metatable = {}
-local StopData_metatable = ncdk.StopData_metatable
+local StopData_metatable = {}
 StopData_metatable.__index = StopData
 
 StopData.new = function(self, measureTime, measureDuration)
@@ -15,3 +13,5 @@ StopData.new = function(self, measureTime, measureDuration)
 	
 	return stopData
 end
+
+return StopData

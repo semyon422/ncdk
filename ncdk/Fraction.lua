@@ -1,8 +1,6 @@
-ncdk.Fraction = {}
-local Fraction = ncdk.Fraction
+local Fraction = {}
 
-ncdk.Fraction_metatable = {}
-local Fraction_metatable = ncdk.Fraction_metatable
+local Fraction_metatable = {}
 Fraction_metatable.__index = Fraction
 
 Fraction.new = function(self, numerator, denominator, maximumDenominator)
@@ -52,6 +50,24 @@ Fraction.fromNumber = function(self, number, accuracy)
 	else
 		return ncdk.Fraction:new(sign * math.floor(number * accuracy), accuracy)
 	end
+end
+
+local gcd
+gcd = function(a, b)
+	local a, b = math.abs(a), math.abs(b)
+	a, b = math.max(a, b), math.min(a, b)
+	
+	if a == b then
+		return a
+	end
+	if a == 1 or b == 1 or a == 0 or b == 0 then
+		return 1
+	end
+	if a % b == 0 then
+		return b
+	end
+	
+	return gcd(b, a % b)
 end
 
 Fraction.reduce = function(self)
@@ -183,25 +199,4 @@ Fraction_metatable.__le = function(fa, fb)
 	return fa.numerator * fb.denominator <= fa.denominator * fb.numerator
 end
 
-gcd = function(a, b)
-	local a, b = math.abs(a), math.abs(b)
-	a, b = math.max(a, b), math.min(a, b)
-	
-	if a == b then
-		return a
-	end
-	if a == 1 or b == 1 or a == 0 or b == 0 then
-		return 1
-	end
-	if a % b == 0 then
-		return b
-	end
-	
-	return gcd(b, a % b)
-end
-
-assert(gcd(1, 1) == 1)
-assert(gcd(1, 0) == 1)
-assert(gcd(1, 2) == 1)
-assert(gcd(2, 3) == 1)
-assert(gcd(24, 16) == 8)
+return Fraction

@@ -1,13 +1,13 @@
-ncdk.MetaData = {}
-local MetaData = ncdk.MetaData
+local MetaData = {}
 
-ncdk.MetaData_metatable = {}
-local MetaData_metatable = ncdk.MetaData_metatable
+local MetaData_metatable = {}
 MetaData_metatable.__index = MetaData
 
 MetaData.new = function(self)
 	local metaData = {}
+	
 	metaData.hash = {}
+	
 	setmetatable(metaData, MetaData_metatable)
 	
 	return metaData
@@ -20,3 +20,5 @@ end
 MetaData.hashGet = function(self, key)
 	return self.hash[key]
 end
+
+return MetaData

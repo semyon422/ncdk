@@ -1,16 +1,18 @@
-ncdk.LayerData = {}
-local LayerData = ncdk.LayerData
+local TimeData = require("ncdk.TimeData")
+local SpaceData = require("ncdk.SpaceData")
+local NoteDataSequence = require("ncdk.NoteDataSequence")
 
-ncdk.LayerData_metatable = {}
-local LayerData_metatable = ncdk.LayerData_metatable
+local LayerData = {}
+
+local LayerData_metatable = {}
 LayerData_metatable.__index = LayerData
 
 LayerData.new = function(self)
 	local layerData = {}
 	
-	layerData.timeData = ncdk.TimeData:new()
-	layerData.spaceData = ncdk.SpaceData:new()
-	layerData.noteDataSequence = ncdk.NoteDataSequence:new()
+	layerData.timeData = TimeData:new()
+	layerData.spaceData = SpaceData:new()
+	layerData.noteDataSequence = NoteDataSequence:new()
 	
 	layerData.timeData.layerData = layerData
 	layerData.spaceData.layerData = layerData

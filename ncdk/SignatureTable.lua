@@ -1,8 +1,6 @@
-ncdk.SignatureTable = {}
-local SignatureTable = ncdk.SignatureTable
+local SignatureTable = {}
 
-ncdk.SignatureTable_metatable = {}
-local SignatureTable_metatable = ncdk.SignatureTable_metatable
+local SignatureTable_metatable = {}
 SignatureTable_metatable.__index = SignatureTable
 
 SignatureTable.new = function(self, defaultSignature)
@@ -22,3 +20,5 @@ end
 SignatureTable.getSignature = function(self, measureIndex)
 	return self[measureIndex] or self.defaultSignature
 end
+
+return SignatureTable

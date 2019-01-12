@@ -1,8 +1,6 @@
-ncdk.StopDataSequence = {}
-local StopDataSequence = ncdk.StopDataSequence
+local StopDataSequence = {}
 
-ncdk.StopDataSequence_metatable = {}
-local StopDataSequence_metatable = ncdk.StopDataSequence_metatable
+local StopDataSequence_metatable = {}
 StopDataSequence_metatable.__index = StopDataSequence
 
 StopDataSequence.new = function(self)
@@ -35,3 +33,5 @@ StopDataSequence.sort = function(self)
 		return stopData1.measureTime < stopData2.measureTime
 	end)
 end
+
+return StopDataSequence

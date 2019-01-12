@@ -1,21 +1,28 @@
-ncdk = {}
+local ncdk = {}
 
-require("ncdk.Fraction")
+ncdk.Fraction = require("ncdk.Fraction")
 
-require("ncdk.NoteChart")
-require("ncdk.MetaData")
-require("ncdk.LayerData")
-require("ncdk.LayerDataSequence")
-require("ncdk.SignatureTable")
-require("ncdk.TempoData")
-require("ncdk.TempoDataSequence")
-require("ncdk.StopData")
-require("ncdk.StopDataSequence")
-require("ncdk.VelocityData")
-require("ncdk.VelocityDataSequence")
-require("ncdk.NoteData")
-require("ncdk.NoteDataSequence")
-require("ncdk.TimeData")
-require("ncdk.SpaceData")
-require("ncdk.TimePoint")
-require("ncdk.InputMode")
+ncdk.NoteChart = require("ncdk.NoteChart")
+ncdk.MetaData = require("ncdk.MetaData")
+ncdk.InputMode = require("ncdk.InputMode")
+
+ncdk.LayerData = require("ncdk.LayerData")
+ncdk.LayerDataSequence = require("ncdk.LayerDataSequence")
+
+ncdk.TimeData = require("ncdk.TimeData")
+ncdk.TimePoint = require("ncdk.TimePoint")
+ncdk.SignatureTable = require("ncdk.SignatureTable")
+ncdk.TempoData = require("ncdk.TempoData")
+ncdk.TempoDataSequence = require("ncdk.TempoDataSequence")
+ncdk.StopData = require("ncdk.StopData")
+ncdk.StopDataSequence = require("ncdk.StopDataSequence")
+
+ncdk.SpaceData = require("ncdk.SpaceData")
+ncdk.VelocityData = require("ncdk.VelocityData")
+ncdk.VelocityDataSequence = require("ncdk.VelocityDataSequence")
+
+ncdk.NoteData = require("ncdk.NoteData")
+ncdk.NoteDataSequence = require("ncdk.NoteDataSequence")
+
+
+return ncdk

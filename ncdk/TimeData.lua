@@ -1,8 +1,12 @@
-ncdk.TimeData = {}
-local TimeData = ncdk.TimeData
+local Fraction = require("ncdk.Fraction")
+local TimePoint = require("ncdk.TimePoint")
+local SignatureTable = require("ncdk.SignatureTable")
+local TempoDataSequence = require("ncdk.TempoDataSequence")
+local StopDataSequence = require("ncdk.StopDataSequence")
 
-ncdk.TimeData_metatable = {}
-local TimeData_metatable = ncdk.TimeData_metatable
+local TimeData = {}
+
+local TimeData_metatable = {}
 TimeData_metatable.__index = TimeData
 
 TimeData.Modes = {
@@ -16,9 +20,9 @@ TimeData.new = function(self)
 	timeData.mode = TimeData.Modes.Measure
 	timeData.timePoints = {}
 	
-	timeData.signatureTable = ncdk.SignatureTable:new(ncdk.Fraction:new(4))
-	timeData.tempoDataSequence = ncdk.TempoDataSequence:new()
-	timeData.stopDataSequence = ncdk.StopDataSequence:new()
+	timeData.signatureTable = SignatureTable:new(Fraction:new(4))
+	timeData.tempoDataSequence = TempoDataSequence:new()
+	timeData.stopDataSequence = StopDataSequence:new()
 	
 	setmetatable(timeData, TimeData_metatable)
 	
@@ -80,9 +84,9 @@ end
 
 TimeData.getAbsoluteTime = function(self, measureTime, side)
 	local time = 0
-	local zeroMeasureTime = ncdk.Fraction:new(0)
+	local zeroMeasureTime = Fraction:new(0)
 	
-	if measureTime == ncdk.Fraction:new(0) then
+	if measureTime == Fraction:new(0) then
 		return time
 	end
 	for currentTempoDataIndex = 1, self.tempoDataSequence:getTempoDataCount() do
@@ -113,7 +117,7 @@ TimeData.getTimePoint = function(self, time, side)
 	local timePointString = (time or 0) .. "," .. side
 	
 	if not time then
-		timePoint = ncdk.TimePoint:new(self)
+		timePoint = TimePoint:new(self)
 		
 		timePoint.timeData = self
 		timePoint.side = side
@@ -122,7 +126,7 @@ TimeData.getTimePoint = function(self, time, side)
 			return self.timePoints[timePointString]
 		end
 		
-		timePoint = ncdk.TimePoint:new(self)
+		timePoint = TimePoint:new(self)
 	
 		timePoint.timeData = self
 		timePoint.absoluteTime = time
@@ -135,7 +139,7 @@ TimeData.getTimePoint = function(self, time, side)
 			return self.timePoints[timePointString]
 		end
 		
-		timePoint = ncdk.TimePoint:new(self)
+		timePoint = TimePoint:new(self)
 	
 		timePoint.timeData = self
 		timePoint.measureTime = time
@@ -168,7 +172,7 @@ TimeData.createTimePointList = function(self)
 end
 
 TimeData.computeTimePoints = function(self)
-	if self.mode == ncdk.TimeData.Modes.Absolute then
+	if self.mode == TimeData.Modes.Absolute then
 		return self.timePointList
 	end
 	
@@ -245,10 +249,10 @@ end
 
 TimeData.updateZeroTimePoint = function(self)
 	local time
-	if self.mode == ncdk.TimeData.Modes.Absolute then
+	if self.mode == TimeData.Modes.Absolute then
 		time = 0
-	elseif self.mode == ncdk.TimeData.Modes.Measure then
-		time = ncdk.Fraction:new(0)
+	elseif self.mode == TimeData.Modes.Measure then
+		time = Fraction:new(0)
 	end
 	
 	self.zeroTimePoint = self:getTimePoint(time)
@@ -267,3 +271,5 @@ TimeData.addTempoData = function(self, ...) return self.tempoDataSequence:addTem
 TimeData.getTempoData = function(self, ...) return self.tempoDataSequence:getTempoData(...) end
 TimeData.addStopData = function(self, ...) return self.stopDataSequence:addStopData(...) end
 TimeData.getStopData = function(self, ...) return self.stopDataSequence:getStopData(...) end
+
+return TimeData

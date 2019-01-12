@@ -1,8 +1,8 @@
-ncdk.LayerDataSequence = {}
-local LayerDataSequence = ncdk.LayerDataSequence
+local LayerData = require("ncdk.LayerData")
 
-ncdk.LayerDataSequence_metatable = {}
-local LayerDataSequence_metatable = ncdk.LayerDataSequence_metatable
+local LayerDataSequence = {}
+
+local LayerDataSequence_metatable = {}
 LayerDataSequence_metatable.__index = LayerDataSequence
 
 LayerDataSequence.new = function(self)
@@ -19,7 +19,7 @@ end
 
 LayerDataSequence.requireLayerData = function(self, layerDataIndex)
 	if not self[layerDataIndex] then
-		self[layerDataIndex] = ncdk.LayerData:new()
+		self[layerDataIndex] = LayerData:new()
 		self[layerDataIndex].layerDataSequence = self
 		
 		self.layerDataCount = self.layerDataCount + 1
@@ -68,3 +68,5 @@ LayerDataSequence.compute = function(self)
 		end
 	end
 end
+
+return LayerDataSequence

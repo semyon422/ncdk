@@ -1,18 +1,20 @@
-ncdk.NoteChart = {}
-local NoteChart = ncdk.NoteChart
+local LayerDataSequence = require("ncdk.LayerDataSequence")
+local InputMode = require("ncdk.InputMode")
+local MetaData = require("ncdk.MetaData")
 
-ncdk.NoteChart_metatable = {}
-local NoteChart_metatable = ncdk.NoteChart_metatable
+local NoteChart = {}
+
+local NoteChart_metatable = {}
 NoteChart_metatable.__index = NoteChart
 
 NoteChart.new = function(self)
 	local noteChart = {}
 	
-	noteChart.layerDataSequence = ncdk.LayerDataSequence:new()
+	noteChart.layerDataSequence = LayerDataSequence:new()
 	noteChart.layerDataSequence.noteChart = noteChart
 	
-	noteChart.inputMode = ncdk.InputMode:new()
-	noteChart.metaData = ncdk.MetaData:new()
+	noteChart.inputMode = InputMode:new()
+	noteChart.metaData = MetaData:new()
 	
 	setmetatable(noteChart, NoteChart_metatable)
 	
@@ -27,3 +29,5 @@ NoteChart.hashSet = function(self, ...) return self.metaData:hashSet(...) end
 NoteChart.hashGet = function(self, ...) return self.metaData:hashGet(...) end
 
 NoteChart.compute = function(self, ...) return self.layerDataSequence:compute(...) end
+
+return NoteChart

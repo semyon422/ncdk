@@ -1,13 +1,13 @@
-ncdk.VelocityDataSequence = {}
-local VelocityDataSequence = ncdk.VelocityDataSequence
+local VelocityDataSequence = {}
 
-ncdk.VelocityDataSequence_metatable = {}
-local VelocityDataSequence_metatable = ncdk.VelocityDataSequence_metatable
+local VelocityDataSequence_metatable = {}
 VelocityDataSequence_metatable.__index = VelocityDataSequence
 
 VelocityDataSequence.new = function(self)
 	local velocityDataSequence = {}
+	
 	velocityDataSequence.velocityDataCount = 0
+	
 	setmetatable(velocityDataSequence, VelocityDataSequence_metatable)
 	
 	return velocityDataSequence
@@ -56,3 +56,5 @@ VelocityDataSequence.getVelocityDataByTimePoint = function(self, timePoint)
 		end
 	end
 end
+
+return VelocityDataSequence

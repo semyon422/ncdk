@@ -1,8 +1,6 @@
-ncdk.TimePoint = {}
-local TimePoint = ncdk.TimePoint
+local TimePoint = {}
 
-ncdk.TimePoint_metatable = {}
-local TimePoint_metatable = ncdk.TimePoint_metatable
+local TimePoint_metatable = {}
 TimePoint_metatable.__index = TimePoint
 
 TimePoint.new = function(self)
@@ -44,3 +42,5 @@ TimePoint_metatable.__le = function(tpa, tpb)
 		return tpa.absoluteTime < tpb.absoluteTime or (tpa.absoluteTime == tpb.absoluteTime and tpa.side == tpb.side)
 	end
 end
+
+return TimePoint

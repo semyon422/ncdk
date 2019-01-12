@@ -1,8 +1,6 @@
-ncdk.TempoDataSequence = {}
-local TempoDataSequence = ncdk.TempoDataSequence
+local TempoDataSequence = {}
 
-ncdk.TempoDataSequence_metatable = {}
-local TempoDataSequence_metatable = ncdk.TempoDataSequence_metatable
+local TempoDataSequence_metatable = {}
 TempoDataSequence_metatable.__index = TempoDataSequence
 
 TempoDataSequence.new = function(self)
@@ -52,3 +50,5 @@ TempoDataSequence.sort = function(self)
 		return tempoData1.measureTime < tempoData2.measureTime
 	end)
 end
+
+return TempoDataSequence

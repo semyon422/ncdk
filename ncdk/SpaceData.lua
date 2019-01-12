@@ -1,14 +1,15 @@
-ncdk.SpaceData = {}
-local SpaceData = ncdk.SpaceData
+local Fraction = require("ncdk.Fraction")
+local VelocityDataSequence = require("ncdk.VelocityDataSequence")
 
-ncdk.SpaceData_metatable = {}
-local SpaceData_metatable = ncdk.SpaceData_metatable
+local SpaceData = {}
+
+local SpaceData_metatable = {}
 SpaceData_metatable.__index = SpaceData
 
 SpaceData.new = function(self)
 	local spaceData = {}
 	
-	spaceData.velocityDataSequence = ncdk.VelocityDataSequence:new()
+	spaceData.velocityDataSequence = VelocityDataSequence:new()
 	spaceData.velocityDataSequence.spaceData = spaceData
 	
 	setmetatable(spaceData, SpaceData_metatable)
@@ -28,7 +29,7 @@ SpaceData.getVelocityDataVisualMeasureDuration = function(self, velocityDataInde
 	
 	if (startEdgeTimePoint and nextVelocityData and (startEdgeTimePoint >= mainEndTimePoint)) or
 	   (endEdgeTimePoint and velocityDataIndex > 1 and (endEdgeTimePoint <= mainStartTimePoint)) then
-		return ncdk.Fraction:new(0)
+		return Fraction:new(0)
 	end
 	
 	if velocityDataIndex == 1 or (startEdgeTimePoint and (startEdgeTimePoint > mainStartTimePoint)) then
@@ -39,7 +40,7 @@ SpaceData.getVelocityDataVisualMeasureDuration = function(self, velocityDataInde
 	end
 	
 	local visualMeasureDuration = (mainEndTimePoint.measureTime - mainStartTimePoint.measureTime) * currentVelocityData.currentSpeed
-	if visualMeasureDuration ~= ncdk.Fraction:new(0) or not currentVelocityData.visualEndTimePoint then
+	if visualMeasureDuration ~= Fraction:new(0) or not currentVelocityData.visualEndTimePoint then
 		return visualMeasureDuration
 	else
 		return currentVelocityData.visualEndTimePoint.measureTime - currentVelocityData.timePoint.measureTime
@@ -47,7 +48,7 @@ SpaceData.getVelocityDataVisualMeasureDuration = function(self, velocityDataInde
 end
 
 SpaceData.getVisualMeasureTime = function(self, targetMeasureTimePoint, currentMeasureTimePoint)
-	local deltaTime = ncdk.Fraction:new(0)
+	local deltaTime = Fraction:new(0)
 	
 	if targetMeasureTimePoint == currentMeasureTimePoint then
 		return currentMeasureTimePoint.measureTime
@@ -202,3 +203,5 @@ SpaceData.removeLastVelocityData = function(self, ...) return self.velocityDataS
 SpaceData.getVelocityData = function(self, ...) return self.velocityDataSequence:getVelocityData(...) end
 SpaceData.getVelocityDataCount = function(self) return self.velocityDataSequence:getVelocityDataCount() end
 SpaceData.getVelocityDataByTimePoint = function(self, ...) return self.velocityDataSequence:getVelocityDataByTimePoint(...) end
+
+return SpaceData

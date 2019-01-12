@@ -1,8 +1,6 @@
-ncdk.InputMode = {}
-local InputMode = ncdk.InputMode
+local InputMode = {}
 
-ncdk.InputMode_metatable = {}
-local InputMode_metatable = ncdk.InputMode_metatable
+local InputMode_metatable = {}
 InputMode_metatable.__index = InputMode
 
 InputMode.new = function(self)
@@ -55,3 +53,5 @@ InputMode_metatable.__le = function(a, b)
 	end
 	return true
 end
+
+return InputMode
