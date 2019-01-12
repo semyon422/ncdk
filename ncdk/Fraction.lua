@@ -38,7 +38,7 @@ Fraction.fromString = function(self, line)
 		error("invalid fraction detection: (" .. line .. ")")
 	end
 	
-	return ncdk.Fraction:new(tonumber(numerator), tonumber(denominator))
+	return Fraction:new(tonumber(numerator), tonumber(denominator))
 end
 
 Fraction.fromNumber = function(self, number, accuracy)
@@ -46,9 +46,9 @@ Fraction.fromNumber = function(self, number, accuracy)
 	local number = math.floor(math.abs(number) * accuracy) / accuracy
 	local decimalPart = number % 1
 	if decimalPart == 0 then
-		return ncdk.Fraction:new(sign * number, 1)
+		return Fraction:new(sign * number, 1)
 	else
-		return ncdk.Fraction:new(sign * math.floor(number * accuracy), accuracy)
+		return Fraction:new(sign * math.floor(number * accuracy), accuracy)
 	end
 end
 

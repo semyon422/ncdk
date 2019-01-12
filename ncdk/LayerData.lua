@@ -68,3 +68,5 @@ LayerData.getColumnCount = function(self) return self.noteDataSequence:getColumn
 LayerData.addNoteData = function(self, ...) return self.noteDataSequence:addNoteData(...) end
 LayerData.getNoteData = function(self, ...) return self.noteDataSequence:getNoteData(...) end
 LayerData.getNoteDataCount = function(self) return self.noteDataSequence:getNoteDataCount() end
+
+return LayerData
