@@ -3,20 +3,23 @@ local Fraction = {}
 local Fraction_metatable = {}
 Fraction_metatable.__index = Fraction
 
-Fraction.new = function(self, numerator, denominator, maximumDenominator)
+Fraction.new = function(self, numerator, denominator)
 	local fraction = {}
 	
-	fraction.numerator = numerator or 0
-	fraction.denominator = denominator or 1
-	fraction.maximumDenominator = maximumDenominator
+	numerator = numerator or 0
+	denominator = denominator or 1
 	
-	if fraction.numerator % 1 ~= 0 or fraction.denominator % 1 ~= 0 or fraction.denominator == 0 then
-		error("invalid fraction\n" ..
-			"n -> " .. type(fraction.numerator) .. " -> " .. tostring(fraction.numerator) .. "\n" ..
-			"d -> " .. type(fraction.denominator) .. " -> " .. tostring(fraction.denominator)
+	if numerator % 1 ~= 0 or denominator % 1 ~= 0 or denominator == 0 then
+		error(
+			("\ninvalid fraction: %s(%s) / %s(%s)"):format(
+				type(numerator), tostring(numerator),
+				type(denominator), tostring(denominator)
+			)
 		)
 	end
 	
+	fraction.numerator = tonumber(numerator)
+	fraction.denominator = tonumber(denominator)
 	fraction.number = fraction.numerator / fraction.denominator
 	
 	setmetatable(fraction, Fraction_metatable)
@@ -31,25 +34,18 @@ Fraction.fromString = function(self, line)
 	if line:find("/") then
 		numerator, denominator = line:match("^([%-%+]?%d+)/(%d+)$")
 	else
-		numerator, denominator = line:match("^([%-%+]?%d+)$"), 1
+		numerator = line:match("^([%-%+]?%d+)$"), 1
 	end
 	
 	if not numerator then
-		error("invalid fraction detection: (" .. line .. ")")
+		error(("\ninvalid fraction: %s(%s)"):format(line))
 	end
 	
 	return Fraction:new(tonumber(numerator), tonumber(denominator))
 end
 
 Fraction.fromNumber = function(self, number, accuracy)
-	local sign = number ~= 0 and number / math.abs(number) or 0
-	local number = math.floor(math.abs(number) * accuracy) / accuracy
-	local decimalPart = number % 1
-	if decimalPart == 0 then
-		return Fraction:new(sign * number, 1)
-	else
-		return Fraction:new(sign * math.floor(number * accuracy), accuracy)
-	end
+	return Fraction:new(math.floor(number * accuracy), accuracy)
 end
 
 local gcd
@@ -91,16 +87,28 @@ Fraction.reduce = function(self)
 	self.denominator = self.denominator / reduceFactor
 end
 
+Fraction.floor = function(self)
+	return Fraction:new(math.floor(self.numerator / self.denominator))
+end
+
+Fraction.ceil = function(self)
+	return Fraction:new(math.ceil(self.numerator / self.denominator))
+end
+
 Fraction.tonumber = function(self)
 	return self.number
 end
 
-Fraction_metatable.__tostring = function(self)
+Fraction.tostring = function(self)
 	if self.denominator == 1 then
 		return tostring(self.numerator)
 	else
 		return self.numerator .. "/" .. self.denominator
 	end
+end
+
+Fraction_metatable.__tostring = function(self)
+	return self:tostring()
 end
 
 Fraction_metatable.__unm = function(fa)
@@ -110,93 +118,86 @@ Fraction_metatable.__unm = function(fa)
 	)
 end
 
-local getFractions = function(fa, fb)
-	if type(fa) == "number" or type(fa) == "string" then
-		fa = Fraction:new(tonumber(fa), 1)
-	end
-	if type(fb) == "number" or type(fb) == "string" then
-		fb = Fraction:new(tonumber(fb), 1)
-	end
-	
-	return fa, fb
+local fraction = function(n)
+	return type(n) ~= "table" and n % 1 == 0 and Fraction:new(tonumber(n)) or n
 end
 
-Fraction_metatable.__add = function(fa, fb)
-	local fa, fb = getFractions(fa, fb)
-	
+local add = function(a, b)
 	return Fraction:new(
-		fa.numerator * fb.denominator + fa.denominator * fb.numerator,
-		fa.denominator * fb.denominator
+		a.numerator * b.denominator + a.denominator * b.numerator,
+		a.denominator * b.denominator
 	)
 end
-
-Fraction_metatable.__sub = function(fa, fb)
-	local fa, fb = getFractions(fa, fb)
-	
-	return Fraction:new(
-		fa.numerator * fb.denominator - fa.denominator * fb.numerator,
-		fa.denominator * fb.denominator
-	)
-end
-
-Fraction_metatable.__mul = function(fa, fb)
-	local fa, fb = getFractions(fa, fb)
-	
-	return Fraction:new(
-		fa.numerator * fb.numerator,
-		fa.denominator * fb.denominator
-	)
-end
-
-Fraction_metatable.__div = function(fa, fb)
-	local fa, fb = getFractions(fa, fb)
-	
-	return Fraction:new(
-		fa.numerator * fb.denominator,
-		fa.denominator * fb.numerator
-	)
-end
-
-Fraction_metatable.__mod = function(fa, fb)
-end
-
-Fraction_metatable.__pow = function(fa, fb)
-end
-
-Fraction_metatable.__concat = function(fa, fb)	
-	return tostring(fa) .. tostring(fb)
-end
-
-Fraction.floor = function(self)
-	local numerator = self.numerator
-	
-	while numerator % self.denominator ~= 0 do
-		numerator = numerator - 1
+Fraction_metatable.__add = function(a, b)
+	if type(a) == "number" then
+		return a + b:tonumber()
 	end
 	
-	return numerator / self.denominator
+	return add(a, fraction(b))
 end
 
-Fraction.ceil = function(self)
-	local numerator = self.numerator
-	
-	while numerator % self.denominator ~= 0 do
-		numerator = numerator + 1
+local sub = function(a, b)
+	return Fraction:new(
+		a.numerator * b.denominator - a.denominator * b.numerator,
+		a.denominator * b.denominator
+	)
+end
+Fraction_metatable.__sub = function(a, b)
+	if type(a) == "number" then
+		return a - b:tonumber()
 	end
 	
-	return numerator / self.denominator
+	return sub(a, fraction(b))
 end
 
-Fraction_metatable.__eq = function(fa, fb)
-	return fa.numerator * fb.denominator == fa.denominator * fb.numerator
+local mul = function(a, b)
+	return Fraction:new(
+		a.numerator * b.numerator,
+		a.denominator * b.denominator
+	)
+end
+Fraction_metatable.__mul = function(a, b)
+	if type(a) == "number" then
+		return a * b:tonumber()
+	end
+	
+	return mul(a, fraction(b))
 end
 
-Fraction_metatable.__lt = function(fa, fb)
-	return fa.numerator * fb.denominator < fa.denominator * fb.numerator
+local div = function(a, b)
+	return Fraction:new(
+		a.numerator * b.denominator,
+		a.denominator * b.numerator
+	)
+end
+Fraction_metatable.__div = function(a, b)
+	if type(a) == "number" then
+		return a / b:tonumber()
+	end
+	
+	return div(a, fraction(b))
 end
 
-Fraction_metatable.__le = function(fa, fb)
-	return fa.numerator * fb.denominator <= fa.denominator * fb.numerator
+Fraction_metatable.__mod = function(a, b)
+end
+
+Fraction_metatable.__pow = function(a, b)
+end
+
+Fraction_metatable.__concat = function(a, b)	
+	return tostring(a) .. tostring(b)
+end
+
+Fraction_metatable.__eq = function(a, b)
+	return a.numerator * b.denominator == a.denominator * b.numerator
+end
+
+Fraction_metatable.__lt = function(a, b)
+	return a.numerator * b.denominator < a.denominator * b.numerator
+end
+
+Fraction_metatable.__le = function(a, b)
+	return a.numerator * b.denominator <= a.denominator * b.numerator
 end
 
 return Fraction

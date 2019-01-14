@@ -51,8 +51,8 @@ TimeData.getTempoDataDuration = function(self, tempoDataIndex, startEdgeM_Time, 
 		mainEndM_Time = endEdgeM_Time
 	end
 	
-	local startM_Index = math.min(mainStartM_Time:floor(), mainEndM_Time:floor())
-	local endM_Index = math.max(mainStartM_Time:floor(), mainEndM_Time:floor())
+	local startM_Index = math.min(mainStartM_Time:floor():tonumber(), mainEndM_Time:floor():tonumber())
+	local endM_Index = math.max(mainStartM_Time:floor():tonumber(), mainEndM_Time:floor():tonumber())
 	
 	local time = 0
 	for _M_Index = startM_Index, endM_Index do
