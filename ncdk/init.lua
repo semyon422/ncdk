@@ -5,6 +5,7 @@ ncdk.Fraction = require("ncdk.Fraction")
 ncdk.NoteChart = require("ncdk.NoteChart")
 ncdk.MetaData = require("ncdk.MetaData")
 ncdk.InputMode = require("ncdk.InputMode")
+ncdk.ResourceList = require("ncdk.ResourceList")
 
 ncdk.LayerData = require("ncdk.LayerData")
 ncdk.LayerDataSequence = require("ncdk.LayerDataSequence")
