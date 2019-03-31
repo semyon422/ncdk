@@ -45,10 +45,12 @@ TempoDataSequence.getTempoDataByMeasureTime = function(self, measureTime)
 	end
 end
 
+local sort = function(tempoData1, tempoData2)
+	return tempoData1.measureTime.number < tempoData2.measureTime.number
+end
+
 TempoDataSequence.sort = function(self)
-	table.sort(self, function(tempoData1, tempoData2)
-		return tempoData1.measureTime < tempoData2.measureTime
-	end)
+	return table.sort(self, sort)
 end
 
 return TempoDataSequence

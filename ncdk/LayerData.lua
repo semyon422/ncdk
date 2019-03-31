@@ -38,8 +38,8 @@ LayerData.compute = function(self)
 end
 
 LayerData.computeNoteData = function(self)
-	for noteDataIndex = 1, self.noteDataSequence:getNoteDataCount() do
-		local noteData = self.noteDataSequence:getNoteData(noteDataIndex)
+	for noteDataIndex = 1, self:getNoteDataCount() do
+		local noteData = self:getNoteData(noteDataIndex)
 		
 		noteData.zeroClearVisualTime = noteData.timePoint.zeroClearVisualTime
 		noteData.currentVisualTime = noteData.zeroClearVisualTime

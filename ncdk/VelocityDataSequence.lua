@@ -34,12 +34,6 @@ VelocityDataSequence.getVelocityDataCount = function(self)
 	return self.velocityDataCount
 end
 
-VelocityDataSequence.sort = function(self)
-	table.sort(self, function(velocityData1, velocityData2)
-		return velocityData1.timePoint < velocityData2.timePoint
-	end)
-end
-
 VelocityDataSequence.getVelocityDataByTimePoint = function(self, timePoint)
 	for currentVelocityDataIndex = 1, self:getVelocityDataCount() do
 		local currentVelocityData = self:getVelocityData(currentVelocityDataIndex)
@@ -55,6 +49,14 @@ VelocityDataSequence.getVelocityDataByTimePoint = function(self, timePoint)
 			return currentVelocityData, currentVelocityDataIndex
 		end
 	end
+end
+
+local sort = function(velocityData1, velocityData2)
+	return velocityData1.timePoint < velocityData2.timePoint
+end
+
+VelocityDataSequence.sort = function(self)
+	return table.sort(self, sort)
 end
 
 return VelocityDataSequence

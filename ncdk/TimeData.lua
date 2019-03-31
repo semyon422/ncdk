@@ -158,17 +158,18 @@ TimeData.sort = function(self)
 end
 
 TimeData.createTimePointList = function(self)
-	self.timePointList = {}
+	local timePointList = {}
 	for _, timePoint in pairs(self.timePoints) do
-		self.timePointList[#self.timePointList + 1] = timePoint
+		timePointList[#timePointList + 1] = timePoint
 	end
-	table.sort(self.timePointList)
-	local firstTimePoint = self.timePointList[1]
-	local lastTimePoint = self.timePointList[#self.timePointList]
-	for i = 1, #self.timePointList do
-		self.timePointList[i].firstTimePoint = firstTimePoint
-		self.timePointList[i].lastTimePoint = lastTimePoint
+	table.sort(timePointList)
+	local firstTimePoint = timePointList[1]
+	local lastTimePoint = timePointList[#timePointList]
+	for i = 1, #timePointList do
+		timePointList[i].firstTimePoint = firstTimePoint
+		timePointList[i].lastTimePoint = lastTimePoint
 	end
+	self.timePointList = timePointList
 end
 
 TimeData.computeTimePoints = function(self)
@@ -176,18 +177,20 @@ TimeData.computeTimePoints = function(self)
 		return self.timePointList
 	end
 	
+	local timePointList = timePointList
+	
 	local zeroTimePoint = self:getZeroTimePoint()
 	local baseZeroTime = 0
 	
 	local globalTime = 0
 	local targetTimePointIndex = 1
-	local targetTimePoint = self.timePointList[targetTimePointIndex]
-	local leftMeasureTime = self.timePointList[1].measureTime
+	local targetTimePoint = timePointList[targetTimePointIndex]
+	local leftMeasureTime = timePointList[1].measureTime
 	for currentTempoDataIndex = 1, self.tempoDataSequence:getTempoDataCount() do
 		local currentTempoData = self:getTempoData(currentTempoDataIndex)
 		local nextTempoData = self:getTempoData(currentTempoDataIndex + 1)
 		
-		while targetTimePointIndex <= #self.timePointList do
+		while targetTimePointIndex <= #timePointList do
 			if not nextTempoData or targetTimePoint.measureTime < nextTempoData.measureTime then
 				targetTimePoint.tempoData = currentTempoData
 				targetTimePoint.absoluteTime = globalTime + self:getTempoDataDuration(currentTempoDataIndex, leftMeasureTime, targetTimePoint.measureTime)
@@ -195,7 +198,7 @@ TimeData.computeTimePoints = function(self)
 					baseZeroTime = targetTimePoint.absoluteTime
 				end
 				targetTimePointIndex = targetTimePointIndex + 1
-				targetTimePoint = self.timePointList[targetTimePointIndex]
+				targetTimePoint = timePointList[targetTimePointIndex]
 			else
 				break
 			end
@@ -214,20 +217,20 @@ TimeData.computeTimePoints = function(self)
 	local baseZeroStopDuration = 0
 	local globalTime = 0
 	local targetTimePointIndex = 1
-	local targetTimePoint = self.timePointList[targetTimePointIndex]
-	local leftMeasureTime = self.timePointList[1].measureTime
+	local targetTimePoint = timePointList[targetTimePointIndex]
+	local leftMeasureTime = timePointList[1].measureTime
 	for currentStopDataIndex = 1, self.stopDataSequence:getStopDataCount() do
 		local currentStopData = self:getStopData(currentStopDataIndex)
 		local nextStopData = self:getStopData(currentStopDataIndex + 1)
 		
-		while targetTimePointIndex <= #self.timePointList do
+		while targetTimePointIndex <= #timePointList do
 			if not nextStopData or targetTimePoint.measureTime < nextStopData.measureTime then
 				targetTimePoint.stopDuration = globalTime + self:getStopDataDuration(currentStopDataIndex, leftMeasureTime, targetTimePoint.measureTime, targetTimePoint.side)
 				if targetTimePoint == zeroTimePoint then
 					baseZeroStopDuration = targetTimePoint.stopDuration
 				end
 				targetTimePointIndex = targetTimePointIndex + 1
-				targetTimePoint = self.timePointList[targetTimePointIndex]
+				targetTimePoint = timePointList[targetTimePointIndex]
 			else
 				break
 			end
@@ -236,7 +239,7 @@ TimeData.computeTimePoints = function(self)
 	end
 	
 	
-	for _, timePoint in ipairs(self.timePointList) do
+	for _, timePoint in ipairs(timePointList) do
 		timePoint.absoluteTime
 			= timePoint.absoluteTime
 			+ (timePoint.stopDuration or 0)
@@ -244,7 +247,7 @@ TimeData.computeTimePoints = function(self)
 			- baseZeroStopDuration
 	end
 	
-	return self.timePointList
+	return timePointList
 end
 
 TimeData.updateZeroTimePoint = function(self)

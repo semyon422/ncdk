@@ -154,22 +154,22 @@ SpaceData.sort = function(self)
 end
 
 SpaceData.computeTimePoints = function(self)
-	self.timePointList = self.layerData.timeData.timePointList
+	local timePointList = self.layerData.timeData.timePointList
 	local zeroTimePoint = self.layerData.timeData:getZeroTimePoint()
 	
-	local firstTimePoint = self.timePointList[1]
+	local firstTimePoint = timePointList[1]
 	local baseZeroClearVisualTime = 0
 	
 	local globalTime = 0
 	local targetTimePointIndex = 1
-	local targetTimePoint = self.timePointList[targetTimePointIndex]
+	local targetTimePoint = timePointList[targetTimePointIndex]
 	local leftTimePoint = firstTimePoint
 	
 	for currentVelocityDataIndex = 1, self:getVelocityDataCount() do
 		local currentVelocityData = self:getVelocityData(currentVelocityDataIndex)
 		local nextVelocityData = self:getVelocityData(currentVelocityDataIndex + 1)
 		
-		while targetTimePointIndex <= #self.timePointList do
+		while targetTimePointIndex <= #timePointList do
 			if not nextVelocityData or targetTimePoint < nextVelocityData.timePoint then
 				targetTimePoint.velocityData = currentVelocityData
 				targetTimePoint.zeroClearVisualTime = globalTime + self:getVelocityDataVisualDuration(currentVelocityDataIndex, leftTimePoint, targetTimePoint)
@@ -177,7 +177,7 @@ SpaceData.computeTimePoints = function(self)
 					baseZeroClearVisualTime = targetTimePoint.zeroClearVisualTime
 				end
 				targetTimePointIndex = targetTimePointIndex + 1
-				targetTimePoint = self.timePointList[targetTimePointIndex]
+				targetTimePoint = timePointList[targetTimePointIndex]
 			else
 				break
 			end
@@ -193,7 +193,7 @@ SpaceData.computeTimePoints = function(self)
 		end
 	end
 	
-	for _, timePoint in ipairs(self.timePointList) do
+	for _, timePoint in ipairs(timePointList) do
 		timePoint.zeroClearVisualTime = timePoint.zeroClearVisualTime - baseZeroClearVisualTime
 	end
 end

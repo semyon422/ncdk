@@ -28,10 +28,12 @@ StopDataSequence.getStopDataCount = function(self)
 	return self.stopDataCount
 end
 
+local sort = function(stopData1, stopData2)
+	return stopData1.measureTime.number < stopData2.measureTime.number
+end
+
 StopDataSequence.sort = function(self)
-	table.sort(self, function(stopData1, stopData2)
-		return stopData1.measureTime < stopData2.measureTime
-	end)
+	return table.sort(self, sort)
 end
 
 return StopDataSequence
