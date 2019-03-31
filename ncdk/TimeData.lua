@@ -177,7 +177,7 @@ TimeData.computeTimePoints = function(self)
 		return self.timePointList
 	end
 	
-	local timePointList = timePointList
+	local timePointList = self.timePointList
 	
 	local zeroTimePoint = self:getZeroTimePoint()
 	local baseZeroTime = 0
