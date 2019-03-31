@@ -1,8 +1,5 @@
-package.path = package.path .. ";./?.lua;./?/init.lua"
-
 local ncdk = require("ncdk")
 
--- Fraction
 local Fraction = ncdk.Fraction
 
 assert(Fraction:new(0) == Fraction:new())
