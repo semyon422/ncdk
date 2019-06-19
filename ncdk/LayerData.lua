@@ -57,8 +57,11 @@ LayerData.getTimePoint = function(self, ...) return self.timeData:getTimePoint(.
 LayerData.updateZeroTimePoint = function(self) return self.timeData:updateZeroTimePoint() end
 LayerData.getZeroTimePoint = function(self) return self.timeData:getZeroTimePoint() end
 
+
 LayerData.addVelocityData = function(self, ...) return self.spaceData:addVelocityData(...) end
 LayerData.removeLastVelocityData = function(self, ...) return self.spaceData:removeLastVelocityData(...) end
+LayerData.getVelocityData = function(self, ...) return self.spaceData:getVelocityData(...) end
+LayerData.getVelocityDataCount = function(self) return self.spaceData:getVelocityDataCount() end
 LayerData.getVelocityDataByTimePoint = function(self, ...) return self.spaceData:getVelocityDataByTimePoint(...) end
 LayerData.getVisualMeasureTime = function(self, ...) return self.spaceData:getVisualMeasureTime(...) end
 LayerData.getVisualTime = function(self, ...) return self.spaceData:getVisualTime(...) end
