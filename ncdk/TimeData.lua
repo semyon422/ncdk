@@ -9,15 +9,11 @@ local TimeData = {}
 local TimeData_metatable = {}
 TimeData_metatable.__index = TimeData
 
-TimeData.Modes = {
-	Absolute = 0,
-	Measure = 1
-}
+TimeData.mode = "measure"
 
 TimeData.new = function(self)
 	local timeData = {}
 	
-	timeData.mode = TimeData.Modes.Measure
 	timeData.timePoints = {}
 	
 	timeData.signatureTable = SignatureTable:new(Fraction:new(4))
@@ -108,6 +104,9 @@ TimeData.getAbsoluteTime = function(self, measureTime, side)
 end
 
 TimeData.setMode = function(self, mode)
+	if mode ~= "measure" and mode ~= "absolute" then
+		error("Wrong time mode")
+	end
 	self.mode = mode
 end
 
@@ -121,7 +120,7 @@ TimeData.getTimePoint = function(self, time, side)
 		
 		timePoint.timeData = self
 		timePoint.side = side
-	elseif self.mode == self.Modes.Absolute then
+	elseif self.mode == "absolute" then
 		if self.timePoints[timePointString] then
 			return self.timePoints[timePointString]
 		end
@@ -134,7 +133,7 @@ TimeData.getTimePoint = function(self, time, side)
 		timePoint.timePointString = timePointString
 		
 		self.timePoints[timePointString] = timePoint
-	elseif self.mode == self.Modes.Measure then
+	elseif self.mode == "measure" then
 		if self.timePoints[timePointString] then
 			return self.timePoints[timePointString]
 		end
@@ -173,7 +172,7 @@ TimeData.createTimePointList = function(self)
 end
 
 TimeData.computeTimePoints = function(self)
-	if self.mode == TimeData.Modes.Absolute then
+	if self.mode == "absolute" then
 		return self.timePointList
 	end
 	
@@ -262,9 +261,9 @@ end
 
 TimeData.updateZeroTimePoint = function(self)
 	local time
-	if self.mode == TimeData.Modes.Absolute then
+	if self.mode == "absolute" then
 		time = 0
-	elseif self.mode == TimeData.Modes.Measure then
+	elseif self.mode == "measure" then
 		time = Fraction:new(0)
 	end
 	
@@ -277,6 +276,7 @@ TimeData.getZeroTimePoint = function(self)
 	return self.zeroTimePoint
 end
 
+TimeData.setSignatureMode = function(self, ...) return self.signatureTable:setMode(...) end
 TimeData.setSignature = function(self, ...) return self.signatureTable:setSignature(...) end
 TimeData.getSignature = function(self, ...) return self.signatureTable:getSignature(...) end
 TimeData.setSignatureTable = function(self, ...) self.signatureTable = ... end

@@ -56,6 +56,8 @@ LayerData.getStopData = function(self, ...) return self.timeData:getStopData(...
 LayerData.getTimePoint = function(self, ...) return self.timeData:getTimePoint(...) end
 LayerData.updateZeroTimePoint = function(self) return self.timeData:updateZeroTimePoint() end
 LayerData.getZeroTimePoint = function(self) return self.timeData:getZeroTimePoint() end
+LayerData.setTimeMode = function(self, ...) return self.timeData:setMode(...) end
+LayerData.setSignatureMode = function(self, ...) return self.timeData:setSignatureMode(...) end
 
 
 LayerData.addVelocityData = function(self, ...) return self.spaceData:addVelocityData(...) end
