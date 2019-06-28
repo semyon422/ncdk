@@ -178,36 +178,53 @@ TimeData.computeTimePoints = function(self)
 	end
 	
 	local timePointList = self.timePointList
-	
 	local zeroTimePoint = self:getZeroTimePoint()
 	
+	local lastMeasureTime = timePointList[#timePointList].measureTime
+	
+	local currentTempoDataIndex = 1
+	local currentTempoData = self:getTempoData(currentTempoDataIndex)
 	local globalTime = 0
+	
 	local targetTimePointIndex = 1
 	local targetTimePoint = timePointList[targetTimePointIndex]
-	local leftMeasureTime = timePointList[1].measureTime
-	for currentTempoDataIndex = 1, self.tempoDataSequence:getTempoDataCount() do
-		local currentTempoData = self:getTempoData(currentTempoDataIndex)
-		local nextTempoData = self:getTempoData(currentTempoDataIndex + 1)
-		
-		while targetTimePointIndex <= #timePointList do
-			if not nextTempoData or targetTimePoint.measureTime < nextTempoData.measureTime then
-				targetTimePoint.tempoData = currentTempoData
-				targetTimePoint.absoluteTime = globalTime + self:getTempoDataDuration(currentTempoDataIndex, leftMeasureTime, targetTimePoint.measureTime)
-				targetTimePointIndex = targetTimePointIndex + 1
-				targetTimePoint = timePointList[targetTimePointIndex]
-			else
-				break
-			end
+	
+	local currentMeasureTime = timePointList[1].measureTime
+	local targetMeasureTime
+	while true do
+		local nextTempoDataIndex = currentTempoDataIndex + 1
+		local nextTempoData = self:getTempoData(nextTempoDataIndex)
+		while nextTempoData and nextTempoData.measureTime <= currentMeasureTime do
+			currentTempoDataIndex = nextTempoDataIndex
+			currentTempoData = nextTempoData
+			nextTempoDataIndex = currentTempoDataIndex + 1
+			nextTempoData = self:getTempoData(nextTempoDataIndex)
 		end
 		
-		if nextTempoData then
-			globalTime = globalTime + self:getTempoDataDuration(
-				currentTempoDataIndex,
-				leftMeasureTime,
-				nextTempoData.measureTime
-			)
-			leftMeasureTime = currentTempoData.measureTime
+		targetMeasureTime = currentMeasureTime:floor() + 1
+		if targetTimePoint and targetTimePoint.measureTime >= currentMeasureTime and targetTimePoint.measureTime < targetMeasureTime then
+			targetMeasureTime = targetTimePoint.measureTime
 		end
+		if nextTempoData and nextTempoData.measureTime >= currentMeasureTime and nextTempoData.measureTime < targetMeasureTime then
+			targetMeasureTime = targetMeasureTime
+		end
+		
+		if targetMeasureTime > lastMeasureTime then
+			break
+		end
+		
+		local dedicatedDuration = currentTempoData:getBeatDuration() * self:getSignature(currentMeasureTime:floor():tonumber())
+		globalTime = globalTime + dedicatedDuration * (targetMeasureTime - currentMeasureTime)
+		
+		if targetTimePoint and targetTimePoint.measureTime == targetMeasureTime then
+			targetTimePoint.tempoData = currentTempoData
+			targetTimePoint.absoluteTime = globalTime
+			
+			targetTimePointIndex = targetTimePointIndex + 1
+			targetTimePoint = timePointList[targetTimePointIndex]
+		end
+		
+		currentMeasureTime = targetMeasureTime
 	end
 	
 	local globalTime = 0
