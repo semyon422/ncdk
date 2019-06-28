@@ -180,7 +180,6 @@ TimeData.computeTimePoints = function(self)
 	local timePointList = self.timePointList
 	
 	local zeroTimePoint = self:getZeroTimePoint()
-	local baseZeroTime = 0
 	
 	local globalTime = 0
 	local targetTimePointIndex = 1
@@ -194,9 +193,6 @@ TimeData.computeTimePoints = function(self)
 			if not nextTempoData or targetTimePoint.measureTime < nextTempoData.measureTime then
 				targetTimePoint.tempoData = currentTempoData
 				targetTimePoint.absoluteTime = globalTime + self:getTempoDataDuration(currentTempoDataIndex, leftMeasureTime, targetTimePoint.measureTime)
-				if targetTimePoint == zeroTimePoint then
-					baseZeroTime = targetTimePoint.absoluteTime
-				end
 				targetTimePointIndex = targetTimePointIndex + 1
 				targetTimePoint = timePointList[targetTimePointIndex]
 			else
@@ -214,7 +210,6 @@ TimeData.computeTimePoints = function(self)
 		end
 	end
 	
-	local baseZeroStopDuration = 0
 	local globalTime = 0
 	local targetTimePointIndex = 1
 	local targetTimePoint = timePointList[targetTimePointIndex]
@@ -226,9 +221,6 @@ TimeData.computeTimePoints = function(self)
 		while targetTimePointIndex <= #timePointList do
 			if not nextStopData or targetTimePoint.measureTime < nextStopData.measureTime then
 				targetTimePoint.stopDuration = globalTime + self:getStopDataDuration(currentStopDataIndex, leftMeasureTime, targetTimePoint.measureTime, targetTimePoint.side)
-				if targetTimePoint == zeroTimePoint then
-					baseZeroStopDuration = targetTimePoint.stopDuration
-				end
 				targetTimePointIndex = targetTimePointIndex + 1
 				targetTimePoint = timePointList[targetTimePointIndex]
 			else
@@ -238,7 +230,8 @@ TimeData.computeTimePoints = function(self)
 		globalTime = globalTime + self:getStopDataDuration(currentStopDataIndex, leftMeasureTime, currentStopData.measureTime, 1)
 	end
 	
-	
+	local baseZeroTime = zeroTimePoint.absoluteTime
+	local baseZeroStopDuration = zeroTimePoint.stopDuration or 0
 	for _, timePoint in ipairs(timePointList) do
 		timePoint.absoluteTime
 			= timePoint.absoluteTime
