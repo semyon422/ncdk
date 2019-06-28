@@ -119,7 +119,12 @@ Fraction_metatable.__unm = function(fa)
 end
 
 local fraction = function(n)
-	return type(n) ~= "table" and n % 1 == 0 and Fraction:new(tonumber(n)) or n
+	if type(n) == "table" then
+		return n
+	elseif n % 1 == 0 then
+		return Fraction:new(tonumber(n))
+	end
+	error(n)
 end
 
 local add = function(a, b)
