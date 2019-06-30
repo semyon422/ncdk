@@ -62,10 +62,7 @@ end
 
 LayerDataSequence.compute = function(self)
 	for layerDataIndex in self:getLayerDataIndexIterator() do
-		local layerData = self[layerDataIndex]
-		if not layerData.invisible then
-			layerData:compute()
-		end
+		self[layerDataIndex]:compute()
 	end
 end
 

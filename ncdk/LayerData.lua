@@ -32,9 +32,12 @@ LayerData.compute = function(self)
 	
 	self.timeData:createTimePointList()
 	self.timeData:computeTimePoints()
-	self.spaceData:computeTimePoints()
 	
-	self:computeNoteData()
+	if not self.invisible then
+		self.spaceData:computeTimePoints()
+		
+		self:computeNoteData()
+	end
 end
 
 LayerData.computeNoteData = function(self)
