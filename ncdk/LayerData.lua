@@ -35,17 +35,6 @@ LayerData.compute = function(self)
 	
 	if not self.invisible then
 		self.spaceData:computeTimePoints()
-		
-		self:computeNoteData()
-	end
-end
-
-LayerData.computeNoteData = function(self)
-	for noteDataIndex = 1, self:getNoteDataCount() do
-		local noteData = self:getNoteData(noteDataIndex)
-		
-		noteData.zeroClearVisualTime = noteData.timePoint.zeroClearVisualTime
-		noteData.currentVisualTime = noteData.zeroClearVisualTime
 	end
 end
 

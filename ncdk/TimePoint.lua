@@ -19,6 +19,13 @@ TimePoint.getAbsoluteTime = function(self)
 	return self.absoluteTime
 end
 
+TimePoint.computeZeroClearVisualTime = function(self)
+	self.zeroClearVisualTime
+		= (self.absoluteTime - self.velocityData.timePoint:getAbsoluteTime())
+		* self.velocityData.currentSpeed:tonumber()
+		+ self.velocityData.timePoint.zeroClearVisualTime
+end
+
 TimePoint_metatable.__eq = function(tpa, tpb)
 	if tpa.measureTime and tpb.measureTime then
 		return tpa.measureTime.number == tpb.measureTime.number and tpa.side == tpb.side
