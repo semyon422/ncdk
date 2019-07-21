@@ -13,17 +13,17 @@ ResourceList.new = function(self)
 	return resourceList
 end
 
-ResourceList.add = function(self, type, name)
+ResourceList.add = function(self, type, name, sequence)
 	local data = self.data
 	data[type] = data[type] or {}
-	data[type][name] = true
+	data[type][name] = sequence
 end
 
 ResourceList.getIterator = function(self)
 	local list = {}
 	for type, data in pairs(self.data) do
-		for name in pairs(data) do
-			list[#list + 1] = {type, name}
+		for name, sequence in pairs(data) do
+			list[#list + 1] = {type, name, sequence}
 		end
 	end
 	local counter = 1
