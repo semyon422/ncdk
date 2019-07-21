@@ -212,7 +212,7 @@ TimeData.computeTimePoints = function(self)
 			break
 		end
 		
-		local dedicatedDuration = currentTempoData:getBeatDuration() * self:getSignature(currentMeasureTime:floor():tonumber() + 1)
+		local dedicatedDuration = currentTempoData:getBeatDuration() * self:getSignature(currentMeasureTime:floor():tonumber())
 		globalTime = globalTime + dedicatedDuration * (targetMeasureTime - currentMeasureTime)
 		
 		if targetTimePoint and targetTimePoint.measureTime == targetMeasureTime then
