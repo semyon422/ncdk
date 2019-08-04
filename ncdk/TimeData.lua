@@ -113,7 +113,8 @@ end
 TimeData.getTimePoint = function(self, time, side)
 	local timePoint
 	local side = side or 1
-	local timePointString = (time or 0) .. "," .. side
+	local fixedTime = time and math.min(math.max(time, -2147483648), 2147483647) or 0
+	local timePointString = fixedTime .. "," .. side
 	
 	if not time then
 		timePoint = TimePoint:new(self)
@@ -128,7 +129,7 @@ TimeData.getTimePoint = function(self, time, side)
 		timePoint = TimePoint:new(self)
 	
 		timePoint.timeData = self
-		timePoint.absoluteTime = time
+		timePoint.absoluteTime = fixedTime
 		timePoint.side = side
 		timePoint.timePointString = timePointString
 		
@@ -141,7 +142,7 @@ TimeData.getTimePoint = function(self, time, side)
 		timePoint = TimePoint:new(self)
 	
 		timePoint.timeData = self
-		timePoint.measureTime = time
+		timePoint.measureTime = fixedTime
 		timePoint.side = side
 		timePoint.timePointString = timePointString
 		
