@@ -113,8 +113,13 @@ end
 TimeData.getTimePoint = function(self, time, side)
 	local timePoint
 	local side = side or 1
-	local fixedTime = time and math.min(math.max(time, -2147483648), 2147483647) or 0
-	local timePointString = fixedTime .. "," .. side
+	local fixedTime
+	if type(time) == "number" then
+		fixedTime = math.min(math.max(time, -2147483648), 2147483647)
+	elseif type(time) == "table" then
+		fixedTime = time
+	end
+	local timePointString = (fixedTime or 0) .. "," .. side
 	
 	if not time then
 		timePoint = TimePoint:new(self)
