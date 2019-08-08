@@ -282,13 +282,31 @@ TimeData.getZeroTimePoint = function(self)
 	return self.zeroTimePoint
 end
 
+TimeData.addTempoData = function(self, ...)
+	for _, tempoData in ipairs({...}) do
+		tempoData.leftTimePoint = self:getTimePoint(tempoData.measureTime, -1)
+		tempoData.rightTimePoint = self:getTimePoint(tempoData.measureTime, 1)
+	end
+	
+	return self.tempoDataSequence:addTempoData(...)
+end
+
+TimeData.addStopData = function(self, ...)
+	for _, stopData in ipairs({...}) do
+		stopData.leftTimePoint = self:getTimePoint(stopData.measureTime, -1)
+		stopData.rightTimePoint = self:getTimePoint(stopData.measureTime, 1)
+	end
+	
+	return self.stopDataSequence:addStopData(...)
+end
+
 TimeData.setSignatureMode = function(self, ...) return self.signatureTable:setMode(...) end
 TimeData.setSignature = function(self, ...) return self.signatureTable:setSignature(...) end
 TimeData.getSignature = function(self, ...) return self.signatureTable:getSignature(...) end
 TimeData.setSignatureTable = function(self, ...) self.signatureTable = ... end
-TimeData.addTempoData = function(self, ...) return self.tempoDataSequence:addTempoData(...) end
 TimeData.getTempoData = function(self, ...) return self.tempoDataSequence:getTempoData(...) end
-TimeData.addStopData = function(self, ...) return self.stopDataSequence:addStopData(...) end
+TimeData.getTempoDataCount = function(self) return self.tempoDataSequence:getTempoDataCount() end
 TimeData.getStopData = function(self, ...) return self.stopDataSequence:getStopData(...) end
+TimeData.getStopDataCount = function(self) return self.stopDataSequence:getStopDataCount() end
 
 return TimeData
