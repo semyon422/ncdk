@@ -12,12 +12,13 @@ do
 	ld.timeData:setMode("measure")
 	
 	local mt = Fraction:new(0)
-	local tp = ld:getTimePoint(mt)
+	local tp = ld:getTimePoint(mt, 1)
 	
 	local td = TempoData:new(mt, 60)
 	ld:addTempoData(td)
 	
-	local vd = VelocityData:new(tp, Fraction:new(1))
+	local vd = VelocityData:new(tp)
+	vd.currentSpeed = Fraction:new(1)
 	ld:addVelocityData(vd)
 	
 	local nd = NoteData:new(tp)
@@ -32,21 +33,24 @@ do
 	ld.timeData:setMode("measure")
 	
 	local mt = Fraction:new(0)
-	local tp0 = ld:getTimePoint(mt)
+	local tp0 = ld:getTimePoint(mt, 1)
 	
 	local td = TempoData:new(mt, 60)
 	ld:addTempoData(td)
 	
-	local tp1 = ld:getTimePoint(Fraction:new(-1))
-	local vd1 = VelocityData:new(tp1, Fraction:new(1, 2))
+	local tp1 = ld:getTimePoint(Fraction:new(-1), 1)
+	local vd1 = VelocityData:new(tp1)
+	vd1.currentSpeed = Fraction:new(1, 2)
 	ld:addVelocityData(vd1)
 	
-	local tp2 = ld:getTimePoint(Fraction:new(0))
-	local vd2 = VelocityData:new(tp2, Fraction:new(1))
+	local tp2 = ld:getTimePoint(Fraction:new(0), 1)
+	local vd2 = VelocityData:new(tp2)
+	vd2.currentSpeed = Fraction:new(1)
 	ld:addVelocityData(vd2)
 	
-	local tp3 = ld:getTimePoint(Fraction:new(1))
-	local vd3 = VelocityData:new(tp3, Fraction:new(2))
+	local tp3 = ld:getTimePoint(Fraction:new(1), 1)
+	local vd3 = VelocityData:new(tp3)
+	vd3.currentSpeed = Fraction:new(2)
 	ld:addVelocityData(vd3)
 	
 	-- -1	1/2
@@ -61,7 +65,7 @@ do
 		{ 2, 1,  3 * 4},
 	}
 	for i, d in ipairs(cases) do
-		d[4] = ld:getTimePoint(Fraction:new(d[1], d[2]))
+		d[4] = ld:getTimePoint(Fraction:new(d[1], d[2]), 1)
 	end
 	
 	nc:compute()
@@ -85,9 +89,10 @@ do
 	ld.timeData:setMode("measure")
 	
 	local mt = Fraction:new(0)
-	local tp0 = ld:getTimePoint(mt)
+	local tp0 = ld:getTimePoint(mt, 1)
 	
-	local vd = VelocityData:new(tp0, Fraction:new(1))
+	local vd = VelocityData:new(tp0)
+	vd.currentSpeed = Fraction:new(1)
 	ld:addVelocityData(vd)
 	
 	local td1 = TempoData:new(Fraction:new(-1), 120)
@@ -111,7 +116,7 @@ do
 		{ 2, 1,  3 * 4},
 	}
 	for i, d in ipairs(cases) do
-		d[4] = ld:getTimePoint(Fraction:new(d[1], d[2]))
+		d[4] = ld:getTimePoint(Fraction:new(d[1], d[2]), 1)
 	end
 	
 	nc:compute()
@@ -130,9 +135,10 @@ do
 	ld.timeData:setMode("measure")
 	
 	local mt = Fraction:new(0)
-	local tp = ld:getTimePoint(mt)
+	local tp = ld:getTimePoint(mt, 1)
 	
-	local vd = VelocityData:new(tp, Fraction:new(1))
+	local vd = VelocityData:new(tp)
+	vd.currentSpeed = Fraction:new(1)
 	ld:addVelocityData(vd)
 	
 	local td = TempoData:new(mt, 60)
