@@ -5,14 +5,15 @@ local VelocityData = {}
 local VelocityData_metatable = {}
 VelocityData_metatable.__index = VelocityData
 
-VelocityData.new = function(self, timePoint, currentSpeed, localSpeed, globalSpeed, visualEndTimePoint)
+VelocityData.currentSpeed = Fraction:new(1)
+VelocityData.localSpeed = Fraction:new(1)
+VelocityData.globalSpeed = Fraction:new(1)
+VelocityData.visualEndTimePoint = nil
+
+VelocityData.new = function(self, timePoint)
 	local velocityData = {}
 	
 	velocityData.timePoint = timePoint
-	velocityData.currentSpeed = currentSpeed or Fraction:new(1)
-	velocityData.localSpeed = localSpeed or Fraction:new(1)
-	velocityData.globalSpeed = globalSpeed or Fraction:new(1)
-	velocityData.visualEndTimePoint = visualEndTimePoint
 	
 	if not timePoint.velocityData then
 		timePoint.velocityData = velocityData
