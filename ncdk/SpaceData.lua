@@ -17,60 +17,6 @@ SpaceData.new = function(self)
 	return spaceData
 end
 
-SpaceData.getVelocityDataVisualMeasureDuration = function(self, velocityDataIndex, startEdgeTimePoint, endEdgeTimePoint)
-	local currentVelocityData = self.velocityDataSequence:getVelocityData(velocityDataIndex)
-	local nextVelocityData = self.velocityDataSequence:getVelocityData(velocityDataIndex + 1)
-	
-	local mainStartTimePoint = currentVelocityData.timePoint
-	local mainEndTimePoint
-	if nextVelocityData then
-		mainEndTimePoint = nextVelocityData.timePoint
-	end
-	
-	if (startEdgeTimePoint and nextVelocityData and (startEdgeTimePoint >= mainEndTimePoint)) or
-	   (endEdgeTimePoint and velocityDataIndex > 1 and (endEdgeTimePoint <= mainStartTimePoint)) then
-		return Fraction:new(0)
-	end
-	
-	if velocityDataIndex == 1 or (startEdgeTimePoint and (startEdgeTimePoint > mainStartTimePoint)) then
-		mainStartTimePoint = startEdgeTimePoint
-	end
-	if not nextVelocityData or (endEdgeTimePoint and (endEdgeTimePoint < mainEndTimePoint)) then
-		mainEndTimePoint = endEdgeTimePoint
-	end
-	
-	local visualMeasureDuration = (mainEndTimePoint.measureTime - mainStartTimePoint.measureTime) * currentVelocityData.currentSpeed
-	if visualMeasureDuration ~= Fraction:new(0) or not currentVelocityData.visualEndTimePoint then
-		return visualMeasureDuration
-	else
-		return currentVelocityData.visualEndTimePoint.measureTime - currentVelocityData.timePoint.measureTime
-	end
-end
-
-SpaceData.getVisualMeasureTime = function(self, targetMeasureTimePoint, currentMeasureTimePoint)
-	local deltaTime = Fraction:new(0)
-	
-	if targetMeasureTimePoint == currentMeasureTimePoint then
-		return currentMeasureTimePoint.measureTime
-	end
-	
-	local targetVelocityData = targetMeasureTimePoint.velocityData or self:getVelocityDataByTimePoint(targetMeasureTimePoint)
-	local currentVelocityData = currentMeasureTimePoint.velocityData or self:getVelocityDataByTimePoint(currentMeasureTimePoint)
-	
-	local localSpeed = targetVelocityData.localSpeed
-	local globalSpeed = currentVelocityData.globalSpeed
-	
-	for currentVelocityDataIndex = 1, self.velocityDataSequence:getVelocityDataCount() do
-		if targetMeasureTimePoint > currentMeasureTimePoint then
-			deltaTime = deltaTime + self:getVelocityDataVisualMeasureDuration(currentVelocityDataIndex, currentMeasureTimePoint, targetMeasureTimePoint)
-		elseif targetMeasureTimePoint < currentMeasureTimePoint then
-			deltaTime = deltaTime - self:getVelocityDataVisualMeasureDuration(currentVelocityDataIndex, targetMeasureTimePoint, currentMeasureTimePoint)
-		end
-	end
-	
-	return currentMeasureTimePoint.measureTime + deltaTime * localSpeed * globalSpeed
-end
-
 SpaceData.getVelocityDataVisualDuration = function(self, velocityDataIndex, startEdgeTimePoint, endEdgeTimePoint)
 	local currentVelocityData = self.velocityDataSequence:getVelocityData(velocityDataIndex)
 	local nextVelocityData = self.velocityDataSequence:getVelocityData(velocityDataIndex + 1)
