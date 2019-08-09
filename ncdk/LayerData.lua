@@ -53,7 +53,6 @@ LayerData.getZeroTimePoint = function(self) return self.timeData:getZeroTimePoin
 LayerData.setTimeMode = function(self, ...) return self.timeData:setMode(...) end
 LayerData.setSignatureMode = function(self, ...) return self.timeData:setSignatureMode(...) end
 
-
 LayerData.addVelocityData = function(self, ...) return self.spaceData:addVelocityData(...) end
 LayerData.removeLastVelocityData = function(self, ...) return self.spaceData:removeLastVelocityData(...) end
 LayerData.getVelocityData = function(self, ...) return self.spaceData:getVelocityData(...) end
@@ -61,7 +60,6 @@ LayerData.getVelocityDataCount = function(self) return self.spaceData:getVelocit
 LayerData.getVelocityDataByTimePoint = function(self, ...) return self.spaceData:getVelocityDataByTimePoint(...) end
 LayerData.getVisualMeasureTime = function(self, ...) return self.spaceData:getVisualMeasureTime(...) end
 LayerData.getVisualTime = function(self, ...) return self.spaceData:getVisualTime(...) end
-LayerData.computeVisualTime = function(self, ...) return self.spaceData:computeVisualTime(...) end
 
 LayerData.getColumnCount = function(self) return self.noteDataSequence:getColumnCount() end
 LayerData.addNoteData = function(self, ...) return self.noteDataSequence:addNoteData(...) end
