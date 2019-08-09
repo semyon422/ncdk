@@ -22,7 +22,6 @@ SignatureTable.setSignature = function(self, measureIndex, signature)
 	self.needSort = true
 end
 
-
 SignatureTable.getSignature = function(self, measureIndex)
 	if not next(self.data) then
 		return self.defaultSignature
