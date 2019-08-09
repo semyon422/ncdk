@@ -29,11 +29,10 @@ layerData1:addVelocityData(velocityData1)
 
 local noteData1 = NoteData:new(timePoint1)
 layerData1:addNoteData(noteData1)
-
--- not related to ncdk
 noteData1.inputType = "key"
 noteData1.inputIndex = 1
 
+-- not related to ncdk
 noteData1.sounds = {}
 noteData1.sounds[1] = {"sound.ogg", 1}
 noteChart:addResource("sound", "sound.ogg", {"sound.ogg", "sound_fallback.ogg"})

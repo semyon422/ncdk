@@ -16,9 +16,13 @@ local layerData = noteChart:requireLayerData(1)
 local currentTimePoint = layerData:getTimePoint() -- without arguments
 currentTimePoint.absoluteTime = 0 -- you should manually set absoluteTime
 currentTimePoint.velocityData = layerData:getVelocityData(1) -- and corresponding to this time VelocityData
+
+-- visual time computed relative to zero time point and not multiplied by localSpeed and globalSpeed
 currentTimePoint:computeZeroClearVisualTime()
+assert(currentTimePoint.zeroClearVisualTime)
 
 local noteData = noteDatas[1]
-noteData:computeVisualTime(currentTimePoint)
-assert(noteData.currentVisualTime) -- visual time of note for current time
-assert(noteData.timePoint.absoluteTime) -- absolute time of note
+local timePoint = noteData.timePoint
+timePoint:computeVisualTime(currentTimePoint)
+assert(timePoint.currentVisualTime) -- visual time of note for current time
+assert(timePoint.absoluteTime) -- absolute time of note
