@@ -20,7 +20,8 @@ NoteData.computeVisualTime = function(self, timePoint)
 	self.currentVisualTime
 		= (self.timePoint.zeroClearVisualTime - timePoint.zeroClearVisualTime)
 		* timePoint.velocityData.globalSpeed:tonumber()
-		+ timePoint:getAbsoluteTime()
+		* self.timePoint.velocityData.localSpeed:tonumber()
+		+ timePoint.absoluteTime
 end
 
 return NoteData
