@@ -28,29 +28,37 @@ TempoDataSequence.getTempoDataCount = function(self)
 	return self.tempoDataCount
 end
 
-TempoDataSequence.getTempoDataByMeasureTime = function(self, measureTime)
+TempoDataSequence.getTempoDataByTime = function(self, time)
 	for currentTempoDataIndex = 1, self:getTempoDataCount() do
 		local currentTempoData = self:getTempoData(currentTempoDataIndex)
 		if (currentTempoDataIndex == self:getTempoDataCount()) or
-		   (currentTempoDataIndex == 1 and measureTime < currentTempoData.measureTime)
+		   (currentTempoDataIndex == 1 and time < currentTempoData.time)
 		then
 			return currentTempoData
 		end
 		
 		local nextTempoData = self:getTempoData(currentTempoDataIndex + 1)
 		
-		if measureTime >= currentTempoData.measureTime and measureTime < nextTempoData.measureTime then
+		if time >= currentTempoData.time and time < nextTempoData.time then
 			return currentTempoData
 		end
 	end
 end
 
-local sort = function(tempoData1, tempoData2)
-	return tempoData1.measureTime.number < tempoData2.measureTime.number
+local sortMeasure = function(tempoData1, tempoData2)
+	return tempoData1.time.number < tempoData2.time.number
+end
+
+local sortAbsolute = function(tempoData1, tempoData2)
+	return tempoData1.time < tempoData2.time
 end
 
 TempoDataSequence.sort = function(self)
-	return table.sort(self, sort)
+	if self.timeData.mode == "measure" then
+		return table.sort(self, sortMeasure)
+	elseif self.timeData.mode == "absolute" then
+		return table.sort(self, sortAbsolute)
+	end
 end
 
 return TempoDataSequence

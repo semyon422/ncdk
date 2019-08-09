@@ -20,6 +20,10 @@ TimeData.new = function(self)
 	timeData.tempoDataSequence = TempoDataSequence:new()
 	timeData.stopDataSequence = StopDataSequence:new()
 	
+	timeData.signatureTable.timeData = self
+	timeData.tempoDataSequence.timeData = self
+	timeData.stopDataSequence.timeData = self
+	
 	setmetatable(timeData, TimeData_metatable)
 	
 	return timeData
@@ -29,10 +33,10 @@ TimeData.getTempoDataDuration = function(self, tempoDataIndex, startEdgeM_Time, 
 	local currentTempoData = self:getTempoData(tempoDataIndex)
 	local nextTempoData = self:getTempoData(tempoDataIndex + 1)
 	
-	local mainStartM_Time = currentTempoData.measureTime
+	local mainStartM_Time = currentTempoData.time
 	local mainEndM_Time
 	if nextTempoData then
-		mainEndM_Time = nextTempoData.measureTime
+		mainEndM_Time = nextTempoData.time
 	end
 	
 	if (startEdgeM_Time and nextTempoData and (startEdgeM_Time >= mainEndM_Time)) or
@@ -199,7 +203,7 @@ TimeData.computeTimePoints = function(self)
 	while true do
 		local nextTempoDataIndex = currentTempoDataIndex + 1
 		local nextTempoData = self:getTempoData(nextTempoDataIndex)
-		while nextTempoData and nextTempoData.measureTime <= currentMeasureTime do
+		while nextTempoData and nextTempoData.time <= currentMeasureTime do
 			currentTempoDataIndex = nextTempoDataIndex
 			currentTempoData = nextTempoData
 			nextTempoDataIndex = currentTempoDataIndex + 1
@@ -210,7 +214,7 @@ TimeData.computeTimePoints = function(self)
 		if targetTimePoint and targetTimePoint.measureTime >= currentMeasureTime and targetTimePoint.measureTime < targetMeasureTime then
 			targetMeasureTime = targetTimePoint.measureTime
 		end
-		if nextTempoData and nextTempoData.measureTime >= currentMeasureTime and nextTempoData.measureTime < targetMeasureTime then
+		if nextTempoData and nextTempoData.time >= currentMeasureTime and nextTempoData.time < targetMeasureTime then
 			targetMeasureTime = targetMeasureTime
 		end
 		
@@ -284,8 +288,8 @@ end
 
 TimeData.addTempoData = function(self, ...)
 	for _, tempoData in ipairs({...}) do
-		tempoData.leftTimePoint = self:getTimePoint(tempoData.measureTime, -1)
-		tempoData.rightTimePoint = self:getTimePoint(tempoData.measureTime, 1)
+		tempoData.leftTimePoint = self:getTimePoint(tempoData.time, -1)
+		tempoData.rightTimePoint = self:getTimePoint(tempoData.time, 1)
 	end
 	
 	return self.tempoDataSequence:addTempoData(...)
@@ -293,8 +297,8 @@ end
 
 TimeData.addStopData = function(self, ...)
 	for _, stopData in ipairs({...}) do
-		stopData.leftTimePoint = self:getTimePoint(stopData.measureTime, -1)
-		stopData.rightTimePoint = self:getTimePoint(stopData.measureTime, 1)
+		stopData.leftTimePoint = self:getTimePoint(stopData.time, -1)
+		stopData.rightTimePoint = self:getTimePoint(stopData.time, 1)
 	end
 	
 	return self.stopDataSequence:addStopData(...)

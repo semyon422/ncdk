@@ -3,11 +3,8 @@ local StopData = {}
 local StopData_metatable = {}
 StopData_metatable.__index = StopData
 
-StopData.new = function(self, measureTime, measureDuration)
+StopData.new = function(self)
 	local stopData = {}
-	
-	stopData.measureTime = measureTime
-	stopData.measureDuration = measureDuration
 	
 	setmetatable(stopData, StopData_metatable)
 	
