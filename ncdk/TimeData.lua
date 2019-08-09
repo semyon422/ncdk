@@ -9,8 +9,6 @@ local TimeData = {}
 local TimeData_metatable = {}
 TimeData_metatable.__index = TimeData
 
-TimeData.mode = "measure"
-
 TimeData.new = function(self)
 	local timeData = {}
 	
@@ -112,16 +110,19 @@ TimeData.setMode = function(self, mode)
 		error("Wrong time mode")
 	end
 	self.mode = mode
+	
+	self:createZeroTimePoint()
 end
 
 TimeData.getTimePoint = function(self, time, side)
 	local timePoint
-	local side = side or 1
 	local fixedTime
 	if type(time) == "number" then
 		fixedTime = math.min(math.max(time, -2147483648), 2147483647)
 	elseif type(time) == "table" then
 		fixedTime = time
+	elseif not time then
+		side = -1
 	end
 	local timePointString = (fixedTime or 0) .. "," .. side
 	
@@ -182,6 +183,8 @@ TimeData.createTimePointList = function(self)
 end
 
 TimeData.computeTimePoints = function(self)
+	self:createTimePointList()
+	
 	if self.mode == "absolute" then
 		return self.timePointList
 	end
@@ -269,7 +272,7 @@ TimeData.computeTimePoints = function(self)
 	return timePointList
 end
 
-TimeData.updateZeroTimePoint = function(self)
+TimeData.createZeroTimePoint = function(self)
 	local time
 	if self.mode == "absolute" then
 		time = 0
@@ -277,9 +280,7 @@ TimeData.updateZeroTimePoint = function(self)
 		time = Fraction:new(0)
 	end
 	
-	self.zeroTimePoint = self:getTimePoint(time)
-	self.zeroTimePoint.velocityData, self.zeroTimePoint.velocityDataIndex = self.layerData:getVelocityDataByTimePoint(self.zeroTimePoint)
-	self.zeroTimePoint.zeroClearVisualTime = 0
+	self.zeroTimePoint = self:getTimePoint(time, -1)
 end
 
 TimeData.getZeroTimePoint = function(self)

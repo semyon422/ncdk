@@ -28,9 +28,6 @@ LayerData.compute = function(self)
 	self.spaceData:sort()
 	self.noteDataSequence:sort()
 	
-	self:updateZeroTimePoint()
-	
-	self.timeData:createTimePointList()
 	self.timeData:computeTimePoints()
 	
 	if not self.invisible then
@@ -48,7 +45,6 @@ LayerData.addStopData = function(self, ...) return self.timeData:addStopData(...
 LayerData.getStopData = function(self, ...) return self.timeData:getStopData(...) end
 LayerData.getStopDataCount = function(self) return self.timeData:getStopDataCount() end
 LayerData.getTimePoint = function(self, ...) return self.timeData:getTimePoint(...) end
-LayerData.updateZeroTimePoint = function(self) return self.timeData:updateZeroTimePoint() end
 LayerData.getZeroTimePoint = function(self) return self.timeData:getZeroTimePoint() end
 LayerData.setTimeMode = function(self, ...) return self.timeData:setMode(...) end
 LayerData.setSignatureMode = function(self, ...) return self.timeData:setSignatureMode(...) end
