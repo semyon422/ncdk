@@ -1,4 +1,9 @@
 package.path = package.path .. ";./?.lua;./?/init.lua"
 
-require("tests.Fraction")
+io.write("fraction: ")
+require("tests.fraction")
+print("OK!")
+
+io.write("base: ")
 require("tests.base")
+print("OK!")

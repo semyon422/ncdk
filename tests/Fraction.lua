@@ -46,5 +46,3 @@ assert(Fraction:fromNumber(1.234, 1) == Fraction:new(1, 1))
 assert(Fraction:fromNumber(-1.234, 1) == Fraction:new(-2, 1))
 assert(Fraction:fromNumber(1.234, 1e1) == Fraction:new(12, 10))
 assert(Fraction:fromNumber(1.234, 1e2) == Fraction:new(123, 100))
-
-print("Fraction: OK")

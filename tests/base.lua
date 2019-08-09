@@ -6,12 +6,10 @@ local TempoData = require("ncdk.TempoData")
 local NoteData = require("ncdk.NoteData")
 local Fraction = require("ncdk.Fraction")
 
-print("--------------------------------")
-print("basic initialization")
 do
 	local nc = NoteChart:new()
 	local ld = nc:requireLayerData(1)
-	ld.timeData:setMode(ncdk.TimeData.Modes.Measure)
+	ld.timeData:setMode("measure")
 	
 	local mt = Fraction:new(0)
 	local tp = ld:getTimePoint(mt)
@@ -27,14 +25,11 @@ do
 	
 	nc:compute()
 end
-print("OK")
 
-print("--------------------------------")
-print("basic velocity computation")
 do
 	local nc = NoteChart:new()
 	local ld = nc:requireLayerData(1)
-	ld.timeData:setMode(ncdk.TimeData.Modes.Measure)
+	ld.timeData:setMode("measure")
 	
 	local mt = Fraction:new(0)
 	local tp0 = ld:getTimePoint(mt)
@@ -83,14 +78,11 @@ do
 		)
 	end
 end
-print("OK")
 
-print("--------------------------------")
-print("basic timing computation: multibpm")
 do
 	local nc = NoteChart:new()
 	local ld = nc:requireLayerData(1)
-	ld.timeData:setMode(ncdk.TimeData.Modes.Measure)
+	ld.timeData:setMode("measure")
 	
 	local mt = Fraction:new(0)
 	local tp0 = ld:getTimePoint(mt)
@@ -131,14 +123,11 @@ do
 		)
 	end
 end
-print("OK")
 
-print("--------------------------------")
-print("basic timing computation: stop")
 do
 	local nc = NoteChart:new()
 	local ld = nc:requireLayerData(1)
-	ld.timeData:setMode(ncdk.TimeData.Modes.Measure)
+	ld.timeData:setMode("measure")
 	
 	local mt = Fraction:new(0)
 	local tp = ld:getTimePoint(mt)
@@ -149,18 +138,16 @@ do
 	local td = TempoData:new(mt, 60)
 	ld:addTempoData(td)
 	
-	local sd1 = StopData:new(
-		Fraction:new(1),
-		Fraction:new(1)
-	)
+	local sd1 = StopData:new()
+	sd1.measureTime = Fraction:new(1)
+	sd1.measureDuration = Fraction:new(1)
 	sd1.tempoData = td
 	sd1.signature = Fraction:new(4)
 	ld:addStopData(sd1)
 	
-	local sd2 = StopData:new(
-		Fraction:new(2),
-		Fraction:new(1)
-	)
+	local sd2 = StopData:new()
+	sd2.measureTime = Fraction:new(2)
+	sd2.measureDuration = Fraction:new(1)
 	sd2.tempoData = td
 	sd2.signature = Fraction:new(4)
 	ld:addStopData(sd2)
@@ -200,4 +187,3 @@ do
 		)
 	end
 end
-print("OK")
