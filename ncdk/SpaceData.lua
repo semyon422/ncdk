@@ -93,11 +93,11 @@ SpaceData.getVelocityDataVisualDuration = function(self, velocityDataIndex, star
 		mainEndTimePoint = endEdgeTimePoint
 	end
 	
-	local visualDuration = (mainEndTimePoint:getAbsoluteTime() - mainStartTimePoint:getAbsoluteTime()) * currentVelocityData.currentSpeed:tonumber()
+	local visualDuration = (mainEndTimePoint.absoluteTime - mainStartTimePoint.absoluteTime) * currentVelocityData.currentSpeed:tonumber()
 	if visualDuration ~= 0 or not currentVelocityData.visualEndTimePoint then
 		return visualDuration
 	else
-		return currentVelocityData.visualEndTimePoint:getAbsoluteTime() - currentVelocityData.timePoint:getAbsoluteTime()
+		return currentVelocityData.visualEndTimePoint.absoluteTime - currentVelocityData.timePoint.absoluteTime
 	end
 end
 
@@ -105,7 +105,7 @@ SpaceData.getVisualTime = function(self, targetTimePoint, currentTimePoint, clea
 	local deltaTime = 0
 	
 	if targetTimePoint == currentTimePoint then
-		return currentTimePoint:getAbsoluteTime()
+		return currentTimePoint.absoluteTime
 	end
 	
 	local globalSpeed, localSpeed = 1, 1
@@ -125,28 +125,7 @@ SpaceData.getVisualTime = function(self, targetTimePoint, currentTimePoint, clea
 		end
 	end
 	
-	return currentTimePoint:getAbsoluteTime() + deltaTime * localSpeed * globalSpeed
-end
-
-SpaceData.computeVisualTime = function(self, currentTimePoint)
-	local currentVelocityData = currentTimePoint.velocityData
-	local currentClearVisualTime
-		= (currentTimePoint:getAbsoluteTime() - currentVelocityData.timePoint:getAbsoluteTime())
-		* currentVelocityData.currentSpeed:tonumber()
-		+ currentVelocityData.timePoint.zeroClearVisualTime
-	local globalSpeed = currentTimePoint.velocityData.globalSpeed:tonumber()
-	
-	for noteDataIndex = 1, self.layerData.noteDataSequence:getNoteDataCount() do
-		local noteData = self.layerData.noteDataSequence:getNoteData(noteDataIndex)
-		
-		local targetVelocityData = noteData.timePoint.velocityData
-		local localSpeed = targetVelocityData.localSpeed:tonumber()
-		
-		noteData.currentClearVisualDeltaTime = noteData.zeroClearVisualTime - currentClearVisualTime
-		
-		noteData.currentClearVisualTime = noteData.currentClearVisualDeltaTime + currentTimePoint:getAbsoluteTime()
-		noteData.currentVisualTime = noteData.currentClearVisualDeltaTime * globalSpeed * localSpeed + currentTimePoint:getAbsoluteTime()
-	end
+	return currentTimePoint.absoluteTime + deltaTime * localSpeed * globalSpeed
 end
 
 SpaceData.sort = function(self)

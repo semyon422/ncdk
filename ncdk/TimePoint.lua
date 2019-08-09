@@ -15,13 +15,9 @@ TimePoint.compute = function(self)
 	self.absoluteTime = self.timeData:getAbsoluteTime(self.measureTime, self.side)
 end
 
-TimePoint.getAbsoluteTime = function(self)
-	return self.absoluteTime
-end
-
 TimePoint.computeZeroClearVisualTime = function(self)
 	self.zeroClearVisualTime
-		= (self.absoluteTime - self.velocityData.timePoint:getAbsoluteTime())
+		= (self.absoluteTime - self.velocityData.timePoint.absoluteTime)
 		* self.velocityData.currentSpeed:tonumber()
 		+ self.velocityData.timePoint.zeroClearVisualTime
 end
