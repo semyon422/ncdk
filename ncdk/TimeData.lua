@@ -298,8 +298,8 @@ end
 
 TimeData.addStopData = function(self, ...)
 	for _, stopData in ipairs({...}) do
-		stopData.leftTimePoint = self:getTimePoint(stopData.time, -1)
-		stopData.rightTimePoint = self:getTimePoint(stopData.time, 1)
+		stopData.leftTimePoint = self:getTimePoint(stopData.measureTime, -1)
+		stopData.rightTimePoint = self:getTimePoint(stopData.measureTime, 1)
 	end
 	
 	return self.stopDataSequence:addStopData(...)
