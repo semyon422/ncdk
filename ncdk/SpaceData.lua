@@ -39,7 +39,7 @@ SpaceData.getVelocityDataVisualDuration = function(self, velocityDataIndex, star
 		mainEndTimePoint = endEdgeTimePoint
 	end
 	
-	local visualDuration = (mainEndTimePoint.absoluteTime - mainStartTimePoint.absoluteTime) * currentVelocityData.currentSpeed:tonumber()
+	local visualDuration = (mainEndTimePoint.absoluteTime - mainStartTimePoint.absoluteTime) * currentVelocityData.currentSpeed
 	if visualDuration ~= 0 or not currentVelocityData.visualEndTimePoint then
 		return visualDuration
 	else
@@ -59,8 +59,8 @@ SpaceData.getVisualTime = function(self, targetTimePoint, currentTimePoint, clea
 		local currentVelocityData = currentTimePoint.velocityData
 		local targetVelocityData = targetTimePoint.velocityData
 		
-		globalSpeed = currentVelocityData.globalSpeed:tonumber()
-		localSpeed = targetVelocityData.localSpeed:tonumber()
+		globalSpeed = currentVelocityData.globalSpeed
+		localSpeed = targetVelocityData.localSpeed
 	end
 	
 	for currentVelocityDataIndex = 1, self.velocityDataSequence:getVelocityDataCount() do

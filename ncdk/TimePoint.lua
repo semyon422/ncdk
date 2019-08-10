@@ -18,15 +18,15 @@ end
 TimePoint.computeZeroClearVisualTime = function(self)
 	self.zeroClearVisualTime
 		= (self.absoluteTime - self.velocityData.timePoint.absoluteTime)
-		* self.velocityData.currentSpeed:tonumber()
+		* self.velocityData.currentSpeed
 		+ self.velocityData.timePoint.zeroClearVisualTime
 end
 
 TimePoint.computeVisualTime = function(self, timePoint)
 	self.currentVisualTime
 		= (self.zeroClearVisualTime - timePoint.zeroClearVisualTime)
-		* timePoint.velocityData.globalSpeed:tonumber()
-		* self.velocityData.localSpeed:tonumber()
+		* timePoint.velocityData.globalSpeed
+		* self.velocityData.localSpeed
 		+ timePoint.absoluteTime
 end
 

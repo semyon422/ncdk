@@ -18,7 +18,7 @@ do
 	ld:addTempoData(td)
 	
 	local vd = VelocityData:new(tp)
-	vd.currentSpeed = Fraction:new(1)
+	vd.currentSpeed = 1
 	ld:addVelocityData(vd)
 	
 	local nd = NoteData:new(tp)
@@ -40,17 +40,17 @@ do
 	
 	local tp1 = ld:getTimePoint(Fraction:new(-1), 1)
 	local vd1 = VelocityData:new(tp1)
-	vd1.currentSpeed = Fraction:new(1, 2)
+	vd1.currentSpeed = 0.5
 	ld:addVelocityData(vd1)
 	
 	local tp2 = ld:getTimePoint(Fraction:new(0), 1)
 	local vd2 = VelocityData:new(tp2)
-	vd2.currentSpeed = Fraction:new(1)
+	vd2.currentSpeed = 1
 	ld:addVelocityData(vd2)
 	
 	local tp3 = ld:getTimePoint(Fraction:new(1), 1)
 	local vd3 = VelocityData:new(tp3)
-	vd3.currentSpeed = Fraction:new(2)
+	vd3.currentSpeed = 2
 	ld:addVelocityData(vd3)
 	
 	-- -1	1/2
@@ -92,7 +92,7 @@ do
 	local tp0 = ld:getTimePoint(mt, 1)
 	
 	local vd = VelocityData:new(tp0)
-	vd.currentSpeed = Fraction:new(1)
+	vd.currentSpeed = 1
 	ld:addVelocityData(vd)
 	
 	local td1 = TempoData:new(Fraction:new(-1), 120)
@@ -138,7 +138,7 @@ do
 	local tp = ld:getTimePoint(mt, 1)
 	
 	local vd = VelocityData:new(tp)
-	vd.currentSpeed = Fraction:new(1)
+	vd.currentSpeed = 1
 	ld:addVelocityData(vd)
 	
 	local td = TempoData:new(mt, 60)

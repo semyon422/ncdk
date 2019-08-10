@@ -5,9 +5,9 @@ local VelocityData = {}
 local VelocityData_metatable = {}
 VelocityData_metatable.__index = VelocityData
 
-VelocityData.currentSpeed = Fraction:new(1)
-VelocityData.localSpeed = Fraction:new(1)
-VelocityData.globalSpeed = Fraction:new(1)
+VelocityData.currentSpeed = 1
+VelocityData.localSpeed = 1
+VelocityData.globalSpeed = 1
 VelocityData.visualEndTimePoint = nil
 
 VelocityData.new = function(self, timePoint)
