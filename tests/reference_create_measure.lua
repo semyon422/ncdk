@@ -41,10 +41,8 @@ local timePoint1 = layerData1:getTimePoint(
 	-1 -- side
 )
 
-local velocityData1 = VelocityData:new(
-	timePoint1, -- timePoint
-	Fraction:new(1) -- currentVelocity
-)
+local velocityData1 = VelocityData:new(timePoint1)
+velocityData1.currentVelocity = 1
 layerData1:addVelocityData(velocityData1)
 
 local noteData1 = NoteData:new(timePoint1)
