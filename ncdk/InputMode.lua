@@ -41,6 +41,14 @@ InputMode.getString = function(self)
 	return table.concat(inputs)
 end
 
+InputMode.setString = function(self, inputModeString)
+	for inputCount, inputType in inputModeString:gmatch("([0-9]+)([a-z]+)") do
+		self:setInputCount(inputType, inputCount)
+	end
+	assert(inputModeString == self:getString())
+	return self
+end
+
 InputMode_metatable.__eq = function(a, b)
 	return a:getString() == b:getString()
 end
