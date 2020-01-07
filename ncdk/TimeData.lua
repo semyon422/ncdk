@@ -18,9 +18,9 @@ TimeData.new = function(self)
 	timeData.tempoDataSequence = TempoDataSequence:new()
 	timeData.stopDataSequence = StopDataSequence:new()
 	
-	timeData.signatureTable.timeData = self
-	timeData.tempoDataSequence.timeData = self
-	timeData.stopDataSequence.timeData = self
+	timeData.signatureTable.timeData = timeData
+	timeData.tempoDataSequence.timeData = timeData
+	timeData.stopDataSequence.timeData = timeData
 	
 	setmetatable(timeData, TimeData_metatable)
 	
