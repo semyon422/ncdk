@@ -17,6 +17,8 @@ NoteChart.new = function(self)
 	noteChart.inputMode = InputMode:new()
 	noteChart.metaData = MetaData:new()
 	noteChart.resourceList = ResourceList:new()
+
+	noteChart.metaData.noteChart = noteChart
 	
 	setmetatable(noteChart, NoteChart_metatable)
 	
@@ -29,9 +31,6 @@ NoteChart.requireLayerData = function(self, ...) return self.layerDataSequence:r
 
 NoteChart.getResourceIterator = function(self, ...) return self.resourceList:getIterator(...) end
 NoteChart.addResource = function(self, ...) return self.resourceList:add(...) end
-
-NoteChart.hashSet = function(self, ...) return self.metaData:hashSet(...) end
-NoteChart.hashGet = function(self, ...) return self.metaData:hashGet(...) end
 
 NoteChart.compute = function(self, ...) return self.layerDataSequence:compute(...) end
 
