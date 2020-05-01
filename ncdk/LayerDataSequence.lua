@@ -10,7 +10,7 @@ LayerDataSequence.new = function(self)
 	
 	layerDataSequence.layerDataCount = 0
 	layerDataSequence.layerDataIndexes = {}
-	layerDataSequence.inputExisting = {}
+	layerDataSequence.inputCount = {}
 	
 	setmetatable(layerDataSequence, LayerDataSequence_metatable)
 	
@@ -43,9 +43,11 @@ end
 
 LayerDataSequence.getInputIteraator = function(self)
 	local inputs = {}
-	for inputType, inputTypeData in pairs(self.inputExisting) do
-		for inputIndex in pairs(inputTypeData) do
-			table.insert(inputs, {inputType, inputIndex})
+	for inputType, inputTypeData in pairs(self.inputCount) do
+		for inputIndex, count in pairs(inputTypeData) do
+			if count > 0 then
+				inputs[#inputs + 1] = {inputType, inputIndex}
+			end
 		end
 	end
 	local counter = 1
@@ -58,6 +60,12 @@ LayerDataSequence.getInputIteraator = function(self)
 		
 		return unpack(inputData)
 	end
+end
+
+LayerDataSequence.increaseInputCount = function(self, inputType, inputIndex, value)
+	local inputCount = self.inputCount
+	inputCount[inputType] = inputCount[inputType] or {}
+	inputCount[inputType][inputIndex] = (inputCount[inputType][inputIndex] or 0) + value
 end
 
 LayerDataSequence.compute = function(self)

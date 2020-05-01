@@ -14,16 +14,13 @@ NoteDataSequence.new = function(self)
 end
 
 NoteDataSequence.addNoteData = function(self, ...)
+	local layerDataSequence = self.layerData.layerDataSequence
+
 	for _, noteData in ipairs({...}) do
 		table.insert(self, noteData)
 		self.noteDataCount = self.noteDataCount + 1
 		
-		if not (self.layerData.layerDataSequence.inputExisting[noteData.inputType] and
-			self.layerData.layerDataSequence.inputExisting[noteData.inputType][noteData.inputIndex])
-		then
-			self.layerData.layerDataSequence.inputExisting[noteData.inputType] = self.layerData.layerDataSequence.inputExisting[noteData.inputType] or {}
-			self.layerData.layerDataSequence.inputExisting[noteData.inputType][noteData.inputIndex] = true
-		end
+		layerDataSequence:increaseInputCount(noteData.inputType, noteData.inputIndex, 1)
 	end
 end
 
