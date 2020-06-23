@@ -100,11 +100,4 @@ SignatureTable.getIteraator = function(self)
 	return iterator
 end
 
-SignatureTable.setMode = function(self, mode)
-	if mode ~= "long" and mode ~= "short" then
-		error("Wrong signature mode")
-	end
-	self.mode = mode
-end
-
 return SignatureTable
