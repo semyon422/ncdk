@@ -23,11 +23,11 @@ MetaData.setDefaults = function(self)
 end
 
 MetaData.set = function(self, key, value)
-	local default = self.defaults[key]
+	local typeDefault = type(self.defaults[key])
 
-	if type(default) == "string" then
+	if typeDefault == "string" then
 		self.data[key] = tostring(value)
-	elseif type(default) == "number" then
+	elseif typeDefault == "number" then
 		self.data[key] = tonumber(value)
 	end
 end
@@ -37,14 +37,12 @@ MetaData.get = function(self, key)
 end
 
 MetaData.setTable = function(self, t)
-	local data = self.data
-
 	for k, v in pairs(t) do
 		self:set(k, v)
 	end
 end
 
-MetaData.getTable = function(self, key)
+MetaData.getTable = function(self)
 	local t = {}
 
 	for k, v in pairs(self.data) do
