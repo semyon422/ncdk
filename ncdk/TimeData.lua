@@ -11,56 +11,56 @@ TimeData_metatable.__index = TimeData
 
 TimeData.new = function(self)
 	local timeData = {}
-	
+
 	timeData.timePoints = {}
-	
+
 	timeData.signatureTable = SignatureTable:new(Fraction:new(4))
 	timeData.tempoDataSequence = TempoDataSequence:new()
 	timeData.stopDataSequence = StopDataSequence:new()
-	
+
 	timeData.signatureTable.timeData = timeData
 	timeData.tempoDataSequence.timeData = timeData
 	timeData.stopDataSequence.timeData = timeData
-	
+
 	setmetatable(timeData, TimeData_metatable)
-	
+
 	return timeData
 end
 
 TimeData.getTempoDataDuration = function(self, tempoDataIndex, startEdgeM_Time, endEdgeM_Time)
 	local currentTempoData = self:getTempoData(tempoDataIndex)
 	local nextTempoData = self:getTempoData(tempoDataIndex + 1)
-	
+
 	local mainStartM_Time = currentTempoData.time
 	local mainEndM_Time
 	if nextTempoData then
 		mainEndM_Time = nextTempoData.time
 	end
-	
+
 	if (startEdgeM_Time and nextTempoData and (startEdgeM_Time >= mainEndM_Time)) or
 	   (endEdgeM_Time and tempoDataIndex > 1 and (endEdgeM_Time <= mainStartM_Time)) then
 		return 0
 	end
-	
+
 	if tempoDataIndex == 1 or (startEdgeM_Time and (startEdgeM_Time > mainStartM_Time)) then
 		mainStartM_Time = startEdgeM_Time
 	end
 	if not nextTempoData or (endEdgeM_Time and (endEdgeM_Time < mainEndM_Time)) then
 		mainEndM_Time = endEdgeM_Time
 	end
-	
-	local startM_Index = math.min(mainStartM_Time:floor():tonumber(), mainEndM_Time:floor():tonumber())
-	local endM_Index = math.max(mainStartM_Time:floor():tonumber(), mainEndM_Time:floor():tonumber())
-	
+
+	local startM_Index = math.min(mainStartM_Time:floor(), mainEndM_Time:floor())
+	local endM_Index = math.max(mainStartM_Time:floor(), mainEndM_Time:floor())
+
 	local time = 0
 	for _M_Index = startM_Index, endM_Index do
 		local startTime = ((_M_Index == startM_Index) and mainStartM_Time:tonumber()) or _M_Index
 		local endTime = ((_M_Index == endM_Index) and mainEndM_Time:tonumber()) or _M_Index + 1
 		local dedicatedDuration = self:getTempoData(tempoDataIndex):getBeatDuration() * self:getSignature(_M_Index):tonumber()
-		
+
 		time = time + (endTime - startTime) * dedicatedDuration
 	end
-	
+
 	return time
 end
 
@@ -70,20 +70,20 @@ TimeData.getStopDataDuration = function(self, stopDataIndex, startEdgeM_Time, en
 		= currentStopData.measureDuration:tonumber()
 		* currentStopData.tempoData:getBeatDuration()
 		* currentStopData.signature:tonumber()
-	
+
 	if side == -1 and currentStopData.measureTime >= startEdgeM_Time and currentStopData.measureTime < endEdgeM_Time then
 		return currentStopData.duration
 	elseif side == 1 and currentStopData.measureTime > startEdgeM_Time and currentStopData.measureTime <= endEdgeM_Time then
 		return currentStopData.duration
 	end
-	
+
 	return 0
 end
 
 TimeData.getAbsoluteTime = function(self, measureTime, side)
 	local time = 0
 	local zeroMeasureTime = Fraction:new(0)
-	
+
 	if measureTime == Fraction:new(0) then
 		return time
 	end
@@ -101,7 +101,7 @@ TimeData.getAbsoluteTime = function(self, measureTime, side)
 			time = time - self:getStopDataDuration(currentStopDataIndex, measureTime, zeroMeasureTime, side)
 		end
 	end
-	
+
 	return time
 end
 
@@ -110,7 +110,7 @@ TimeData.setMode = function(self, mode)
 		error("Wrong time mode")
 	end
 	self.mode = mode
-	
+
 	self:createZeroTimePoint()
 end
 
@@ -125,40 +125,40 @@ TimeData.getTimePoint = function(self, time, side)
 		side = -1
 	end
 	local timePointString = (fixedTime or 0) .. "," .. side
-	
+
 	if not time then
 		timePoint = TimePoint:new(self)
-		
+
 		timePoint.timeData = self
 		timePoint.side = side
 	elseif self.mode == "absolute" then
 		if self.timePoints[timePointString] then
 			return self.timePoints[timePointString]
 		end
-		
+
 		timePoint = TimePoint:new(self)
-	
+
 		timePoint.timeData = self
 		timePoint.absoluteTime = fixedTime
 		timePoint.side = side
 		timePoint.timePointString = timePointString
-		
+
 		self.timePoints[timePointString] = timePoint
 	elseif self.mode == "measure" then
 		if self.timePoints[timePointString] then
 			return self.timePoints[timePointString]
 		end
-		
+
 		timePoint = TimePoint:new(self)
-	
+
 		timePoint.timeData = self
 		timePoint.measureTime = fixedTime
 		timePoint.side = side
 		timePoint.timePointString = timePointString
-		
+
 		self.timePoints[timePointString] = timePoint
 	end
-		
+
 	return timePoint
 end
 
@@ -184,23 +184,23 @@ end
 
 TimeData.computeTimePoints = function(self)
 	self:createTimePointList()
-	
+
 	if self.mode == "absolute" then
 		return self.timePointList
 	end
-	
+
 	local timePointList = self.timePointList
 	local zeroTimePoint = self:getZeroTimePoint()
-	
+
 	local lastMeasureTime = timePointList[#timePointList].measureTime
-	
+
 	local currentTempoDataIndex = 1
 	local currentTempoData = self:getTempoData(currentTempoDataIndex)
 	local globalTime = 0
-	
+
 	local targetTimePointIndex = 1
 	local targetTimePoint = timePointList[targetTimePointIndex]
-	
+
 	local currentMeasureTime = timePointList[1].measureTime
 	local targetMeasureTime
 	while true do
@@ -212,33 +212,33 @@ TimeData.computeTimePoints = function(self)
 			nextTempoDataIndex = currentTempoDataIndex + 1
 			nextTempoData = self:getTempoData(nextTempoDataIndex)
 		end
-		
-		targetMeasureTime = currentMeasureTime:floor() + 1
+
+		targetMeasureTime = Fraction:new(currentMeasureTime:floor() + 1)
 		if targetTimePoint and targetTimePoint.measureTime >= currentMeasureTime and targetTimePoint.measureTime < targetMeasureTime then
 			targetMeasureTime = targetTimePoint.measureTime
 		end
 		if nextTempoData and nextTempoData.time >= currentMeasureTime and nextTempoData.time < targetMeasureTime then
 			targetMeasureTime = targetMeasureTime
 		end
-		
+
 		if targetMeasureTime > lastMeasureTime then
 			break
 		end
-		
-		local dedicatedDuration = currentTempoData:getBeatDuration() * self:getSignature(currentMeasureTime:floor():tonumber())
+
+		local dedicatedDuration = currentTempoData:getBeatDuration() * self:getSignature(currentMeasureTime:floor())
 		globalTime = globalTime + dedicatedDuration * (targetMeasureTime - currentMeasureTime)
-		
+
 		if targetTimePoint and targetTimePoint.measureTime == targetMeasureTime then
 			targetTimePoint.tempoData = currentTempoData
 			targetTimePoint.absoluteTime = globalTime
-			
+
 			targetTimePointIndex = targetTimePointIndex + 1
 			targetTimePoint = timePointList[targetTimePointIndex]
 		end
-		
+
 		currentMeasureTime = targetMeasureTime
 	end
-	
+
 	local globalTime = 0
 	local targetTimePointIndex = 1
 	local targetTimePoint = timePointList[targetTimePointIndex]
@@ -246,7 +246,7 @@ TimeData.computeTimePoints = function(self)
 	for currentStopDataIndex = 1, self.stopDataSequence:getStopDataCount() do
 		local currentStopData = self:getStopData(currentStopDataIndex)
 		local nextStopData = self:getStopData(currentStopDataIndex + 1)
-		
+
 		while targetTimePointIndex <= #timePointList do
 			if not nextStopData or targetTimePoint.measureTime < nextStopData.measureTime then
 				targetTimePoint.stopDuration = globalTime + self:getStopDataDuration(currentStopDataIndex, leftMeasureTime, targetTimePoint.measureTime, targetTimePoint.side)
@@ -258,7 +258,7 @@ TimeData.computeTimePoints = function(self)
 		end
 		globalTime = globalTime + self:getStopDataDuration(currentStopDataIndex, leftMeasureTime, currentStopData.measureTime, 1)
 	end
-	
+
 	local baseZeroTime = zeroTimePoint.absoluteTime
 	local baseZeroStopDuration = zeroTimePoint.stopDuration or 0
 	for _, timePoint in ipairs(timePointList) do
@@ -268,7 +268,7 @@ TimeData.computeTimePoints = function(self)
 			- baseZeroTime
 			- baseZeroStopDuration
 	end
-	
+
 	return timePointList
 end
 
@@ -279,7 +279,7 @@ TimeData.createZeroTimePoint = function(self)
 	elseif self.mode == "measure" then
 		time = Fraction:new(0)
 	end
-	
+
 	self.zeroTimePoint = self:getTimePoint(time, -1)
 end
 
@@ -292,7 +292,7 @@ TimeData.addTempoData = function(self, ...)
 		tempoData.leftTimePoint = self:getTimePoint(tempoData.time, -1)
 		tempoData.rightTimePoint = self:getTimePoint(tempoData.time, 1)
 	end
-	
+
 	return self.tempoDataSequence:addTempoData(...)
 end
 
@@ -301,7 +301,7 @@ TimeData.addStopData = function(self, ...)
 		stopData.leftTimePoint = self:getTimePoint(stopData.measureTime, -1)
 		stopData.rightTimePoint = self:getTimePoint(stopData.measureTime, 1)
 	end
-	
+
 	return self.stopDataSequence:addStopData(...)
 end
 

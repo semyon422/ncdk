@@ -5,11 +5,11 @@ StopDataSequence_metatable.__index = StopDataSequence
 
 StopDataSequence.new = function(self)
 	local stopDataSequence = {}
-	
+
 	stopDataSequence.stopDataCount = 0
-	
+
 	setmetatable(stopDataSequence, StopDataSequence_metatable)
-	
+
 	return stopDataSequence
 end
 
@@ -29,7 +29,7 @@ StopDataSequence.getStopDataCount = function(self)
 end
 
 local sort = function(stopData1, stopData2)
-	return stopData1.measureTime.number < stopData2.measureTime.number
+	return stopData1.measureTime < stopData2.measureTime
 end
 
 StopDataSequence.sort = function(self)

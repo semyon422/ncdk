@@ -5,11 +5,11 @@ TempoDataSequence_metatable.__index = TempoDataSequence
 
 TempoDataSequence.new = function(self)
 	local tempoDataSequence = {}
-	
+
 	tempoDataSequence.tempoDataCount = 0
-	
+
 	setmetatable(tempoDataSequence, TempoDataSequence_metatable)
-	
+
 	return tempoDataSequence
 end
 
@@ -36,29 +36,21 @@ TempoDataSequence.getTempoDataByTime = function(self, time)
 		then
 			return currentTempoData
 		end
-		
+
 		local nextTempoData = self:getTempoData(currentTempoDataIndex + 1)
-		
+
 		if time >= currentTempoData.time and time < nextTempoData.time then
 			return currentTempoData
 		end
 	end
 end
 
-local sortMeasure = function(tempoData1, tempoData2)
-	return tempoData1.time.number < tempoData2.time.number
-end
-
-local sortAbsolute = function(tempoData1, tempoData2)
+local sort = function(tempoData1, tempoData2)
 	return tempoData1.time < tempoData2.time
 end
 
 TempoDataSequence.sort = function(self)
-	if self.timeData.mode == "measure" then
-		return table.sort(self, sortMeasure)
-	elseif self.timeData.mode == "absolute" then
-		return table.sort(self, sortAbsolute)
-	end
+	return table.sort(self, sort)
 end
 
 return TempoDataSequence

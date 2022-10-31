@@ -1,208 +1,121 @@
-local Fraction = {}
-
-local Fraction_metatable = {}
-Fraction_metatable.__index = Fraction
-
-Fraction.new = function(self, numerator, denominator)
-	local fraction = {}
-	
-	numerator = numerator or 0
-	denominator = denominator or 1
-	
-	if numerator % 1 ~= 0 or denominator % 1 ~= 0 or denominator == 0 then
-		error(
-			("\ninvalid fraction: %s(%s) / %s(%s)"):format(
-				type(numerator), tostring(numerator),
-				type(denominator), tostring(denominator)
-			)
-		)
-	end
-	
-	fraction.numerator = tonumber(numerator)
-	fraction.denominator = tonumber(denominator)
-	fraction.number = fraction.numerator / fraction.denominator
-	
-	setmetatable(fraction, Fraction_metatable)
-	
-	fraction:reduce()
-	
-	return fraction
-end
-
-Fraction.fromString = function(self, line)
-	local numerator, denominator
-	if line:find("/") then
-		numerator, denominator = line:match("^([%-%+]?%d+)/(%d+)$")
-	else
-		numerator = line:match("^([%-%+]?%d+)$"), 1
-	end
-	
-	if not numerator then
-		error(("\ninvalid fraction: %s(%s)"):format(line))
-	end
-	
-	return Fraction:new(tonumber(numerator), tonumber(denominator))
-end
-
-Fraction.fromNumber = function(self, number, accuracy)
-	return Fraction:new(math.floor(number * accuracy), accuracy)
-end
-
-local gcd
-gcd = function(a, b)
-	local a, b = math.abs(a), math.abs(b)
+local function gcd(a, b)
+	a, b = math.abs(a), math.abs(b)
 	a, b = math.max(a, b), math.min(a, b)
-	
-	if a == b then
-		return a
-	end
+
 	if a == 1 or b == 1 or a == 0 or b == 0 then
 		return 1
+	end
+	if a == b then
+		return a
 	end
 	if a % b == 0 then
 		return b
 	end
-	
+
 	return gcd(b, a % b)
 end
 
-Fraction.reduce = function(self)
-	if self.numerator * self.denominator > 0 and self.numerator < 0 then
-		self.numerator = -self.numerator
-		self.denominator = -self.denominator
+local function reduce(n, d)
+	if n == 0 then
+		return 0, 1
 	end
-	if self.denominator < 0 and self.numerator > 0 then
-		self.numerator = -self.numerator
-		self.denominator = -self.denominator
+	if n * d > 0 and n < 0 or d < 0 and n > 0 then
+		n, d = -n, -d
 	end
-	if self.numerator == 0 then
-		self.numerator = 0
-		self.denominator = 1
-		return
+
+	local r = gcd(n, d)
+	return n / r, d / r
+end
+
+local Fraction = {}
+
+local mt = {__index = Fraction}
+
+setmetatable(Fraction, {__call = function(t, ...)
+	return Fraction:new(...)
+end})
+
+function Fraction:new(n, d, decimal)
+	n, d = n or 0, d or 1
+	assert(type(n) == "number" and type(d) == "number", "numbers expected")
+
+	if decimal then
+		n = math.floor(n * d)
 	end
-	
-	local reduceFactor = gcd(self.numerator, self.denominator)
-	
-	self.numerator = self.numerator / reduceFactor
-	self.denominator = self.denominator / reduceFactor
+
+	assert(n % 1 == 0, ("invalid numerator: %s"):format(n))
+	assert(d % 1 == 0 and d ~= 0, ("invalid denominator: %s"):format(d))
+
+	return setmetatable({reduce(n, d)}, mt)
 end
 
-Fraction.floor = function(self)
-	return Fraction:new(math.floor(self.numerator / self.denominator))
-end
-
-Fraction.ceil = function(self)
-	return Fraction:new(math.ceil(self.numerator / self.denominator))
-end
-
-Fraction.tonumber = function(self)
-	return self.number
-end
-
-Fraction.tostring = function(self)
-	if self.denominator == 1 then
-		return tostring(self.numerator)
-	else
-		return self.numerator .. "/" .. self.denominator
+local function fraction(n, d, decimal)
+	if type(n) ~= "table" then
+		return Fraction:new(n, d, decimal)
+	elseif getmetatable(n) ~= mt then
+		return Fraction:new(n[1], n[2])
 	end
+	return n
 end
 
-Fraction_metatable.__tostring = function(self)
-	return self:tostring()
+function Fraction:floor()
+	return math.floor(self[1] / self[2])
 end
 
-Fraction_metatable.__unm = function(fa)
-	return Fraction:new(
-		-fa.numerator,
-		fa.denominator
-	)
+function Fraction:ceil()
+	return math.ceil(self[1] / self[2])
 end
 
-local fraction = function(n)
-	if type(n) == "table" then
-		return n
-	elseif n % 1 == 0 then
-		return Fraction:new(tonumber(n))
-	end
-	error(n)
+function Fraction:tonumber()
+	return self[1] / self[2]
 end
 
-local add = function(a, b)
-	return Fraction:new(
-		a.numerator * b.denominator + a.denominator * b.numerator,
-		a.denominator * b.denominator
-	)
-end
-Fraction_metatable.__add = function(a, b)
-	if type(a) == "number" then
-		return a + b:tonumber()
-	end
-	
-	return add(a, fraction(b))
+function mt.__tostring(a)
+	return ("%d/%d"):format(a[1], a[2])
 end
 
-local sub = function(a, b)
-	return Fraction:new(
-		a.numerator * b.denominator - a.denominator * b.numerator,
-		a.denominator * b.denominator
-	)
-end
-Fraction_metatable.__sub = function(a, b)
-	if type(a) == "number" then
-		return a - b:tonumber()
-	end
-	
-	return sub(a, fraction(b))
-end
-
-local mul = function(a, b)
-	return Fraction:new(
-		a.numerator * b.numerator,
-		a.denominator * b.denominator
-	)
-end
-Fraction_metatable.__mul = function(a, b)
-	if type(a) == "number" then
-		return a * b:tonumber()
-	end
-	
-	return mul(a, fraction(b))
-end
-
-local div = function(a, b)
-	return Fraction:new(
-		a.numerator * b.denominator,
-		a.denominator * b.numerator
-	)
-end
-Fraction_metatable.__div = function(a, b)
-	if type(a) == "number" then
-		return a / b:tonumber()
-	end
-	
-	return div(a, fraction(b))
-end
-
-Fraction_metatable.__mod = function(a, b)
-end
-
-Fraction_metatable.__pow = function(a, b)
-end
-
-Fraction_metatable.__concat = function(a, b)	
+function mt.__concat(a, b)
 	return tostring(a) .. tostring(b)
 end
 
-Fraction_metatable.__eq = function(a, b)
-	return a.numerator * b.denominator == a.denominator * b.numerator
+function mt.__unm(a)
+	return fraction(-a[1], a[2])
 end
 
-Fraction_metatable.__lt = function(a, b)
-	return a.numerator * b.denominator < a.denominator * b.numerator
+local function add(a, b)
+	return fraction(a[1] * b[2] + a[2] * b[1], a[2] * b[2])
+end
+local function sub(a, b)
+	return fraction(a[1] * b[2] - a[2] * b[1], a[2] * b[2])
+end
+local function mul(a, b)
+	return fraction(a[1] * b[1], a[2] * b[2])
+end
+local function div(a, b)
+	return fraction(a[1] * b[2], a[2] * b[1])
 end
 
-Fraction_metatable.__le = function(a, b)
-	return a.numerator * b.denominator <= a.denominator * b.numerator
+function mt.__add(a, b)
+	return type(a) == "number" and a + b:tonumber() or add(a, fraction(b))
+end
+function mt.__sub(a, b)
+	return type(a) == "number" and a - b:tonumber() or sub(a, fraction(b))
+end
+function mt.__mul(a, b)
+	return type(a) == "number" and a * b:tonumber() or mul(a, fraction(b))
+end
+function mt.__div(a, b)
+	return type(a) == "number" and a / b:tonumber() or div(a, fraction(b))
+end
+
+function mt.__eq(a, b)
+	return a[1] * b[2] == a[2] * b[1]
+end
+function mt.__lt(a, b)
+	return a[1] * b[2] < a[2] * b[1]
+end
+function mt.__le(a, b)
+	return a[1] * b[2] <= a[2] * b[1]
 end
 
 return Fraction
