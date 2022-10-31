@@ -5,11 +5,11 @@ NoteDataSequence_metatable.__index = NoteDataSequence
 
 NoteDataSequence.new = function(self)
 	local noteDataSequence = {}
-	
+
 	noteDataSequence.noteDataCount = 0
-	
+
 	setmetatable(noteDataSequence, NoteDataSequence_metatable)
-	
+
 	return noteDataSequence
 end
 
@@ -19,7 +19,8 @@ NoteDataSequence.addNoteData = function(self, ...)
 	for _, noteData in ipairs({...}) do
 		table.insert(self, noteData)
 		self.noteDataCount = self.noteDataCount + 1
-		
+		noteData.id = self.noteDataCount
+
 		layerDataSequence:increaseInputCount(noteData.inputType, noteData.inputIndex, 1)
 	end
 end
@@ -33,6 +34,9 @@ NoteDataSequence.getNoteDataCount = function(self)
 end
 
 local sort = function(noteData1, noteData2)
+	if noteData1.timePoint == noteData2.timePoint then
+		return noteData1.id < noteData2.id
+	end
 	return noteData1.timePoint < noteData2.timePoint
 end
 
