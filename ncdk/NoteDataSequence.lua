@@ -14,14 +14,14 @@ NoteDataSequence.new = function(self)
 end
 
 NoteDataSequence.addNoteData = function(self, ...)
-	local layerDataSequence = self.layerData.layerDataSequence
+	local noteChart = self.layerData.noteChart
 
 	for _, noteData in ipairs({...}) do
 		table.insert(self, noteData)
 		self.noteDataCount = self.noteDataCount + 1
 		noteData.id = self.noteDataCount
 
-		layerDataSequence:increaseInputCount(noteData.inputType, noteData.inputIndex, 1)
+		noteChart:increaseInputCount(noteData.inputType, noteData.inputIndex, 1)
 	end
 end
 

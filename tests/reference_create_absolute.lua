@@ -7,7 +7,7 @@ local Fraction		= require("ncdk.Fraction")
 
 local noteChart = NoteChart:new()
 
-local layerData1 = noteChart.layerDataSequence:requireLayerData(1)
+local layerData1 = noteChart.layerDataSequence:getLayerData(1)
 layerData1:setTimeMode("absolute")
 
 noteChart.inputMode.key = 10
