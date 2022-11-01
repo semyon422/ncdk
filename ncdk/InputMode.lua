@@ -1,61 +1,61 @@
 local InputMode = {}
 
-local InputMode_metatable = {}
-InputMode_metatable.__index = InputMode
+local mt = {__index = InputMode}
 
-InputMode.new = function(self)
-	local inputMode = {}
-	
-	inputMode.data = {}
-	
-	setmetatable(inputMode, InputMode_metatable)
-	
-	return inputMode
+function InputMode:new(s)
+	return setmetatable({}, mt):set(s)
 end
 
-InputMode.setInputCount = function(self, inputType, inputCount)
-	self.data[inputType] = tonumber(inputCount)
-end
+setmetatable(InputMode, {__call = InputMode.new})
 
-InputMode.getInputCount = function(self, inputType)
-	return self.data[inputType] or 0
-end
-
-InputMode.getString = function(self)
-	local inputs = {}
-	for inputType, inputCount in pairs(self.data) do
-		inputs[#inputs + 1] = {inputType, inputCount}
-	end
-	
-	table.sort(inputs, function(a, b)
-		if a[2] ~= b[2] then
-			return a[2] > b[2]
-		else
-			return a[1] < b [1]
+function InputMode:set(s)
+	if type(s) == "string" then
+		for inputCount, inputType in s:gmatch("([0-9]+)([a-z]+)") do
+			self[inputType] = tonumber(inputCount)
 		end
-	end)
-	for index, input in ipairs(inputs) do
-		inputs[index] = input[2] .. input[1]
+		assert(s == tostring(self))
+	elseif type(s) == "table" then
+		for inputType, inputCount in pairs(s) do
+			self[inputType] = inputCount
+		end
 	end
-	
-	return table.concat(inputs)
-end
-
-InputMode.setString = function(self, inputModeString)
-	for inputCount, inputType in inputModeString:gmatch("([0-9]+)([a-z]+)") do
-		self:setInputCount(inputType, inputCount)
-	end
-	assert(inputModeString == self:getString())
 	return self
 end
 
-InputMode_metatable.__eq = function(a, b)
-	return a:getString() == b:getString()
+local function sort(a, b)
+	if a[2] ~= b[2] then
+		return a[2] > b[2]
+	end
+	return a[1] < b[1]
 end
 
-InputMode_metatable.__le = function(a, b)
-	for inputType, inputCount in pairs(a.data) do
-		if b:getInputCount(inputType) ~= inputCount then
+function mt.__tostring(a)
+	local inputs = {}
+	for inputType, inputCount in pairs(a) do
+		inputs[#inputs + 1] = {inputType, inputCount}
+	end
+	table.sort(inputs, sort)
+
+	for i = #inputs * 2, 1, -2 do
+		local input = inputs[i / 2]
+		inputs[i] = input[1]
+		inputs[i - 1] = input[2]
+	end
+
+	return table.concat(inputs)
+end
+
+function mt.__concat(a, b)
+	return tostring(a) .. tostring(b)
+end
+
+function mt.__eq(a, b)
+	return tostring(a) == tostring(b)
+end
+
+function mt.__le(a, b)
+	for inputType, inputCount in pairs(a) do
+		if b[inputType] ~= inputCount then
 			return
 		end
 	end

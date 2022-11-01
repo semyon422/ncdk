@@ -4,6 +4,10 @@ io.write("fraction: ")
 require("tests.fraction")
 print("OK!")
 
+io.write("input_mode: ")
+require("tests.input_mode")
+print("OK!")
+
 io.write("reference_create_measure: ")
 require("tests.reference_create_measure")
 print("OK!")

@@ -11,8 +11,8 @@ local layerData1 = noteChart.layerDataSequence:requireLayerData(1)
 layerData1:setTimeMode("measure")
 layerData1:setSignatureMode("short")
 
-noteChart.inputMode:setInputCount("key", 10)
-noteChart.inputMode:setInputCount("scratch", 2)
+noteChart.inputMode.key = 10
+noteChart.inputMode.scratch = 2
 
 -- not related to ncdk
 noteChart.type = "bms"

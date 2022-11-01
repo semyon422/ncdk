@@ -10,7 +10,7 @@ local noteChart = NoteChart:new()
 local layerData1 = noteChart.layerDataSequence:requireLayerData(1)
 layerData1:setTimeMode("absolute")
 
-noteChart.inputMode:setInputCount("key", 10)
+noteChart.inputMode.key = 10
 
 -- not related to ncdk
 noteChart.type = "osu"

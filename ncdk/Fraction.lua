@@ -31,10 +31,6 @@ local Fraction = {}
 
 local mt = {__index = Fraction}
 
-setmetatable(Fraction, {__call = function(t, ...)
-	return Fraction:new(...)
-end})
-
 function Fraction:new(n, d, decimal)
 	n, d = n or 0, d or 1
 	assert(type(n) == "number" and type(d) == "number", "numbers expected")
@@ -48,6 +44,8 @@ function Fraction:new(n, d, decimal)
 
 	return setmetatable({reduce(n, d)}, mt)
 end
+
+setmetatable(Fraction, {__call = Fraction.new})
 
 local function fraction(n, d, decimal)
 	if type(n) ~= "table" then
