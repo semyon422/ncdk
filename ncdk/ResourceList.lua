@@ -1,39 +1,29 @@
 local ResourceList = {}
 
-local ResourceList_metatable = {}
-ResourceList_metatable.__index = ResourceList
+local mt = {__index = ResourceList}
 
-ResourceList.new = function(self)
-	local resourceList = {}
-	
-	resourceList.data = {}
-	
-	setmetatable(resourceList, ResourceList_metatable)
-	
-	return resourceList
+function ResourceList:new()
+	return setmetatable({}, mt)
 end
 
-ResourceList.add = function(self, type, name, sequence)
-	local data = self.data
-	data[type] = data[type] or {}
-	data[type][name] = sequence
+function ResourceList:add(type, name, sequence)
+	self[type] = self[type] or {}
+	self[type][name] = sequence
 end
 
-ResourceList.getIterator = function(self)
+function ResourceList:getIterator()
 	local list = {}
-	for type, data in pairs(self.data) do
+	for type, data in pairs(self) do
 		for name, sequence in pairs(data) do
 			list[#list + 1] = {type, name, sequence}
 		end
 	end
 	local counter = 1
-	
+
 	return function()
 		local resourceData = list[counter]
 		if not resourceData then return end
-		
 		counter = counter + 1
-		
 		return unpack(resourceData)
 	end
 end
