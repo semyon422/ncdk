@@ -3,7 +3,6 @@ local ncdk = {}
 ncdk.Fraction = require("ncdk.Fraction")
 
 ncdk.NoteChart = require("ncdk.NoteChart")
-ncdk.MetaData = require("ncdk.MetaData")
 ncdk.InputMode = require("ncdk.InputMode")
 ncdk.ResourceList = require("ncdk.ResourceList")
 
@@ -24,6 +23,5 @@ ncdk.VelocityDataSequence = require("ncdk.VelocityDataSequence")
 
 ncdk.NoteData = require("ncdk.NoteData")
 ncdk.NoteDataSequence = require("ncdk.NoteDataSequence")
-
 
 return ncdk

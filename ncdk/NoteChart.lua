@@ -1,37 +1,29 @@
 local LayerDataSequence = require("ncdk.LayerDataSequence")
 local InputMode = require("ncdk.InputMode")
-local MetaData = require("ncdk.MetaData")
 local ResourceList = require("ncdk.ResourceList")
 
 local NoteChart = {}
 
-local NoteChart_metatable = {}
-NoteChart_metatable.__index = NoteChart
+local mt = {__index = NoteChart}
 
-NoteChart.new = function(self)
+function NoteChart:new()
 	local noteChart = {}
-	
+
 	noteChart.layerDataSequence = LayerDataSequence:new()
 	noteChart.layerDataSequence.noteChart = noteChart
-	
+
 	noteChart.inputMode = InputMode:new()
-	noteChart.metaData = MetaData:new()
 	noteChart.resourceList = ResourceList:new()
 
-	noteChart.metaData.noteChart = noteChart
-	
-	setmetatable(noteChart, NoteChart_metatable)
-	
-	return noteChart
+	return setmetatable(noteChart, mt)
 end
 
-NoteChart.getLayerDataIndexIterator = function(self) return self.layerDataSequence:getLayerDataIndexIterator() end
-NoteChart.getInputIteraator = function(self) return self.layerDataSequence:getInputIteraator() end
-NoteChart.requireLayerData = function(self, ...) return self.layerDataSequence:requireLayerData(...) end
+function NoteChart:getLayerDataIndexIterator() return self.layerDataSequence:getLayerDataIndexIterator() end
+function NoteChart:getInputIteraator() return self.layerDataSequence:getInputIteraator() end
+function NoteChart:requireLayerData(...) return self.layerDataSequence:requireLayerData(...) end
+function NoteChart:compute(...) return self.layerDataSequence:compute(...) end
 
-NoteChart.getResourceIterator = function(self, ...) return self.resourceList:getIterator(...) end
-NoteChart.addResource = function(self, ...) return self.resourceList:add(...) end
-
-NoteChart.compute = function(self, ...) return self.layerDataSequence:compute(...) end
+function NoteChart:getResourceIterator(...) return self.resourceList:getIterator(...) end
+function NoteChart:addResource(...) return self.resourceList:add(...) end
 
 return NoteChart
