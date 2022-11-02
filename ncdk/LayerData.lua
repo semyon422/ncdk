@@ -4,62 +4,59 @@ local NoteDataSequence = require("ncdk.NoteDataSequence")
 
 local LayerData = {}
 
-local LayerData_metatable = {}
-LayerData_metatable.__index = LayerData
+local mt = {__index = LayerData}
 
-LayerData.new = function(self)
+function LayerData:new()
 	local layerData = {}
-	
+
 	layerData.timeData = TimeData:new()
 	layerData.spaceData = SpaceData:new()
 	layerData.noteDataSequence = NoteDataSequence:new()
-	
+
 	layerData.timeData.layerData = layerData
 	layerData.spaceData.layerData = layerData
 	layerData.noteDataSequence.layerData = layerData
-	
-	setmetatable(layerData, LayerData_metatable)
-	
-	return layerData
+
+	return setmetatable(layerData, mt)
 end
 
-LayerData.compute = function(self)
+function LayerData:compute()
 	self.timeData:sort()
 	self.spaceData:sort()
 	self.noteDataSequence:sort()
-	
+
 	self.timeData:computeTimePoints()
-	
+
 	if not self.invisible then
 		self.spaceData:computeTimePoints()
 	end
 end
 
-LayerData.setSignature = function(self, ...) return self.timeData:setSignature(...) end
-LayerData.getSignature = function(self, ...) return self.timeData:getSignature(...) end
-LayerData.setSignatureTable = function(self, ...) return self.timeData:setSignatureTable(...) end
-LayerData.addTempoData = function(self, ...) return self.timeData:addTempoData(...) end
-LayerData.getTempoData = function(self, ...) return self.timeData:getTempoData(...) end
-LayerData.getTempoDataCount = function(self) return self.timeData:getTempoDataCount() end
-LayerData.addStopData = function(self, ...) return self.timeData:addStopData(...) end
-LayerData.getStopData = function(self, ...) return self.timeData:getStopData(...) end
-LayerData.getStopDataCount = function(self) return self.timeData:getStopDataCount() end
-LayerData.getTimePoint = function(self, ...) return self.timeData:getTimePoint(...) end
-LayerData.getZeroTimePoint = function(self) return self.timeData:getZeroTimePoint() end
-LayerData.setTimeMode = function(self, ...) return self.timeData:setMode(...) end
-LayerData.setSignatureMode = function(self, ...) return self.timeData:setSignatureMode(...) end
+function LayerData:setSignature(...) return self.timeData:setSignature(...) end
+function LayerData:getSignature(...) return self.timeData:getSignature(...) end
+function LayerData:setSignatureTable(...) return self.timeData:setSignatureTable(...) end
+function LayerData:addTempoData(...) return self.timeData:addTempoData(...) end
+function LayerData:getTempoData(...) return self.timeData:getTempoData(...) end
+function LayerData:getTempoDataCount() return self.timeData:getTempoDataCount() end
+function LayerData:addStopData(...) return self.timeData:addStopData(...) end
+function LayerData:getStopData(...) return self.timeData:getStopData(...) end
+function LayerData:getStopDataCount() return self.timeData:getStopDataCount() end
+function LayerData:getTimePoint(...) return self.timeData:getTimePoint(...) end
+function LayerData:getZeroTimePoint() return self.timeData:getZeroTimePoint() end
+function LayerData:setTimeMode(...) return self.timeData:setMode(...) end
+function LayerData:setSignatureMode(...) return self.timeData:setSignatureMode(...) end
 
-LayerData.addVelocityData = function(self, ...) return self.spaceData:addVelocityData(...) end
-LayerData.removeLastVelocityData = function(self, ...) return self.spaceData:removeLastVelocityData(...) end
-LayerData.getVelocityData = function(self, ...) return self.spaceData:getVelocityData(...) end
-LayerData.getVelocityDataCount = function(self) return self.spaceData:getVelocityDataCount() end
-LayerData.getVelocityDataByTimePoint = function(self, ...) return self.spaceData:getVelocityDataByTimePoint(...) end
-LayerData.getVisualMeasureTime = function(self, ...) return self.spaceData:getVisualMeasureTime(...) end
-LayerData.getVisualTime = function(self, ...) return self.spaceData:getVisualTime(...) end
+function LayerData:addVelocityData(...) return self.spaceData:addVelocityData(...) end
+function LayerData:removeLastVelocityData(...) return self.spaceData:removeLastVelocityData(...) end
+function LayerData:getVelocityData(...) return self.spaceData:getVelocityData(...) end
+function LayerData:getVelocityDataCount() return self.spaceData:getVelocityDataCount() end
+function LayerData:getVelocityDataByTimePoint(...) return self.spaceData:getVelocityDataByTimePoint(...) end
+function LayerData:getVisualMeasureTime(...) return self.spaceData:getVisualMeasureTime(...) end
+function LayerData:getVisualTime(...) return self.spaceData:getVisualTime(...) end
 
-LayerData.getColumnCount = function(self) return self.noteDataSequence:getColumnCount() end
-LayerData.addNoteData = function(self, ...) return self.noteDataSequence:addNoteData(...) end
-LayerData.getNoteData = function(self, ...) return self.noteDataSequence:getNoteData(...) end
-LayerData.getNoteDataCount = function(self) return self.noteDataSequence:getNoteDataCount() end
+function LayerData:getColumnCount() return self.noteDataSequence:getColumnCount() end
+function LayerData:addNoteData(...) return self.noteDataSequence:addNoteData(...) end
+function LayerData:getNoteData(...) return self.noteDataSequence:getNoteData(...) end
+function LayerData:getNoteDataCount() return self.noteDataSequence:getNoteDataCount() end
 
 return LayerData

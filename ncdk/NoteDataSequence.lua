@@ -1,19 +1,16 @@
 local NoteDataSequence = {}
 
-local NoteDataSequence_metatable = {}
-NoteDataSequence_metatable.__index = NoteDataSequence
+local mt = {__index = NoteDataSequence}
 
-NoteDataSequence.new = function(self)
+function NoteDataSequence:new()
 	local noteDataSequence = {}
 
 	noteDataSequence.noteDataCount = 0
 
-	setmetatable(noteDataSequence, NoteDataSequence_metatable)
-
-	return noteDataSequence
+	return setmetatable(noteDataSequence, mt)
 end
 
-NoteDataSequence.addNoteData = function(self, ...)
+function NoteDataSequence:addNoteData(...)
 	local noteChart = self.layerData.noteChart
 
 	for _, noteData in ipairs({...}) do
@@ -25,22 +22,22 @@ NoteDataSequence.addNoteData = function(self, ...)
 	end
 end
 
-NoteDataSequence.getNoteData = function(self, noteDataIndex)
+function NoteDataSequence:getNoteData(noteDataIndex)
 	return self[noteDataIndex]
 end
 
-NoteDataSequence.getNoteDataCount = function(self)
+function NoteDataSequence:getNoteDataCount()
 	return self.noteDataCount
 end
 
-local sort = function(noteData1, noteData2)
+local function sort(noteData1, noteData2)
 	if noteData1.timePoint == noteData2.timePoint then
 		return noteData1.id < noteData2.id
 	end
 	return noteData1.timePoint < noteData2.timePoint
 end
 
-NoteDataSequence.sort = function(self)
+function NoteDataSequence:sort()
 	return table.sort(self, sort)
 end
 

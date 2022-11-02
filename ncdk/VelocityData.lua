@@ -1,29 +1,21 @@
-local Fraction = require("ncdk.Fraction")
-
 local VelocityData = {}
 
-local VelocityData_metatable = {}
-VelocityData_metatable.__index = VelocityData
+local mt = {__index = VelocityData}
 
 VelocityData.currentSpeed = 1
 VelocityData.localSpeed = 1
 VelocityData.globalSpeed = 1
 VelocityData.visualEndTimePoint = nil
 
-VelocityData.new = function(self, timePoint)
+function VelocityData:new(timePoint)
+	assert(not timePoint.velocityData, "This timePoint already has a velocityData")
+
 	local velocityData = {}
-	
+
 	velocityData.timePoint = timePoint
-	
-	if not timePoint.velocityData then
-		timePoint.velocityData = velocityData
-	else
-		error("This timePoint already has a velocityData")
-	end
-	
-	setmetatable(velocityData, VelocityData_metatable)
-	
-	return velocityData
+	timePoint.velocityData = velocityData
+
+	return setmetatable(velocityData, mt)
 end
 
 return VelocityData

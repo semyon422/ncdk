@@ -1,34 +1,31 @@
 local TempoDataSequence = {}
 
-local TempoDataSequence_metatable = {}
-TempoDataSequence_metatable.__index = TempoDataSequence
+local mt = {__index = TempoDataSequence}
 
-TempoDataSequence.new = function(self)
+function TempoDataSequence:new()
 	local tempoDataSequence = {}
 
 	tempoDataSequence.tempoDataCount = 0
 
-	setmetatable(tempoDataSequence, TempoDataSequence_metatable)
-
-	return tempoDataSequence
+	return setmetatable(tempoDataSequence, mt)
 end
 
-TempoDataSequence.addTempoData = function(self, ...)
+function TempoDataSequence:addTempoData(...)
 	for _, tempoData in ipairs({...}) do
 		table.insert(self, tempoData)
 		self.tempoDataCount = self.tempoDataCount + 1
 	end
 end
 
-TempoDataSequence.getTempoData = function(self, tempoDataIndex)
+function TempoDataSequence:getTempoData(tempoDataIndex)
 	return self[tempoDataIndex]
 end
 
-TempoDataSequence.getTempoDataCount = function(self)
+function TempoDataSequence:getTempoDataCount()
 	return self.tempoDataCount
 end
 
-TempoDataSequence.getTempoDataByTime = function(self, time)
+function TempoDataSequence:getTempoDataByTime(time)
 	for currentTempoDataIndex = 1, self:getTempoDataCount() do
 		local currentTempoData = self:getTempoData(currentTempoDataIndex)
 		if (currentTempoDataIndex == self:getTempoDataCount()) or
@@ -45,11 +42,11 @@ TempoDataSequence.getTempoDataByTime = function(self, time)
 	end
 end
 
-local sort = function(tempoData1, tempoData2)
+local function sort(tempoData1, tempoData2)
 	return tempoData1.time < tempoData2.time
 end
 
-TempoDataSequence.sort = function(self)
+function TempoDataSequence:sort()
 	return table.sort(self, sort)
 end
 

@@ -1,28 +1,23 @@
 local TimePoint = {}
 
-local TimePoint_metatable = {}
-TimePoint_metatable.__index = TimePoint
+local mt = {__index = TimePoint}
 
-TimePoint.new = function(self)
-	local timePoint = {}
-
-	setmetatable(timePoint, TimePoint_metatable)
-
-	return timePoint
+function TimePoint:new()
+	return setmetatable({}, mt)
 end
 
-TimePoint.compute = function(self)
+function TimePoint:compute()
 	self.absoluteTime = self.timeData:getAbsoluteTime(self.measureTime, self.side)
 end
 
-TimePoint.computeZeroClearVisualTime = function(self)
+function TimePoint:computeZeroClearVisualTime()
 	self.zeroClearVisualTime
 		= (self.absoluteTime - self.velocityData.timePoint.absoluteTime)
 		* self.velocityData.currentSpeed
 		+ self.velocityData.timePoint.zeroClearVisualTime
 end
 
-TimePoint.computeVisualTime = function(self, timePoint)
+function TimePoint:computeVisualTime(timePoint)
 	self.currentVisualTime
 		= (self.zeroClearVisualTime - timePoint.zeroClearVisualTime)
 		* timePoint.velocityData.globalSpeed
@@ -30,27 +25,27 @@ TimePoint.computeVisualTime = function(self, timePoint)
 		+ timePoint.absoluteTime
 end
 
-TimePoint_metatable.__eq = function(tpa, tpb)
-	if tpa.measureTime and tpb.measureTime then
-		return tpa.measureTime == tpb.measureTime and tpa.side == tpb.side
+function mt.__eq(a, b)
+	if a.measureTime and b.measureTime then
+		return a.measureTime == b.measureTime and a.side == b.side
 	else
-		return tpa.absoluteTime == tpb.absoluteTime and tpa.side == tpb.side
+		return a.absoluteTime == b.absoluteTime and a.side == b.side
 	end
 end
 
-TimePoint_metatable.__lt = function(tpa, tpb)
-	if tpa.measureTime and tpb.measureTime then
-		return tpa.measureTime < tpb.measureTime or (tpa.measureTime == tpb.measureTime and tpa.side < tpb.side)
+function mt.__lt(a, b)
+	if a.measureTime and b.measureTime then
+		return a.measureTime < b.measureTime or (a.measureTime == b.measureTime and a.side < b.side)
 	else
-		return tpa.absoluteTime < tpb.absoluteTime or (tpa.absoluteTime == tpb.absoluteTime and tpa.side < tpb.side)
+		return a.absoluteTime < b.absoluteTime or (a.absoluteTime == b.absoluteTime and a.side < b.side)
 	end
 end
 
-TimePoint_metatable.__le = function(tpa, tpb)
-	if tpa.measureTime and tpb.measureTime then
-		return tpa.measureTime < tpb.measureTime or (tpa.measureTime == tpb.measureTime and tpa.side == tpb.side)
+function mt.__le(a, b)
+	if a.measureTime and b.measureTime then
+		return a.measureTime < b.measureTime or (a.measureTime == b.measureTime and a.side == b.side)
 	else
-		return tpa.absoluteTime < tpb.absoluteTime or (tpa.absoluteTime == tpb.absoluteTime and tpa.side == tpb.side)
+		return a.absoluteTime < b.absoluteTime or (a.absoluteTime == b.absoluteTime and a.side == b.side)
 	end
 end
 

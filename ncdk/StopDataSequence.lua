@@ -1,38 +1,35 @@
 local StopDataSequence = {}
 
-local StopDataSequence_metatable = {}
-StopDataSequence_metatable.__index = StopDataSequence
+local mt = {__index = StopDataSequence}
 
-StopDataSequence.new = function(self)
+function StopDataSequence:new()
 	local stopDataSequence = {}
 
 	stopDataSequence.stopDataCount = 0
 
-	setmetatable(stopDataSequence, StopDataSequence_metatable)
-
-	return stopDataSequence
+	return setmetatable(stopDataSequence, mt)
 end
 
-StopDataSequence.addStopData = function(self, ...)
+function StopDataSequence:addStopData(...)
 	for _, stopData in ipairs({...}) do
 		table.insert(self, stopData)
 		self.stopDataCount = self.stopDataCount + 1
 	end
 end
 
-StopDataSequence.getStopData = function(self, stopDataIndex)
+function StopDataSequence:getStopData(stopDataIndex)
 	return self[stopDataIndex]
 end
 
-StopDataSequence.getStopDataCount = function(self)
+function StopDataSequence:getStopDataCount()
 	return self.stopDataCount
 end
 
-local sort = function(stopData1, stopData2)
+local function sort(stopData1, stopData2)
 	return stopData1.measureTime < stopData2.measureTime
 end
 
-StopDataSequence.sort = function(self)
+function StopDataSequence:sort()
 	return table.sort(self, sort)
 end
 

@@ -1,28 +1,25 @@
 local SignatureTable = {}
 
-local SignatureTable_metatable = {}
-SignatureTable_metatable.__index = SignatureTable
+local mt = {__index = SignatureTable}
 
 SignatureTable.mode = "short"
 
-SignatureTable.new = function(self, defaultSignature)
+function SignatureTable:new(defaultSignature)
 	local signatureTable = {}
-	
+
 	signatureTable.data = {}
 	signatureTable.needSort = true
 	signatureTable.defaultSignature = defaultSignature
-	
-	setmetatable(signatureTable, SignatureTable_metatable)
-	
-	return signatureTable
+
+	return setmetatable(signatureTable, mt)
 end
 
-SignatureTable.setSignature = function(self, measureIndex, signature)
+function SignatureTable:setSignature(measureIndex, signature)
 	self.data[measureIndex] = signature
 	self.needSort = true
 end
 
-SignatureTable.getSignature = function(self, measureIndex)
+function SignatureTable:getSignature(measureIndex)
 	if not next(self.data) then
 		return self.defaultSignature
 	end
@@ -57,46 +54,46 @@ SignatureTable.getSignature = function(self, measureIndex)
 	end
 end
 
-SignatureTable.setMode = function(self, mode)
+function SignatureTable:setMode(mode)
 	if mode ~= "long" and mode ~= "short" then
 		error("Wrong signature mode")
 	end
 	self.mode = mode
 end
 
-local sort = function(a, b)
+local function sort(a, b)
 	return a[1] < b[1]
 end
 
-SignatureTable.getIteraator = function(self)
+function SignatureTable:getIteraator()
 	local signatures = {}
 	for measureIndex, signature in pairs(self.data) do
 		signatures[#signatures + 1] = {measureIndex, signature}
 	end
 	table.sort(signatures, sort)
-	
+
 	local iterator = {}
 	iterator.counter = 1
 	iterator.signatures = signatures
-	iterator.next = function()
+	function iterator.next()
 		local data = signatures[iterator.counter]
 		if not data then return end
-		
+
 		local measureIndex, signature = data[1], data[2]
 		iterator.counter = iterator.counter + 1
-		
+
 		return measureIndex, signature
 	end
-	iterator.prev = function()
+	function iterator.prev()
 		local data = signatures[iterator.counter - 1]
 		if not data then return end
-		
+
 		local measureIndex, signature = data[1], data[2]
 		iterator.counter = iterator.counter - 1
-		
+
 		return measureIndex, signature
 	end
-	
+
 	return iterator
 end
 

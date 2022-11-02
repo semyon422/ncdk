@@ -6,10 +6,9 @@ local StopDataSequence = require("ncdk.StopDataSequence")
 
 local TimeData = {}
 
-local TimeData_metatable = {}
-TimeData_metatable.__index = TimeData
+local mt = {__index = TimeData}
 
-TimeData.new = function(self)
+function TimeData:new()
 	local timeData = {}
 
 	timeData.timePoints = {}
@@ -22,12 +21,10 @@ TimeData.new = function(self)
 	timeData.tempoDataSequence.timeData = timeData
 	timeData.stopDataSequence.timeData = timeData
 
-	setmetatable(timeData, TimeData_metatable)
-
-	return timeData
+	return setmetatable(timeData, mt)
 end
 
-TimeData.getTempoDataDuration = function(self, tempoDataIndex, startEdgeM_Time, endEdgeM_Time)
+function TimeData:getTempoDataDuration(tempoDataIndex, startEdgeM_Time, endEdgeM_Time)
 	local currentTempoData = self:getTempoData(tempoDataIndex)
 	local nextTempoData = self:getTempoData(tempoDataIndex + 1)
 
@@ -64,7 +61,7 @@ TimeData.getTempoDataDuration = function(self, tempoDataIndex, startEdgeM_Time, 
 	return time
 end
 
-TimeData.getStopDataDuration = function(self, stopDataIndex, startEdgeM_Time, endEdgeM_Time, side)
+function TimeData:getStopDataDuration(stopDataIndex, startEdgeM_Time, endEdgeM_Time, side)
 	local currentStopData = self:getStopData(stopDataIndex)
 	currentStopData.duration
 		= currentStopData.measureDuration:tonumber()
@@ -80,7 +77,7 @@ TimeData.getStopDataDuration = function(self, stopDataIndex, startEdgeM_Time, en
 	return 0
 end
 
-TimeData.getAbsoluteTime = function(self, measureTime, side)
+function TimeData:getAbsoluteTime(measureTime, side)
 	local time = 0
 	local zeroMeasureTime = Fraction:new(0)
 
@@ -105,7 +102,7 @@ TimeData.getAbsoluteTime = function(self, measureTime, side)
 	return time
 end
 
-TimeData.setMode = function(self, mode)
+function TimeData:setMode(mode)
 	if mode ~= "measure" and mode ~= "absolute" then
 		error("Wrong time mode")
 	end
@@ -114,7 +111,7 @@ TimeData.setMode = function(self, mode)
 	self:createZeroTimePoint()
 end
 
-TimeData.getTimePoint = function(self, time, side)
+function TimeData:getTimePoint(time, side)
 	local timePoint
 	local fixedTime
 	if type(time) == "number" then
@@ -127,7 +124,7 @@ TimeData.getTimePoint = function(self, time, side)
 	local timePointString = (fixedTime or 0) .. "," .. side
 
 	if not time then
-		timePoint = TimePoint:new(self)
+		timePoint = TimePoint:new()
 
 		timePoint.timeData = self
 		timePoint.side = side
@@ -136,7 +133,7 @@ TimeData.getTimePoint = function(self, time, side)
 			return self.timePoints[timePointString]
 		end
 
-		timePoint = TimePoint:new(self)
+		timePoint = TimePoint:new()
 
 		timePoint.timeData = self
 		timePoint.absoluteTime = fixedTime
@@ -149,7 +146,7 @@ TimeData.getTimePoint = function(self, time, side)
 			return self.timePoints[timePointString]
 		end
 
-		timePoint = TimePoint:new(self)
+		timePoint = TimePoint:new()
 
 		timePoint.timeData = self
 		timePoint.measureTime = fixedTime
@@ -162,12 +159,12 @@ TimeData.getTimePoint = function(self, time, side)
 	return timePoint
 end
 
-TimeData.sort = function(self)
+function TimeData:sort()
 	self.tempoDataSequence:sort()
 	self.stopDataSequence:sort()
 end
 
-TimeData.createTimePointList = function(self)
+function TimeData:createTimePointList()
 	local timePointList = {}
 	for _, timePoint in pairs(self.timePoints) do
 		timePointList[#timePointList + 1] = timePoint
@@ -182,7 +179,7 @@ TimeData.createTimePointList = function(self)
 	self.timePointList = timePointList
 end
 
-TimeData.computeTimePoints = function(self)
+function TimeData:computeTimePoints()
 	self:createTimePointList()
 
 	if self.mode == "absolute" then
@@ -272,7 +269,7 @@ TimeData.computeTimePoints = function(self)
 	return timePointList
 end
 
-TimeData.createZeroTimePoint = function(self)
+function TimeData:createZeroTimePoint()
 	local time
 	if self.mode == "absolute" then
 		time = 0
@@ -283,11 +280,11 @@ TimeData.createZeroTimePoint = function(self)
 	self.zeroTimePoint = self:getTimePoint(time, -1)
 end
 
-TimeData.getZeroTimePoint = function(self)
+function TimeData:getZeroTimePoint()
 	return self.zeroTimePoint
 end
 
-TimeData.addTempoData = function(self, ...)
+function TimeData:addTempoData(...)
 	for _, tempoData in ipairs({...}) do
 		tempoData.leftTimePoint = self:getTimePoint(tempoData.time, -1)
 		tempoData.rightTimePoint = self:getTimePoint(tempoData.time, 1)
@@ -296,7 +293,7 @@ TimeData.addTempoData = function(self, ...)
 	return self.tempoDataSequence:addTempoData(...)
 end
 
-TimeData.addStopData = function(self, ...)
+function TimeData:addStopData(...)
 	for _, stopData in ipairs({...}) do
 		stopData.leftTimePoint = self:getTimePoint(stopData.measureTime, -1)
 		stopData.rightTimePoint = self:getTimePoint(stopData.measureTime, 1)
@@ -305,13 +302,13 @@ TimeData.addStopData = function(self, ...)
 	return self.stopDataSequence:addStopData(...)
 end
 
-TimeData.setSignatureMode = function(self, ...) return self.signatureTable:setMode(...) end
-TimeData.setSignature = function(self, ...) return self.signatureTable:setSignature(...) end
-TimeData.getSignature = function(self, ...) return self.signatureTable:getSignature(...) end
-TimeData.setSignatureTable = function(self, ...) self.signatureTable = ... end
-TimeData.getTempoData = function(self, ...) return self.tempoDataSequence:getTempoData(...) end
-TimeData.getTempoDataCount = function(self) return self.tempoDataSequence:getTempoDataCount() end
-TimeData.getStopData = function(self, ...) return self.stopDataSequence:getStopData(...) end
-TimeData.getStopDataCount = function(self) return self.stopDataSequence:getStopDataCount() end
+function TimeData:setSignatureMode(...) return self.signatureTable:setMode(...) end
+function TimeData:setSignature(...) return self.signatureTable:setSignature(...) end
+function TimeData:getSignature(...) return self.signatureTable:getSignature(...) end
+function TimeData:setSignatureTable(...) self.signatureTable = ... end
+function TimeData:getTempoData(...) return self.tempoDataSequence:getTempoData(...) end
+function TimeData:getTempoDataCount() return self.tempoDataSequence:getTempoDataCount() end
+function TimeData:getStopData(...) return self.stopDataSequence:getStopData(...) end
+function TimeData:getStopDataCount() return self.stopDataSequence:getStopDataCount() end
 
 return TimeData

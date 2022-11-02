@@ -1,40 +1,37 @@
 local VelocityDataSequence = {}
 
-local VelocityDataSequence_metatable = {}
-VelocityDataSequence_metatable.__index = VelocityDataSequence
+local mt = {__index = VelocityDataSequence}
 
-VelocityDataSequence.new = function(self)
+function VelocityDataSequence:new()
 	local velocityDataSequence = {}
-	
+
 	velocityDataSequence.velocityDataCount = 0
-	
-	setmetatable(velocityDataSequence, VelocityDataSequence_metatable)
-	
-	return velocityDataSequence
+
+	return setmetatable(velocityDataSequence, mt)
 end
 
-VelocityDataSequence.addVelocityData = function(self, ...)
+function VelocityDataSequence:addVelocityData(...)
 	for _, velocityData in ipairs({...}) do
 		table.insert(self, velocityData)
 		self.velocityDataCount = self.velocityDataCount + 1
 	end
 end
 
-VelocityDataSequence.removeLastVelocityData = function(self)
+function VelocityDataSequence:removeLastVelocityData()
 	self[self.velocityDataCount].timePoint.velocityData = nil
 	table.remove(self, self.velocityDataCount)
 	self.velocityDataCount = self.velocityDataCount - 1
 end
 
-VelocityDataSequence.getVelocityData = function(self, velocityDataIndex)
+function VelocityDataSequence:getVelocityData(velocityDataIndex)
 	return self[velocityDataIndex]
 end
 
-VelocityDataSequence.getVelocityDataCount = function(self)
+function VelocityDataSequence:getVelocityDataCount()
 	return self.velocityDataCount
 end
 
-VelocityDataSequence.getVelocityDataByTimePoint = function(self, timePoint)
+function VelocityDataSequence:getVelocityDataByTimePoint(timePoint)
 	for currentVelocityDataIndex = 1, self:getVelocityDataCount() do
 		local currentVelocityData = self:getVelocityData(currentVelocityDataIndex)
 		if (currentVelocityDataIndex == self:getVelocityDataCount()) or
@@ -42,20 +39,20 @@ VelocityDataSequence.getVelocityDataByTimePoint = function(self, timePoint)
 		then
 			return currentVelocityData, currentVelocityDataIndex
 		end
-		
+
 		local nextVelocityData = self:getVelocityData(currentVelocityDataIndex + 1)
-		
+
 		if timePoint >= currentVelocityData.timePoint and timePoint < nextVelocityData.timePoint then
 			return currentVelocityData, currentVelocityDataIndex
 		end
 	end
 end
 
-local sort = function(velocityData1, velocityData2)
+local function sort(velocityData1, velocityData2)
 	return velocityData1.timePoint < velocityData2.timePoint
 end
 
-VelocityDataSequence.sort = function(self)
+function VelocityDataSequence:sort()
 	return table.sort(self, sort)
 end
 

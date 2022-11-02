@@ -1,20 +1,17 @@
 local TempoData = {}
 
-local TempoData_metatable = {}
-TempoData_metatable.__index = TempoData
+local mt = {__index = TempoData}
 
-TempoData.new = function(self, time, tempo)
+function TempoData:new(time, tempo)
 	local tempoData = {}
-	
+
 	tempoData.time = time
 	tempoData.tempo = tempo
-	
-	setmetatable(tempoData, TempoData_metatable)
-	
-	return tempoData
+
+	return setmetatable(tempoData, mt)
 end
 
-TempoData.getBeatDuration = function(self)
+function TempoData:getBeatDuration()
 	return 60 / self.tempo
 end
 
