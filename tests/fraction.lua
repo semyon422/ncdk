@@ -9,6 +9,15 @@ assert(Fraction:new(2, 1) == Fraction:new(2))
 assert(Fraction:new(-1, 1) == Fraction:new(1, -1))
 assert(Fraction:new(15, 9) == Fraction:new(5, 3))
 
+assert(Fraction:new(1) < Fraction:new(2))
+assert(Fraction:new(1) <= Fraction:new(2))
+assert(Fraction:new(2) <= Fraction:new(2))
+assert(Fraction:new(2) > Fraction:new(1))
+assert(Fraction:new(2) >= Fraction:new(1))
+assert(Fraction:new(2) >= Fraction:new(2))
+
+assert(-Fraction:new(2) == Fraction:new(-2))
+
 assert(Fraction:new(1, 2):tonumber() == 1 / 2)
 assert(tostring(Fraction:new(1, 2)) == "1/2")
 assert(tostring(Fraction:new(1)) == "1/1")
