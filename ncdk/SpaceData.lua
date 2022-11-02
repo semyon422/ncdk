@@ -1,5 +1,3 @@
-local VelocityDataSequence = require("ncdk.VelocityDataSequence")
-
 local SpaceData = {}
 
 local mt = {__index = SpaceData}
@@ -7,15 +5,14 @@ local mt = {__index = SpaceData}
 function SpaceData:new()
 	local spaceData = {}
 
-	spaceData.velocityDataSequence = VelocityDataSequence:new()
-	spaceData.velocityDataSequence.spaceData = spaceData
+	spaceData.velocityDatas = {}
 
 	return setmetatable(spaceData, mt)
 end
 
 function SpaceData:getVelocityDataVisualDuration(velocityDataIndex, startEdgeTimePoint, endEdgeTimePoint)
-	local currentVelocityData = self.velocityDataSequence:getVelocityData(velocityDataIndex)
-	local nextVelocityData = self.velocityDataSequence:getVelocityData(velocityDataIndex + 1)
+	local currentVelocityData = self:getVelocityData(velocityDataIndex)
+	local nextVelocityData = self:getVelocityData(velocityDataIndex + 1)
 
 	local mainStartTimePoint = currentVelocityData.timePoint
 	local mainEndTimePoint
@@ -59,7 +56,7 @@ function SpaceData:getVisualTime(targetTimePoint, currentTimePoint, clear)
 		localSpeed = targetVelocityData.localSpeed
 	end
 
-	for currentVelocityDataIndex = 1, self.velocityDataSequence:getVelocityDataCount() do
+	for currentVelocityDataIndex = 1, #self.velocityDatas do
 		if targetTimePoint > currentTimePoint then
 			deltaTime = deltaTime + self:getVelocityDataVisualDuration(currentVelocityDataIndex, currentTimePoint, targetTimePoint)
 		elseif targetTimePoint < currentTimePoint then
@@ -68,10 +65,6 @@ function SpaceData:getVisualTime(targetTimePoint, currentTimePoint, clear)
 	end
 
 	return currentTimePoint.absoluteTime + deltaTime * localSpeed * globalSpeed
-end
-
-function SpaceData:sort()
-	return self.velocityDataSequence:sort()
 end
 
 function SpaceData:computeTimePoints()
@@ -85,7 +78,7 @@ function SpaceData:computeTimePoints()
 	local targetTimePoint = timePointList[targetTimePointIndex]
 	local leftTimePoint = firstTimePoint
 
-	for currentVelocityDataIndex = 1, self:getVelocityDataCount() do
+	for currentVelocityDataIndex = 1, #self.velocityDatas do
 		local currentVelocityData = self:getVelocityData(currentVelocityDataIndex)
 		local nextVelocityData = self:getVelocityData(currentVelocityDataIndex + 1)
 
@@ -116,10 +109,13 @@ function SpaceData:computeTimePoints()
 	end
 end
 
-function SpaceData:addVelocityData(...) return self.velocityDataSequence:addVelocityData(...) end
-function SpaceData:removeLastVelocityData(...) return self.velocityDataSequence:removeLastVelocityData(...) end
-function SpaceData:getVelocityData(...) return self.velocityDataSequence:getVelocityData(...) end
-function SpaceData:getVelocityDataCount() return self.velocityDataSequence:getVelocityDataCount() end
-function SpaceData:getVelocityDataByTimePoint(...) return self.velocityDataSequence:getVelocityDataByTimePoint(...) end
+function SpaceData:addVelocityData(velocityData) table.insert(self.velocityDatas, velocityData) end
+function SpaceData:removeLastVelocityData() return table.remove(self.velocityDatas) end
+function SpaceData:getVelocityData(i) return self.velocityDatas[i] end
+function SpaceData:getVelocityDataCount() return #self.velocityDatas end
+
+function SpaceData:sort()
+	table.sort(self.velocityDatas, function(a, b) return a.timePoint < b.timePoint end)
+end
 
 return SpaceData

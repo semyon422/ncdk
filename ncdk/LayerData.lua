@@ -1,6 +1,5 @@
 local TimeData = require("ncdk.TimeData")
 local SpaceData = require("ncdk.SpaceData")
-local NoteDataSequence = require("ncdk.NoteDataSequence")
 
 local LayerData = {}
 
@@ -11,19 +10,25 @@ function LayerData:new()
 
 	layerData.timeData = TimeData:new()
 	layerData.spaceData = SpaceData:new()
-	layerData.noteDataSequence = NoteDataSequence:new()
+	layerData.noteDatas = {}
 
 	layerData.timeData.layerData = layerData
 	layerData.spaceData.layerData = layerData
-	layerData.noteDataSequence.layerData = layerData
 
 	return setmetatable(layerData, mt)
+end
+
+local function sortNotes(a, b)
+	if a.timePoint == b.timePoint then
+		return a.id < b.id
+	end
+	return a.timePoint < b.timePoint
 end
 
 function LayerData:compute()
 	self.timeData:sort()
 	self.spaceData:sort()
-	self.noteDataSequence:sort()
+	table.sort(self.noteDatas, sortNotes)
 
 	self.timeData:computeTimePoints()
 
@@ -49,14 +54,18 @@ function LayerData:setSignatureMode(...) return self.timeData:setSignatureMode(.
 function LayerData:addVelocityData(...) return self.spaceData:addVelocityData(...) end
 function LayerData:removeLastVelocityData(...) return self.spaceData:removeLastVelocityData(...) end
 function LayerData:getVelocityData(...) return self.spaceData:getVelocityData(...) end
-function LayerData:getVelocityDataCount() return self.spaceData:getVelocityDataCount() end
-function LayerData:getVelocityDataByTimePoint(...) return self.spaceData:getVelocityDataByTimePoint(...) end
 function LayerData:getVisualMeasureTime(...) return self.spaceData:getVisualMeasureTime(...) end
 function LayerData:getVisualTime(...) return self.spaceData:getVisualTime(...) end
 
-function LayerData:getColumnCount() return self.noteDataSequence:getColumnCount() end
-function LayerData:addNoteData(...) return self.noteDataSequence:addNoteData(...) end
-function LayerData:getNoteData(...) return self.noteDataSequence:getNoteData(...) end
-function LayerData:getNoteDataCount() return self.noteDataSequence:getNoteDataCount() end
+function LayerData:addNoteData(noteData)
+	local noteDatas = self.noteDatas
+	table.insert(noteDatas, noteData)
+	noteData.id = #noteDatas
+
+	self.noteChart:increaseInputCount(noteData.inputType, noteData.inputIndex, 1)
+end
+
+function LayerData:getNoteData(i) return self.noteDatas[i] end
+function LayerData:getNoteDataCount() return #self.noteDatas end
 
 return LayerData

@@ -8,7 +8,7 @@ VelocityData.globalSpeed = 1
 VelocityData.visualEndTimePoint = nil
 
 function VelocityData:new(timePoint)
-	assert(not timePoint.velocityData, "This timePoint already has a velocityData")
+	assert(not timePoint.velocityData, "This timePoint already has a VelocityData")
 
 	local velocityData = {}
 
@@ -16,6 +16,14 @@ function VelocityData:new(timePoint)
 	timePoint.velocityData = velocityData
 
 	return setmetatable(velocityData, mt)
+end
+
+function VelocityData:delete()
+	local timePoint = self.timePoint
+	assert(timePoint.velocityData, "This VelocityData is deleted")
+
+	self.timePoint = nil
+	timePoint.velocityData = nil
 end
 
 return VelocityData
