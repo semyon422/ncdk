@@ -47,7 +47,6 @@ function LayerData:addStopData(...) return self.timeData:addStopData(...) end
 function LayerData:getStopData(...) return self.timeData:getStopData(...) end
 function LayerData:getStopDataCount() return self.timeData:getStopDataCount() end
 function LayerData:getTimePoint(...) return self.timeData:getTimePoint(...) end
-function LayerData:getZeroTimePoint() return self.timeData:getZeroTimePoint() end
 function LayerData:setTimeMode(...) return self.timeData:setMode(...) end
 function LayerData:setSignatureMode(...) return self.timeData:setSignatureMode(...) end
 

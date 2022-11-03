@@ -1,4 +1,4 @@
-local Fraction = require("ncdk.Fraction")
+local TimePoint = require("ncdk.TimePoint")
 
 local noteChart = require("tests.reference_create_measure")
 
@@ -12,7 +12,8 @@ for _, layerData in noteChart:getLayerDataIterator() do
 end
 
 local layerData = noteChart:getLayerData(1)
-local currentTimePoint = layerData:getTimePoint() -- without arguments
+local currentTimePoint = TimePoint:new() -- without arguments
+currentTimePoint.side = -1
 currentTimePoint.absoluteTime = 0 -- you should manually set absoluteTime
 currentTimePoint.velocityData = layerData:getVelocityData(1) -- and corresponding to this time VelocityData
 

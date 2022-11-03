@@ -99,57 +99,39 @@ function TimeData:getAbsoluteTime(measureTime, side)
 end
 
 function TimeData:setMode(mode)
-	if mode ~= "measure" and mode ~= "absolute" then
+	local time
+	if mode == "absolute" then
+		time = 0
+	elseif mode == "measure" then
+		time = Fraction:new(0)
+	else
 		error("Wrong time mode")
 	end
 	self.mode = mode
-
-	self:createZeroTimePoint()
+	self.zeroTimePoint = self:getTimePoint(time, -1)
 end
 
 function TimeData:getTimePoint(time, side)
-	local timePoint
-	local fixedTime
+	assert(self.mode, "Mode should be set")
+
 	if type(time) == "number" then
-		fixedTime = math.min(math.max(time, -2147483648), 2147483647)
-	elseif type(time) == "table" then
-		fixedTime = time
-	elseif not time then
-		side = -1
+		time = math.min(math.max(time, -2147483648), 2147483647)
 	end
-	local timePointString = (fixedTime or 0) .. "," .. side
 
-	if not time then
-		timePoint = TimePoint:new()
+	local timePoints = self.timePoints
+	local key = time .. "," .. side
+	if timePoints[key] then
+		return timePoints[key]
+	end
 
-		timePoint.timeData = self
-		timePoint.side = side
-	elseif self.mode == "absolute" then
-		if self.timePoints[timePointString] then
-			return self.timePoints[timePointString]
-		end
+	local timePoint = TimePoint:new()
+	timePoint.side = side
+	timePoints[key] = timePoint
 
-		timePoint = TimePoint:new()
-
-		timePoint.timeData = self
-		timePoint.absoluteTime = fixedTime
-		timePoint.side = side
-		timePoint.timePointString = timePointString
-
-		self.timePoints[timePointString] = timePoint
+	if self.mode == "absolute" then
+		timePoint.absoluteTime = time
 	elseif self.mode == "measure" then
-		if self.timePoints[timePointString] then
-			return self.timePoints[timePointString]
-		end
-
-		timePoint = TimePoint:new()
-
-		timePoint.timeData = self
-		timePoint.measureTime = fixedTime
-		timePoint.side = side
-		timePoint.timePointString = timePointString
-
-		self.timePoints[timePointString] = timePoint
+		timePoint.measureTime = time
 	end
 
 	return timePoint
@@ -166,16 +148,12 @@ function TimeData:createTimePointList()
 		timePointList[#timePointList + 1] = timePoint
 	end
 	table.sort(timePointList)
-	local firstTimePoint = timePointList[1]
-	local lastTimePoint = timePointList[#timePointList]
-	for i = 1, #timePointList do
-		timePointList[i].firstTimePoint = firstTimePoint
-		timePointList[i].lastTimePoint = lastTimePoint
-	end
 	self.timePointList = timePointList
 end
 
 function TimeData:computeTimePoints()
+	assert(self.mode, "Mode should be set")
+
 	self:createTimePointList()
 
 	if self.mode == "absolute" then
@@ -183,7 +161,6 @@ function TimeData:computeTimePoints()
 	end
 
 	local timePointList = self.timePointList
-	local zeroTimePoint = self:getZeroTimePoint()
 
 	local lastMeasureTime = timePointList[#timePointList].measureTime
 
@@ -252,6 +229,7 @@ function TimeData:computeTimePoints()
 		globalTime = globalTime + self:getStopDataDuration(currentStopDataIndex, leftMeasureTime, currentStopData.measureTime, 1)
 	end
 
+	local zeroTimePoint = self.zeroTimePoint
 	local baseZeroTime = zeroTimePoint.absoluteTime
 	local baseZeroStopDuration = zeroTimePoint.stopDuration or 0
 	for _, timePoint in ipairs(timePointList) do
@@ -263,21 +241,6 @@ function TimeData:computeTimePoints()
 	end
 
 	return timePointList
-end
-
-function TimeData:createZeroTimePoint()
-	local time
-	if self.mode == "absolute" then
-		time = 0
-	elseif self.mode == "measure" then
-		time = Fraction:new(0)
-	end
-
-	self.zeroTimePoint = self:getTimePoint(time, -1)
-end
-
-function TimeData:getZeroTimePoint()
-	return self.zeroTimePoint
 end
 
 function TimeData:addTempoData(tempoData)

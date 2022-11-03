@@ -6,10 +6,6 @@ function TimePoint:new()
 	return setmetatable({}, mt)
 end
 
-function TimePoint:compute()
-	self.absoluteTime = self.timeData:getAbsoluteTime(self.measureTime, self.side)
-end
-
 function TimePoint:computeZeroClearVisualTime()
 	self.zeroClearVisualTime
 		= (self.absoluteTime - self.velocityData.timePoint.absoluteTime)

@@ -69,7 +69,7 @@ end
 
 function SpaceData:computeTimePoints()
 	local timePointList = self.layerData.timeData.timePointList
-	local zeroTimePoint = self.layerData.timeData:getZeroTimePoint()
+	local zeroTimePoint = self.layerData.timeData.zeroTimePoint
 
 	local firstTimePoint = timePointList[1]
 

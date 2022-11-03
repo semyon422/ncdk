@@ -8,6 +8,10 @@ io.write("input_mode: ")
 require("tests.input_mode")
 print("OK!")
 
+print("TimeData_unit: ")
+require("tests.TimeData_unit")
+print("OK!")
+
 io.write("reference_create_measure: ")
 require("tests.reference_create_measure")
 print("OK!")
