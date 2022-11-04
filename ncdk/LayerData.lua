@@ -39,7 +39,6 @@ end
 
 function LayerData:setSignature(...) return self.timeData:setSignature(...) end
 function LayerData:getSignature(...) return self.timeData:getSignature(...) end
-function LayerData:setSignatureTable(...) return self.timeData:setSignatureTable(...) end
 function LayerData:addTempoData(...) return self.timeData:addTempoData(...) end
 function LayerData:getTempoData(...) return self.timeData:getTempoData(...) end
 function LayerData:getTempoDataCount() return self.timeData:getTempoDataCount() end

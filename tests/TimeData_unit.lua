@@ -56,3 +56,31 @@ do
 	assert(td:getStopDataDuration(1, F(0), F(1), -1) == 4)
 	assert(td:getStopDataDuration(1, F(0), F(1), 1) == 0)
 end
+
+do
+	local td = TimeData:new()
+	td:setMode("measure")
+	td:setSignatureMode("short")
+
+	td:addTempoData(TempoData:new(F(0), 60))
+	td:setSignature(0, F(8))
+
+	assert(td:getTempoDataDuration(1, F(-1), F(0)) == 4)
+	assert(td:getTempoDataDuration(1, F(0), F(1)) == 8)
+	assert(td:getTempoDataDuration(1, F(1), F(2)) == 4)
+	assert(td:getTempoDataDuration(1, F(0), F(2)) == 12)
+end
+
+do
+	local td = TimeData:new()
+	td:setMode("measure")
+	td:setSignatureMode("long")
+
+	td:addTempoData(TempoData:new(F(0), 60))
+	td:setSignature(0, F(8))
+
+	assert(td:getTempoDataDuration(1, F(-1), F(0)) == 4)
+	assert(td:getTempoDataDuration(1, F(0), F(1)) == 8)
+	assert(td:getTempoDataDuration(1, F(1), F(2)) == 8)
+	assert(td:getTempoDataDuration(1, F(0), F(2)) == 16)
+end

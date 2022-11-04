@@ -260,7 +260,6 @@ end
 function TimeData:setSignatureMode(...) return self.signatureTable:setMode(...) end
 function TimeData:setSignature(...) return self.signatureTable:setSignature(...) end
 function TimeData:getSignature(...) return self.signatureTable:getSignature(...) end
-function TimeData:setSignatureTable(...) self.signatureTable = ... end
 
 function TimeData:getTempoData(i) return self.tempoDatas[i] end
 function TimeData:getTempoDataCount() return #self.tempoDatas end

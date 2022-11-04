@@ -9,7 +9,7 @@ function SignatureTable:new(defaultSignature)
 
 	signatureTable.data = {}
 	signatureTable.needSort = true
-	signatureTable.defaultSignature = defaultSignature
+	signatureTable.defaultSignature = assert(defaultSignature)
 
 	return setmetatable(signatureTable, mt)
 end
