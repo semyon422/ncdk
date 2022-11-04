@@ -10,10 +10,14 @@ do
 	st:setMode("short")
 
 	st:setSignature(0, F(8))
+	st:setSignature(2, F(16))
 
 	assert(st:getSignature(0) == F(8))
 	assert(st:getSignature(-1) == F(4))
 	assert(st:getSignature(1) == F(4))
+	assert(st:getSignature(2) == F(16))
+	assert(st:getSignature(3) == F(4))
+	assert(st:getSignature(-2) == F(4))
 end
 
 do
@@ -21,8 +25,12 @@ do
 	st:setMode("long")
 
 	st:setSignature(0, F(8))
+	st:setSignature(2, F(16))
 
 	assert(st:getSignature(0) == F(8))
 	assert(st:getSignature(-1) == F(4))
 	assert(st:getSignature(1) == F(8))
+	assert(st:getSignature(2) == F(16))
+	assert(st:getSignature(3) == F(16))
+	assert(st:getSignature(-2) == F(4))
 end

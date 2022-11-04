@@ -15,8 +15,6 @@ function TimeData:new()
 	timeData.tempoDatas = {}
 	timeData.stopDatas = {}
 
-	timeData.signatureTable.timeData = timeData
-
 	return setmetatable(timeData, mt)
 end
 
