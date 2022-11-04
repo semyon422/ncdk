@@ -38,8 +38,8 @@ do
 	local tempoData = TempoData:new(F(0), 60)
 
 	local stopData = StopData:new()
-	stopData.measureTime = F(0)
-	stopData.measureDuration = F(1)
+	stopData.time = F(0)
+	stopData.duration = F(1)
 	stopData.tempoData = tempoData
 	stopData.signature = F(4)
 

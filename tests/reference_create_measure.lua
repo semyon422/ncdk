@@ -30,8 +30,8 @@ local tempoData1 = TempoData:new(
 layerData1:addTempoData(tempoData1)
 
 local stopData1 = StopData:new()
-stopData1.measureTime		= Fraction:new(0)
-stopData1.measureDuration	= Fraction:new(1)
+stopData1.time		= Fraction:new(0)
+stopData1.duration	= Fraction:new(1)
 stopData1.tempoData			= tempoData1
 stopData1.signature			= Fraction:new(4)
 layerData1:addStopData(stopData1)
