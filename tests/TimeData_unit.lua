@@ -149,5 +149,4 @@ do
 	for _, _t in ipairs(t) do
 		assert(td:getTimePoint(_t[1], _t[2]).absoluteTime == _t[3])
 	end
-	error()
 end

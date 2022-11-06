@@ -38,10 +38,10 @@ function TimeData:getTempoDataDuration(tempoDataIndex, startTime, endTime)
 		startTime, endTime = endTime, startTime
 	end
 
-	local currentTempoData = self:getTempoData(tempoDataIndex)
+	local tempoData = self:getTempoData(tempoDataIndex)
 	local nextTempoData = self:getTempoData(tempoDataIndex + 1)
 
-	local _startTime = currentTempoData.time
+	local _startTime = tempoData.time
 	local _endTime = nextTempoData and nextTempoData.time
 
 	if _endTime and startTime >= _endTime or tempoDataIndex > 1 and endTime <= _startTime then
@@ -58,7 +58,7 @@ function TimeData:getTempoDataDuration(tempoDataIndex, startTime, endTime)
 	local startIndex, endIndex = _startTime:floor(), _endTime:floor()
 	_startTime, _endTime = _startTime:tonumber(), _endTime:tonumber()
 
-	local beatDuration = currentTempoData:getBeatDuration()
+	local beatDuration = tempoData:getBeatDuration()
 
 	local time = 0
 	for i = startIndex, endIndex do

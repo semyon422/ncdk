@@ -16,6 +16,10 @@ print("SignatureTable_unit: ")
 require("tests.SignatureTable_unit")
 print("OK!")
 
+print("SpaceData_unit: ")
+require("tests.SpaceData_unit")
+print("OK!")
+
 io.write("reference_create_measure: ")
 require("tests.reference_create_measure")
 print("OK!")
