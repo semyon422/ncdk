@@ -21,6 +21,15 @@ function TimePoint:computeVisualTime(timePoint)
 		+ timePoint.absoluteTime
 end
 
+local format = "%s%s"
+function mt.__tostring(a)
+	local time = a.absoluteTime
+	if a.measureTime then
+		time = a.measureTime
+	end
+	return format:format(time, a.side == -1 and "<-" or "->")
+end
+
 function mt.__eq(a, b)
 	if a.measureTime and b.measureTime then
 		return a.measureTime == b.measureTime and a.side == b.side
