@@ -96,6 +96,89 @@ do
 	local td = TimeData:new()
 	td:setMode("measure")
 
+	td:addTempoData(TempoData:new(F(0), 60))
+
+	local stopData = StopData:new()
+	stopData.time = F(1)
+	stopData.duration = F(1)
+	stopData.tempoData = TempoData:new(F(0), 60)
+	stopData.signature = F(4)
+	td:addStopData(stopData)
+
+	local stopData = StopData:new()
+	stopData.time = F(2)
+	stopData.duration = F(1)
+	stopData.tempoData = TempoData:new(F(0), 60)
+	stopData.signature = F(4)
+	td:addStopData(stopData)
+
+	local t = {
+		{F(0), -1, 0},
+		{F(1), -1, 4},
+		{F(1), 1, 8},
+		{F(2), -1, 12},
+		{F(2), 1, 16},
+	}
+
+	for _, _t in ipairs(t) do
+		assert(td:getAbsoluteTime(_t[1], _t[2]) == _t[3])
+	end
+	for _, _t in ipairs(t) do
+		td:getTimePoint(_t[1], _t[2])
+	end
+	td:computeTimePoints()
+	for _, _t in ipairs(t) do
+		assert(td:getTimePoint(_t[1], _t[2]).absoluteTime == _t[3])
+	end
+end
+
+do
+	local td = TimeData:new()
+	td:setMode("measure")
+
+	td:addTempoData(TempoData:new(F(0), 60))
+
+	local stopData = StopData:new()
+	stopData.time = F(-1)
+	stopData.duration = F(1)
+	stopData.tempoData = TempoData:new(F(0), 60)
+	stopData.signature = F(4)
+	td:addStopData(stopData)
+
+	local stopData = StopData:new()
+	stopData.time = F(1)
+	stopData.duration = F(1)
+	stopData.tempoData = TempoData:new(F(0), 60)
+	stopData.signature = F(4)
+	td:addStopData(stopData)
+
+	local t = {
+		{F(-2), -1, -12},
+		{F(-1), -1, -8},
+		{F(-1), 1, -4},
+		{F(0), -1, 0},
+		{F(0.5), 1, 2},
+		{F(1), -1, 4},
+		{F(1), 1, 8},
+		{F(2), -1, 12},
+	}
+
+	for _, _t in ipairs(t) do
+		assert(td:getAbsoluteTime(_t[1], _t[2]) == _t[3])
+	end
+	for _, _t in ipairs(t) do
+		td:getTimePoint(_t[1], _t[2])
+	end
+	td:computeTimePoints()
+	for _, _t in ipairs(t) do
+		assert(td:getTimePoint(_t[1], _t[2]).absoluteTime == _t[3])
+	end
+end
+
+do
+	local td = TimeData:new()
+	td:setMode("measure")
+
 	td:addTempoData(TempoData:new(F(0.5), 60))
 	td:addTempoData(TempoData:new(F(1.5), 120))
 	td:addTempoData(TempoData:new(F(2.5), 240))
