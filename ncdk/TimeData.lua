@@ -172,13 +172,25 @@ function TimeData:computeTimePoints()
 	local tempoDataIndex = 1
 	local tempoData = self:getTempoData(tempoDataIndex)
 
+	local stopDataIndex = 1
+	local stopData = self:getStopData(stopDataIndex)
+
 	local timePointIndex = 1
 	local timePoint = timePointList[timePointIndex]
 
 	local time = 0
 	local currentMeasureTime = timePoint.measureTime
-	local targetMeasureTime
+	local currentSide = timePoint.side
 	while true do
+		local measureIndex = currentMeasureTime:floor()
+
+		local targetMeasureTime = Fraction:new(measureIndex + 1)
+		local targetSide = -1
+		if timePoint.measureTime < targetMeasureTime then
+			targetMeasureTime = timePoint.measureTime
+			targetSide = timePoint.side
+		end
+
 		local nextTempoData = self:getTempoData(tempoDataIndex + 1)
 		while nextTempoData and nextTempoData.time <= currentMeasureTime do
 			tempoDataIndex = tempoDataIndex + 1
@@ -186,16 +198,28 @@ function TimeData:computeTimePoints()
 			nextTempoData = self:getTempoData(tempoDataIndex + 1)
 		end
 
-		local measureIndex = currentMeasureTime:floor()
-
-		targetMeasureTime = Fraction:new(measureIndex + 1)
-		if timePoint.measureTime < targetMeasureTime then
-			targetMeasureTime = timePoint.measureTime
-		end
-
 		local duration = tempoData:getBeatDuration() * self:getSignature(measureIndex)
 		time = time + duration * (targetMeasureTime - currentMeasureTime)
+
+		-- if stopData and stopData.time == currentMeasureTime and currentMeasureTime == targetMeasureTime then
+		-- 	time = time + self:getStopDataDuration(stopDataIndex, currentMeasureTime, targetMeasureTime, -1, 1)
+		-- 	stopDataIndex = stopDataIndex + 1
+		-- 	stopData = self:getStopData(stopDataIndex)
+		-- end
+		if stopData then
+			local nextStopData = self:getStopData(stopDataIndex + 1)
+			while nextStopData and nextStopData.time <= currentMeasureTime do
+				time = time + self:getStopDataDuration(stopDataIndex, currentMeasureTime, targetMeasureTime, currentSide, targetSide)
+				stopDataIndex = stopDataIndex + 1
+				stopData = nextStopData
+				nextStopData = self:getStopData(stopDataIndex + 1)
+			end
+			if not nextStopData or nextStopData.time > currentMeasureTime then
+				time = time + self:getStopDataDuration(stopDataIndex, currentMeasureTime, targetMeasureTime, currentSide, targetSide)
+			end
+		end
 		currentMeasureTime = targetMeasureTime
+		currentSide = targetSide
 
 		if timePoint.measureTime == targetMeasureTime then
 			timePoint.tempoData = tempoData
@@ -209,26 +233,9 @@ function TimeData:computeTimePoints()
 		end
 	end
 
-	time = 0
-	timePointIndex = 1
-	timePoint = timePointList[timePointIndex]
-	local leftMeasureTime = timePoint.measureTime
-	for stopDataIndex = 1, self:getStopDataCount() do
-		local currentStopData = self:getStopData(stopDataIndex)
-		local nextStopData = self:getStopData(stopDataIndex + 1)
-
-		while timePoint and (not nextStopData or timePoint.measureTime < nextStopData.time) do
-			timePoint.stopDuration = time + self:getStopDataDuration(stopDataIndex, leftMeasureTime, timePoint.measureTime, -1, timePoint.side)
-			timePointIndex = timePointIndex + 1
-			timePoint = timePointList[timePointIndex]
-		end
-		time = time + self:getStopDataDuration(stopDataIndex, leftMeasureTime, currentStopData.time, -1, 1)
-	end
-
-	local zeroTimePoint = self.zeroTimePoint
-	local zeroDelta = zeroTimePoint.absoluteTime + (zeroTimePoint.stopDuration or 0)
+	local zeroTime = self.zeroTimePoint.absoluteTime
 	for _, t in ipairs(timePointList) do
-		t.absoluteTime = t.absoluteTime + (t.stopDuration or 0) - zeroDelta
+		t.absoluteTime = t.absoluteTime - zeroTime
 	end
 end
 
