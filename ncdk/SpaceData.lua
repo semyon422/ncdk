@@ -75,7 +75,7 @@ function SpaceData:computeTimePoints()
 	local time = 0
 	local currentTime = timePoint.absoluteTime
 	while timePoint do
-		time = time + self:getVelocityDataVisualDuration(velocityDataIndex, currentTime, timePoint.absoluteTime)
+		time = time + (timePoint.absoluteTime - currentTime) * velocityData.currentSpeed
 		currentTime = timePoint.absoluteTime
 
 		local nextVelocityData = self:getVelocityData(velocityDataIndex + 1)
