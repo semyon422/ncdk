@@ -1,4 +1,4 @@
-local TimeData = require("ncdk.TimeData")
+local LayerData = require("ncdk.LayerData")
 local TempoData = require("ncdk.TempoData")
 local StopData = require("ncdk.StopData")
 local Fraction = require("ncdk.Fraction")
@@ -12,31 +12,31 @@ local function F(n)
 end
 
 do
-	local td = TimeData:new()  -- signature = 4
-	td:setMode("measure")
+	local ld = LayerData:new()  -- signature = 4
+	ld:setTimeMode("measure")
 
-	td:addTempoData(TempoData:new(F(-1), 120))
-	td:addTempoData(TempoData:new(F(0), 60))
-	td:addTempoData(TempoData:new(F(1), 30))
+	ld:addTempoData(TempoData:new(F(-1), 120))
+	ld:addTempoData(TempoData:new(F(0), 60))
+	ld:addTempoData(TempoData:new(F(1), 30))
 
-	assert(td:getTempoDataDuration(1, F(-2), F(-1)) == 2)
-	assert(td:getTempoDataDuration(1, F(-1), F(0)) == 2)
-	assert(td:getTempoDataDuration(1, F(-1), F(1000)) == 2)
+	assert(ld:getTempoDataDuration(1, F(-2), F(-1)) == 2)
+	assert(ld:getTempoDataDuration(1, F(-1), F(0)) == 2)
+	assert(ld:getTempoDataDuration(1, F(-1), F(1000)) == 2)
 
-	assert(td:getTempoDataDuration(2, F(-1000), F(1000)) == 4)
-	assert(td:getTempoDataDuration(2, F(0), F(1)) == 4)
+	assert(ld:getTempoDataDuration(2, F(-1000), F(1000)) == 4)
+	assert(ld:getTempoDataDuration(2, F(0), F(1)) == 4)
 
-	assert(td:getTempoDataDuration(3, F(1), F(2)) == 8)
-	assert(td:getTempoDataDuration(3, F(2), F(3)) == 8)
-	assert(td:getTempoDataDuration(3, F(-1000), F(2)) == 8)
+	assert(ld:getTempoDataDuration(3, F(1), F(2)) == 8)
+	assert(ld:getTempoDataDuration(3, F(2), F(3)) == 8)
+	assert(ld:getTempoDataDuration(3, F(-1000), F(2)) == 8)
 end
 
 do
-	local td = TimeData:new()
-	td:setMode("measure")
+	local ld = LayerData:new()
+	ld:setTimeMode("measure")
 
 	local tempoData = TempoData:new(F(0), 60)
-	td:addTempoData(tempoData)
+	ld:addTempoData(tempoData)
 
 	local stopData = StopData:new()
 	stopData.time = F(0)
@@ -44,73 +44,73 @@ do
 	stopData.tempoData = tempoData
 	stopData.signature = F(4)
 
-	td:addStopData(stopData)
+	ld:addStopData(stopData)
 
-	assert(td:getStopDataDuration(1, F(-1000), F(1000), -1) == 4)
-	assert(td:getStopDataDuration(1, F(-1000), F(1000), 1) == 4)
-	assert(td:getStopDataDuration(1, F(100), F(1000), 1) == 0)
-	assert(td:getStopDataDuration(1, F(-1000), F(-100), 1) == 0)
+	assert(ld:getStopDataDuration(1, F(-1000), F(1000), -1) == 4)
+	assert(ld:getStopDataDuration(1, F(-1000), F(1000), 1) == 4)
+	assert(ld:getStopDataDuration(1, F(100), F(1000), 1) == 0)
+	assert(ld:getStopDataDuration(1, F(-1000), F(-100), 1) == 0)
 
-	assert(td:getStopDataDuration(1, F(-1), F(0), 1) == 4)
-	assert(td:getStopDataDuration(1, F(-1), F(0), -1) == 0)
+	assert(ld:getStopDataDuration(1, F(-1), F(0), 1) == 4)
+	assert(ld:getStopDataDuration(1, F(-1), F(0), -1) == 0)
 
-	assert(td:getStopDataDuration(1, F(0), F(1), -1) == 4)
-	assert(td:getStopDataDuration(1, F(0), F(1), 1) == 0)
+	assert(ld:getStopDataDuration(1, F(0), F(1), -1) == 4)
+	assert(ld:getStopDataDuration(1, F(0), F(1), 1) == 0)
 
-	assert(td:getAbsoluteDuration(F(0), F(1), 1, 1) == 4)
-	assert(td:getAbsoluteDuration(F(0), F(1), -1, 1) == 8)
+	assert(ld:getAbsoluteDuration(F(0), F(1), 1, 1) == 4)
+	assert(ld:getAbsoluteDuration(F(0), F(1), -1, 1) == 8)
 
-	assert(td:getAbsoluteDuration(F(-1), F(0), 1, -1) == 4)
-	assert(td:getAbsoluteDuration(F(-1), F(0), 1, 1) == 8)
+	assert(ld:getAbsoluteDuration(F(-1), F(0), 1, -1) == 4)
+	assert(ld:getAbsoluteDuration(F(-1), F(0), 1, 1) == 8)
 end
 
 do
-	local td = TimeData:new()
-	td:setMode("measure")
-	td:setSignatureMode("short")
+	local ld = LayerData:new()
+	ld:setTimeMode("measure")
+	ld:setSignatureMode("short")
 
-	td:addTempoData(TempoData:new(F(0), 60))
-	td:setSignature(0, F(8))
+	ld:addTempoData(TempoData:new(F(0), 60))
+	ld:setSignature(0, F(8))
 
-	assert(td:getTempoDataDuration(1, F(-1), F(0)) == 4)
-	assert(td:getTempoDataDuration(1, F(0), F(1)) == 8)
-	assert(td:getTempoDataDuration(1, F(1), F(2)) == 4)
-	assert(td:getTempoDataDuration(1, F(0), F(2)) == 12)
+	assert(ld:getTempoDataDuration(1, F(-1), F(0)) == 4)
+	assert(ld:getTempoDataDuration(1, F(0), F(1)) == 8)
+	assert(ld:getTempoDataDuration(1, F(1), F(2)) == 4)
+	assert(ld:getTempoDataDuration(1, F(0), F(2)) == 12)
 end
 
 do
-	local td = TimeData:new()
-	td:setMode("measure")
-	td:setSignatureMode("long")
+	local ld = LayerData:new()
+	ld:setTimeMode("measure")
+	ld:setSignatureMode("long")
 
-	td:addTempoData(TempoData:new(F(0), 60))
-	td:setSignature(0, F(8))
+	ld:addTempoData(TempoData:new(F(0), 60))
+	ld:setSignature(0, F(8))
 
-	assert(td:getTempoDataDuration(1, F(-1), F(0)) == 4)
-	assert(td:getTempoDataDuration(1, F(0), F(1)) == 8)
-	assert(td:getTempoDataDuration(1, F(1), F(2)) == 8)
-	assert(td:getTempoDataDuration(1, F(0), F(2)) == 16)
+	assert(ld:getTempoDataDuration(1, F(-1), F(0)) == 4)
+	assert(ld:getTempoDataDuration(1, F(0), F(1)) == 8)
+	assert(ld:getTempoDataDuration(1, F(1), F(2)) == 8)
+	assert(ld:getTempoDataDuration(1, F(0), F(2)) == 16)
 end
 
 do
-	local td = TimeData:new()
-	td:setMode("measure")
+	local ld = LayerData:new()
+	ld:setTimeMode("measure")
 
-	td:addTempoData(TempoData:new(F(0), 60))
+	ld:addTempoData(TempoData:new(F(0), 60))
 
 	local stopData = StopData:new()
 	stopData.time = F(1)
 	stopData.duration = F(1)
 	stopData.tempoData = TempoData:new(F(0), 60)
 	stopData.signature = F(4)
-	td:addStopData(stopData)
+	ld:addStopData(stopData)
 
 	local stopData = StopData:new()
 	stopData.time = F(2)
 	stopData.duration = F(1)
 	stopData.tempoData = TempoData:new(F(0), 60)
 	stopData.signature = F(4)
-	td:addStopData(stopData)
+	ld:addStopData(stopData)
 
 	local t = {
 		{F(0), -1, 0},
@@ -121,36 +121,36 @@ do
 	}
 
 	for _, _t in ipairs(t) do
-		assert(td:getAbsoluteTime(_t[1], _t[2]) == _t[3])
+		assert(ld:getAbsoluteTime(_t[1], _t[2]) == _t[3])
 	end
 	for _, _t in ipairs(t) do
-		td:getTimePoint(_t[1], _t[2])
+		ld:getTimePoint(_t[1], _t[2])
 	end
-	td:computeTimePoints()
+	ld:computeTimePoints()
 	for _, _t in ipairs(t) do
-		assert(td:getTimePoint(_t[1], _t[2]).absoluteTime == _t[3])
+		assert(ld:getTimePoint(_t[1], _t[2]).absoluteTime == _t[3])
 	end
 end
 
 do
-	local td = TimeData:new()
-	td:setMode("measure")
+	local ld = LayerData:new()
+	ld:setTimeMode("measure")
 
-	td:addTempoData(TempoData:new(F(0), 60))
+	ld:addTempoData(TempoData:new(F(0), 60))
 
 	local stopData = StopData:new()
 	stopData.time = F(-1)
 	stopData.duration = F(1)
 	stopData.tempoData = TempoData:new(F(0), 60)
 	stopData.signature = F(4)
-	td:addStopData(stopData)
+	ld:addStopData(stopData)
 
 	local stopData = StopData:new()
 	stopData.time = F(1)
 	stopData.duration = F(1)
 	stopData.tempoData = TempoData:new(F(0), 60)
 	stopData.signature = F(4)
-	td:addStopData(stopData)
+	ld:addStopData(stopData)
 
 	local t = {
 		{F(-2), -1, -12},
@@ -164,45 +164,45 @@ do
 	}
 
 	for _, _t in ipairs(t) do
-		assert(td:getAbsoluteTime(_t[1], _t[2]) == _t[3])
+		assert(ld:getAbsoluteTime(_t[1], _t[2]) == _t[3])
 	end
 	for _, _t in ipairs(t) do
-		td:getTimePoint(_t[1], _t[2])
+		ld:getTimePoint(_t[1], _t[2])
 	end
-	td:computeTimePoints()
+	ld:computeTimePoints()
 	for _, _t in ipairs(t) do
-		assert(td:getTimePoint(_t[1], _t[2]).absoluteTime == _t[3])
+		assert(ld:getTimePoint(_t[1], _t[2]).absoluteTime == _t[3])
 	end
 end
 
 do
-	local td = TimeData:new()
-	td:setMode("measure")
+	local ld = LayerData:new()
+	ld:setTimeMode("measure")
 
-	td:addTempoData(TempoData:new(F(0.5), 60))
-	td:addTempoData(TempoData:new(F(1.5), 120))
-	td:addTempoData(TempoData:new(F(2.5), 240))
+	ld:addTempoData(TempoData:new(F(0.5), 60))
+	ld:addTempoData(TempoData:new(F(1.5), 120))
+	ld:addTempoData(TempoData:new(F(2.5), 240))
 
 	local stopData = StopData:new()
 	stopData.time = F(-2.5)
 	stopData.duration = F(1)
 	stopData.tempoData = TempoData:new(F(0.5), 60)
 	stopData.signature = F(4)
-	td:addStopData(stopData)
+	ld:addStopData(stopData)
 
 	local stopData = StopData:new()
 	stopData.time = F(-1)
 	stopData.duration = F(2)
 	stopData.tempoData = TempoData:new(F(0.5), 60)
 	stopData.signature = F(4)
-	td:addStopData(stopData)
+	ld:addStopData(stopData)
 
 	local stopData = StopData:new()
 	stopData.time = F(1.5)
 	stopData.duration = F(0.5)
 	stopData.tempoData = TempoData:new(F(1.5), 120)
 	stopData.signature = F(4)
-	td:addStopData(stopData)
+	ld:addStopData(stopData)
 
 	local t = {
 		{F(-3), -1, -24},
@@ -223,13 +223,13 @@ do
 	}
 
 	for _, _t in ipairs(t) do
-		assert(td:getAbsoluteTime(_t[1], _t[2]) == _t[3])
+		assert(ld:getAbsoluteTime(_t[1], _t[2]) == _t[3])
 	end
 	for _, _t in ipairs(t) do
-		td:getTimePoint(_t[1], _t[2])
+		ld:getTimePoint(_t[1], _t[2])
 	end
-	td:computeTimePoints()
+	ld:computeTimePoints()
 	for _, _t in ipairs(t) do
-		assert(td:getTimePoint(_t[1], _t[2]).absoluteTime == _t[3])
+		assert(ld:getTimePoint(_t[1], _t[2]).absoluteTime == _t[3])
 	end
 end

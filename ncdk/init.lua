@@ -8,7 +8,6 @@ ncdk.ResourceList = require("ncdk.ResourceList")
 
 ncdk.LayerData = require("ncdk.LayerData")
 
-ncdk.TimeData = require("ncdk.TimeData")
 ncdk.TimePoint = require("ncdk.TimePoint")
 ncdk.SignatureTable = require("ncdk.SignatureTable")
 ncdk.TempoData = require("ncdk.TempoData")

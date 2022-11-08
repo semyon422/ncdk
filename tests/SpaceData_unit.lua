@@ -1,4 +1,4 @@
-local TimeData = require("ncdk.TimeData")
+local LayerData = require("ncdk.LayerData")
 local TempoData = require("ncdk.TempoData")
 local VelocityData = require("ncdk.VelocityData")
 local Fraction = require("ncdk.Fraction")
@@ -8,31 +8,31 @@ local function F(n)
 end
 
 do
-	local td = TimeData:new()
-	td:setMode("measure")
-	td:addTempoData(TempoData:new(F(0), 60))
+	local ld = LayerData:new()
+	ld:setTimeMode("measure")
+	ld:addTempoData(TempoData:new(F(0), 60))
 
-	local tp4 = td:getTimePoint(Fraction:new(-1), -1)
-	local tp1 = td:getTimePoint(Fraction:new(0), -1)
-	local tp2 = td:getTimePoint(Fraction:new(1), -1)
-	local tp3 = td:getTimePoint(Fraction:new(2), -1)
+	local tp4 = ld:getTimePoint(Fraction:new(-1), -1)
+	local tp1 = ld:getTimePoint(Fraction:new(0), -1)
+	local tp2 = ld:getTimePoint(Fraction:new(1), -1)
+	local tp3 = ld:getTimePoint(Fraction:new(2), -1)
 
-	td:computeTimePoints()
+	ld:computeTimePoints()
 
 	local vd = VelocityData:new(tp1)
 	vd.currentSpeed = 1
-	td:addVelocityData(vd)
+	ld:addVelocityData(vd)
 
 	vd = VelocityData:new(tp2)
 	vd.currentSpeed = 2
-	td:addVelocityData(vd)
+	ld:addVelocityData(vd)
 
-	assert(td:getVisualTime(tp2, tp1, true) == tp1.absoluteTime + 4)
-	assert(td:getVisualTime(tp3, tp2, true) == tp2.absoluteTime + 8)
-	assert(td:getVisualTime(tp3, tp1, true) == tp1.absoluteTime + 12)
-	assert(td:getVisualTime(tp4, tp1, true) == tp1.absoluteTime - 4)
+	assert(ld:getVisualTime(tp2, tp1, true) == tp1.absoluteTime + 4)
+	assert(ld:getVisualTime(tp3, tp2, true) == tp2.absoluteTime + 8)
+	assert(ld:getVisualTime(tp3, tp1, true) == tp1.absoluteTime + 12)
+	assert(ld:getVisualTime(tp4, tp1, true) == tp1.absoluteTime - 4)
 
-	td:computeTimePoints()
+	ld:computeTimePoints()
 
 	assert(tp2.zeroClearVisualTime == tp1.absoluteTime + 4)
 	assert(tp3.zeroClearVisualTime == tp2.absoluteTime + 8)

@@ -9,7 +9,7 @@ local Fraction = require("ncdk.Fraction")
 do
 	local nc = NoteChart:new()
 	local ld = nc:getLayerData(1)
-	ld.timeData:setMode("measure")
+	ld:setTimeMode("measure")
 
 	local mt = Fraction:new(0)
 	local tp = ld:getTimePoint(mt, 1)
@@ -30,7 +30,7 @@ end
 do
 	local nc = NoteChart:new()
 	local ld = nc:getLayerData(1)
-	ld.timeData:setMode("measure")
+	ld:setTimeMode("measure")
 
 	local mt = Fraction:new(0)
 	local tp0 = ld:getTimePoint(mt, 1)
@@ -86,7 +86,7 @@ end
 do
 	local nc = NoteChart:new()
 	local ld = nc:getLayerData(1)
-	ld.timeData:setMode("measure")
+	ld:setTimeMode("measure")
 
 	local mt = Fraction:new(0)
 	local tp0 = ld:getTimePoint(mt, 1)
@@ -123,8 +123,8 @@ do
 
 	for i, d in ipairs(cases) do
 		assert(
-			d[3] == ld.timeData:getAbsoluteTime(d[4].measureTime, -1),
-			"i: " .. i .. " vt1: " .. d[3] .. " vt2: " .. ld.timeData:getAbsoluteTime(d[4].measureTime, -1)
+			d[3] == ld:getAbsoluteTime(d[4].measureTime, -1),
+			"i: " .. i .. " vt1: " .. d[3] .. " vt2: " .. ld:getAbsoluteTime(d[4].measureTime, -1)
 		)
 	end
 end
@@ -132,7 +132,7 @@ end
 do
 	local nc = NoteChart:new()
 	local ld = nc:getLayerData(1)
-	ld.timeData:setMode("measure")
+	ld:setTimeMode("measure")
 
 	local mt = Fraction:new(0)
 	local tp = ld:getTimePoint(mt, 1)
@@ -176,12 +176,12 @@ do
 
 	for i, d in ipairs(cases) do
 		assert(
-			d[3] == ld.timeData:getAbsoluteTime(d[5].measureTime, -1),
-			"i: " .. i .. " vt1: " .. d[3] .. " vt2: " .. ld.timeData:getAbsoluteTime(d[5].measureTime, -1)
+			d[3] == ld:getAbsoluteTime(d[5].measureTime, -1),
+			"i: " .. i .. " vt1: " .. d[3] .. " vt2: " .. ld:getAbsoluteTime(d[5].measureTime, -1)
 		)
 		assert(
-			d[4] == ld.timeData:getAbsoluteTime(d[6].measureTime, 1),
-			"i: " .. i .. " vt1: " .. d[4] .. " vt2: " .. ld.timeData:getAbsoluteTime(d[6].measureTime, 1)
+			d[4] == ld:getAbsoluteTime(d[6].measureTime, 1),
+			"i: " .. i .. " vt1: " .. d[4] .. " vt2: " .. ld:getAbsoluteTime(d[6].measureTime, 1)
 		)
 		assert(
 			d[5].absoluteTime == d[3],
