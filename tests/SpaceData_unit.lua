@@ -1,5 +1,4 @@
 local TimeData = require("ncdk.TimeData")
-local SpaceData = require("ncdk.SpaceData")
 local TempoData = require("ncdk.TempoData")
 local VelocityData = require("ncdk.VelocityData")
 local Fraction = require("ncdk.Fraction")
@@ -20,23 +19,20 @@ do
 
 	td:computeTimePoints()
 
-	local sd = SpaceData:new()
-	sd.timeData = td
-
 	local vd = VelocityData:new(tp1)
 	vd.currentSpeed = 1
-	sd:addVelocityData(vd)
+	td:addVelocityData(vd)
 
 	vd = VelocityData:new(tp2)
 	vd.currentSpeed = 2
-	sd:addVelocityData(vd)
+	td:addVelocityData(vd)
 
-	assert(sd:getVisualTime(tp2, tp1, true) == tp1.absoluteTime + 4)
-	assert(sd:getVisualTime(tp3, tp2, true) == tp2.absoluteTime + 8)
-	assert(sd:getVisualTime(tp3, tp1, true) == tp1.absoluteTime + 12)
-	assert(sd:getVisualTime(tp4, tp1, true) == tp1.absoluteTime - 4)
+	assert(td:getVisualTime(tp2, tp1, true) == tp1.absoluteTime + 4)
+	assert(td:getVisualTime(tp3, tp2, true) == tp2.absoluteTime + 8)
+	assert(td:getVisualTime(tp3, tp1, true) == tp1.absoluteTime + 12)
+	assert(td:getVisualTime(tp4, tp1, true) == tp1.absoluteTime - 4)
 
-	sd:computeTimePoints()
+	td:computeTimePoints()
 
 	assert(tp2.zeroClearVisualTime == tp1.absoluteTime + 4)
 	assert(tp3.zeroClearVisualTime == tp2.absoluteTime + 8)

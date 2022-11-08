@@ -14,7 +14,6 @@ ncdk.SignatureTable = require("ncdk.SignatureTable")
 ncdk.TempoData = require("ncdk.TempoData")
 ncdk.StopData = require("ncdk.StopData")
 
-ncdk.SpaceData = require("ncdk.SpaceData")
 ncdk.VelocityData = require("ncdk.VelocityData")
 
 ncdk.NoteData = require("ncdk.NoteData")

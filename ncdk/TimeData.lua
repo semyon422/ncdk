@@ -14,6 +14,7 @@ function TimeData:new()
 	timeData.signatureTable = SignatureTable:new(Fraction:new(4))
 	timeData.tempoDatas = {}
 	timeData.stopDatas = {}
+	timeData.velocityDatas = {}
 
 	return setmetatable(timeData, mt)
 end
@@ -116,6 +117,59 @@ function TimeData:getAbsoluteTime(measureTime, side)
 	return self:getAbsoluteDuration(zeroMeasureTime, measureTime, -1, side)
 end
 
+function TimeData:getVelocityDataVisualDuration(velocityDataIndex, startTime, endTime)
+	local sign = 1
+	if startTime > endTime then
+		sign = -1
+		startTime, endTime = endTime, startTime
+	end
+
+	local velocityData = self:getVelocityData(velocityDataIndex)
+	local nextVelocityData = self:getVelocityData(velocityDataIndex + 1)
+
+	local _startTime = velocityData.timePoint.absoluteTime
+	local _endTime = nextVelocityData and nextVelocityData.timePoint and nextVelocityData.timePoint.absoluteTime
+
+	if _endTime and startTime >= _endTime or velocityDataIndex > 1 and endTime <= _startTime then
+		return 0
+	end
+
+	if velocityData.visualEndTimePoint then
+		return velocityData.visualEndTimePoint.absoluteTime - velocityData.timePoint.absoluteTime
+	end
+
+	if velocityDataIndex == 1 or startTime > _startTime then
+		_startTime = startTime
+	end
+	if not _endTime or endTime < _endTime then
+		_endTime = endTime
+	end
+
+	return (_endTime - _startTime) * velocityData.currentSpeed * sign
+end
+
+function TimeData:getVisualTime(targetTimePoint, currentTimePoint, clear)
+	if targetTimePoint == currentTimePoint then
+		return currentTimePoint.absoluteTime
+	end
+
+	local globalSpeed, localSpeed = 1, 1
+	if not clear then
+		local currentVelocityData = currentTimePoint.velocityData
+		local targetVelocityData = targetTimePoint.velocityData
+
+		globalSpeed = currentVelocityData.globalSpeed
+		localSpeed = targetVelocityData.localSpeed
+	end
+
+	local duration = 0
+	for i = 1, self:getVelocityDataCount() do
+		duration = duration + self:getVelocityDataVisualDuration(i, currentTimePoint.absoluteTime, targetTimePoint.absoluteTime)
+	end
+
+	return currentTimePoint.absoluteTime + duration * localSpeed * globalSpeed
+end
+
 function TimeData:getTimePoint(time, side)
 	assert(self.mode, "Mode should be set")
 
@@ -145,6 +199,7 @@ end
 function TimeData:sort()
 	table.sort(self.tempoDatas, function(a, b) return a.time < b.time end)
 	table.sort(self.stopDatas, function(a, b) return a.time < b.time end)
+	table.sort(self.velocityDatas, function(a, b) return a.timePoint < b.timePoint end)
 end
 
 function TimeData:createTimePointList()
@@ -161,10 +216,7 @@ function TimeData:computeTimePoints()
 
 	self:createTimePointList()
 
-	if self.mode == "absolute" then
-		return self.timePointList
-	end
-
+	local isMeasure = self.mode == "measure"
 	local timePointList = self.timePointList
 
 	local tempoDataIndex = 1
@@ -173,39 +225,64 @@ function TimeData:computeTimePoints()
 	local stopDataIndex = 1
 	local stopData = self:getStopData(stopDataIndex)
 
+	local velocityDataIndex = 1
+	local velocityData = self:getVelocityData(velocityDataIndex)
+
 	local timePointIndex = 1
 	local timePoint = timePointList[timePointIndex]
 
 	local time = 0
+	local visualTime = 0
 	local currentTime = timePoint.measureTime
+	local currentAbsoluteTime = 0
 	while timePoint do
-		local measureIndex = currentTime:floor()
+		local isAtTimePoint = not isMeasure
+		if isMeasure then
+			local measureIndex = currentTime:floor()
 
-		local targetTime = Fraction:new(measureIndex + 1)
-		if timePoint.measureTime < targetTime then
-			targetTime = timePoint.measureTime
-		end
+			local targetTime = Fraction:new(measureIndex + 1)
+			if timePoint.measureTime < targetTime then
+				targetTime = timePoint.measureTime
+			end
 
-		local nextTempoData = self:getTempoData(tempoDataIndex + 1)
-		if nextTempoData and nextTempoData.time == currentTime and currentTime == targetTime then
-			tempoDataIndex = tempoDataIndex + 1
-			tempoData = nextTempoData
+			local nextTempoData = self:getTempoData(tempoDataIndex + 1)
+			if nextTempoData and nextTempoData.time == currentTime and currentTime == targetTime then
+				tempoDataIndex = tempoDataIndex + 1
+				tempoData = nextTempoData
+			else
+				local duration = tempoData:getBeatDuration() * self:getSignature(measureIndex)
+				time = time + duration * (targetTime - currentTime)
+			end
+
+			if stopData and stopData.time == currentTime and currentTime == targetTime then
+				time = time + stopData:getDuration() * tempoData:getBeatDuration()
+				stopDataIndex = stopDataIndex + 1
+				stopData = self:getStopData(stopDataIndex)
+			end
+
+			currentTime = targetTime
+			isAtTimePoint = timePoint.measureTime == targetTime
 		else
-			local duration = tempoData:getBeatDuration() * self:getSignature(measureIndex)
-			time = time + duration * (targetTime - currentTime)
+			time = timePoint.absoluteTime
 		end
 
-		if stopData and stopData.time == currentTime and currentTime == targetTime then
-			time = time + stopData:getDuration() * tempoData:getBeatDuration()
-			stopDataIndex = stopDataIndex + 1
-			stopData = self:getStopData(stopDataIndex)
+		local currentSpeed = velocityData and velocityData.currentSpeed or 1
+		visualTime = visualTime + (time - currentAbsoluteTime) * currentSpeed
+
+		local nextVelocityData = self:getVelocityData(velocityDataIndex + 1)
+		if nextVelocityData and nextVelocityData.timePoint == timePoint then
+			velocityData = nextVelocityData
+			velocityDataIndex = velocityDataIndex + 1
 		end
 
-		currentTime = targetTime
+		currentAbsoluteTime = time
 
-		if timePoint.measureTime == targetTime then
+		if isAtTimePoint then
 			timePoint.tempoData = tempoData
-			timePoint.absoluteTime = time
+			timePoint.velocityData = velocityData
+
+			timePoint.absoluteTime = timePoint.absoluteTime or time
+			timePoint.zeroClearVisualTime = visualTime
 
 			timePointIndex = timePointIndex + 1
 			timePoint = timePointList[timePointIndex]
@@ -213,8 +290,10 @@ function TimeData:computeTimePoints()
 	end
 
 	local zeroTime = self.zeroTimePoint.absoluteTime
+	local zeroVisualTime = self.zeroTimePoint.zeroClearVisualTime
 	for _, t in ipairs(timePointList) do
 		t.absoluteTime = t.absoluteTime - zeroTime
+		t.zeroClearVisualTime = t.zeroClearVisualTime - zeroVisualTime
 	end
 end
 
@@ -241,5 +320,10 @@ function TimeData:getTempoDataCount() return #self.tempoDatas end
 
 function TimeData:getStopData(i) return self.stopDatas[i] end
 function TimeData:getStopDataCount() return #self.stopDatas end
+
+function TimeData:addVelocityData(velocityData) table.insert(self.velocityDatas, velocityData) end
+function TimeData:removeLastVelocityData() return table.remove(self.velocityDatas) end
+function TimeData:getVelocityData(i) return self.velocityDatas[i] end
+function TimeData:getVelocityDataCount() return #self.velocityDatas end
 
 return TimeData

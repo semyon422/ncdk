@@ -1,5 +1,4 @@
 local TimeData = require("ncdk.TimeData")
-local SpaceData = require("ncdk.SpaceData")
 
 local LayerData = {}
 
@@ -9,10 +8,7 @@ function LayerData:new()
 	local layerData = {}
 
 	layerData.timeData = TimeData:new()
-	layerData.spaceData = SpaceData:new()
 	layerData.noteDatas = {}
-
-	layerData.spaceData.timeData = layerData.timeData
 
 	return setmetatable(layerData, mt)
 end
@@ -26,14 +22,9 @@ end
 
 function LayerData:compute()
 	self.timeData:sort()
-	self.spaceData:sort()
 	table.sort(self.noteDatas, sortNotes)
 
 	self.timeData:computeTimePoints()
-
-	if not self.invisible then
-		self.spaceData:computeTimePoints()
-	end
 end
 
 function LayerData:setSignature(...) return self.timeData:setSignature(...) end
@@ -48,11 +39,12 @@ function LayerData:getTimePoint(...) return self.timeData:getTimePoint(...) end
 function LayerData:setTimeMode(...) return self.timeData:setMode(...) end
 function LayerData:setSignatureMode(...) return self.timeData:setSignatureMode(...) end
 
-function LayerData:addVelocityData(...) return self.spaceData:addVelocityData(...) end
-function LayerData:removeLastVelocityData(...) return self.spaceData:removeLastVelocityData(...) end
-function LayerData:getVelocityData(...) return self.spaceData:getVelocityData(...) end
-function LayerData:getVisualMeasureTime(...) return self.spaceData:getVisualMeasureTime(...) end
-function LayerData:getVisualTime(...) return self.spaceData:getVisualTime(...) end
+function LayerData:addVelocityData(...) return self.timeData:addVelocityData(...) end
+function LayerData:removeLastVelocityData(...) return self.timeData:removeLastVelocityData(...) end
+function LayerData:getVelocityData(...) return self.timeData:getVelocityData(...) end
+function LayerData:getVelocityDataCount() return self.timeData:getVelocityDataCount() end
+function LayerData:getVisualMeasureTime(...) return self.timeData:getVisualMeasureTime(...) end
+function LayerData:getVisualTime(...) return self.timeData:getVisualTime(...) end
 
 function LayerData:addNoteData(noteData)
 	local noteDatas = self.noteDatas
