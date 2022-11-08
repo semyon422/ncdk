@@ -63,51 +63,36 @@ function SpaceData:getVisualTime(targetTimePoint, currentTimePoint, clear)
 	return currentTimePoint.absoluteTime + duration * localSpeed * globalSpeed
 end
 
-function SpaceData:getVisualTime1(currentTime, targetTime)
-	if currentTime == targetTime then
-		return currentTime
-	end
-
-	local duration = 0
-	for i = 1, self:getVelocityDataCount() do
-		duration = duration + self:getVelocityDataVisualDuration(i, currentTime, targetTime)
-	end
-
-	return currentTime + duration
-end
-
 function SpaceData:computeTimePoints()
-	local timePointList = self.layerData.timeData.timePointList
-	local zeroTimePoint = self.layerData.timeData.zeroTimePoint
+	local timePointList = self.timeData.timePointList
 
-	local firstTimePoint = timePointList[1]
-
-	local time = 0
 	local timePointIndex = 1
 	local timePoint = timePointList[timePointIndex]
-	local leftTime = firstTimePoint.absoluteTime
 
-	for i = 1, self:getVelocityDataCount() do
-		local velocityData = self:getVelocityData(i)
-		local nextVelocityData = self:getVelocityData(i + 1)
-		local nextTimePoint = nextVelocityData and nextVelocityData.timePoint
+	local velocityDataIndex = 1
+	local velocityData = self:getVelocityData(velocityDataIndex)
 
-		while timePoint and (not nextTimePoint or timePoint < nextTimePoint) do
-			timePoint.velocityData = velocityData
-			timePoint.zeroClearVisualTime = time + self:getVelocityDataVisualDuration(i, leftTime, timePoint.absoluteTime)
-			timePointIndex = timePointIndex + 1
-			timePoint = timePointList[timePointIndex]
+	local time = 0
+	local currentTime = timePoint.absoluteTime
+	while timePoint do
+		time = time + self:getVelocityDataVisualDuration(velocityDataIndex, currentTime, timePoint.absoluteTime)
+		currentTime = timePoint.absoluteTime
+
+		local nextVelocityData = self:getVelocityData(velocityDataIndex + 1)
+		if nextVelocityData and nextVelocityData.timePoint == timePoint then
+			velocityData = nextVelocityData
+			velocityDataIndex = velocityDataIndex + 1
 		end
 
-		if nextTimePoint then
-			time = time + self:getVelocityDataVisualDuration(i, leftTime, nextTimePoint.absoluteTime)
-			leftTime = velocityData.timePoint.absoluteTime
-		end
+		timePoint.velocityData = velocityData
+		timePoint.zeroClearVisualTime = time
+		timePointIndex = timePointIndex + 1
+		timePoint = timePointList[timePointIndex]
 	end
 
-	local baseZeroClearVisualTime = zeroTimePoint.zeroClearVisualTime
-	for _, timePoint in ipairs(timePointList) do
-		timePoint.zeroClearVisualTime = timePoint.zeroClearVisualTime - baseZeroClearVisualTime
+	local zeroTime = self.timeData.zeroTimePoint.zeroClearVisualTime
+	for _, t in ipairs(timePointList) do
+		t.zeroClearVisualTime = t.zeroClearVisualTime - zeroTime
 	end
 end
 

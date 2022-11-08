@@ -13,10 +13,10 @@ do
 	td:setMode("measure")
 	td:addTempoData(TempoData:new(F(0), 60))
 
+	local tp4 = td:getTimePoint(Fraction:new(-1), -1)
 	local tp1 = td:getTimePoint(Fraction:new(0), -1)
 	local tp2 = td:getTimePoint(Fraction:new(1), -1)
 	local tp3 = td:getTimePoint(Fraction:new(2), -1)
-	local tp4 = td:getTimePoint(Fraction:new(-1), -1)
 
 	td:computeTimePoints()
 
@@ -35,4 +35,11 @@ do
 	assert(sd:getVisualTime(tp3, tp2, true) == tp2.absoluteTime + 8)
 	assert(sd:getVisualTime(tp3, tp1, true) == tp1.absoluteTime + 12)
 	assert(sd:getVisualTime(tp4, tp1, true) == tp1.absoluteTime - 4)
+
+	sd:computeTimePoints()
+
+	assert(tp2.zeroClearVisualTime == tp1.absoluteTime + 4)
+	assert(tp3.zeroClearVisualTime == tp2.absoluteTime + 8)
+	assert(tp3.zeroClearVisualTime == tp1.absoluteTime + 12)
+	assert(tp4.zeroClearVisualTime == tp1.absoluteTime - 4)
 end

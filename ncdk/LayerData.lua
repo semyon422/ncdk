@@ -12,8 +12,7 @@ function LayerData:new()
 	layerData.spaceData = SpaceData:new()
 	layerData.noteDatas = {}
 
-	layerData.timeData.layerData = layerData
-	layerData.spaceData.layerData = layerData
+	layerData.spaceData.timeData = layerData.timeData
 
 	return setmetatable(layerData, mt)
 end
