@@ -8,6 +8,10 @@ io.write("input_mode: ")
 require("tests.input_mode")
 print("OK!")
 
+io.write("dynamic: ")
+require("tests.dynamic")
+print("OK!")
+
 print("TimeData_unit: ")
 require("tests.TimeData_unit")
 print("OK!")
