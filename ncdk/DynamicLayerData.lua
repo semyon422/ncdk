@@ -16,6 +16,27 @@ function DynamicLayerData:new()
 	return setmetatable(layerData, mt)
 end
 
+local function addAfter(a, b)
+	b.prev = a
+	b.tempoData = a.tempoData
+	if a.next then
+		b.next = a.next
+		a.next.prev = b
+	end
+	a.next = b
+end
+
+local function addBefore(a, b)
+	a.next = b
+	a.tempoData = b.tempoData
+	if b.prev then
+		a.tempoData = b.prev.tempoData
+		a.prev = b.prev
+		b.prev.next = a
+	end
+	b.prev = a
+end
+
 function DynamicLayerData:compute()
 	table.sort(self.noteDatas, function(a, b)
 		if a.timePoint == b.timePoint then
@@ -37,7 +58,18 @@ function DynamicLayerData:setTimeMode(mode)
 		error("Wrong time mode")
 	end
 	self.mode = mode
+	self.startTime = time
+	self.endTime = time
 	self.zeroTimePoint = self:getTimePoint(time, -1)
+end
+
+function DynamicLayerData:setRange(startTime, endTime)
+	if startTime > self.endTime then
+		self.startTime, self.endTime = self.endTime, endTime
+		self:updateRange()
+	end
+	self.startTime, self.endTime = startTime, endTime
+	self:updateRange()
 end
 
 function DynamicLayerData:getTimePoint(time, side)
@@ -49,11 +81,14 @@ function DynamicLayerData:getTimePoint(time, side)
 
 	local timePoints = self.timePoints
 	local key = time .. "," .. side
-	if timePoints[key] then
-		return timePoints[key]
+	local timePoint = timePoints[key]
+	if timePoint then
+		-- local inRange = timePoint.measureTime >= self.startTime and timePoint.measureTime <= self.endTime
+		-- assert(inRange, "attempt to get a time point out of range")
+		return timePoint
 	end
 
-	local timePoint = TimePoint:new()
+	timePoint = TimePoint:new()
 	timePoint.side = side
 	timePoints[key] = timePoint
 
@@ -63,42 +98,109 @@ function DynamicLayerData:getTimePoint(time, side)
 		timePoint.measureTime = time
 	end
 
-	if not self.firstTimePoint or timePoint < self.firstTimePoint then
-		self.firstTimePoint = timePoint
-	end
+	self:insertTimePoint(timePoint)
 
 	return timePoint
 end
 
-function DynamicLayerData:createTimePointList()
-	local list = {}
-	for _, timePoint in pairs(self.timePoints) do
-		list[#list + 1] = timePoint
+function DynamicLayerData:printRanges()
+	print("start", self.startTimePoint)
+	print("end", self.endTimePoint)
+	print("first", self.firstTimePoint)
+	print("last", self.lastTimePoint)
+end
+
+function DynamicLayerData:insertTimePoint(timePoint)
+	if not self.startTimePoint then
+		self.startTimePoint = timePoint
+		self.firstTimePoint = timePoint
+		self.endTimePoint = timePoint
+		self.lastTimePoint = timePoint
+		self:updateRange()
+		return
 	end
-	table.sort(list)
-	for i = 1, #list do
-		list[i].prev = list[i - 1]
-		list[i].next = list[i + 1]
+
+	if self.startTimePoint ~= self.firstTimePoint then
+		assert(timePoint > self.startTimePoint)
 	end
+	if self.endTimePoint ~= self.lastTimePoint then
+		assert(timePoint < self.endTimePoint)
+	end
+
+	if timePoint < self.firstTimePoint then
+		assert(timePoint.measureTime >= self.startTime, "attempt to get a time point out of range")
+		addBefore(timePoint, self.firstTimePoint)
+		self.firstTimePoint = timePoint
+		self:updateRange()
+		return
+	end
+	if timePoint > self.lastTimePoint then
+		assert(timePoint.measureTime <= self.endTime, "attempt to get a time point out of range")
+		addAfter(self.lastTimePoint, timePoint)
+		self.lastTimePoint = timePoint
+		self:updateRange()
+		return
+	end
+
+	local currentTimePoint = self.startTimePoint
+	while currentTimePoint <= self.endTimePoint do
+		local next = currentTimePoint.next
+		if not next or timePoint > currentTimePoint and timePoint < next then
+			addAfter(currentTimePoint, timePoint)
+			break
+		end
+		currentTimePoint = next
+	end
+	self:updateRange()
+end
+
+function DynamicLayerData:updateRange()
+	local currentTimePoint = self.startTimePoint
+	while currentTimePoint.measureTime > self.startTime do
+		self.startTimePoint = currentTimePoint
+		local prev = currentTimePoint.prev
+		if not prev then break end
+		currentTimePoint = prev
+	end
+	while currentTimePoint.measureTime <= self.startTime do
+		self.startTimePoint = currentTimePoint
+		local next = currentTimePoint.next
+		if not next or next.measureTime >= self.startTime then break end
+		currentTimePoint = next
+	end
+
+	currentTimePoint = self.endTimePoint
+	while currentTimePoint.measureTime > self.endTime do
+		self.endTimePoint = currentTimePoint
+		local prev = currentTimePoint.prev
+		if not prev or prev.measureTime <= self.endTime then break end
+		currentTimePoint = prev
+	end
+	while currentTimePoint.measureTime <= self.endTime do
+		self.endTimePoint = currentTimePoint
+		local next = currentTimePoint.next
+		if not next then break end
+		currentTimePoint = next
+	end
+
+	self:computeTimePoints()
 end
 
 function DynamicLayerData:computeTimePoints()
 	assert(self.mode, "Mode should be set")
 
-	self:createTimePointList()
-
 	local isMeasure = self.mode == "measure"
 
-	local tempoData = self.firstTempoData
-	local velocityData = self.firstVelocityData
+	local tempoData = self.startTimePoint.tempoData
+	local velocityData = self.startTimePoint.velocityData
 
-	local timePoint = self.firstTimePoint
+	local timePoint = self.startTimePoint
 
-	local time = 0
-	local visualTime = 0
+	local time = timePoint.absoluteTime or 0
+	local visualTime = timePoint.zeroClearVisualTime or 0
 	local currentTime = timePoint.measureTime
-	local currentAbsoluteTime = 0
-	while timePoint do
+	local currentAbsoluteTime = time
+	while timePoint and timePoint <= self.endTimePoint do
 		local isAtTimePoint = not isMeasure
 		if isMeasure then
 			local measureIndex = currentTime:floor()
@@ -111,7 +213,7 @@ function DynamicLayerData:computeTimePoints()
 			local nextTempoData = timePoint.tempoData
 			if nextTempoData and nextTempoData.time == currentTime and currentTime == targetTime then
 				tempoData = nextTempoData
-			else
+			elseif tempoData then
 				local duration = tempoData:getBeatDuration() * self:getSignature(measureIndex)
 				time = time + duration * (targetTime - currentTime)
 			end
@@ -141,15 +243,20 @@ function DynamicLayerData:computeTimePoints()
 			timePoint.tempoData = tempoData
 			timePoint.velocityData = velocityData
 
-			timePoint.absoluteTime = timePoint.absoluteTime or time
+			timePoint.absoluteTime = time
 			timePoint.zeroClearVisualTime = visualTime
 
 			timePoint = timePoint.next
 		end
 	end
 
-	local zeroTime = self.zeroTimePoint.absoluteTime
-	local zeroVisualTime = self.zeroTimePoint.zeroClearVisualTime
+	local zeroTimePoint = self.zeroTimePoint
+	if not zeroTimePoint then
+		return
+	end
+
+	local zeroTime = zeroTimePoint.absoluteTime
+	local zeroVisualTime = zeroTimePoint.zeroClearVisualTime
 
 	local t = self.firstTimePoint
 	while t do
@@ -171,6 +278,7 @@ function DynamicLayerData:addTempoData(tempoData)
 	if not self.firstTempoData or tempoData.time < self.firstTempoData.time then
 		self.firstTempoData = tempoData
 	end
+	self:computeTimePoints()
 end
 
 function DynamicLayerData:addStopData(stopData)

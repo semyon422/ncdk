@@ -8,7 +8,7 @@ io.write("input_mode: ")
 require("tests.input_mode")
 print("OK!")
 
-io.write("dynamic: ")
+print("dynamic: ")
 require("tests.dynamic")
 print("OK!")
 

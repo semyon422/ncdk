@@ -48,9 +48,9 @@ end
 
 function mt.__le(a, b)
 	if a.measureTime and b.measureTime then
-		return a.measureTime < b.measureTime or (a.measureTime == b.measureTime and a.side == b.side)
+		return a.measureTime < b.measureTime or (a.measureTime == b.measureTime and a.side <= b.side)
 	else
-		return a.absoluteTime < b.absoluteTime or (a.absoluteTime == b.absoluteTime and a.side == b.side)
+		return a.absoluteTime < b.absoluteTime or (a.absoluteTime == b.absoluteTime and a.side <= b.side)
 	end
 end
 
