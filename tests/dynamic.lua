@@ -79,8 +79,8 @@ do
 	assert(ld:getTimePoint(F(8), -1).absoluteTime == 32)
 	ld:setRange(F(4), F(6))
 
-	assert(ld.startTimePoint == ld:getTimePoint(F(1), -1))
-	assert(ld.endTimePoint == ld:getTimePoint(F(7), -1))
+	assert(ld.timePointsRange.startObject == ld:getTimePoint(F(1), -1))
+	assert(ld.timePointsRange.endObject == ld:getTimePoint(F(7), -1))
 end
 
 do
@@ -116,6 +116,38 @@ do
 	assert(ld:getTimePoint(F(3), -1).absoluteTime == 6)
 	assert(ld:getTimePoint(F(4), -1).absoluteTime == 8)
 	assert(ld:getTimePoint(F(5), -1).absoluteTime == 10)
+end
+
+do
+	local ld = DynamicLayerData:new()
+	ld:setTimeMode("measure")
+	ld:setRange(F(0), F(10))
+
+	local td = TempoData:new(F(0), 60)
+	ld:addTempoData(td)
+
+	for i = 0, 10 do
+		ld:getTimePoint(F(i), -1)
+	end
+
+	assert(ld:getTimePoint(F(0), -1).absoluteTime == 0)
+	assert(ld:getTimePoint(F(1), -1).absoluteTime == 4)
+	assert(ld:getTimePoint(F(2), -1).absoluteTime == 8)
+	assert(ld:getTimePoint(F(3), -1).absoluteTime == 12)
+
+	ld:addTempoData(TempoData:new(F(1), 120))
+
+	assert(ld:getTimePoint(F(0), -1).absoluteTime == 0)
+	assert(ld:getTimePoint(F(1), -1).absoluteTime == 4)
+	assert(ld:getTimePoint(F(2), -1).absoluteTime == 6)
+	assert(ld:getTimePoint(F(3), -1).absoluteTime == 8)
+
+	ld:removeTempoData(td)
+
+	assert(ld:getTimePoint(F(0), -1).absoluteTime == 0)
+	assert(ld:getTimePoint(F(1), -1).absoluteTime == 2)
+	assert(ld:getTimePoint(F(2), -1).absoluteTime == 4)
+	assert(ld:getTimePoint(F(3), -1).absoluteTime == 6)
 end
 
 -- error()

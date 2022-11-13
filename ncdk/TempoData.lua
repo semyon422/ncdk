@@ -15,4 +15,18 @@ function TempoData:getBeatDuration()
 	return 60 / self.tempo
 end
 
+function mt.__tostring(a)
+	return a.time .. "," .. a.tempo
+end
+
+function mt.__eq(a, b)
+	return a.time == b.time
+end
+function mt.__lt(a, b)
+	return a.time < b.time
+end
+function mt.__le(a, b)
+	return a.time <= b.time
+end
+
 return TempoData
