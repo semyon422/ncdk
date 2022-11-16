@@ -47,6 +47,46 @@ function RangeTracker:getObjectTime(object)
 	error("not implemented")
 end
 
+function RangeTracker:getInterp(object)
+	if object == self.startObject then
+		return self.startObject, self.startObject
+	end
+	if object == self.firstObject then
+		return self.firstObject, self.firstObject
+	end
+	if object == self.endObject then
+		return self.endObject, self.endObject
+	end
+	if object == self.lastObject then
+		return self.lastObject, self.lastObject
+	end
+	if object < self.firstObject then
+		return nil, self.firstObject
+	end
+	if object > self.lastObject then
+		return self.lastObject, nil
+	end
+
+	if self.startObject ~= self.firstObject then
+		assert(object > self.startObject)
+	end
+	if self.endObject ~= self.lastObject then
+		assert(object < self.endObject)
+	end
+
+	local currentObject = self.startObject
+	while currentObject < self.endObject do
+		if object == currentObject then
+			return currentObject, currentObject
+		end
+		local next = currentObject.next
+		if next and object > currentObject and object < next then
+			return currentObject, next
+		end
+		currentObject = next
+	end
+end
+
 function RangeTracker:insert(object)
 	if not self.startObject then
 		self.startObject = object
@@ -80,14 +120,14 @@ function RangeTracker:insert(object)
 		return
 	end
 
-	local currentTimePoint = self.startObject
-	while currentTimePoint <= self.endObject do
-		local next = currentTimePoint.next
-		if not next or object > currentTimePoint and object < next then
-			addAfter(currentTimePoint, object)
+	local currentObject = self.startObject
+	while currentObject <= self.endObject do
+		local next = currentObject.next
+		if not next or object > currentObject and object < next then
+			addAfter(currentObject, object)
 			break
 		end
-		currentTimePoint = next
+		currentObject = next
 	end
 	self:update()
 end

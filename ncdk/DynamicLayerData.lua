@@ -72,6 +72,45 @@ function DynamicLayerData:setRange(startTime, endTime)
 	self:compute()
 end
 
+local function map(x, a, b, c, d)
+	return (x - a) * (d - c) / (b - a) + c
+end
+
+function DynamicLayerData:getDynamicTimePoint(time, side)
+	assert(self.mode, "Mode should be set")
+
+	if type(time) == "number" then
+		time = math.min(math.max(time, -2147483648), 2147483647)
+	end
+
+	self.dynamicTimePoint = self.dynamicTimePoint or TimePoint:new()
+	local timePoint = self.dynamicTimePoint
+
+	timePoint.side = side
+	if self.mode == "absolute" then
+		timePoint.absoluteTime = time
+	elseif self.mode == "measure" then
+		timePoint.measureTime = time
+	end
+
+	local t = time:tonumber()
+
+	local a, b = self.timePointsRange:getInterp(timePoint)
+	a = a or self:getTimePoint(Fraction:new(time:floor()), -1)
+	b = b or self:getTimePoint(Fraction:new(time:ceil()), -1)
+
+	if a == b then
+		timePoint.absoluteTime = a.absoluteTime
+		timePoint.zeroClearVisualTime = a.zeroClearVisualTime
+	else
+		local ta, tb = a.measureTime:tonumber(), b.measureTime:tonumber()
+		timePoint.absoluteTime = map(t, ta, tb, a.absoluteTime, b.absoluteTime)
+		timePoint.zeroClearVisualTime = map(t, ta, tb, a.zeroClearVisualTime, b.zeroClearVisualTime)
+	end
+
+	return timePoint
+end
+
 function DynamicLayerData:getTimePoint(time, side)
 	assert(self.mode, "Mode should be set")
 
@@ -274,7 +313,11 @@ function DynamicLayerData:removeStopData(time)
 end
 
 function DynamicLayerData:setSignatureMode(...) return self.signatureTable:setMode(...) end
-function DynamicLayerData:setSignature(...) return self.signatureTable:setSignature(...) end
+function DynamicLayerData:setSignature(measureIndex, signature)
+	self:getTimePoint(Fraction:new(measureIndex), -1)
+	self:getTimePoint(Fraction:new(measureIndex + 1), -1)
+	return self.signatureTable:setSignature(measureIndex, signature)
+end
 function DynamicLayerData:getSignature(...) return self.signatureTable:getSignature(...) end
 
 function DynamicLayerData:getVelocityData(timePoint, currentSpeed, localSpeed, globalSpeed)
