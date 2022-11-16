@@ -38,15 +38,9 @@ function RangeTracker:printRanges()
 	print("last", self.lastObject)
 end
 
-function RangeTracker:setRange(startTime, endTime, callback)
-	if self.endTime and startTime > self.endTime then
-		self.startTime, self.endTime = self.endTime, endTime
-		self:update()
-		if callback then callback() end
-	end
+function RangeTracker:setRange(startTime, endTime)
 	self.startTime, self.endTime = startTime, endTime
 	self:update()
-	if callback then callback() end
 end
 
 function RangeTracker:getObjectTime(object)
