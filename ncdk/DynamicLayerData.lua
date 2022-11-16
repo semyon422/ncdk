@@ -29,6 +29,10 @@ function DynamicLayerData:new()
 	layerData.tempoDatasRange = tempoDatasRange
 	function tempoDatasRange:getObjectTime(object) return object.time end
 
+	local stopDatasRange = RangeTracker:new()
+	layerData.stopDatasRange = stopDatasRange
+	function stopDatasRange:getObjectTime(object) return object.time end
+
 	local velocityDatasRange = RangeTracker:new()
 	layerData.velocityDatasRange = velocityDatasRange
 	function velocityDatasRange:getObjectTime(object) return object.timePoint.measureTime end
@@ -53,6 +57,7 @@ end
 function DynamicLayerData:_setRange(startTime, endTime)
 	self.timePointsRange:setRange(startTime, endTime)
 	self.tempoDatasRange:setRange(startTime, endTime)
+	self.stopDatasRange:setRange(startTime, endTime)
 	self.velocityDatasRange:setRange(startTime, endTime)
 end
 
@@ -248,6 +253,7 @@ function DynamicLayerData:getStopData(time, duration, signature)
 	stopData.leftTimePoint = a
 	stopData.rightTimePoint = b
 
+	self.stopDatasRange:insert(stopData)
 	self:compute()
 
 	return stopData
@@ -258,6 +264,8 @@ function DynamicLayerData:removeStopData(time)
 	local key = tostring(time)
 	local stopData = assert(stopDatas[key], "stop data not found")
 	stopDatas[key] = nil
+
+	self.stopDatasRange:remove(stopData)
 
 	stopData.leftTimePoint.stopData = nil
 	stopData.rightTimePoint.stopData = nil
