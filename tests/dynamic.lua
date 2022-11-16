@@ -293,10 +293,10 @@ do
 	ld:setRange(F(-10), F(10))
 	ld:getTempoData(F(0), 60)
 
-	local tp4 = ld:getTimePoint(Fraction:new(-1), -1)
-	local tp1 = ld:getTimePoint(Fraction:new(0), -1)
-	local tp2 = ld:getTimePoint(Fraction:new(1), -1)
-	local tp3 = ld:getTimePoint(Fraction:new(2), -1)
+	local tp4 = ld:getTimePoint(F(-1), -1)
+	local tp1 = ld:getTimePoint(F(0), -1)
+	local tp2 = ld:getTimePoint(F(1), -1)
+	local tp3 = ld:getTimePoint(F(2), -1)
 
 	ld:getVelocityData(tp1, 1)
 	ld:getVelocityData(tp2, 2)
@@ -319,9 +319,9 @@ do
 	ld:setRange(F(-10), F(10))
 	ld:getTempoData(F(0), 60)
 
-	local tp1 = ld:getTimePoint(Fraction:new(0), -1)
-	local tp2 = ld:getTimePoint(Fraction:new(1), -1)
-	local tp3 = ld:getTimePoint(Fraction:new(2), -1)
+	local tp1 = ld:getTimePoint(F(0), -1)
+	local tp2 = ld:getTimePoint(F(1), -1)
+	local tp3 = ld:getTimePoint(F(2), -1)
 
 	local nd1 = ld:getNoteData(tp1, "key", 1)
 	local nd2 = ld:getNoteData(tp2, "key", 2)
@@ -336,9 +336,9 @@ do
 	ld:setRange(F(-10), F(10))
 	ld:getTempoData(F(0), 60)
 
-	local tp1 = ld:getTimePoint(Fraction:new(0), -1)
-	local tp2 = ld:getTimePoint(Fraction:new(1), -1)
-	local tp3 = ld:getTimePoint(Fraction:new(2), -1)
+	local tp1 = ld:getTimePoint(F(0), -1)
+	local tp2 = ld:getTimePoint(F(1), -1)
+	local tp3 = ld:getTimePoint(F(2), -1)
 
 	local dtp = ld:getDynamicTimePoint(F(0.5), -1)
 	assert(dtp.absoluteTime == 2)
@@ -361,4 +361,19 @@ do
 	assert(dtp.zeroClearVisualTime == 8)
 end
 
-error()
+do
+	local ld = DynamicLayerData:new()
+	ld:setTimeMode("measure")
+	ld:setRange(F(-10), F(10))
+	ld:getTempoData(F(0), 60)
+
+	ld:getExpandData(ld:getTimePoint(F(1)), F(1))
+
+	assert(ld:getTimePoint(F(1), -1, -1).zeroClearVisualTime == 4)
+	assert(ld:getTimePoint(F(1), -1, 1).zeroClearVisualTime == 5)
+
+	ld:removeExpandData(ld:getTimePoint(F(1)))
+
+	assert(ld:getTimePoint(F(1), -1, -1).zeroClearVisualTime == 4)
+	assert(ld:getTimePoint(F(1), -1, 1).zeroClearVisualTime == 4)
+end

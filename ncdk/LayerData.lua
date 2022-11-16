@@ -149,10 +149,6 @@ function LayerData:getVelocityDataVisualDuration(velocityDataIndex, startTime, e
 		return 0
 	end
 
-	if velocityData.visualEndTimePoint then
-		return velocityData.visualEndTimePoint.absoluteTime - velocityData.timePoint.absoluteTime
-	end
-
 	if velocityDataIndex == 1 or startTime > _startTime then
 		_startTime = startTime
 	end
