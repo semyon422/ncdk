@@ -3,6 +3,7 @@ local TimePoint = require("ncdk.TimePoint")
 local TempoData = require("ncdk.TempoData")
 local StopData = require("ncdk.StopData")
 local VelocityData = require("ncdk.VelocityData")
+local NoteData = require("ncdk.NoteData")
 local SignatureTable = require("ncdk.SignatureTable")
 local RangeTracker = require("ncdk.RangeTracker")
 
@@ -28,26 +29,11 @@ function DynamicLayerData:new()
 	layerData.tempoDatasRange = tempoDatasRange
 	function tempoDatasRange:getObjectTime(object) return object.time end
 
-	local stopDatasRange = RangeTracker:new()
-	layerData.stopDatasRange = stopDatasRange
-	function stopDatasRange:getObjectTime(object) return object.time end
-
 	local velocityDatasRange = RangeTracker:new()
 	layerData.velocityDatasRange = velocityDatasRange
 	function velocityDatasRange:getObjectTime(object) return object.timePoint.measureTime end
 
 	return setmetatable(layerData, mt)
-end
-
-function DynamicLayerData:compute()
-	table.sort(self.noteDatas, function(a, b)
-		if a.timePoint == b.timePoint then
-			return a.id < b.id
-		end
-		return a.timePoint < b.timePoint
-	end)
-
-	self:computeTimePoints()
 end
 
 function DynamicLayerData:setTimeMode(mode)
@@ -67,7 +53,6 @@ end
 function DynamicLayerData:_setRange(startTime, endTime)
 	self.timePointsRange:setRange(startTime, endTime)
 	self.tempoDatasRange:setRange(startTime, endTime)
-	self.stopDatasRange:setRange(startTime, endTime)
 	self.velocityDatasRange:setRange(startTime, endTime)
 end
 
@@ -75,11 +60,11 @@ function DynamicLayerData:setRange(startTime, endTime)
 	if self.endTime and startTime > self.endTime then
 		self.startTime, self.endTime = self.endTime, endTime
 		self:_setRange(self.startTime, self.endTime)
-		self:computeTimePoints()
+		self:compute()
 	end
 	self.startTime, self.endTime = startTime, endTime
 	self:_setRange(self.startTime, self.endTime)
-	self:computeTimePoints()
+	self:compute()
 end
 
 function DynamicLayerData:getTimePoint(time, side)
@@ -107,12 +92,12 @@ function DynamicLayerData:getTimePoint(time, side)
 	end
 
 	self.timePointsRange:insert(timePoint)
-	self:computeTimePoints()
+	self:compute()
 
 	return timePoint
 end
 
-function DynamicLayerData:computeTimePoints()
+function DynamicLayerData:compute()
 	assert(self.mode, "Mode should be set")
 
 	local isMeasure = self.mode == "measure"
@@ -201,7 +186,7 @@ function DynamicLayerData:getTempoData(time, tempo)
 	if tempoData then
 		if tempoData.tempo ~= tempo then
 			tempoData.tempo = tempo
-			self:computeTimePoints()
+			self:compute()
 		end
 		return tempoData
 	end
@@ -218,7 +203,7 @@ function DynamicLayerData:getTempoData(time, tempo)
 	tempoData.rightTimePoint = b
 
 	self.tempoDatasRange:insert(tempoData)
-	self:computeTimePoints()
+	self:compute()
 
 	return tempoData
 end
@@ -234,7 +219,7 @@ function DynamicLayerData:removeTempoData(time)
 	tempoData.leftTimePoint.tempoData = nil
 	tempoData.rightTimePoint.tempoData = nil
 
-	self:computeTimePoints()
+	self:compute()
 end
 
 function DynamicLayerData:getStopData(time, duration, signature)
@@ -247,7 +232,7 @@ function DynamicLayerData:getStopData(time, duration, signature)
 		if stopData.duration ~= duration or stopData.signature ~= signature then
 			stopData.duration = duration
 			stopData.signature = signature
-			self:computeTimePoints()
+			self:compute()
 		end
 		return stopData
 	end
@@ -263,8 +248,7 @@ function DynamicLayerData:getStopData(time, duration, signature)
 	stopData.leftTimePoint = a
 	stopData.rightTimePoint = b
 
-	self.stopDatasRange:insert(stopData)
-	self:computeTimePoints()
+	self:compute()
 
 	return stopData
 end
@@ -275,12 +259,10 @@ function DynamicLayerData:removeStopData(time)
 	local stopData = assert(stopDatas[key], "stop data not found")
 	stopDatas[key] = nil
 
-	self.stopDatasRange:remove(stopData)
-
 	stopData.leftTimePoint.stopData = nil
 	stopData.rightTimePoint.stopData = nil
 
-	self:computeTimePoints()
+	self:compute()
 end
 
 function DynamicLayerData:setSignatureMode(...) return self.signatureTable:setMode(...) end
@@ -294,7 +276,7 @@ function DynamicLayerData:getVelocityData(timePoint, currentSpeed, localSpeed, g
 	if velocityData then
 		if velocityData.currentSpeed ~= currentSpeed then
 			velocityData.currentSpeed = currentSpeed
-			self:computeTimePoints()
+			self:compute()
 		end
 		return velocityData
 	end
@@ -303,7 +285,7 @@ function DynamicLayerData:getVelocityData(timePoint, currentSpeed, localSpeed, g
 	velocityDatas[key] = velocityData
 
 	self.velocityDatasRange:insert(velocityData)
-	self:computeTimePoints()
+	self:compute()
 
 	return velocityData
 end
@@ -318,18 +300,25 @@ function DynamicLayerData:removeVelocityData(timePoint)
 
 	velocityData:delete()
 
-	self:computeTimePoints()
+	self:compute()
 end
 
-function DynamicLayerData:addNoteData(noteData)
-	local noteDatas = self.noteDatas
-	table.insert(noteDatas, noteData)
-	noteData.id = #noteDatas
+function DynamicLayerData:getNoteData(timePoint, inputType, inputIndex)
+	local noteData = NoteData:new(timePoint, inputType, inputIndex)
+	timePoint.noteDatas = timePoint.noteDatas or {}
+	table.insert(timePoint.noteDatas, noteData)
 
-	self.noteChart:increaseInputCount(noteData.inputType, noteData.inputIndex, 1)
+	return noteData
 end
 
-function DynamicLayerData:getNoteData(i) return self.noteDatas[i] end
-function DynamicLayerData:getNoteDataCount() return #self.noteDatas end
+function DynamicLayerData:removeNoteData(noteData)
+	local noteDatas = noteData.timePoint.noteDatas
+	for i, v in ipairs(noteDatas) do
+		if v == noteData then
+			table.remove(noteDatas, i)
+			break
+		end
+	end
+end
 
 return DynamicLayerData
