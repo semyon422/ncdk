@@ -34,7 +34,7 @@ function mt.__tostring(a)
 end
 
 local function getTimes(a, b)
-	if a.measureTime then
+	if a.measureTime and b.measureTime then
 		return a.measureTime, b.measureTime
 	end
 	return a.absoluteTime, b.absoluteTime
