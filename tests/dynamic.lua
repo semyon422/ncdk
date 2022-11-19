@@ -183,8 +183,8 @@ do
 	ld:setRange(F(-10), F(10))
 
 	ld:getTempoData(F(0), 60)
-	ld:getStopData(F(1), F(1))
-	ld:getStopData(F(2), F(1))
+	ld:getStopData(F(1), F(4))
+	ld:getStopData(F(2), F(4))
 
 	local t = {
 		{F(0), -1, 0},
@@ -208,8 +208,8 @@ do
 	ld:setRange(F(-10), F(10))
 
 	ld:getTempoData(F(0), 60)
-	ld:getStopData(F(-1), F(1))
-	ld:getStopData(F(1), F(1))
+	ld:getStopData(F(-1), F(4))
+	ld:getStopData(F(1), F(4))
 
 	local t = {
 		{F(-2), -1, -12},
@@ -239,9 +239,9 @@ do
 	ld:getTempoData(F(1.5), 120)
 	ld:getTempoData(F(2.5), 240)
 
-	ld:getStopData(F(-2.5), F(1))
-	ld:getStopData(F(-1), F(2))
-	ld:getStopData(F(1.5), F(0.5))
+	ld:getStopData(F(-2.5), F(4))
+	ld:getStopData(F(-1), F(8))
+	ld:getStopData(F(1.5), F(2))
 
 	local t = {
 		{F(-3), -1, -24},
@@ -352,7 +352,7 @@ do
 	assert(dtp.absoluteTime == 14)
 	assert(dtp.zeroClearVisualTime == 14)
 
-	ld:getStopData(F(1), F(1))
+	ld:getStopData(F(1), F(4))
 	dtp = ld:getDynamicTimePoint(F(1), -1)
 	assert(dtp.absoluteTime == 4)
 	assert(dtp.zeroClearVisualTime == 4)

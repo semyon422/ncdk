@@ -13,6 +13,12 @@ function ExpandData:new(timePoint, duration)
 	return setmetatable(expandData, mt)
 end
 
+function ExpandData:set(duration)
+	local _duration = self.duration
+	self.duration = duration
+	return _duration ~= duration
+end
+
 function ExpandData:delete()
 	local timePoint = self.timePoint
 	assert(timePoint._expandData, "This ExpandData is deleted")

@@ -188,7 +188,7 @@ function DynamicLayerData:compute()
 
 			local stopData = timePoint._stopData
 			if stopData then
-				time = time + stopData:getDuration() * tempoData:getBeatDuration()
+				time = time + stopData.duration:tonumber() * tempoData:getBeatDuration()
 			end
 
 			currentTime = targetTime
@@ -242,19 +242,18 @@ function DynamicLayerData:compute()
 	end
 end
 
-function DynamicLayerData:getTempoData(time, tempo)
+function DynamicLayerData:getTempoData(time, ...)
 	local tempoDatas = self.tempoDatas
 	local key = tostring(time)
 	local tempoData = tempoDatas[key]
 	if tempoData then
-		if tempoData.tempo ~= tempo then
-			tempoData.tempo = tempo
+		if tempoData:set(...) then
 			self:compute()
 		end
 		return tempoData
 	end
 
-	tempoData = TempoData:new(time, tempo)
+	tempoData = TempoData:new(time, ...)
 	tempoDatas[key] = tempoData
 
 	local timePoint = self:getTimePoint(time, 1)
@@ -281,24 +280,21 @@ function DynamicLayerData:removeTempoData(time)
 	self:compute()
 end
 
-function DynamicLayerData:getStopData(time, duration, signature)
-	signature = signature or Fraction:new(4)
-
+function DynamicLayerData:getStopData(time, ...)
 	local stopDatas = self.stopDatas
 	local key = tostring(time)
 	local stopData = stopDatas[key]
 	if stopData then
-		if stopData.duration ~= duration or stopData.signature ~= signature then
-			stopData.duration = duration
-			stopData.signature = signature
+		if stopData:set(...) then
 			self:compute()
 		end
 		return stopData
 	end
 
-	stopData = StopData:new(time, duration, signature)
+	stopData = StopData:new(time, ...)
 	stopDatas[key] = stopData
 
+	self:getTimePoint(time, -1)  -- for time point interpolation
 	local timePoint = self:getTimePoint(time, 1)
 
 	timePoint._stopData = stopData
@@ -331,19 +327,18 @@ function DynamicLayerData:setSignature(measureIndex, signature)
 end
 function DynamicLayerData:getSignature(...) return self.signatureTable:getSignature(...) end
 
-function DynamicLayerData:getVelocityData(timePoint, currentSpeed, localSpeed, globalSpeed)
+function DynamicLayerData:getVelocityData(timePoint, ...)
 	local velocityDatas = self.velocityDatas
 	local key = timePoint
 	local velocityData = velocityDatas[key]
 	if velocityData then
-		if velocityData.currentSpeed ~= currentSpeed then
-			velocityData.currentSpeed = currentSpeed
+		if velocityData:set(...) then
 			self:compute()
 		end
 		return velocityData
 	end
 
-	velocityData = VelocityData:new(timePoint, currentSpeed, localSpeed, globalSpeed)
+	velocityData = VelocityData:new(timePoint, ...)
 	velocityDatas[key] = velocityData
 
 	timePoint._velocityData = velocityData
@@ -367,21 +362,21 @@ function DynamicLayerData:removeVelocityData(timePoint)
 	self:compute()
 end
 
-function DynamicLayerData:getExpandData(timePoint, duration)
+function DynamicLayerData:getExpandData(timePoint, ...)
 	timePoint = self:getTimePoint(timePoint.measureTime, timePoint.side, 1)
 	local expandDatas = self.velocityDatas
 	local key = timePoint
 	local expandData = expandDatas[key]
 	if expandData then
-		if expandData.duration ~= duration then
-			expandData.duration = duration
+		if expandData:set(...) then
 			self:compute()
 		end
 		return expandData
 	end
 
-	self:getTimePoint(timePoint.measureTime, timePoint.side, -1)
-	expandData = ExpandData:new(timePoint, duration)
+	self:getTimePoint(timePoint.measureTime, timePoint.side, -1)  -- for time point interpolation
+	self:getTimePoint(timePoint.measureTime, timePoint.side, 1)
+	expandData = ExpandData:new(timePoint, ...)
 	expandDatas[key] = expandData
 
 	self.expandDatasRange:insert(expandData)

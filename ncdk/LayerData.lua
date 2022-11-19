@@ -109,7 +109,7 @@ function LayerData:getStopDataDuration(stopDataIndex, startTime, endTime, startS
 		startSide == -1 and endSide == 1 and time >= startTime and time <= endTime or
 		startSide == 1 and endSide == -1 and time > startTime and time < endTime
 	then
-		return stopData:getDuration() * stopData.tempoData:getBeatDuration() * sign
+		return stopData.duration:tonumber() * stopData.tempoData:getBeatDuration() * sign
 	end
 
 	return 0
@@ -261,7 +261,7 @@ function LayerData:computeTimePoints()
 
 			local stopData = timePoint._stopData
 			if stopData then
-				time = time + stopData:getDuration() * tempoData:getBeatDuration()
+				time = time + stopData.duration:tonumber() * tempoData:getBeatDuration()
 			end
 
 			currentTime = targetTime

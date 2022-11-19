@@ -40,9 +40,8 @@ do
 
 	local stopData = StopData:new()
 	stopData.time = F(0)
-	stopData.duration = F(1)
+	stopData.duration = F(4)
 	stopData.tempoData = tempoData
-	stopData.signature = F(4)
 
 	ld:addStopData(stopData)
 
@@ -100,16 +99,14 @@ do
 
 	local stopData = StopData:new()
 	stopData.time = F(1)
-	stopData.duration = F(1)
+	stopData.duration = F(4)
 	stopData.tempoData = TempoData:new(F(0), 60)
-	stopData.signature = F(4)
 	ld:addStopData(stopData)
 
 	local stopData = StopData:new()
 	stopData.time = F(2)
-	stopData.duration = F(1)
+	stopData.duration = F(4)
 	stopData.tempoData = TempoData:new(F(0), 60)
-	stopData.signature = F(4)
 	ld:addStopData(stopData)
 
 	local t = {
@@ -140,16 +137,14 @@ do
 
 	local stopData = StopData:new()
 	stopData.time = F(-1)
-	stopData.duration = F(1)
+	stopData.duration = F(4)
 	stopData.tempoData = TempoData:new(F(0), 60)
-	stopData.signature = F(4)
 	ld:addStopData(stopData)
 
 	local stopData = StopData:new()
 	stopData.time = F(1)
-	stopData.duration = F(1)
+	stopData.duration = F(4)
 	stopData.tempoData = TempoData:new(F(0), 60)
-	stopData.signature = F(4)
 	ld:addStopData(stopData)
 
 	local t = {
@@ -185,23 +180,20 @@ do
 
 	local stopData = StopData:new()
 	stopData.time = F(-2.5)
-	stopData.duration = F(1)
+	stopData.duration = F(4)
 	stopData.tempoData = TempoData:new(F(0.5), 60)
-	stopData.signature = F(4)
 	ld:addStopData(stopData)
 
 	local stopData = StopData:new()
 	stopData.time = F(-1)
-	stopData.duration = F(2)
+	stopData.duration = F(8)
 	stopData.tempoData = TempoData:new(F(0.5), 60)
-	stopData.signature = F(4)
 	ld:addStopData(stopData)
 
 	local stopData = StopData:new()
 	stopData.time = F(1.5)
-	stopData.duration = F(0.5)
+	stopData.duration = F(2)
 	stopData.tempoData = TempoData:new(F(1.5), 120)
-	stopData.signature = F(4)
 	ld:addStopData(stopData)
 
 	local t = {

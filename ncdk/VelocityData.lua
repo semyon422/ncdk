@@ -21,6 +21,14 @@ function VelocityData:new(timePoint, currentSpeed, localSpeed, globalSpeed)
 	return setmetatable(velocityData, mt)
 end
 
+function VelocityData:set(currentSpeed, localSpeed, globalSpeed)
+	local _currentSpeed = self.currentSpeed
+	self.currentSpeed = currentSpeed
+	self.localSpeed = localSpeed
+	self.globalSpeed = globalSpeed
+	return _currentSpeed ~= currentSpeed
+end
+
 function VelocityData:delete()
 	local timePoint = self.timePoint
 	assert(timePoint._velocityData, "This VelocityData is deleted")

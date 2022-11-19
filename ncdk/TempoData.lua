@@ -11,6 +11,12 @@ function TempoData:new(time, tempo)
 	return setmetatable(tempoData, mt)
 end
 
+function TempoData:set(tempo)
+	local _tempo = self.tempo
+	self.tempo = tempo
+	return _tempo ~= tempo
+end
+
 function TempoData:getBeatDuration()
 	return 60 / self.tempo
 end

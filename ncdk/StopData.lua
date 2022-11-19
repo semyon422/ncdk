@@ -2,18 +2,20 @@ local StopData = {}
 
 local mt = {__index = StopData}
 
-function StopData:new(time, duration, signature)
+function StopData:new(time, duration)
 	local stopData = {}
 
 	stopData.time = time
 	stopData.duration = duration
-	stopData.signature = signature
 
 	return setmetatable(stopData, mt)
 end
 
-function StopData:getDuration()
-	return (self.duration * self.signature):tonumber()
+function StopData:set(duration, signature)
+	local _duration = self.duration
+	self.duration = duration
+	self.signature = signature
+	return _duration ~= duration
 end
 
 function mt.__tostring(a)

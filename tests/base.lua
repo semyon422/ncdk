@@ -146,16 +146,14 @@ do
 
 	local sd1 = StopData:new()
 	sd1.time = Fraction:new(1)
-	sd1.duration = Fraction:new(1)
+	sd1.duration = Fraction:new(4)
 	sd1.tempoData = td
-	sd1.signature = Fraction:new(4)
 	ld:addStopData(sd1)
 
 	local sd2 = StopData:new()
 	sd2.time = Fraction:new(2)
-	sd2.duration = Fraction:new(1)
+	sd2.duration = Fraction:new(4)
 	sd2.tempoData = td
-	sd2.signature = Fraction:new(4)
 	ld:addStopData(sd2)
 
 	-- 1	1
