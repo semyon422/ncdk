@@ -377,3 +377,21 @@ do
 	assert(ld:getTimePoint(F(1), -1, -1).zeroClearVisualTime == 4)
 	assert(ld:getTimePoint(F(1), -1, 1).zeroClearVisualTime == 4)
 end
+
+do
+	local ld = DynamicLayerData:new()
+	ld:setTimeMode("measure")
+	ld:setRange(Fraction(0), Fraction(10))
+
+	ld:getTempoData(Fraction(1), 60)
+	ld:getTempoData(Fraction(3, 10, true), 120)
+
+	local function dat(t)
+		return ld:getDynamicTimePoint(Fraction(t), -1).absoluteTime
+	end
+
+	assert(dat(1) == 4)
+	assert(dat(2) == 8)
+	assert(dat(3) == 12)
+	assert(dat(4) == 14)
+end

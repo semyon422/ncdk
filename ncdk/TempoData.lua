@@ -21,7 +21,7 @@ function TempoData:getBeatDuration()
 end
 
 function mt.__tostring(a)
-	return a.timePoint .. "," .. a.tempo
+	return tostring(a.timePoint) .. "," .. a.tempo
 end
 
 function mt.__eq(a, b)

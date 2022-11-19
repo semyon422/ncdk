@@ -175,24 +175,26 @@ function DynamicLayerData:compute()
 			if timePoint.measureTime < targetTime then
 				targetTime = timePoint.measureTime
 			end
+			isAtTimePoint = timePoint.measureTime == targetTime
 
 			if tempoData then
 				local duration = tempoData:getBeatDuration() * self:getSignature(measureIndex)
 				time = time + duration * (targetTime - currentTime)
 			end
-
-			local nextTempoData = timePoint._tempoData
-			if nextTempoData then
-				tempoData = nextTempoData
-			end
-
-			local stopData = timePoint._stopData
-			if stopData then
-				time = time + stopData.duration:tonumber() * tempoData:getBeatDuration()
-			end
-
 			currentTime = targetTime
-			isAtTimePoint = timePoint.measureTime == targetTime
+
+			if isAtTimePoint then
+				local nextTempoData = timePoint._tempoData
+				if nextTempoData then
+					tempoData = nextTempoData
+				end
+
+				local stopData = timePoint._stopData
+				if stopData then
+					stopData.tempoData = tempoData
+					time = time + stopData.duration:tonumber() * tempoData:getBeatDuration()
+				end
+			end
 		else
 			time = timePoint.absoluteTime
 		end
@@ -201,21 +203,22 @@ function DynamicLayerData:compute()
 		visualTime = visualTime + (time - currentAbsoluteTime) * currentSpeed
 		currentAbsoluteTime = time
 
-		local nextVelocityData = timePoint._velocityData
-		if nextVelocityData then
-			velocityData = nextVelocityData
-		end
-
-		local expandData = timePoint._expandData
-		if expandData then
-			local duration = expandData.duration
-			if isMeasure then
-				duration = expandData.duration:tonumber() * tempoData:getBeatDuration() * currentSpeed
-			end
-			visualTime = visualTime + duration
-		end
-
 		if isAtTimePoint then
+			local nextVelocityData = timePoint._velocityData
+			if nextVelocityData then
+				velocityData = nextVelocityData
+			end
+
+			local expandData = timePoint._expandData
+			if expandData then
+				expandData.velocityData = velocityData
+				local duration = expandData.duration
+				if isMeasure then
+					duration = expandData.duration:tonumber() * tempoData:getBeatDuration() * currentSpeed
+				end
+				visualTime = visualTime + duration
+			end
+
 			timePoint.tempoData = tempoData
 			timePoint.velocityData = velocityData
 
