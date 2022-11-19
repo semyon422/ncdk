@@ -15,6 +15,7 @@ function LayerData:new()
 	layerData.tempoDatas = {}
 	layerData.stopDatas = {}
 	layerData.velocityDatas = {}
+	layerData.expandDatas = {}
 	layerData.noteDatas = {}
 
 	return setmetatable(layerData, mt)
@@ -181,21 +182,25 @@ function LayerData:getVisualTime(targetTimePoint, currentTimePoint, clear)
 	return currentTimePoint.absoluteTime + duration * localSpeed * globalSpeed
 end
 
-function LayerData:getTimePoint(time, side)
+function LayerData:getTimePoint(time, side, visualSide)
 	assert(self.mode, "Mode should be set")
 
 	if type(time) == "number" then
 		time = math.min(math.max(time, -2147483648), 2147483647)
 	end
 
+	side = side or -1
+	visualSide = visualSide or -1
 	local timePoints = self.timePoints
-	local key = time .. "," .. side
-	if timePoints[key] then
-		return timePoints[key]
+	local key = time .. "," .. side .. "," .. visualSide
+	local timePoint = timePoints[key]
+	if timePoint then
+		return timePoint
 	end
 
-	local timePoint = TimePoint:new()
+	timePoint = TimePoint:new()
 	timePoint.side = side
+	timePoint.visualSide = visualSide
 	timePoints[key] = timePoint
 
 	if self.mode == "absolute" then
@@ -224,13 +229,8 @@ function LayerData:computeTimePoints()
 	local isMeasure = self.mode == "measure"
 	local timePointList = self.timePointList
 
-	local tempoDataIndex = 1
-	local stopDataIndex = 1
-	local velocityDataIndex = 1
-
-	local tempoData = self:getTempoData(tempoDataIndex)
-	local stopData = self:getStopData(stopDataIndex)
-	local velocityData = self:getVelocityData(velocityDataIndex)
+	local tempoData = self:getTempoData(1)
+	local velocityData = self:getVelocityData(1)
 
 	local timePointIndex = 1
 	local timePoint = timePointList[timePointIndex]
@@ -249,19 +249,19 @@ function LayerData:computeTimePoints()
 				targetTime = timePoint.measureTime
 			end
 
-			local nextTempoData = self:getTempoData(tempoDataIndex + 1)
-			if nextTempoData and nextTempoData.time == currentTime and currentTime == targetTime then
-				tempoDataIndex = tempoDataIndex + 1
-				tempoData = nextTempoData
-			else
+			if tempoData then
 				local duration = tempoData:getBeatDuration() * self:getSignature(measureIndex)
 				time = time + duration * (targetTime - currentTime)
 			end
 
-			if stopData and stopData.time == currentTime and currentTime == targetTime then
+			local nextTempoData = timePoint._tempoData
+			if nextTempoData then
+				tempoData = nextTempoData
+			end
+
+			local stopData = timePoint._stopData
+			if stopData then
 				time = time + stopData:getDuration() * tempoData:getBeatDuration()
-				stopDataIndex = stopDataIndex + 1
-				stopData = self:getStopData(stopDataIndex)
 			end
 
 			currentTime = targetTime
@@ -272,14 +272,21 @@ function LayerData:computeTimePoints()
 
 		local currentSpeed = velocityData and velocityData.currentSpeed or 1
 		visualTime = visualTime + (time - currentAbsoluteTime) * currentSpeed
+		currentAbsoluteTime = time
 
-		local nextVelocityData = self:getVelocityData(velocityDataIndex + 1)
-		if nextVelocityData and nextVelocityData.timePoint == timePoint then
+		local nextVelocityData = timePoint._velocityData
+		if nextVelocityData then
 			velocityData = nextVelocityData
-			velocityDataIndex = velocityDataIndex + 1
 		end
 
-		currentAbsoluteTime = time
+		local expandData = timePoint._expandData
+		if expandData then
+			local duration = expandData.duration
+			if isMeasure then
+				duration = expandData.duration:tonumber() * tempoData:getBeatDuration() * currentSpeed
+			end
+			visualTime = visualTime + duration
+		end
 
 		if isAtTimePoint then
 			timePoint.tempoData = tempoData
@@ -302,17 +309,32 @@ function LayerData:computeTimePoints()
 end
 
 function LayerData:addTempoData(tempoData)
-	tempoData.leftTimePoint = self:getTimePoint(tempoData.time, -1)
-	tempoData.rightTimePoint = self:getTimePoint(tempoData.time, 1)
+	local a = self:getTimePoint(tempoData.time, -1)
+	local b = self:getTimePoint(tempoData.time, 1)
+
+	b._tempoData = tempoData
+	tempoData.leftTimePoint = a
+	tempoData.rightTimePoint = b
 
 	return table.insert(self.tempoDatas, tempoData)
 end
 
 function LayerData:addStopData(stopData)
-	stopData.leftTimePoint = self:getTimePoint(stopData.time, -1)
-	stopData.rightTimePoint = self:getTimePoint(stopData.time, 1)
+	local a = self:getTimePoint(stopData.time, -1)
+	local b = self:getTimePoint(stopData.time, 1)
+
+	b._stopData = stopData
+	stopData.leftTimePoint = a
+	stopData.rightTimePoint = b
 
 	return table.insert(self.stopDatas, stopData)
+end
+
+function LayerData:addExpandData(expandData)
+	local timePoint = expandData.timePoint
+	local time = timePoint.measureTime or timePoint.absoluteTime
+	timePoint = self:getTimePoint(time, timePoint.side, -1)
+	table.insert(self.expandDatas, expandData)
 end
 
 function LayerData:setSignatureMode(...) return self.signatureTable:setMode(...) end
@@ -325,7 +347,13 @@ function LayerData:getTempoDataCount() return #self.tempoDatas end
 function LayerData:getStopData(i) return self.stopDatas[i] end
 function LayerData:getStopDataCount() return #self.stopDatas end
 
-function LayerData:addVelocityData(velocityData) table.insert(self.velocityDatas, velocityData) end
+function LayerData:addVelocityData(velocityData)
+	local timePoint = velocityData.timePoint
+	local time = timePoint.measureTime or timePoint.absoluteTime
+	timePoint = self:getTimePoint(time, timePoint.side, -1)
+	table.insert(self.velocityDatas, velocityData)
+end
+
 function LayerData:removeLastVelocityData() return table.remove(self.velocityDatas) end
 function LayerData:getVelocityData(i) return self.velocityDatas[i] end
 function LayerData:getVelocityDataCount() return #self.velocityDatas end

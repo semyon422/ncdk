@@ -176,15 +176,17 @@ function DynamicLayerData:compute()
 				targetTime = timePoint.measureTime
 			end
 
-			local nextTempoData = timePoint.tempoData
-			if nextTempoData then
-				tempoData = nextTempoData
-			elseif tempoData then
+			if tempoData then
 				local duration = tempoData:getBeatDuration() * self:getSignature(measureIndex)
 				time = time + duration * (targetTime - currentTime)
 			end
 
-			local stopData = timePoint.stopData
+			local nextTempoData = timePoint._tempoData
+			if nextTempoData then
+				tempoData = nextTempoData
+			end
+
+			local stopData = timePoint._stopData
 			if stopData then
 				time = time + stopData:getDuration() * tempoData:getBeatDuration()
 			end
@@ -197,8 +199,14 @@ function DynamicLayerData:compute()
 
 		local currentSpeed = velocityData and velocityData.currentSpeed or 1
 		visualTime = visualTime + (time - currentAbsoluteTime) * currentSpeed
+		currentAbsoluteTime = time
 
-		local expandData = timePoint.expandData
+		local nextVelocityData = timePoint._velocityData
+		if nextVelocityData then
+			velocityData = nextVelocityData
+		end
+
+		local expandData = timePoint._expandData
 		if expandData then
 			local duration = expandData.duration
 			if isMeasure then
@@ -207,16 +215,9 @@ function DynamicLayerData:compute()
 			visualTime = visualTime + duration
 		end
 
-		local nextVelocityData = timePoint.velocityData
-		if nextVelocityData then
-			velocityData = nextVelocityData
-		end
-
-		currentAbsoluteTime = time
-
 		if isAtTimePoint then
-			-- timePoint.tempoData = tempoData
-			-- timePoint.velocityData = velocityData
+			timePoint.tempoData = tempoData
+			timePoint.velocityData = velocityData
 
 			timePoint.absoluteTime = time
 			timePoint.zeroClearVisualTime = visualTime
@@ -232,7 +233,6 @@ function DynamicLayerData:compute()
 
 	local zeroTime = zeroTimePoint.absoluteTime
 	local zeroVisualTime = zeroTimePoint.zeroClearVisualTime
-	-- print("zeroTime", zeroTime)
 
 	local t = self.timePointsRange.firstObject
 	while t do
@@ -257,12 +257,10 @@ function DynamicLayerData:getTempoData(time, tempo)
 	tempoData = TempoData:new(time, tempo)
 	tempoDatas[key] = tempoData
 
-	local a = self:getTimePoint(time, -1)
-	local b = self:getTimePoint(time, 1)
+	local timePoint = self:getTimePoint(time, 1)
 
-	b.tempoData = tempoData
-	tempoData.leftTimePoint = a
-	tempoData.rightTimePoint = b
+	timePoint._tempoData = tempoData
+	tempoData.timePoint = timePoint
 
 	self.tempoDatasRange:insert(tempoData)
 	self:compute()
@@ -278,7 +276,7 @@ function DynamicLayerData:removeTempoData(time)
 
 	self.tempoDatasRange:remove(tempoData)
 
-	tempoData.rightTimePoint.tempoData = nil
+	tempoData.timePoint._tempoData = nil
 
 	self:compute()
 end
@@ -301,12 +299,10 @@ function DynamicLayerData:getStopData(time, duration, signature)
 	stopData = StopData:new(time, duration, signature)
 	stopDatas[key] = stopData
 
-	local a = self:getTimePoint(time, -1)
-	local b = self:getTimePoint(time, 1)
+	local timePoint = self:getTimePoint(time, 1)
 
-	b.stopData = stopData
-	stopData.leftTimePoint = a
-	stopData.rightTimePoint = b
+	timePoint._stopData = stopData
+	stopData.timePoint = timePoint
 
 	self.stopDatasRange:insert(stopData)
 	self:compute()
@@ -322,14 +318,14 @@ function DynamicLayerData:removeStopData(time)
 
 	self.stopDatasRange:remove(stopData)
 
-	stopData.rightTimePoint.stopData = nil
+	stopData.timePoint._stopData = nil
 
 	self:compute()
 end
 
 function DynamicLayerData:setSignatureMode(...) return self.signatureTable:setMode(...) end
 function DynamicLayerData:setSignature(measureIndex, signature)
-	self:getTimePoint(Fraction:new(measureIndex), -1)
+	self:getTimePoint(Fraction:new(measureIndex), -1)  -- for time point interpolation
 	self:getTimePoint(Fraction:new(measureIndex + 1), -1)
 	return self.signatureTable:setSignature(measureIndex, signature)
 end
@@ -349,6 +345,8 @@ function DynamicLayerData:getVelocityData(timePoint, currentSpeed, localSpeed, g
 
 	velocityData = VelocityData:new(timePoint, currentSpeed, localSpeed, globalSpeed)
 	velocityDatas[key] = velocityData
+
+	timePoint._velocityData = velocityData
 
 	self.velocityDatasRange:insert(velocityData)
 	self:compute()

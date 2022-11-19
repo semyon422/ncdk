@@ -8,17 +8,17 @@ function ExpandData:new(timePoint, duration)
 	expandData.timePoint = timePoint
 	expandData.duration = duration
 
-	timePoint.expandData = expandData
+	timePoint._expandData = expandData
 
 	return setmetatable(expandData, mt)
 end
 
 function ExpandData:delete()
 	local timePoint = self.timePoint
-	assert(timePoint.expandData, "This ExpandData is deleted")
+	assert(timePoint._expandData, "This ExpandData is deleted")
 
 	self.timePoint = nil
-	timePoint.expandData = nil
+	timePoint._expandData = nil
 end
 
 function mt.__tostring(a)
