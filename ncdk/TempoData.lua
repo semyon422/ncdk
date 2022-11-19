@@ -2,10 +2,9 @@ local TempoData = {}
 
 local mt = {__index = TempoData}
 
-function TempoData:new(time, tempo)
+function TempoData:new(tempo)
 	local tempoData = {}
 
-	tempoData.time = time
 	tempoData.tempo = tempo
 
 	return setmetatable(tempoData, mt)
@@ -22,17 +21,17 @@ function TempoData:getBeatDuration()
 end
 
 function mt.__tostring(a)
-	return a.time .. "," .. a.tempo
+	return a.timePoint .. "," .. a.tempo
 end
 
 function mt.__eq(a, b)
-	return a.time == b.time
+	return a.timePoint == b.timePoint
 end
 function mt.__lt(a, b)
-	return a.time < b.time
+	return a.timePoint < b.timePoint
 end
 function mt.__le(a, b)
-	return a.time <= b.time
+	return a.timePoint <= b.timePoint
 end
 
 return TempoData

@@ -298,15 +298,15 @@ do
 	local tp2 = ld:getTimePoint(F(1), -1)
 	local tp3 = ld:getTimePoint(F(2), -1)
 
-	ld:getVelocityData(tp1, 1)
-	ld:getVelocityData(tp2, 2)
+	ld:getVelocityData(F(0), -1, 1)
+	ld:getVelocityData(F(1), -1, 2)
 
 	assert(tp2.zeroClearVisualTime == tp1.absoluteTime + 4)
 	assert(tp3.zeroClearVisualTime == tp2.absoluteTime + 8)
 	assert(tp3.zeroClearVisualTime == tp1.absoluteTime + 12)
 	assert(tp4.zeroClearVisualTime == tp1.absoluteTime - 4)
 
-	ld:removeVelocityData(tp1)
+	ld:removeVelocityData(F(0), -1)
 
 	assert(tp2.zeroClearVisualTime == 8)
 	assert(tp3.zeroClearVisualTime == 16)
@@ -367,12 +367,12 @@ do
 	ld:setRange(F(-10), F(10))
 	ld:getTempoData(F(0), 60)
 
-	ld:getExpandData(ld:getTimePoint(F(1)), F(1))
+	ld:getExpandData(F(1), -1, F(1))
 
 	assert(ld:getTimePoint(F(1), -1, -1).zeroClearVisualTime == 4)
 	assert(ld:getTimePoint(F(1), -1, 1).zeroClearVisualTime == 5)
 
-	ld:removeExpandData(ld:getTimePoint(F(1)))
+	ld:removeExpandData(F(1), -1)
 
 	assert(ld:getTimePoint(F(1), -1, -1).zeroClearVisualTime == 4)
 	assert(ld:getTimePoint(F(1), -1, 1).zeroClearVisualTime == 4)

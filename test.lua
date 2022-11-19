@@ -20,10 +20,6 @@ print("SignatureTable_unit: ")
 require("tests.SignatureTable_unit")
 print("OK!")
 
-print("SpaceData_unit: ")
-require("tests.SpaceData_unit")
-print("OK!")
-
 io.write("base: ")
 require("tests.base")
 print("OK!")

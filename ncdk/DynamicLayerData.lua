@@ -29,11 +29,11 @@ function DynamicLayerData:new()
 
 	local tempoDatasRange = RangeTracker:new()
 	layerData.tempoDatasRange = tempoDatasRange
-	function tempoDatasRange:getObjectTime(object) return object.time end
+	function tempoDatasRange:getObjectTime(object) return object.timePoint.measureTime end
 
 	local stopDatasRange = RangeTracker:new()
 	layerData.stopDatasRange = stopDatasRange
-	function stopDatasRange:getObjectTime(object) return object.time end
+	function stopDatasRange:getObjectTime(object) return object.timePoint.measureTime end
 
 	local velocityDatasRange = RangeTracker:new()
 	layerData.velocityDatasRange = velocityDatasRange
@@ -242,161 +242,82 @@ function DynamicLayerData:compute()
 	end
 end
 
-function DynamicLayerData:getTempoData(time, ...)
-	local tempoDatas = self.tempoDatas
-	local key = tostring(time)
-	local tempoData = tempoDatas[key]
-	if tempoData then
-		if tempoData:set(...) then
+function DynamicLayerData:getTimingObject(timePoint, name, class, ...)
+	local objects = self[name .. "s"]
+	local key = tostring(timePoint)
+
+	local object = objects[key]
+	if object then
+		if select("#", ...) > 0 and object:set(...) then
 			self:compute()
 		end
-		return tempoData
+		return object
 	end
 
-	tempoData = TempoData:new(time, ...)
-	tempoDatas[key] = tempoData
+	object = class:new(...)
+	objects[key] = object
 
-	local timePoint = self:getTimePoint(time, 1)
+	timePoint["_" .. name] = object
+	object.timePoint = timePoint
 
-	timePoint._tempoData = tempoData
-	tempoData.timePoint = timePoint
-
-	self.tempoDatasRange:insert(tempoData)
+	self[name .. "sRange"]:insert(object)
 	self:compute()
 
-	return tempoData
+	return object
 end
 
-function DynamicLayerData:removeTempoData(time)
-	local tempoDatas = self.tempoDatas
-	local key = tostring(time)
-	local tempoData = assert(tempoDatas[key], "tempo data not found")
-	tempoDatas[key] = nil
+function DynamicLayerData:removeTimingObject(timePoint, name)
+	local objects = self[name .. "s"]
+	local key = tostring(timePoint)
+	local object = assert(objects[key], name .. " not found")
+	objects[key] = nil
 
-	self.tempoDatasRange:remove(tempoData)
+	self[name .. "sRange"]:remove(object)
 
-	tempoData.timePoint._tempoData = nil
+	object.timePoint["_" .. name] = nil
+	object.timePoint = nil
 
 	self:compute()
+end
+
+function DynamicLayerData:getTempoData(time, ...)
+	return self:getTimingObject(self:getTimePoint(time), "tempoData", TempoData, ...)
+end
+function DynamicLayerData:removeTempoData(time)
+	return self:removeTimingObject(self:getTimePoint(time), "tempoData")
 end
 
 function DynamicLayerData:getStopData(time, ...)
-	local stopDatas = self.stopDatas
-	local key = tostring(time)
-	local stopData = stopDatas[key]
-	if stopData then
-		if stopData:set(...) then
-			self:compute()
-		end
-		return stopData
-	end
-
-	stopData = StopData:new(time, ...)
-	stopDatas[key] = stopData
-
-	self:getTimePoint(time, -1)  -- for time point interpolation
-	local timePoint = self:getTimePoint(time, 1)
-
-	timePoint._stopData = stopData
-	stopData.timePoint = timePoint
-
-	self.stopDatasRange:insert(stopData)
-	self:compute()
-
+	local stopData = self:getTimingObject(self:getTimePoint(time, 1), "stopData", StopData, ...)
+	stopData.leftTimePoint = self:getTimePoint(time, -1)  -- for time point interpolation
 	return stopData
 end
-
 function DynamicLayerData:removeStopData(time)
-	local stopDatas = self.stopDatas
-	local key = tostring(time)
-	local stopData = assert(stopDatas[key], "stop data not found")
-	stopDatas[key] = nil
+	return self:removeTimingObject(self:getTimePoint(time, 1), "stopData")
+end
 
-	self.stopDatasRange:remove(stopData)
+function DynamicLayerData:getVelocityData(time, side, ...)
+	return self:getTimingObject(self:getTimePoint(time, side), "velocityData", VelocityData, ...)
+end
+function DynamicLayerData:removeVelocityData(time, side)
+	return self:removeTimingObject(self:getTimePoint(time, side), "velocityData")
+end
 
-	stopData.timePoint._stopData = nil
-
-	self:compute()
+function DynamicLayerData:getExpandData(time, side, ...)
+	local expandData = self:getTimingObject(self:getTimePoint(time, side, 1), "expandData", ExpandData, ...)
+	expandData.leftTimePoint = self:getTimePoint(time, side, -1)  -- for time point interpolation
+	return expandData
+end
+function DynamicLayerData:removeExpandData(time, side)
+	return self:removeTimingObject(self:getTimePoint(time, side, 1), "expandData")
 end
 
 function DynamicLayerData:setSignatureMode(...) return self.signatureTable:setMode(...) end
-function DynamicLayerData:setSignature(measureIndex, signature)
-	self:getTimePoint(Fraction:new(measureIndex), -1)  -- for time point interpolation
-	self:getTimePoint(Fraction:new(measureIndex + 1), -1)
-	return self.signatureTable:setSignature(measureIndex, signature)
-end
 function DynamicLayerData:getSignature(...) return self.signatureTable:getSignature(...) end
-
-function DynamicLayerData:getVelocityData(timePoint, ...)
-	local velocityDatas = self.velocityDatas
-	local key = timePoint
-	local velocityData = velocityDatas[key]
-	if velocityData then
-		if velocityData:set(...) then
-			self:compute()
-		end
-		return velocityData
-	end
-
-	velocityData = VelocityData:new(timePoint, ...)
-	velocityDatas[key] = velocityData
-
-	timePoint._velocityData = velocityData
-
-	self.velocityDatasRange:insert(velocityData)
-	self:compute()
-
-	return velocityData
-end
-
-function DynamicLayerData:removeVelocityData(timePoint)
-	local velocityDatas = self.velocityDatas
-	local key = timePoint
-	local velocityData = assert(velocityDatas[key], "velocity data not found")
-	velocityDatas[key] = nil
-
-	self.velocityDatasRange:remove(velocityData)
-
-	velocityData:delete()
-
-	self:compute()
-end
-
-function DynamicLayerData:getExpandData(timePoint, ...)
-	timePoint = self:getTimePoint(timePoint.measureTime, timePoint.side, 1)
-	local expandDatas = self.velocityDatas
-	local key = timePoint
-	local expandData = expandDatas[key]
-	if expandData then
-		if expandData:set(...) then
-			self:compute()
-		end
-		return expandData
-	end
-
-	self:getTimePoint(timePoint.measureTime, timePoint.side, -1)  -- for time point interpolation
-	self:getTimePoint(timePoint.measureTime, timePoint.side, 1)
-	expandData = ExpandData:new(timePoint, ...)
-	expandDatas[key] = expandData
-
-	self.expandDatasRange:insert(expandData)
-	self:compute()
-
-	return expandData
-end
-
-function DynamicLayerData:removeExpandData(timePoint)
-	timePoint = self:getTimePoint(timePoint.measureTime, timePoint.side, 1)
-	local expandDatas = self.velocityDatas
-	local key = timePoint
-	local expandData = assert(expandDatas[key], "expand data not found")
-	expandDatas[key] = nil
-
-	self.expandDatasRange:remove(expandData)
-
-	expandData:delete()
-
-	self:compute()
+function DynamicLayerData:setSignature(measureIndex, signature)
+	self:getTimePoint(Fraction:new(measureIndex))  -- for time point interpolation
+	self:getTimePoint(Fraction:new(measureIndex + 1))
+	return self.signatureTable:setSignature(measureIndex, signature)
 end
 
 function DynamicLayerData:getNoteData(timePoint, inputType, inputIndex)

@@ -23,27 +23,15 @@ layerData1:setSignature(
 	Fraction:new(4) -- signature, beats in measure
 )
 
-local tempoData1 = TempoData:new(
-	Fraction:new(0), -- measureTime
-	60 -- tempo, bpm
-)
-layerData1:addTempoData(tempoData1)
-
-local stopData1 = StopData:new()
-stopData1.time		= Fraction:new(0)
-stopData1.duration	= Fraction:new(1)
-stopData1.tempoData			= tempoData1
-stopData1.signature			= Fraction:new(4)
-layerData1:addStopData(stopData1)
+layerData1:insertTempoData(Fraction:new(0), 60)
+layerData1:insertStopData(Fraction:new(0), Fraction:new(4))
 
 local timePoint1 = layerData1:getTimePoint(
 	Fraction:new(0), -- measureTime in measure mode
 	-1 -- side
 )
 
-local velocityData1 = VelocityData:new(timePoint1)
-velocityData1.currentVelocity = 1
-layerData1:addVelocityData(velocityData1)
+layerData1:insertVelocityData(Fraction:new(0), -1, 1)
 
 local noteData1 = NoteData:new(timePoint1)
 layerData1:addNoteData(noteData1)

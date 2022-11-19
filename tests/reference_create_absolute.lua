@@ -1,9 +1,6 @@
 local NoteChart		= require("ncdk.NoteChart")
 local VelocityData	= require("ncdk.VelocityData")
-local StopData		= require("ncdk.StopData")
-local TempoData		= require("ncdk.TempoData")
 local NoteData		= require("ncdk.NoteData")
-local Fraction		= require("ncdk.Fraction")
 
 local noteChart = NoteChart:new()
 
@@ -21,9 +18,7 @@ local timePoint1 = layerData1:getTimePoint(
 	-1 -- side, doesn't affect anything in absolute mode
 )
 
-local velocityData1 = VelocityData:new(timePoint1)
-velocityData1.currentVelocity = 1
-layerData1:addVelocityData(velocityData1)
+layerData1:insertVelocityData(0, -1, 1)
 
 local noteData1 = NoteData:new(timePoint1)
 layerData1:addNoteData(noteData1)

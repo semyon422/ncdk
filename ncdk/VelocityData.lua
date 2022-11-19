@@ -6,13 +6,8 @@ VelocityData.currentSpeed = 1
 VelocityData.localSpeed = 1
 VelocityData.globalSpeed = 1
 
-function VelocityData:new(timePoint, currentSpeed, localSpeed, globalSpeed)
-	assert(not timePoint._velocityData, "This timePoint already has a VelocityData")
-
+function VelocityData:new(currentSpeed, localSpeed, globalSpeed)
 	local velocityData = {}
-
-	velocityData.timePoint = timePoint
-	timePoint._velocityData = velocityData
 
 	velocityData.currentSpeed = currentSpeed
 	velocityData.localSpeed = localSpeed
@@ -27,14 +22,6 @@ function VelocityData:set(currentSpeed, localSpeed, globalSpeed)
 	self.localSpeed = localSpeed
 	self.globalSpeed = globalSpeed
 	return _currentSpeed ~= currentSpeed
-end
-
-function VelocityData:delete()
-	local timePoint = self.timePoint
-	assert(timePoint._velocityData, "This VelocityData is deleted")
-
-	self.timePoint = nil
-	timePoint._velocityData = nil
 end
 
 function mt.__tostring(a)
