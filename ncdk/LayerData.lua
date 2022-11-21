@@ -1,6 +1,5 @@
 local Fraction = require("ncdk.Fraction")
 local TimePoint = require("ncdk.TimePoint")
-local SignatureTable = require("ncdk.SignatureTable")
 local TempoData = require("ncdk.TempoData")
 local StopData = require("ncdk.StopData")
 local VelocityData = require("ncdk.VelocityData")
@@ -13,9 +12,9 @@ local mt = {__index = LayerData}
 function LayerData:new()
 	local layerData = {}
 
-	layerData.signatureTable = SignatureTable:new(Fraction:new(4))
+	layerData.defaultSignature = Fraction:new(4)
+	layerData.signatures = {}
 	layerData.timePoints = {}
-
 	layerData.tempoDatas = {}
 	layerData.stopDatas = {}
 	layerData.velocityDatas = {}
@@ -53,6 +52,11 @@ function LayerData:setTimeMode(mode)
 	end
 	self.mode = mode
 	self.zeroTimePoint = self:getTimePoint(time, -1)
+end
+
+function LayerData:setSignatureMode(mode)
+	assert(mode == "long" or mode == "short", "Wrong signature mode")
+	self.signatureMode = mode
 end
 
 function LayerData:getTimePoint(time, side, visualSide)
@@ -100,6 +104,7 @@ function LayerData:computeTimePoints()
 	self:createTimePointList()
 
 	local isMeasure = self.mode == "measure"
+	local isLong = self.signatureMode == "long"
 	local timePointList = self.timePointList
 
 	local tempoData = self:getTempoData(1)
@@ -107,6 +112,8 @@ function LayerData:computeTimePoints()
 
 	local timePointIndex = 1
 	local timePoint = timePointList[timePointIndex]
+
+	local signature = self.defaultSignature
 
 	local time = 0
 	local visualTime = 0
@@ -123,8 +130,14 @@ function LayerData:computeTimePoints()
 			end
 			isAtTimePoint = timePoint.measureTime == targetTime
 
+			local defaultSignature = self.defaultSignature
+			if isLong then
+				defaultSignature = signature
+			end
+			signature = self:getSignature(measureIndex) or defaultSignature
+
 			if tempoData then
-				local duration = tempoData:getBeatDuration() * self:getSignature(measureIndex)
+				local duration = tempoData:getBeatDuration() * signature
 				time = time + duration * (targetTime - currentTime)
 			end
 			currentTime = targetTime
@@ -238,9 +251,13 @@ function LayerData:removeExpandData()
 	return self:removeTimingObject("expandData")
 end
 
-function LayerData:setSignatureMode(...) return self.signatureTable:setMode(...) end
-function LayerData:setSignature(...) return self.signatureTable:setSignature(...) end
-function LayerData:getSignature(...) return self.signatureTable:getSignature(...) end
+function LayerData:setSignature(measureIndex, signature)
+	assert(self.signatureMode, "Signature mode should be set")
+	self.signatures[measureIndex] = signature
+end
+function LayerData:getSignature(measureIndex)
+	return self.signatures[measureIndex]
+end
 
 function LayerData:getTempoData(i) return self.tempoDatas[i] end
 function LayerData:getTempoDataCount() return #self.tempoDatas end

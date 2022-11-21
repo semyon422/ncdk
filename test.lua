@@ -16,10 +16,6 @@ print("TimeData_unit: ")
 require("tests.TimeData_unit")
 print("OK!")
 
-print("SignatureTable_unit: ")
-require("tests.SignatureTable_unit")
-print("OK!")
-
 io.write("base: ")
 require("tests.base")
 print("OK!")

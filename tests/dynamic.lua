@@ -395,3 +395,59 @@ do
 	assert(dat(3) == 12)
 	assert(dat(4) == 14)
 end
+
+do
+	local ld = DynamicLayerData:new()
+	ld:setTimeMode("measure")
+	ld:setSignatureMode("short")
+	ld:setRange(Fraction(0), Fraction(10))
+
+	local mt = Fraction:new(0)
+
+	ld:getTempoData(mt, 60)
+	ld:getSignatureData(1, Fraction:new(8))
+	ld:getSignatureData(3, Fraction:new(2))
+	local tp0 = ld:getTimePoint(F(0))
+	local tp1 = ld:getTimePoint(F(1))
+	local tp2 = ld:getTimePoint(F(2))
+	local tp3 = ld:getTimePoint(F(3))
+	local tp4 = ld:getTimePoint(F(4))
+
+	assert(tp0.absoluteTime == 0)
+	assert(tp1.absoluteTime == 4)
+	assert(tp2.absoluteTime == 12)
+	assert(tp3.absoluteTime == 16)
+	assert(tp4.absoluteTime == 18)
+
+	ld:setRange(Fraction(5), Fraction(10))
+	assert(ld:getTimePoint(F(5)).absoluteTime == 22)
+	assert(ld:getTimePoint(F(6)).absoluteTime == 26)
+end
+
+do
+	local ld = DynamicLayerData:new()
+	ld:setTimeMode("measure")
+	ld:setSignatureMode("long")
+	ld:setRange(Fraction(0), Fraction(10))
+
+	local mt = Fraction:new(0)
+
+	ld:getTempoData(mt, 60)
+	ld:getSignatureData(1, Fraction:new(8))
+	ld:getSignatureData(3, Fraction:new(2))
+	local tp0 = ld:getTimePoint(F(0))
+	local tp1 = ld:getTimePoint(F(1))
+	local tp2 = ld:getTimePoint(F(2))
+	local tp3 = ld:getTimePoint(F(3))
+	local tp4 = ld:getTimePoint(F(4))
+
+	assert(tp0.absoluteTime == 0)
+	assert(tp1.absoluteTime == 4)
+	assert(tp2.absoluteTime == 12)
+	assert(tp3.absoluteTime == 20)
+	assert(tp4.absoluteTime == 22)
+
+	ld:setRange(Fraction(5), Fraction(10))
+	assert(ld:getTimePoint(F(5)).absoluteTime == 24)
+	assert(ld:getTimePoint(F(6)).absoluteTime == 26)
+end

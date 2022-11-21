@@ -4,8 +4,8 @@ local TempoData = require("ncdk.TempoData")
 local StopData = require("ncdk.StopData")
 local VelocityData = require("ncdk.VelocityData")
 local ExpandData = require("ncdk.ExpandData")
+local SignatureData = require("ncdk.SignatureData")
 local NoteData = require("ncdk.NoteData")
-local SignatureTable = require("ncdk.SignatureTable")
 local RangeTracker = require("ncdk.RangeTracker")
 
 local DynamicLayerData = {}
@@ -15,12 +15,14 @@ local mt = {__index = DynamicLayerData}
 function DynamicLayerData:new()
 	local layerData = {}
 
-	layerData.signatureTable = SignatureTable:new(Fraction:new(4))
+	layerData.defaultSignature = Fraction:new(4)
+
 	layerData.timePoints = {}
 	layerData.tempoDatas = {}
 	layerData.stopDatas = {}
 	layerData.velocityDatas = {}
 	layerData.expandDatas = {}
+	layerData.signatureDatas = {}
 	layerData.noteDatas = {}
 
 	local timePointsRange = RangeTracker:new()
@@ -43,6 +45,10 @@ function DynamicLayerData:new()
 	layerData.expandDatasRange = expandDatasRange
 	function expandDatasRange:getObjectTime(object) return object.timePoint.measureTime end
 
+	local signatureDatasRange = RangeTracker:new()
+	layerData.signatureDatasRange = signatureDatasRange
+	function signatureDatasRange:getObjectTime(object) return object.timePoint.measureTime end
+
 	return setmetatable(layerData, mt)
 end
 
@@ -60,12 +66,18 @@ function DynamicLayerData:setTimeMode(mode)
 	self.zeroTimePoint = self:getTimePoint(time, -1)
 end
 
+function DynamicLayerData:setSignatureMode(mode)
+	assert(mode == "long" or mode == "short", "Wrong signature mode")
+	self.signatureMode = mode
+end
+
 function DynamicLayerData:_setRange(startTime, endTime)
 	self.timePointsRange:setRange(startTime, endTime)
 	self.tempoDatasRange:setRange(startTime, endTime)
 	self.stopDatasRange:setRange(startTime, endTime)
 	self.velocityDatasRange:setRange(startTime, endTime)
 	self.expandDatasRange:setRange(startTime, endTime)
+	self.signatureDatasRange:setRange(startTime, endTime)
 end
 
 function DynamicLayerData:setRange(startTime, endTime)
@@ -155,12 +167,18 @@ function DynamicLayerData:compute()
 	assert(self.mode, "Mode should be set")
 
 	local isMeasure = self.mode == "measure"
+	local isLong = self.signatureMode == "long"
 
 	local tempoData = self.tempoDatasRange.startObject
 	local velocityData = self.velocityDatasRange.startObject
 
 	local timePoint = self.timePointsRange.startObject
 	local endTimePoint = self.timePointsRange.endObject
+
+	local signatureData = self.signatureDatasRange.startObject
+	if signatureData and signatureData.timePoint > timePoint then
+		signatureData = nil
+	end
 
 	local time = timePoint.absoluteTime or 0
 	local visualTime = timePoint.zeroClearVisualTime or 0
@@ -177,8 +195,13 @@ function DynamicLayerData:compute()
 			end
 			isAtTimePoint = timePoint.measureTime == targetTime
 
+			local signature = self.defaultSignature
+			if signatureData and (isLong or measureIndex == signatureData.timePoint.measureTime:tonumber()) then
+				signature = signatureData.signature
+			end
+
 			if tempoData then
-				local duration = tempoData:getBeatDuration() * self:getSignature(measureIndex)
+				local duration = tempoData:getBeatDuration() * signature
 				time = time + duration * (targetTime - currentTime)
 			end
 			currentTime = targetTime
@@ -187,6 +210,11 @@ function DynamicLayerData:compute()
 				local nextTempoData = timePoint._tempoData
 				if nextTempoData then
 					tempoData = nextTempoData
+				end
+
+				local nextSignatureData = timePoint._signatureData
+				if nextSignatureData then
+					signatureData = nextSignatureData
 				end
 
 				local stopData = timePoint._stopData
@@ -315,12 +343,36 @@ function DynamicLayerData:removeExpandData(time, side)
 	return self:removeTimingObject(self:getTimePoint(time, side, 1), "expandData")
 end
 
-function DynamicLayerData:setSignatureMode(...) return self.signatureTable:setMode(...) end
-function DynamicLayerData:getSignature(...) return self.signatureTable:getSignature(...) end
-function DynamicLayerData:setSignature(measureIndex, signature)
-	self:getTimePoint(Fraction:new(measureIndex))  -- for time point interpolation
-	self:getTimePoint(Fraction:new(measureIndex + 1))
-	return self.signatureTable:setSignature(measureIndex, signature)
+function DynamicLayerData:getSignatureData(measureIndex, ...)
+	assert(self.signatureMode, "Signature mode should be set")
+	local timePoint = self:getTimePoint(Fraction:new(measureIndex))
+	self:getTimePoint(Fraction:new(measureIndex + 1))  -- for time point interpolation
+	return self:getTimingObject(timePoint, "signatureData", SignatureData, ...)
+end
+function DynamicLayerData:removeSignatureData(measureIndex)
+	local timePoint = self:getTimePoint(Fraction:new(measureIndex))
+	return self:removeTimingObject(timePoint, "signatureData")
+end
+
+function DynamicLayerData:getSignature(measureIndex)
+	local mode = self.signatureMode
+	assert(mode, "Signature mode should be set")
+
+	local range = self.signatureDatasRange
+	local signatureData = range.startObject
+	if not signatureData or measureIndex < signatureData.timePoint.measureTime:floor() then
+		return self.defaultSignature
+	end
+
+	local endSignatureData = range.endObject
+	while signatureData and signatureData <= endSignatureData do
+		local time = signatureData.timePoint.measureTime:floor()
+		if mode == "short" and time == measureIndex or mode == "long" and time <= measureIndex then
+			return signatureData.signature
+		end
+		signatureData = signatureData.next
+	end
+	return self.defaultSignature
 end
 
 function DynamicLayerData:getNoteData(timePoint, inputType, inputIndex)

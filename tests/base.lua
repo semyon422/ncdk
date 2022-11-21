@@ -1,21 +1,20 @@
-local ncdk = require("ncdk")
 local NoteChart = require("ncdk.NoteChart")
-local VelocityData = require("ncdk.VelocityData")
-local StopData = require("ncdk.StopData")
-local TempoData = require("ncdk.TempoData")
 local NoteData = require("ncdk.NoteData")
 local Fraction = require("ncdk.Fraction")
+
+local function F(n)
+	return Fraction:new(n, 1000, true)
+end
 
 do
 	local nc = NoteChart:new()
 	local ld = nc:getLayerData(1)
 	ld:setTimeMode("measure")
 
-	local mt = Fraction:new(0)
-	local tp = ld:getTimePoint(mt, 1)
+	local tp = ld:getTimePoint(F(0), 1)
 
-	ld:insertTempoData(mt, 60)
-	ld:insertVelocityData(mt, 1, 1)
+	ld:insertTempoData(F(0), 60)
+	ld:insertVelocityData(F(0), 1, 1)
 
 	local nd = NoteData:new(tp)
 	ld:addNoteData(nd)
@@ -28,24 +27,23 @@ do
 	local ld = nc:getLayerData(1)
 	ld:setTimeMode("measure")
 
-	local mt = Fraction:new(0)
-	local tp0 = ld:getTimePoint(mt, 1)
+	local mt = F(0)
 
 	ld:insertTempoData(mt, 60)
 
-	ld:insertVelocityData(Fraction:new(-1), 1, 0.5)
-	ld:insertVelocityData(Fraction:new(0), 1, 1)
-	ld:insertVelocityData(Fraction:new(1), 1, 2)
+	ld:insertVelocityData(F(-1), 1, 0.5)
+	ld:insertVelocityData(F(0), 1, 1)
+	ld:insertVelocityData(F(1), 1, 2)
 
 	local cases = {
-		{-2, 1, -1 * 4},
-		{-1, 1, -1/2 * 4},
-		{ 0, 1,  0 * 4},
-		{ 1, 1,  1 * 4},
-		{ 2, 1,  3 * 4},
+		{-2, -1 * 4},
+		{-1, -1/2 * 4},
+		{ 0,  0 * 4},
+		{ 1,  1 * 4},
+		{ 2,  3 * 4},
 	}
 	for i, d in ipairs(cases) do
-		d[4] = ld:getTimePoint(Fraction:new(d[1], d[2]), 1)
+		d[4] = ld:getTimePoint(F(d[1]), 1)
 	end
 
 	nc:compute()
@@ -53,8 +51,8 @@ do
 	for i, d in ipairs(cases) do
 		local tp = d[4]
 		assert(
-			tp.zeroClearVisualTime == d[3],
-			"i: " .. i .. " vt1: " .. tp.zeroClearVisualTime .. " vt2: " .. d[3]
+			tp.zeroClearVisualTime == d[2],
+			"i: " .. i .. " vt1: " .. tp.zeroClearVisualTime .. " vt2: " .. d[2]
 		)
 	end
 end
@@ -64,35 +62,87 @@ do
 	local ld = nc:getLayerData(1)
 	ld:setTimeMode("measure")
 
-	local mt = Fraction:new(0)
+	local mt = F(0)
 
 	ld:insertTempoData(mt, 60)
 	ld:insertVelocityData(mt, 1, 1)
 
-	ld:insertStopData(Fraction:new(1), Fraction:new(4))
-	ld:insertStopData(Fraction:new(2), Fraction:new(4))
+	ld:insertStopData(F(1), F(4))
+	ld:insertStopData(F(2), F(4))
 
 	local cases = {
-		{0, 1, 0 * 4, 0 * 4},
-		{1, 1, 1 * 4, 2 * 4},
-		{2, 1, 3 * 4, 4 * 4},
-		{3, 1, 5 * 4, 5 * 4}
+		{0, 0 * 4, 0 * 4},
+		{1, 1 * 4, 2 * 4},
+		{2, 3 * 4, 4 * 4},
+		{3, 5 * 4, 5 * 4}
 	}
 	for i, d in ipairs(cases) do
-		d[5] = ld:getTimePoint(Fraction:new(d[1], d[2]), -1)
-		d[6] = ld:getTimePoint(Fraction:new(d[1], d[2]), 1)
+		d[4] = ld:getTimePoint(F(d[1]), -1)
+		d[5] = ld:getTimePoint(F(d[1]), 1)
 	end
 
 	nc:compute()
 
 	for i, d in ipairs(cases) do
 		assert(
+			d[4].absoluteTime == d[2],
+			"i: " .. i .. " vt1: " .. d[4].absoluteTime .. " vt2: " .. d[2]
+		)
+		assert(
 			d[5].absoluteTime == d[3],
 			"i: " .. i .. " vt1: " .. d[5].absoluteTime .. " vt2: " .. d[3]
 		)
-		assert(
-			d[6].absoluteTime == d[4],
-			"i: " .. i .. " vt1: " .. d[6].absoluteTime .. " vt2: " .. d[4]
-		)
 	end
+end
+
+do
+	local nc = NoteChart:new()
+	local ld = nc:getLayerData(1)
+	ld:setTimeMode("measure")
+	ld:setSignatureMode("short")
+
+	local mt = Fraction:new(0)
+
+	ld:insertTempoData(mt, 60)
+	ld:setSignature(1, Fraction:new(8))
+	ld:setSignature(3, Fraction:new(2))
+	local tp0 = ld:getTimePoint(F(0))
+	local tp1 = ld:getTimePoint(F(1))
+	local tp2 = ld:getTimePoint(F(2))
+	local tp3 = ld:getTimePoint(F(3))
+	local tp4 = ld:getTimePoint(F(4))
+
+	nc:compute()
+
+	assert(tp0.absoluteTime == 0)
+	assert(tp1.absoluteTime == 4)
+	assert(tp2.absoluteTime == 12)
+	assert(tp3.absoluteTime == 16)
+	assert(tp4.absoluteTime == 18)
+end
+
+do
+	local nc = NoteChart:new()
+	local ld = nc:getLayerData(1)
+	ld:setTimeMode("measure")
+	ld:setSignatureMode("long")
+
+	local mt = Fraction:new(0)
+
+	ld:insertTempoData(mt, 60)
+	ld:setSignature(1, Fraction:new(8))
+	ld:setSignature(3, Fraction:new(2))
+	local tp0 = ld:getTimePoint(F(0))
+	local tp1 = ld:getTimePoint(F(1))
+	local tp2 = ld:getTimePoint(F(2))
+	local tp3 = ld:getTimePoint(F(3))
+	local tp4 = ld:getTimePoint(F(4))
+
+	nc:compute()
+
+	assert(tp0.absoluteTime == 0)
+	assert(tp1.absoluteTime == 4)
+	assert(tp2.absoluteTime == 12)
+	assert(tp3.absoluteTime == 20)
+	assert(tp4.absoluteTime == 22)
 end
