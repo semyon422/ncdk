@@ -27,6 +27,32 @@ local function reduce(n, d)
 	return n / r, d / r
 end
 
+-- https://stackoverflow.com/questions/4385580/finding-the-closest-integer-fraction-to-a-given-random-real-between-0-1-given
+local function closest(R, limit)
+	local int, r = math.floor(R), R - math.floor(R)
+
+	local a_num, a_den = 0, 1
+	local b_num, b_den = 1, 1
+
+	while true do
+		local n, d = a_num + b_num, a_den + b_den
+
+		if d > limit then
+			if r - a_num / a_den < b_num / b_den - r then
+				return a_num + int * a_den, a_den
+			else
+				return b_num + int * b_den, b_den
+			end
+		end
+
+		if n / d < r then
+			a_num, a_den = n, d
+		else
+			b_num, b_den = n, d
+		end
+	end
+end
+
 local Fraction = {}
 
 local mt = {__index = Fraction}
@@ -34,13 +60,15 @@ local mt = {__index = Fraction}
 function Fraction:new(n, d, decimal)
 	n, d = n or 0, d or 1
 	assert(type(n) == "number" and type(d) == "number", "numbers expected")
+	assert(d % 1 == 0 and d ~= 0, ("invalid denominator: %s"):format(d))
 
-	if decimal then
+	if decimal == true then
 		n = math.floor(n * d)
+	elseif decimal == false then
+		n, d = closest(n, d)
 	end
 
 	assert(n % 1 == 0, ("invalid numerator: %s"):format(n))
-	assert(d % 1 == 0 and d ~= 0, ("invalid denominator: %s"):format(d))
 
 	return setmetatable({reduce(n, d)}, mt)
 end
