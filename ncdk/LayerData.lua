@@ -182,7 +182,7 @@ function LayerData:computeTimePoints()
 			timePoint.velocityData = velocityData
 
 			timePoint.absoluteTime = timePoint.absoluteTime or time
-			timePoint.zeroClearVisualTime = visualTime
+			timePoint.visualTime = visualTime
 
 			timePointIndex = timePointIndex + 1
 			timePoint = timePointList[timePointIndex]
@@ -190,10 +190,10 @@ function LayerData:computeTimePoints()
 	end
 
 	local zeroTime = self.zeroTimePoint.absoluteTime
-	local zeroVisualTime = self.zeroTimePoint.zeroClearVisualTime
+	local zeroVisualTime = self.zeroTimePoint.visualTime
 	for _, t in ipairs(timePointList) do
 		t.absoluteTime = t.absoluteTime - zeroTime
-		t.zeroClearVisualTime = t.zeroClearVisualTime - zeroVisualTime
+		t.visualTime = t.visualTime - zeroVisualTime
 	end
 end
 

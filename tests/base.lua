@@ -51,8 +51,8 @@ do
 	for i, d in ipairs(cases) do
 		local tp = d[4]
 		assert(
-			tp.zeroClearVisualTime == d[2],
-			"i: " .. i .. " vt1: " .. tp.zeroClearVisualTime .. " vt2: " .. d[2]
+			tp.visualTime == d[2],
+			"i: " .. i .. " vt1: " .. tp.visualTime .. " vt2: " .. d[2]
 		)
 	end
 end

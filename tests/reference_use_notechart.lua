@@ -18,11 +18,10 @@ currentTimePoint.absoluteTime = 0 -- you should manually set absoluteTime
 currentTimePoint.velocityData = layerData:getVelocityData(1) -- and corresponding to this time VelocityData
 
 -- visual time computed relative to zero time point and not multiplied by localSpeed and globalSpeed
-currentTimePoint:computeZeroClearVisualTime()
-assert(currentTimePoint.zeroClearVisualTime)
+currentTimePoint:computeVisualTime()
+assert(currentTimePoint.visualTime)
 
 local noteData = noteDatas[1]
 local timePoint = noteData.timePoint
-timePoint:computeVisualTime(currentTimePoint)
-assert(timePoint.currentVisualTime) -- visual time of note for current time
+assert(timePoint:getVisualTime(currentTimePoint)) -- visual time of note for current time
 assert(timePoint.absoluteTime) -- absolute time of note

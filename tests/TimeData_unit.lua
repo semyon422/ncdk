@@ -114,8 +114,8 @@ do
 
 	ld:computeTimePoints()
 
-	assert(tp2.zeroClearVisualTime == tp1.absoluteTime + 4)
-	assert(tp3.zeroClearVisualTime == tp2.absoluteTime + 8)
-	assert(tp3.zeroClearVisualTime == tp1.absoluteTime + 12)
-	assert(tp4.zeroClearVisualTime == tp1.absoluteTime - 4)
+	assert(tp2.visualTime == tp1.absoluteTime + 4)
+	assert(tp3.visualTime == tp2.absoluteTime + 8)
+	assert(tp3.visualTime == tp1.absoluteTime + 12)
+	assert(tp4.visualTime == tp1.absoluteTime - 4)
 end

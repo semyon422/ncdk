@@ -120,11 +120,11 @@ function DynamicLayerData:getDynamicTimePoint(time, side)
 
 	if a == b then
 		timePoint.absoluteTime = a.absoluteTime
-		timePoint.zeroClearVisualTime = a.zeroClearVisualTime
+		timePoint.visualTime = a.visualTime
 	else
 		local ta, tb = a.measureTime:tonumber(), b.measureTime:tonumber()
 		timePoint.absoluteTime = map(t, ta, tb, a.absoluteTime, b.absoluteTime)
-		timePoint.zeroClearVisualTime = map(t, ta, tb, a.zeroClearVisualTime, b.zeroClearVisualTime)
+		timePoint.visualTime = map(t, ta, tb, a.visualTime, b.visualTime)
 	end
 
 	return timePoint
@@ -181,7 +181,7 @@ function DynamicLayerData:compute()
 	end
 
 	local time = timePoint.absoluteTime or 0
-	local visualTime = timePoint.zeroClearVisualTime or 0
+	local visualTime = timePoint.visualTime or 0
 	local currentTime = timePoint.measureTime
 	local currentAbsoluteTime = time
 	while timePoint and timePoint <= endTimePoint do
@@ -251,7 +251,7 @@ function DynamicLayerData:compute()
 			timePoint.velocityData = velocityData
 
 			timePoint.absoluteTime = time
-			timePoint.zeroClearVisualTime = visualTime
+			timePoint.visualTime = visualTime
 
 			timePoint = timePoint.next
 		end
@@ -263,12 +263,12 @@ function DynamicLayerData:compute()
 	end
 
 	local zeroTime = zeroTimePoint.absoluteTime
-	local zeroVisualTime = zeroTimePoint.zeroClearVisualTime
+	local zeroVisualTime = zeroTimePoint.visualTime
 
 	local t = self.timePointsRange.firstObject
 	while t do
 		t.absoluteTime = t.absoluteTime - zeroTime
-		t.zeroClearVisualTime = t.zeroClearVisualTime - zeroVisualTime
+		t.visualTime = t.visualTime - zeroVisualTime
 		t = t.next
 	end
 end

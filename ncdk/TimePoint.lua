@@ -9,16 +9,15 @@ function TimePoint:new()
 	return setmetatable({}, mt)
 end
 
-function TimePoint:computeZeroClearVisualTime()
-	self.zeroClearVisualTime
-		= (self.absoluteTime - self.velocityData.timePoint.absoluteTime)
-		* self.velocityData.currentSpeed
-		+ self.velocityData.timePoint.zeroClearVisualTime
+function TimePoint:computeVisualTime()
+	local velocityData = self.velocityData
+	self.visualTime = (self.absoluteTime - velocityData.timePoint.absoluteTime)
+		* velocityData.currentSpeed
+		+ velocityData.timePoint.visualTime
 end
 
-function TimePoint:computeVisualTime(timePoint)
-	self.currentVisualTime
-		= (self.zeroClearVisualTime - timePoint.zeroClearVisualTime)
+function TimePoint:getVisualTime(timePoint)
+	return (self.visualTime - timePoint.visualTime)
 		* timePoint.velocityData.globalSpeed
 		* self.velocityData.localSpeed
 		+ timePoint.absoluteTime

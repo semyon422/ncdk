@@ -301,16 +301,16 @@ do
 	ld:getVelocityData(F(0), -1, 1)
 	ld:getVelocityData(F(1), -1, 2)
 
-	assert(tp2.zeroClearVisualTime == tp1.absoluteTime + 4)
-	assert(tp3.zeroClearVisualTime == tp2.absoluteTime + 8)
-	assert(tp3.zeroClearVisualTime == tp1.absoluteTime + 12)
-	assert(tp4.zeroClearVisualTime == tp1.absoluteTime - 4)
+	assert(tp2.visualTime == tp1.absoluteTime + 4)
+	assert(tp3.visualTime == tp2.absoluteTime + 8)
+	assert(tp3.visualTime == tp1.absoluteTime + 12)
+	assert(tp4.visualTime == tp1.absoluteTime - 4)
 
 	ld:removeVelocityData(F(0), -1)
 
-	assert(tp2.zeroClearVisualTime == 8)
-	assert(tp3.zeroClearVisualTime == 16)
-	assert(tp4.zeroClearVisualTime == -8)
+	assert(tp2.visualTime == 8)
+	assert(tp3.visualTime == 16)
+	assert(tp4.visualTime == -8)
 end
 
 do
@@ -342,23 +342,23 @@ do
 
 	local dtp = ld:getDynamicTimePoint(F(0.5), -1)
 	assert(dtp.absoluteTime == 2)
-	assert(dtp.zeroClearVisualTime == 2)
+	assert(dtp.visualTime == 2)
 
 	dtp = ld:getDynamicTimePoint(F(-1), -1)
 	assert(dtp.absoluteTime == -4)
-	assert(dtp.zeroClearVisualTime == -4)
+	assert(dtp.visualTime == -4)
 
 	dtp = ld:getDynamicTimePoint(F(3.5), -1)
 	assert(dtp.absoluteTime == 14)
-	assert(dtp.zeroClearVisualTime == 14)
+	assert(dtp.visualTime == 14)
 
 	ld:getStopData(F(1), F(4))
 	dtp = ld:getDynamicTimePoint(F(1), -1)
 	assert(dtp.absoluteTime == 4)
-	assert(dtp.zeroClearVisualTime == 4)
+	assert(dtp.visualTime == 4)
 	dtp = ld:getDynamicTimePoint(F(1), 1)
 	assert(dtp.absoluteTime == 8)
-	assert(dtp.zeroClearVisualTime == 8)
+	assert(dtp.visualTime == 8)
 end
 
 do
@@ -369,13 +369,13 @@ do
 
 	ld:getExpandData(F(1), -1, F(1))
 
-	assert(ld:getTimePoint(F(1), -1, -1).zeroClearVisualTime == 4)
-	assert(ld:getTimePoint(F(1), -1, 1).zeroClearVisualTime == 5)
+	assert(ld:getTimePoint(F(1), -1, -1).visualTime == 4)
+	assert(ld:getTimePoint(F(1), -1, 1).visualTime == 5)
 
 	ld:removeExpandData(F(1), -1)
 
-	assert(ld:getTimePoint(F(1), -1, -1).zeroClearVisualTime == 4)
-	assert(ld:getTimePoint(F(1), -1, 1).zeroClearVisualTime == 4)
+	assert(ld:getTimePoint(F(1), -1, -1).visualTime == 4)
+	assert(ld:getTimePoint(F(1), -1, 1).visualTime == 4)
 end
 
 do
