@@ -19,7 +19,7 @@ noteChart.type = "bms"
 -- end
 
 layerData1:setSignature(
-	0, -- measureIndex
+	0, -- measureOffset
 	Fraction:new(4) -- signature, beats in measure
 )
 

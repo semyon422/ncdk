@@ -122,9 +122,9 @@ function LayerData:computeTimePoints()
 	while timePoint do
 		local isAtTimePoint = not isMeasure
 		if isMeasure then
-			local measureIndex = currentTime:floor()
+			local measureOffset = currentTime:floor()
 
-			local targetTime = Fraction:new(measureIndex + 1)
+			local targetTime = Fraction:new(measureOffset + 1)
 			if timePoint.measureTime < targetTime then
 				targetTime = timePoint.measureTime
 			end
@@ -134,7 +134,7 @@ function LayerData:computeTimePoints()
 			if isLong then
 				defaultSignature = signature
 			end
-			signature = self:getSignature(measureIndex) or defaultSignature
+			signature = self:getSignature(measureOffset) or defaultSignature
 
 			if tempoData then
 				local duration = tempoData:getBeatDuration() * signature
@@ -251,12 +251,12 @@ function LayerData:removeExpandData()
 	return self:removeTimingObject("expandData")
 end
 
-function LayerData:setSignature(measureIndex, signature)
+function LayerData:setSignature(measureOffset, signature)
 	assert(self.signatureMode, "Signature mode should be set")
-	self.signatures[measureIndex] = signature
+	self.signatures[measureOffset] = signature
 end
-function LayerData:getSignature(measureIndex)
-	return self.signatures[measureIndex]
+function LayerData:getSignature(measureOffset)
+	return self.signatures[measureOffset]
 end
 
 function LayerData:getTempoData(i) return self.tempoDatas[i] end

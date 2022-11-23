@@ -243,16 +243,16 @@ function DynamicLayerData:compute()
 	while timePoint and timePoint <= endTimePoint do
 		local isAtTimePoint = not isMeasure
 		if isMeasure then
-			local measureIndex = currentTime:floor()
+			local measureOffset = currentTime:floor()
 
-			local targetTime = Fraction:new(measureIndex + 1)
+			local targetTime = Fraction:new(measureOffset + 1)
 			if timePoint.measureTime < targetTime then
 				targetTime = timePoint.measureTime
 			end
 			isAtTimePoint = timePoint.measureTime == targetTime
 
 			local signature = self.defaultSignature
-			if signatureData and (isLong or measureIndex == signatureData.timePoint.measureTime:tonumber()) then
+			if signatureData and (isLong or measureOffset == signatureData.timePoint.measureTime:tonumber()) then
 				signature = signatureData.signature
 			end
 
@@ -400,31 +400,31 @@ function DynamicLayerData:removeExpandData(time, side)
 	return self:removeTimingObject(self:getTimePoint(time, side, 1), "expandData")
 end
 
-function DynamicLayerData:getSignatureData(measureIndex, ...)
+function DynamicLayerData:getSignatureData(measureOffset, ...)
 	assert(self.signatureMode, "Signature mode should be set")
-	local timePoint = self:getTimePoint(Fraction:new(measureIndex))
-	self:getTimePoint(Fraction:new(measureIndex + 1))  -- for time point interpolation
+	local timePoint = self:getTimePoint(Fraction:new(measureOffset))
+	self:getTimePoint(Fraction:new(measureOffset + 1))  -- for time point interpolation
 	return self:getTimingObject(timePoint, "signatureData", SignatureData, ...)
 end
-function DynamicLayerData:removeSignatureData(measureIndex)
-	local timePoint = self:getTimePoint(Fraction:new(measureIndex))
+function DynamicLayerData:removeSignatureData(measureOffset)
+	local timePoint = self:getTimePoint(Fraction:new(measureOffset))
 	return self:removeTimingObject(timePoint, "signatureData")
 end
 
-function DynamicLayerData:getSignature(measureIndex)
+function DynamicLayerData:getSignature(measureOffset)
 	local mode = self.signatureMode
 	assert(mode, "Signature mode should be set")
 
 	local range = self.signatureDatasRange
 	local signatureData = range.startObject
-	if not signatureData or measureIndex < signatureData.timePoint.measureTime:floor() then
+	if not signatureData or measureOffset < signatureData.timePoint.measureTime:floor() then
 		return self.defaultSignature
 	end
 
 	local endSignatureData = range.endObject
 	while signatureData and signatureData <= endSignatureData do
 		local time = signatureData.timePoint.measureTime:floor()
-		if mode == "short" and time == measureIndex or mode == "long" and time <= measureIndex then
+		if mode == "short" and time == measureOffset or mode == "long" and time <= measureOffset then
 			return signatureData.signature
 		end
 		signatureData = signatureData.next
