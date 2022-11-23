@@ -98,33 +98,89 @@ end
 function DynamicLayerData:getDynamicTimePoint(time, side)
 	assert(self.mode, "Mode should be set")
 
-	if type(time) == "number" then
-		time = math.min(math.max(time, -2147483648), 2147483647)
+	self.dynamicTimePoint = self.dynamicTimePoint or TimePoint:new()
+	local timePoint = self.dynamicTimePoint
+
+	timePoint.side = side
+	timePoint.measureTime = time
+	timePoint.absoluteTime = nil
+
+	local t = time:tonumber()
+
+	local a, b = self.timePointsRange:getInterp(timePoint)
+	assert(a or b)
+
+	if a == b then
+		timePoint.absoluteTime = a.absoluteTime
+		timePoint.visualTime = a.visualTime
+	elseif a and b then
+		local ta, tb = a.measureTime:tonumber(), b.measureTime:tonumber()
+		timePoint.absoluteTime = map(t, ta, tb, a.absoluteTime, b.absoluteTime)
+		timePoint.visualTime = map(t, ta, tb, a.visualTime, b.visualTime)
+	else
+		local signature = self.defaultSignature
+		if a then
+			local signatureData = a.signatureData
+			if signatureData and signatureData.timePoint > timePoint then
+				signatureData = nil
+			end
+			if signatureData and self.signatureMode == "long" then
+				signature = signatureData.signature
+			end
+		end
+		a = a or b
+
+		local duration = a.tempoData:getBeatDuration() * signature
+		timePoint.absoluteTime = a.absoluteTime + (t - a.measureTime:tonumber()) * duration
+
+		local currentSpeed = a.velocityData and a.velocityData.currentSpeed or 1
+		timePoint.visualTime = a.visualTime + (timePoint.absoluteTime - a.absoluteTime) * currentSpeed
 	end
+
+	return timePoint
+end
+
+function DynamicLayerData:getDynamicTimePointAbsolute(time, side, limit)
+	assert(self.mode, "Mode should be set")
 
 	self.dynamicTimePoint = self.dynamicTimePoint or TimePoint:new()
 	local timePoint = self.dynamicTimePoint
 
 	timePoint.side = side
-	if self.mode == "absolute" then
-		timePoint.absoluteTime = time
-	elseif self.mode == "measure" then
-		timePoint.measureTime = time
-	end
+	timePoint.measureTime = nil
+	timePoint.absoluteTime = time
 
-	local t = time:tonumber()
+	local t = time
 
 	local a, b = self.timePointsRange:getInterp(timePoint)
-	a = a or self:getTimePoint(Fraction:new(time:floor()), -1)
-	b = b or self:getTimePoint(Fraction:new(time:ceil()), -1)
+	assert(a or b)
 
 	if a == b then
-		timePoint.absoluteTime = a.absoluteTime
+		timePoint.measureTime = a.measureTime
 		timePoint.visualTime = a.visualTime
-	else
+	elseif a and b then
 		local ta, tb = a.measureTime:tonumber(), b.measureTime:tonumber()
-		timePoint.absoluteTime = map(t, ta, tb, a.absoluteTime, b.absoluteTime)
-		timePoint.visualTime = map(t, ta, tb, a.visualTime, b.visualTime)
+		local measureTime = map(t, a.absoluteTime, b.absoluteTime, ta, tb)
+		timePoint.measureTime = Fraction:new(measureTime, limit, false)
+		timePoint.visualTime = map(t, a.absoluteTime, b.absoluteTime, a.visualTime, b.visualTime)
+	elseif a or b then
+		local signature = self.defaultSignature
+		if a then
+			local signatureData = a.signatureData
+			if signatureData and signatureData.timePoint > timePoint then
+				signatureData = nil
+			end
+			if signatureData and self.signatureMode == "long" then
+				signature = signatureData.signature
+			end
+		end
+		a = a or b
+
+		local measureDeltaTime = (t - a.absoluteTime) / (a.tempoData:getBeatDuration() * signature)
+		timePoint.measureTime = a.measureTime + Fraction:new(measureDeltaTime, limit, false)
+
+		local currentSpeed = a.velocityData and a.velocityData.currentSpeed or 1
+		timePoint.visualTime = a.visualTime + (t - a.absoluteTime) * currentSpeed
 	end
 
 	return timePoint
@@ -249,6 +305,7 @@ function DynamicLayerData:compute()
 
 			timePoint.tempoData = tempoData
 			timePoint.velocityData = velocityData
+			timePoint.signatureData = signatureData
 
 			timePoint.absoluteTime = time
 			timePoint.visualTime = visualTime

@@ -451,3 +451,47 @@ do
 	assert(ld:getTimePoint(F(5)).absoluteTime == 24)
 	assert(ld:getTimePoint(F(6)).absoluteTime == 26)
 end
+
+do
+	local ld = DynamicLayerData:new()
+	ld:setTimeMode("measure")
+	ld:setSignatureMode("long")
+	ld:setRange(Fraction(0), Fraction(1))
+
+	ld:getTempoData(F(0), 60)
+
+	ld:getTimePoint(F(0))
+	ld:getTimePoint(F(1))
+
+	local function geta(t)
+		return ld:getDynamicTimePointAbsolute(t, -1, 192)
+	end
+
+	assert(geta(0).measureTime == F(0))
+	assert(geta(2).measureTime == F(0.5))
+	assert(geta(4).measureTime == F(1))
+	assert(geta(8).measureTime == F(2))
+	assert(geta(-4).measureTime == F(-1))
+
+	assert(geta(0).visualTime == 0)
+	assert(geta(2).visualTime == 2)
+	assert(geta(4).visualTime == 4)
+	assert(geta(8).visualTime == 8)
+	assert(geta(-4).visualTime == -4)
+
+	local function get(t)
+		return ld:getDynamicTimePoint(F(t), -1)
+	end
+
+	assert(get(0).absoluteTime == 0)
+	assert(get(0.5).absoluteTime == 2)
+	assert(get(1).absoluteTime == 4)
+	assert(get(2).absoluteTime == 8)
+	assert(get(-1).absoluteTime == -4)
+
+	assert(get(0).visualTime == 0)
+	assert(get(0.5).visualTime == 2)
+	assert(get(1).visualTime == 4)
+	assert(get(2).visualTime == 8)
+	assert(get(-1).visualTime == -4)
+end
