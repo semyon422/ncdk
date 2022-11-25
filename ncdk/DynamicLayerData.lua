@@ -108,9 +108,9 @@ function DynamicLayerData:getDynamicTimePoint(time, side)
 	local t = time:tonumber()
 
 	local a, b = self.timePointsRange:getInterp(timePoint)
-	assert(a or b)
-
-	if a == b then
+	if not a and not b then
+		return
+	elseif a == b then
 		timePoint.absoluteTime = a.absoluteTime
 		timePoint.visualTime = a.visualTime
 	elseif a and b then
@@ -153,9 +153,9 @@ function DynamicLayerData:getDynamicTimePointAbsolute(time, side, limit)
 	local t = time
 
 	local a, b = self.timePointsRange:getInterp(timePoint)
-	assert(a or b)
-
-	if a == b then
+	if not a and not b then
+		return
+	elseif a == b then
 		timePoint.measureTime = a.measureTime
 		timePoint.visualTime = a.visualTime
 	elseif a and b then
@@ -230,6 +230,14 @@ function DynamicLayerData:compute()
 
 	local timePoint = self.timePointsRange.startObject
 	local endTimePoint = self.timePointsRange.endObject
+
+	-- start with left time point to be not affected by stops and expands
+	if timePoint.side == 1 and timePoint.prev and timePoint.prev.side == -1 then
+		timePoint = timePoint.prev
+	end
+	if timePoint.visualSide == 1 and timePoint.prev and timePoint.prev.visualSide == -1 then
+		timePoint = timePoint.prev
+	end
 
 	local signatureData = self.signatureDatasRange.startObject
 	if signatureData and signatureData.timePoint > timePoint then
@@ -322,7 +330,7 @@ function DynamicLayerData:compute()
 	local zeroTime = zeroTimePoint.absoluteTime
 	local zeroVisualTime = zeroTimePoint.visualTime
 
-	local t = self.timePointsRange.firstObject
+	local t = self.timePointsRange.startObject
 	while t do
 		t.absoluteTime = t.absoluteTime - zeroTime
 		t.visualTime = t.visualTime - zeroVisualTime

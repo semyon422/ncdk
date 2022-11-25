@@ -495,3 +495,84 @@ do
 	assert(get(2).visualTime == 8)
 	assert(get(-1).visualTime == -4)
 end
+
+do
+	local ld = DynamicLayerData:new()
+
+	ld:setTimeMode("measure")
+	ld:setSignatureMode("short")
+	ld:setRange(F(0), F(10))
+
+	ld:getSignatureData(2, F(3))
+
+	ld:getTempoData(F(1), 60)
+	ld:getTempoData(F(3.5), 120)
+
+	ld:getStopData(F(5), F(4))
+
+	ld:getVelocityData(F(0.5), -1, 1)
+	ld:getVelocityData(F(4.5), -1, 2)
+	ld:getVelocityData(F(5 / 4), -1, 0)
+	ld:getVelocityData(F(6 / 4), -1, 1)
+
+	ld:getExpandData(F(2), -1, F(1))
+
+	ld:setRange(F(6), F(16))
+	local dtp = ld:getDynamicTimePointAbsolute(32, -1, 192)
+	assert(dtp.measureTime == F(12))
+
+	ld:setRange(F(6), F(16))
+	local dtp = ld:getDynamicTimePointAbsolute(32, -1, 192)
+	assert(dtp.measureTime == F(12))
+
+	ld:setRange(F(6), F(16))
+	local dtp = ld:getDynamicTimePointAbsolute(32, -1, 192)
+	assert(dtp.measureTime == F(12))
+
+	ld:setRange(F(3), F(13))
+	local dtp = ld:getDynamicTimePointAbsolute(24, -1, 192)
+	assert(dtp.measureTime == F(8))
+
+	ld:setRange(F(2), F(12))
+	assert(ld:getDynamicTimePointAbsolute(22, -1, 192))
+	assert(ld:getDynamicTimePoint(Fraction(2), -1))
+end
+
+do
+	local ld = DynamicLayerData:new()
+
+	ld:setTimeMode("measure")
+	ld:setSignatureMode("short")
+	ld:setRange(F(-10), F(10))
+
+	ld:getSignatureData(2, F(3))
+
+	ld:getTempoData(F(1), 60)
+
+	ld:getTimePoint(F(0))
+
+	ld:getTimePoint(F(-5), -1, -1)
+	ld:getTimePoint(F(-5), -1, 1)
+	ld:getTimePoint(F(-5), 1, -1)
+	ld:getTimePoint(F(-5), 1, 1)
+	ld:getTimePoint(F(5), -1, -1)
+	ld:getTimePoint(F(5), -1, 1)
+	ld:getTimePoint(F(5), 1, -1)
+	ld:getTimePoint(F(5), 1, 1)
+
+	local range = ld.timePointsRange
+
+	assert(tostring(range.startObject) == "-5/1<-<-")
+	assert(tostring(range.endObject) == "5/1->->")
+
+	ld:getTimePoint(F(-10))
+	ld:getTimePoint(F(10))
+
+	ld:setRange(F(-3), F(3))
+	assert(tostring(range.startObject) == "-5/1->->")
+	assert(tostring(range.endObject) == "5/1<-<-")
+
+	ld:setRange(F(-5), F(5))
+	assert(tostring(range.startObject) == "-10/1<-<-")
+	assert(tostring(range.endObject) == "10/1<-<-")
+end
