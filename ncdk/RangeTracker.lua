@@ -33,8 +33,8 @@ end
 
 function RangeTracker:printRanges()
 	print("start", self.startObject)
-	print("end", self.firstObject)
-	print("first", self.endObject)
+	print("end", self.endObject)
+	print("first", self.firstObject)
 	print("last", self.lastObject)
 end
 
@@ -67,12 +67,12 @@ function RangeTracker:getInterp(object)
 		return self.lastObject, nil
 	end
 
-	if self.startObject ~= self.firstObject then
-		assert(object > self.startObject)
-	end
-	if self.endObject ~= self.lastObject then
-		assert(object < self.endObject)
-	end
+	-- if self.startObject ~= self.firstObject and object < self.startObject then
+	-- 	return
+	-- end
+	-- if self.endObject ~= self.lastObject and object > self.endObject then
+	-- 	return
+	-- end
 
 	local currentObject = self.startObject
 	while currentObject < self.endObject do
@@ -167,13 +167,14 @@ function RangeTracker:update()
 	if not object then
 		return
 	end
-	while self:getObjectTime(object) > self.startTime do
-		self.startObject = object
+
+	while self:getObjectTime(object) >= self.startTime do
 		local prev = object.prev
+		self.startObject = prev or object
 		if not prev then break end
 		object = prev
 	end
-	while self:getObjectTime(object) <= self.startTime do
+	while self:getObjectTime(object) < self.startTime do
 		self.startObject = object
 		local next = object.next
 		if not next or self:getObjectTime(next) >= self.startTime then break end
@@ -181,17 +182,17 @@ function RangeTracker:update()
 	end
 
 	object = self.endObject
+	while self:getObjectTime(object) <= self.endTime do
+		local next = object.next
+		self.endObject = next or object
+		if not next then break end
+		object = next
+	end
 	while self:getObjectTime(object) > self.endTime do
 		self.endObject = object
 		local prev = object.prev
 		if not prev or self:getObjectTime(prev) <= self.endTime then break end
 		object = prev
-	end
-	while self:getObjectTime(object) <= self.endTime do
-		self.endObject = object
-		local next = object.next
-		if not next then break end
-		object = next
 	end
 end
 
