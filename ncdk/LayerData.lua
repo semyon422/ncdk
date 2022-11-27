@@ -116,6 +116,7 @@ function LayerData:computeTimePoints()
 	local signature = self.defaultSignature
 
 	local time = 0
+	local beatTime = 0
 	local visualTime = 0
 	local currentTime = timePoint.measureTime
 	local currentAbsoluteTime = 0
@@ -135,6 +136,8 @@ function LayerData:computeTimePoints()
 				defaultSignature = signature
 			end
 			signature = self:getSignature(measureOffset) or defaultSignature
+
+			beatTime = beatTime + signature:tonumber() * (targetTime - currentTime)
 
 			if tempoData then
 				local duration = tempoData:getBeatDuration() * signature
@@ -181,6 +184,7 @@ function LayerData:computeTimePoints()
 			timePoint.tempoData = tempoData
 			timePoint.velocityData = velocityData
 
+			timePoint.beatTime = beatTime
 			timePoint.absoluteTime = timePoint.absoluteTime or time
 			timePoint.visualTime = visualTime
 
@@ -189,9 +193,14 @@ function LayerData:computeTimePoints()
 		end
 	end
 
-	local zeroTime = self.zeroTimePoint.absoluteTime
-	local zeroVisualTime = self.zeroTimePoint.visualTime
+	local zeroTimePoint = self.zeroTimePoint
+
+	local zeroBeatTime = zeroTimePoint.beatTime
+	local zeroTime = zeroTimePoint.absoluteTime
+	local zeroVisualTime = zeroTimePoint.visualTime
+
 	for _, t in ipairs(timePointList) do
+		t.beatTime = t.beatTime - zeroBeatTime
 		t.absoluteTime = t.absoluteTime - zeroTime
 		t.visualTime = t.visualTime - zeroVisualTime
 	end

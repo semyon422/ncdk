@@ -601,3 +601,27 @@ do
 	assert(tostring(range.startObject) == "-10/1<-<-")
 	assert(tostring(range.endObject) == "10/1<-<-")
 end
+
+do
+	local ld = DynamicLayerData:new()
+
+	ld:setTimeMode("measure")
+	ld:setSignatureMode("short")
+	ld:setRange(F(-10), F(10))
+
+	ld:getTempoData(F(0), 60)
+
+	assert(ld:getTimePoint(F(1)).beatTime == 4)
+	assert(ld:getTimePoint(F(-1)).beatTime == -4)
+	assert(ld:getTimePoint(F(2)).beatTime == 8)
+
+	ld:getSignatureData(2, F(3))
+
+	assert(ld:getTimePoint(F(3)).beatTime == 11)
+	assert(ld:getTimePoint(F(4)).beatTime == 15)
+
+	ld:getSignatureData(-2, F(3))
+
+	assert(ld:getTimePoint(F(-2)).beatTime == -7)
+	assert(ld:getTimePoint(F(-3)).beatTime == -11)
+end

@@ -114,10 +114,12 @@ function DynamicLayerData:getDynamicTimePoint(time, side, visualSide)
 	elseif a == b then
 		timePoint.absoluteTime = a.absoluteTime
 		timePoint.visualTime = a.visualTime
+		timePoint.beatTime = a.beatTime
 	elseif a and b then
 		local ta, tb = a.measureTime:tonumber(), b.measureTime:tonumber()
 		timePoint.absoluteTime = map(t, ta, tb, a.absoluteTime, b.absoluteTime)
 		timePoint.visualTime = map(t, ta, tb, a.visualTime, b.visualTime)
+		timePoint.beatTime = map(t, ta, tb, a.beatTime, b.beatTime)
 	else
 		local signature = self.defaultSignature
 		if a then
@@ -131,8 +133,9 @@ function DynamicLayerData:getDynamicTimePoint(time, side, visualSide)
 		end
 		a = a or b
 
-		local duration = a.tempoData:getBeatDuration() * signature
-		timePoint.absoluteTime = a.absoluteTime + (t - a.measureTime:tonumber()) * duration
+		local duration = (t - a.measureTime:tonumber()) * signature
+		timePoint.absoluteTime = a.absoluteTime + duration * a.tempoData:getBeatDuration()
+		timePoint.beatTime = a.beatTime + duration
 
 		local currentSpeed = a.velocityData and a.velocityData.currentSpeed or 1
 		timePoint.visualTime = a.visualTime + (timePoint.absoluteTime - a.absoluteTime) * currentSpeed
@@ -161,11 +164,13 @@ function DynamicLayerData:getDynamicTimePointAbsolute(time, limit, side, visualS
 		timePoint.side = a.side
 		timePoint.measureTime = a.measureTime
 		timePoint.visualTime = a.visualTime
+		timePoint.beatTime = a.beatTime
 	elseif a and b then
 		local ta, tb = a.measureTime:tonumber(), b.measureTime:tonumber()
 		local measureTime = map(t, a.absoluteTime, b.absoluteTime, ta, tb)
 		timePoint.measureTime = Fraction:new(measureTime, limit, false)
 		timePoint.visualTime = map(t, a.absoluteTime, b.absoluteTime, a.visualTime, b.visualTime)
+		timePoint.beatTime = map(t, a.absoluteTime, b.absoluteTime, a.beatTime, b.beatTime)
 	elseif a or b then
 		local signature = self.defaultSignature
 		if a then
@@ -179,8 +184,9 @@ function DynamicLayerData:getDynamicTimePointAbsolute(time, limit, side, visualS
 		end
 		a = a or b
 
-		local measureDeltaTime = (t - a.absoluteTime) / (a.tempoData:getBeatDuration() * signature)
-		timePoint.measureTime = a.measureTime + Fraction:new(measureDeltaTime, limit, false)
+		local duration = (t - a.absoluteTime) / a.tempoData:getBeatDuration()
+		timePoint.measureTime = a.measureTime + Fraction:new(duration / signature, limit, false)
+		timePoint.beatTime = a.beatTime + duration
 
 		local currentSpeed = a.velocityData and a.velocityData.currentSpeed or 1
 		timePoint.visualTime = a.visualTime + (t - a.absoluteTime) * currentSpeed
@@ -248,6 +254,7 @@ function DynamicLayerData:compute()
 	end
 
 	local time = timePoint.absoluteTime or 0
+	local beatTime = timePoint.beatTime or 0
 	local visualTime = timePoint.visualTime or 0
 	local currentTime = timePoint.measureTime
 	local currentAbsoluteTime = time
@@ -266,6 +273,8 @@ function DynamicLayerData:compute()
 			if signatureData and (isLong or measureOffset == signatureData.timePoint.measureTime:tonumber()) then
 				signature = signatureData.signature
 			end
+
+			beatTime = beatTime + (targetTime - currentTime) * signature:tonumber()
 
 			if tempoData then
 				local duration = tempoData:getBeatDuration() * signature
@@ -318,6 +327,7 @@ function DynamicLayerData:compute()
 			timePoint.velocityData = velocityData
 			timePoint.signatureData = signatureData
 
+			timePoint.beatTime = beatTime
 			timePoint.absoluteTime = time
 			timePoint.visualTime = visualTime
 
@@ -330,11 +340,13 @@ function DynamicLayerData:compute()
 		return
 	end
 
+	local zeroBeatTime = zeroTimePoint.beatTime
 	local zeroTime = zeroTimePoint.absoluteTime
 	local zeroVisualTime = zeroTimePoint.visualTime
 
 	local t = self.timePointsRange.startObject
 	while t do
+		t.beatTime = t.beatTime - zeroBeatTime
 		t.absoluteTime = t.absoluteTime - zeroTime
 		t.visualTime = t.visualTime - zeroVisualTime
 		t = t.next
