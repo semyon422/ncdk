@@ -185,7 +185,7 @@ function LayerData:computeTimePoints()
 			timePoint.velocityData = velocityData
 
 			timePoint.beatTime = beatTime
-			timePoint.absoluteTime = timePoint.absoluteTime or time
+			timePoint.absoluteTime = time
 			timePoint.visualTime = visualTime
 
 			timePointIndex = timePointIndex + 1
