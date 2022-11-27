@@ -95,13 +95,14 @@ local function map(x, a, b, c, d)
 	return (x - a) * (d - c) / (b - a) + c
 end
 
-function DynamicLayerData:getDynamicTimePoint(time, side)
+function DynamicLayerData:getDynamicTimePoint(time, side, visualSide)
 	assert(self.mode, "Mode should be set")
 
 	self.dynamicTimePoint = self.dynamicTimePoint or TimePoint:new()
 	local timePoint = self.dynamicTimePoint
 
 	timePoint.side = side
+	timePoint.visualSide = visualSide
 	timePoint.measureTime = time
 	timePoint.absoluteTime = nil
 
@@ -140,13 +141,14 @@ function DynamicLayerData:getDynamicTimePoint(time, side)
 	return timePoint
 end
 
-function DynamicLayerData:getDynamicTimePointAbsolute(time, side, limit)
+function DynamicLayerData:getDynamicTimePointAbsolute(time, limit, side, visualSide)
 	assert(self.mode, "Mode should be set")
 
 	self.dynamicTimePoint = self.dynamicTimePoint or TimePoint:new()
 	local timePoint = self.dynamicTimePoint
 
 	timePoint.side = side
+	timePoint.visualSide = visualSide
 	timePoint.measureTime = nil
 	timePoint.absoluteTime = time
 
@@ -156,6 +158,7 @@ function DynamicLayerData:getDynamicTimePointAbsolute(time, side, limit)
 	if not a and not b then
 		return
 	elseif a == b then
+		timePoint.side = a.side
 		timePoint.measureTime = a.measureTime
 		timePoint.visualTime = a.visualTime
 	elseif a and b then

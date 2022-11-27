@@ -41,17 +41,26 @@ end
 
 function mt.__eq(a, b)
 	local at, bt = getTimes(a, b)
+	if type(at) == "number" then
+		return at == bt and a.visualSide == b.visualSide
+	end
 	return at == bt and a.side == b.side and a.visualSide == b.visualSide
 end
 
 function mt.__lt(a, b)
 	local at, bt = getTimes(a, b)
-	return at < bt or (at == bt and a.side < b.side) or (at == bt and a.side == b.side and a.visualSide < b.visualSide)
+	if type(at) == "number" then
+		return at < bt or (at == bt and a.visualSide < b.visualSide)
+	end
+	return at < bt or at == bt and a.side < b.side or at == bt and a.side == b.side and a.visualSide < b.visualSide
 end
 
 function mt.__le(a, b)
 	local at, bt = getTimes(a, b)
-	return at < bt or (at == bt and a.side < b.side) or (at == bt and a.side == b.side and a.visualSide <= b.visualSide)
+	if type(at) == "number" then
+		return at < bt or at == bt and a.visualSide <= b.visualSide
+	end
+	return at < bt or at == bt and a.side < b.side or at == bt and a.side == b.side and a.visualSide <= b.visualSide
 end
 
 return TimePoint

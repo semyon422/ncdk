@@ -464,7 +464,7 @@ do
 	ld:getTimePoint(F(1))
 
 	local function geta(t)
-		return ld:getDynamicTimePointAbsolute(t, -1, 192)
+		return ld:getDynamicTimePointAbsolute(t, 192, -1)
 	end
 
 	assert(geta(0).measureTime == F(0))
@@ -518,26 +518,51 @@ do
 	ld:getExpandData(F(2), -1, F(1))
 
 	ld:setRange(F(6), F(16))
-	local dtp = ld:getDynamicTimePointAbsolute(32, -1, 192)
+	local dtp = ld:getDynamicTimePointAbsolute(32, 192, -1)
 	assert(dtp.measureTime == F(12))
 
 	ld:setRange(F(6), F(16))
-	local dtp = ld:getDynamicTimePointAbsolute(32, -1, 192)
+	local dtp = ld:getDynamicTimePointAbsolute(32, 192, -1)
 	assert(dtp.measureTime == F(12))
 
 	ld:setRange(F(6), F(16))
-	local dtp = ld:getDynamicTimePointAbsolute(32, -1, 192)
+	local dtp = ld:getDynamicTimePointAbsolute(32, 192, -1)
 	assert(dtp.measureTime == F(12))
 
 	ld:setRange(F(3), F(13))
-	local dtp = ld:getDynamicTimePointAbsolute(24, -1, 192)
+	local dtp = ld:getDynamicTimePointAbsolute(24, 192, -1)
 	assert(dtp.measureTime == F(8))
 
 	ld:setRange(F(2), F(12))
-	assert(ld:getDynamicTimePointAbsolute(22, -1, 192))
+	assert(ld:getDynamicTimePointAbsolute(22, 192, -1))
 	assert(ld:getDynamicTimePoint(Fraction(2), -1))
 end
 
+do
+	local ld = DynamicLayerData:new()
+
+	ld:setTimeMode("measure")
+	ld:setSignatureMode("short")
+	ld:setRange(F(0), F(10))
+
+	ld:getTempoData(F(1), 60)
+
+	ld:getStopData(F(5), F(1))
+	ld:getExpandData(F(5), -1, F(1))
+	ld:getExpandData(F(5), 1, F(1))
+
+	assert(tostring(ld:getDynamicTimePoint(F(5))) == "5/1<-<-")  -- 20, 20
+	assert(tostring(ld:getDynamicTimePoint(F(5), -1, -1)) == "5/1<-<-")  -- 20, 20
+	assert(tostring(ld:getDynamicTimePoint(F(5), -1, 1)) == "5/1<-->")  -- 20, 21
+	assert(tostring(ld:getDynamicTimePoint(F(5), 1, -1)) == "5/1-><-")  -- 21, 22
+	assert(tostring(ld:getDynamicTimePoint(F(5), 1, 1)) == "5/1->->")  -- 21, 23
+
+	assert(tostring(ld:getDynamicTimePointAbsolute(20, 192, -1, -1)) == "5/1<-<-")
+	assert(tostring(ld:getDynamicTimePointAbsolute(20, 192, 1, -1)) == "5/1<-<-")
+	assert(tostring(ld:getDynamicTimePointAbsolute(21, 192, -1, -1)) == "5/1-><-")
+	assert(tostring(ld:getDynamicTimePointAbsolute(21, 192, 1, -1)) == "5/1-><-")
+end
+error()
 do
 	local ld = DynamicLayerData:new()
 
