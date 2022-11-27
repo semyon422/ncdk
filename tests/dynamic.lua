@@ -562,7 +562,7 @@ do
 	assert(tostring(ld:getDynamicTimePointAbsolute(21, 192, -1, -1)) == "5/1-><-")
 	assert(tostring(ld:getDynamicTimePointAbsolute(21, 192, 1, -1)) == "5/1-><-")
 end
-error()
+
 do
 	local ld = DynamicLayerData:new()
 
