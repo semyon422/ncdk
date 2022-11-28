@@ -274,7 +274,7 @@ function DynamicLayerData:compute()
 				signature = signatureData.signature
 			end
 
-			beatTime = beatTime + (targetTime - currentTime) * signature:tonumber()
+			beatTime = beatTime + signature:tonumber() * (targetTime - currentTime)
 
 			if tempoData then
 				local duration = tempoData:getBeatDuration() * signature
