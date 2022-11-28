@@ -58,8 +58,16 @@ local Fraction = {}
 local mt = {__index = Fraction}
 
 function Fraction:new(n, d, decimal)
-	n, d = n or 0, d or 1
-	assert(type(n) == "number" and type(d) == "number", "numbers expected")
+	local _n = type(n) == "number" and n or 0
+	local _d = type(d) == "number" and d or 1
+	if type(n) == "table" then
+		_n, _d = n[1], _d * n[2]
+	end
+	if type(d) == "table" then
+		_n, _d = _n * d[2], _d * d[1]
+	end
+	n, d = _n, _d
+
 	assert(d % 1 == 0 and d ~= 0, ("invalid denominator: %s"):format(d))
 
 	if decimal == true then
