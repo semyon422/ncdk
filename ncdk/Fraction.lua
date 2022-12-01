@@ -105,7 +105,8 @@ function Fraction:tonumber()
 end
 
 function mt.__tostring(a)
-	return ("%d/%d"):format(a[1], a[2])
+	local n, d = math.abs(a[1]), a[2]
+	return ("%s%d.%d/%d"):format(a[1] < 0 and "-" or "", math.floor(n / d), n % d, d)
 end
 
 function mt.__concat(a, b)

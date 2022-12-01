@@ -154,6 +154,8 @@ function DynamicLayerData:getDynamicTimePointAbsolute(time, limit, side, visualS
 	timePoint.visualSide = visualSide
 	timePoint.measureTime = nil
 	timePoint.absoluteTime = time
+	timePoint._tempoData = nil
+	timePoint._velocityData = nil
 
 	local t = time
 
@@ -165,6 +167,8 @@ function DynamicLayerData:getDynamicTimePointAbsolute(time, limit, side, visualS
 		timePoint.measureTime = a.measureTime
 		timePoint.visualTime = a.visualTime
 		timePoint.beatTime = a.beatTime
+		timePoint._tempoData = a._tempoData
+		timePoint._velocityData = a._velocityData
 	elseif a and b then
 		local ta, tb = a.measureTime:tonumber(), b.measureTime:tonumber()
 		local measureTime = map(t, a.absoluteTime, b.absoluteTime, ta, tb)
@@ -191,6 +195,9 @@ function DynamicLayerData:getDynamicTimePointAbsolute(time, limit, side, visualS
 		local currentSpeed = a.velocityData and a.velocityData.currentSpeed or 1
 		timePoint.visualTime = a.visualTime + (t - a.absoluteTime) * currentSpeed
 	end
+
+	timePoint.tempoData = a.tempoData
+	timePoint.velocityData = a.velocityData
 
 	return timePoint
 end

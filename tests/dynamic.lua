@@ -551,16 +551,16 @@ do
 	ld:getExpandData(F(5), -1, F(1))
 	ld:getExpandData(F(5), 1, F(1))
 
-	assert(tostring(ld:getDynamicTimePoint(F(5))) == "5/1<-<-")  -- 20, 20
-	assert(tostring(ld:getDynamicTimePoint(F(5), -1, -1)) == "5/1<-<-")  -- 20, 20
-	assert(tostring(ld:getDynamicTimePoint(F(5), -1, 1)) == "5/1<-->")  -- 20, 21
-	assert(tostring(ld:getDynamicTimePoint(F(5), 1, -1)) == "5/1-><-")  -- 21, 22
-	assert(tostring(ld:getDynamicTimePoint(F(5), 1, 1)) == "5/1->->")  -- 21, 23
+	assert(tostring(ld:getDynamicTimePoint(F(5))) == "5.0/1<-<-")  -- 20, 20
+	assert(tostring(ld:getDynamicTimePoint(F(5), -1, -1)) == "5.0/1<-<-")  -- 20, 20
+	assert(tostring(ld:getDynamicTimePoint(F(5), -1, 1)) == "5.0/1<-->")  -- 20, 21
+	assert(tostring(ld:getDynamicTimePoint(F(5), 1, -1)) == "5.0/1-><-")  -- 21, 22
+	assert(tostring(ld:getDynamicTimePoint(F(5), 1, 1)) == "5.0/1->->")  -- 21, 23
 
-	assert(tostring(ld:getDynamicTimePointAbsolute(20, 192, -1, -1)) == "5/1<-<-")
-	assert(tostring(ld:getDynamicTimePointAbsolute(20, 192, 1, -1)) == "5/1<-<-")
-	assert(tostring(ld:getDynamicTimePointAbsolute(21, 192, -1, -1)) == "5/1-><-")
-	assert(tostring(ld:getDynamicTimePointAbsolute(21, 192, 1, -1)) == "5/1-><-")
+	assert(tostring(ld:getDynamicTimePointAbsolute(20, 192, -1, -1)) == "5.0/1<-<-")
+	assert(tostring(ld:getDynamicTimePointAbsolute(20, 192, 1, -1)) == "5.0/1<-<-")
+	assert(tostring(ld:getDynamicTimePointAbsolute(21, 192, -1, -1)) == "5.0/1-><-")
+	assert(tostring(ld:getDynamicTimePointAbsolute(21, 192, 1, -1)) == "5.0/1-><-")
 end
 
 do
@@ -587,19 +587,19 @@ do
 
 	local range = ld.timePointsRange
 
-	assert(tostring(range.startObject) == "-5/1<-<-")
-	assert(tostring(range.endObject) == "5/1->->")
+	assert(tostring(range.startObject) == "-5.0/1<-<-")
+	assert(tostring(range.endObject) == "5.0/1->->")
 
 	ld:getTimePoint(F(-10))
 	ld:getTimePoint(F(10))
 
 	ld:setRange(F(-3), F(3))
-	assert(tostring(range.startObject) == "-5/1->->")
-	assert(tostring(range.endObject) == "5/1<-<-")
+	assert(tostring(range.startObject) == "-5.0/1->->")
+	assert(tostring(range.endObject) == "5.0/1<-<-")
 
 	ld:setRange(F(-5), F(5))
-	assert(tostring(range.startObject) == "-10/1<-<-")
-	assert(tostring(range.endObject) == "10/1<-<-")
+	assert(tostring(range.startObject) == "-10.0/1<-<-")
+	assert(tostring(range.endObject) == "10.0/1<-<-")
 end
 
 do
