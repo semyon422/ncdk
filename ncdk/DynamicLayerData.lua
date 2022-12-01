@@ -105,6 +105,10 @@ function DynamicLayerData:getDynamicTimePoint(time, side, visualSide)
 	timePoint.visualSide = visualSide
 	timePoint.measureTime = time
 	timePoint.absoluteTime = nil
+	timePoint._tempoData = nil
+	timePoint._velocityData = nil
+	timePoint.prev = nil
+	timePoint.next = nil
 
 	local t = time:tonumber()
 
@@ -115,11 +119,17 @@ function DynamicLayerData:getDynamicTimePoint(time, side, visualSide)
 		timePoint.absoluteTime = a.absoluteTime
 		timePoint.visualTime = a.visualTime
 		timePoint.beatTime = a.beatTime
+		timePoint._tempoData = a._tempoData
+		timePoint._velocityData = a._velocityData
+		timePoint.prev = a.prev
+		timePoint.next = b.next
 	elseif a and b then
 		local ta, tb = a.measureTime:tonumber(), b.measureTime:tonumber()
 		timePoint.absoluteTime = map(t, ta, tb, a.absoluteTime, b.absoluteTime)
 		timePoint.visualTime = map(t, ta, tb, a.visualTime, b.visualTime)
 		timePoint.beatTime = map(t, ta, tb, a.beatTime, b.beatTime)
+		timePoint.prev = a
+		timePoint.next = b
 	else
 		local signature = self.defaultSignature
 		if a then
@@ -131,6 +141,8 @@ function DynamicLayerData:getDynamicTimePoint(time, side, visualSide)
 				signature = signatureData.signature
 			end
 		end
+		timePoint.prev = a and a.prev
+		timePoint.next = b and b.next
 		a = a or b
 
 		local duration = (t - a.measureTime:tonumber()) * signature
@@ -140,6 +152,9 @@ function DynamicLayerData:getDynamicTimePoint(time, side, visualSide)
 		local currentSpeed = a.velocityData and a.velocityData.currentSpeed or 1
 		timePoint.visualTime = a.visualTime + (timePoint.absoluteTime - a.absoluteTime) * currentSpeed
 	end
+
+	timePoint.tempoData = a.tempoData
+	timePoint.velocityData = a.velocityData
 
 	return timePoint
 end
@@ -169,12 +184,16 @@ function DynamicLayerData:getDynamicTimePointAbsolute(time, limit, side, visualS
 		timePoint.beatTime = a.beatTime
 		timePoint._tempoData = a._tempoData
 		timePoint._velocityData = a._velocityData
+		timePoint.prev = a.prev
+		timePoint.next = b.next
 	elseif a and b then
 		local ta, tb = a.measureTime:tonumber(), b.measureTime:tonumber()
 		local measureTime = map(t, a.absoluteTime, b.absoluteTime, ta, tb)
 		timePoint.measureTime = Fraction:new(measureTime, limit, false)
 		timePoint.visualTime = map(t, a.absoluteTime, b.absoluteTime, a.visualTime, b.visualTime)
 		timePoint.beatTime = map(t, a.absoluteTime, b.absoluteTime, a.beatTime, b.beatTime)
+		timePoint.prev = a
+		timePoint.next = b
 	elseif a or b then
 		local signature = self.defaultSignature
 		if a then
@@ -186,6 +205,8 @@ function DynamicLayerData:getDynamicTimePointAbsolute(time, limit, side, visualS
 				signature = signatureData.signature
 			end
 		end
+		timePoint.prev = a and a.prev
+		timePoint.next = b and b.next
 		a = a or b
 
 		local duration = (t - a.absoluteTime) / a.tempoData:getBeatDuration()
