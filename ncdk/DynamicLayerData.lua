@@ -121,6 +121,8 @@ function DynamicLayerData:getDynamicTimePoint(time, side, visualSide)
 		timePoint.beatTime = a.beatTime
 		timePoint._tempoData = a._tempoData
 		timePoint._velocityData = a._velocityData
+		timePoint._stopData = a._stopData
+		timePoint._expandData = a._expandData
 		timePoint.prev = a.prev
 		timePoint.next = b.next
 	elseif a and b then
@@ -184,6 +186,8 @@ function DynamicLayerData:getDynamicTimePointAbsolute(time, limit, side, visualS
 		timePoint.beatTime = a.beatTime
 		timePoint._tempoData = a._tempoData
 		timePoint._velocityData = a._velocityData
+		timePoint._stopData = a._stopData
+		timePoint._expandData = a._expandData
 		timePoint.prev = a.prev
 		timePoint.next = b.next
 	elseif a and b then
