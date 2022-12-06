@@ -328,7 +328,11 @@ function DynamicLayerData:compute()
 				local stopData = timePoint._stopData
 				if stopData then
 					stopData.tempoData = tempoData
-					time = time + stopData.duration:tonumber() * tempoData:getBeatDuration()
+					local duration = stopData.duration
+					if not stopData.isAbsolute then
+						duration = tempoData:getBeatDuration() * duration
+					end
+					time = time + duration
 				end
 			end
 		else
@@ -350,7 +354,7 @@ function DynamicLayerData:compute()
 				expandData.velocityData = velocityData
 				local duration = expandData.duration
 				if isMeasure then
-					duration = expandData.duration:tonumber() * tempoData:getBeatDuration() * currentSpeed
+					duration = tempoData:getBeatDuration() * duration * currentSpeed
 				end
 				visualTime = visualTime + duration
 			end

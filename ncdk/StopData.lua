@@ -2,10 +2,11 @@ local StopData = {}
 
 local mt = {__index = StopData}
 
-function StopData:new(duration)
+function StopData:new(duration, isAbsolute)
 	local stopData = {}
 
 	stopData.duration = duration
+	stopData.isAbsolute = isAbsolute
 
 	return setmetatable(stopData, mt)
 end
