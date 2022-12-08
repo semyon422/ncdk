@@ -7,6 +7,8 @@ local ExpandData = require("ncdk.ExpandData")
 
 local LayerData = {}
 
+LayerData.primaryTempo = 0
+
 local mt = {__index = LayerData}
 
 function LayerData:new()
@@ -59,6 +61,11 @@ function LayerData:setSignatureMode(mode)
 	self.signatureMode = mode
 end
 
+function LayerData:setPrimaryTempo(tempo)
+	assert(tempo >= 0, "Wrong primary tempo")
+	self.primaryTempo = tempo
+end
+
 function LayerData:getTimePoint(time, side, visualSide)
 	assert(self.mode, "Mode should be set")
 
@@ -98,6 +105,83 @@ function LayerData:createTimePointList()
 	self.timePointList = timePointList
 end
 
+function LayerData:getBaseTimePoint(index, time, field)
+	field = field or "absoluteTime"
+	local list = self.timePointList
+
+	local timePoint = list[index]
+	if time == timePoint[field] or time < timePoint[field] and index == 1 then
+		-- skip
+	elseif time > timePoint[field] then
+		local nextTimePoint = list[index + 1]
+		while nextTimePoint do
+			if time >= nextTimePoint[field] then
+				index = index + 1
+				nextTimePoint = list[index + 1]
+			else
+				break
+			end
+		end
+	elseif time < timePoint[field] then
+		index = index - 1
+		local prevTimePoint = list[index]
+		while prevTimePoint do
+			if time < prevTimePoint[field] then
+				index = index - 1
+				prevTimePoint = list[index]
+			else
+				break
+			end
+		end
+	end
+
+	return math.max(index, 1)
+end
+
+function LayerData:interpolateTimePointAbsolute(index, timePoint)
+	local t = timePoint.absoluteTime
+	index = self:getBaseTimePoint(index, t, "absoluteTime")
+
+	local list = self.timePointList
+
+	local a = list[index]
+	local b = list[index + 1]
+	a = a or b
+
+	local tempoMultiplier = self.primaryTempo == 0 and 1 or a.tempoData.tempo / self.primaryTempo
+	if b and b._stopData then
+		tempoMultiplier = 0
+	end
+
+	local currentSpeed = a.velocityData and a.velocityData.currentSpeed or 1
+	timePoint.visualTime = a.visualTime + (t - a.absoluteTime) * currentSpeed * tempoMultiplier
+
+	timePoint.tempoData = a.tempoData
+	timePoint.velocityData = a.velocityData
+
+	return index
+end
+
+function LayerData:interpolateTimePointVisual(index, timePoint)
+	local t = timePoint.visualTime
+	index = self:getBaseTimePoint(index, t, "visualTime")
+
+	local list = self.timePointList
+
+	local a = list[index]
+	local b = list[index + 1]
+	a = a or b
+
+	local tempoMultiplier = self.primaryTempo == 0 and 1 or a.tempoData.tempo / self.primaryTempo
+	local currentSpeed = a.velocityData and a.velocityData.currentSpeed or 1
+	timePoint.absoluteTime = a.absoluteTime + (t - a.visualTime) / currentSpeed / tempoMultiplier
+
+	timePoint.tempoData = a.tempoData
+	timePoint.velocityData = a.velocityData
+
+	return index
+end
+
 function LayerData:computeTimePoints()
 	assert(self.mode, "Mode should be set")
 
@@ -114,6 +198,7 @@ function LayerData:computeTimePoints()
 	local timePoint = timePointList[timePointIndex]
 
 	local signature = self.defaultSignature
+	local primaryTempo = self.primaryTempo
 
 	local time = 0
 	local beatTime = 0
@@ -144,29 +229,36 @@ function LayerData:computeTimePoints()
 				time = time + duration * (targetTime - currentTime)
 			end
 			currentTime = targetTime
+		else
+			time = timePoint.absoluteTime
+		end
 
-			if isAtTimePoint then
-				local nextTempoData = timePoint._tempoData
-				if nextTempoData then
-					tempoData = nextTempoData
-				end
+		local tempoMultiplier = (primaryTempo == 0 or not tempoData) and 1 or tempoData.tempo / primaryTempo
 
-				local stopData = timePoint._stopData
-				if stopData then
-					stopData.tempoData = tempoData
+		if isAtTimePoint then
+			local nextTempoData = timePoint._tempoData
+			if nextTempoData then
+				tempoData = nextTempoData
+			end
+
+			local stopData = timePoint._stopData
+			if stopData then
+				stopData.tempoData = tempoData
+				if isMeasure then
 					local duration = stopData.duration
 					if not stopData.isAbsolute then
 						duration = tempoData:getBeatDuration() * duration
 					end
 					time = time + duration
+					if primaryTempo ~= 0 then
+						tempoMultiplier = 0
+					end
 				end
 			end
-		else
-			time = timePoint.absoluteTime
 		end
 
 		local currentSpeed = velocityData and velocityData.currentSpeed or 1
-		visualTime = visualTime + (time - currentAbsoluteTime) * currentSpeed
+		visualTime = visualTime + (time - currentAbsoluteTime) * currentSpeed * tempoMultiplier
 		currentAbsoluteTime = time
 
 		if isAtTimePoint then
@@ -203,7 +295,8 @@ function LayerData:computeTimePoints()
 	local zeroTime = zeroTimePoint.absoluteTime
 	local zeroVisualTime = zeroTimePoint.visualTime
 
-	for _, t in ipairs(timePointList) do
+	for i, t in ipairs(timePointList) do
+		t.index = i
 		t.beatTime = t.beatTime - zeroBeatTime
 		t.absoluteTime = t.absoluteTime - zeroTime
 		t.visualTime = t.visualTime - zeroVisualTime

@@ -18,7 +18,7 @@ currentTimePoint.absoluteTime = 0 -- you should manually set absoluteTime
 currentTimePoint.velocityData = layerData:getVelocityData(1) -- and corresponding to this time VelocityData
 
 -- visual time computed relative to zero time point and not multiplied by localSpeed and globalSpeed
-currentTimePoint:computeVisualTime()
+layerData:interpolateTimePointAbsolute(1, currentTimePoint)
 assert(currentTimePoint.visualTime)
 
 local noteData = noteDatas[1]

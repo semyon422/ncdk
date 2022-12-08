@@ -146,3 +146,76 @@ do
 	assert(tp3.absoluteTime == 20)
 	assert(tp4.absoluteTime == 22)
 end
+
+do
+	local nc = NoteChart:new()
+	local ld = nc:getLayerData(1)
+	ld:setTimeMode("measure")
+	ld:setSignatureMode("long")
+	ld:setPrimaryTempo(60)
+
+	ld:insertTempoData(F(0), 60)
+	ld:insertTempoData(F(1), 120)
+
+	local tp0 = ld:getTimePoint(F(0))
+	local tp1 = ld:getTimePoint(F(1))
+	local tp2 = ld:getTimePoint(F(2))
+
+	nc:compute()
+
+	assert(tp0.absoluteTime == 0)
+	assert(tp1.absoluteTime == 4)
+	assert(tp2.absoluteTime == 6)
+
+	assert(tp0.visualTime == 0)
+	assert(tp1.visualTime == 4)
+	assert(tp2.visualTime == 8)
+end
+
+do
+	local nc = NoteChart:new()
+	local ld = nc:getLayerData(1)
+	ld:setTimeMode("absolute")
+	ld:setSignatureMode("long")
+	ld:setPrimaryTempo(60)
+
+	ld:insertTempoData(0, 60)
+	ld:insertTempoData(4, 120)
+
+	local tp0 = ld:getTimePoint(0)
+	local tp1 = ld:getTimePoint(4)
+	local tp2 = ld:getTimePoint(6)
+
+	nc:compute()
+
+	assert(tp0.absoluteTime == 0)
+	assert(tp1.absoluteTime == 4)
+	assert(tp2.absoluteTime == 6)
+
+	assert(tp0.visualTime == 0)
+	assert(tp1.visualTime == 4)
+	assert(tp2.visualTime == 8)
+end
+
+do
+	local nc = NoteChart:new()
+	local ld = nc:getLayerData(1)
+	ld:setTimeMode("absolute")
+	ld:setSignatureMode("long")
+
+	local tp0 = ld:getTimePoint(0)
+	local tp1 = ld:getTimePoint(4)
+	local tp2 = ld:getTimePoint(8)
+
+	nc:compute()
+
+	for i = 1, 3 do
+		assert(ld:getBaseTimePoint(i, -1) == 1)
+		assert(ld:getBaseTimePoint(i, 0) == 1)
+		assert(ld:getBaseTimePoint(i, 2) == 1)
+		assert(ld:getBaseTimePoint(i, 4) == 2)
+		assert(ld:getBaseTimePoint(i, 5) == 2)
+		assert(ld:getBaseTimePoint(i, 8) == 3)
+		assert(ld:getBaseTimePoint(i, 9) == 3)
+	end
+end

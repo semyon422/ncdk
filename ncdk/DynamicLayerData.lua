@@ -10,6 +10,8 @@ local RangeTracker = require("ncdk.RangeTracker")
 
 local DynamicLayerData = {}
 
+DynamicLayerData.primaryTempo = 0
+
 local mt = {__index = DynamicLayerData}
 
 function DynamicLayerData:new()
@@ -69,6 +71,11 @@ end
 function DynamicLayerData:setSignatureMode(mode)
 	assert(mode == "long" or mode == "short", "Wrong signature mode")
 	self.signatureMode = mode
+end
+
+function DynamicLayerData:setPrimaryTempo(tempo)
+	assert(tempo >= 0, "Wrong primary tempo")
+	self.primaryTempo = tempo
 end
 
 function DynamicLayerData:_setRange(startTime, endTime)
@@ -285,6 +292,8 @@ function DynamicLayerData:compute()
 		signatureData = nil
 	end
 
+	local primaryTempo = self.primaryTempo
+
 	local time = timePoint.absoluteTime or 0
 	local beatTime = timePoint.beatTime or 0
 	local visualTime = timePoint.visualTime or 0
@@ -313,34 +322,41 @@ function DynamicLayerData:compute()
 				time = time + duration * (targetTime - currentTime)
 			end
 			currentTime = targetTime
+		else
+			time = timePoint.absoluteTime
+		end
 
-			if isAtTimePoint then
-				local nextTempoData = timePoint._tempoData
-				if nextTempoData then
-					tempoData = nextTempoData
-				end
+		local tempoMultiplier = (primaryTempo == 0 or not tempoData) and 1 or tempoData.tempo / primaryTempo
 
-				local nextSignatureData = timePoint._signatureData
-				if nextSignatureData then
-					signatureData = nextSignatureData
-				end
+		if isAtTimePoint then
+			local nextTempoData = timePoint._tempoData
+			if nextTempoData then
+				tempoData = nextTempoData
+			end
 
-				local stopData = timePoint._stopData
-				if stopData then
-					stopData.tempoData = tempoData
+			local nextSignatureData = timePoint._signatureData
+			if nextSignatureData then
+				signatureData = nextSignatureData
+			end
+
+			local stopData = timePoint._stopData
+			if stopData then
+				stopData.tempoData = tempoData
+				if isMeasure then
 					local duration = stopData.duration
 					if not stopData.isAbsolute then
 						duration = tempoData:getBeatDuration() * duration
 					end
 					time = time + duration
+					if primaryTempo ~= 0 then
+						tempoMultiplier = 0
+					end
 				end
 			end
-		else
-			time = timePoint.absoluteTime
 		end
 
 		local currentSpeed = velocityData and velocityData.currentSpeed or 1
-		visualTime = visualTime + (time - currentAbsoluteTime) * currentSpeed
+		visualTime = visualTime + (time - currentAbsoluteTime) * currentSpeed * tempoMultiplier
 		currentAbsoluteTime = time
 
 		if isAtTimePoint then
