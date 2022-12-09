@@ -154,12 +154,17 @@ function DynamicLayerData:getDynamicTimePoint(time, side, visualSide)
 		timePoint.next = b and b.next
 		a = a or b
 
+		local tempoMultiplier = self.primaryTempo == 0 and 1 or a.tempoData.tempo / self.primaryTempo
+		if b and b._stopData then
+			tempoMultiplier = 0
+		end
+
 		local duration = (t - a.measureTime:tonumber()) * signature
 		timePoint.absoluteTime = a.absoluteTime + duration * a.tempoData:getBeatDuration()
 		timePoint.beatTime = a.beatTime + duration
 
 		local currentSpeed = a.velocityData and a.velocityData.currentSpeed or 1
-		timePoint.visualTime = a.visualTime + (timePoint.absoluteTime - a.absoluteTime) * currentSpeed
+		timePoint.visualTime = a.visualTime + (timePoint.absoluteTime - a.absoluteTime) * currentSpeed * tempoMultiplier
 	end
 
 	timePoint.tempoData = a.tempoData
@@ -220,12 +225,17 @@ function DynamicLayerData:getDynamicTimePointAbsolute(time, limit, side, visualS
 		timePoint.next = b and b.next
 		a = a or b
 
+		local tempoMultiplier = self.primaryTempo == 0 and 1 or a.tempoData.tempo / self.primaryTempo
+		if b and b._stopData then
+			tempoMultiplier = 0
+		end
+
 		local duration = (t - a.absoluteTime) / a.tempoData:getBeatDuration()
 		timePoint.measureTime = a.measureTime + Fraction:new(duration / signature, limit, false)
 		timePoint.beatTime = a.beatTime + duration
 
 		local currentSpeed = a.velocityData and a.velocityData.currentSpeed or 1
-		timePoint.visualTime = a.visualTime + (t - a.absoluteTime) * currentSpeed
+		timePoint.visualTime = a.visualTime + (t - a.absoluteTime) * currentSpeed * tempoMultiplier
 	end
 
 	timePoint.tempoData = a.tempoData
