@@ -81,7 +81,7 @@ function DynamicLayerData:setPrimaryTempo(tempo)
 end
 
 function DynamicLayerData:setDefaultSignature(signature)
-	assert(signature >= 0, "Wrong default signature tempo")
+	assert(type(signature) == "table" and signature[1] > 0, "Wrong default signature tempo")
 	self.defaultSignature = signature
 	self:compute()
 end
