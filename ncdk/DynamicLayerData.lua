@@ -71,11 +71,19 @@ end
 function DynamicLayerData:setSignatureMode(mode)
 	assert(mode == "long" or mode == "short", "Wrong signature mode")
 	self.signatureMode = mode
+	self:compute()
 end
 
 function DynamicLayerData:setPrimaryTempo(tempo)
 	assert(tempo >= 0, "Wrong primary tempo")
 	self.primaryTempo = tempo
+	self:compute()
+end
+
+function DynamicLayerData:setDefaultSignature(signature)
+	assert(signature >= 0, "Wrong default signature tempo")
+	self.defaultSignature = signature
+	self:compute()
 end
 
 function DynamicLayerData:_setRange(startTime, endTime)
@@ -114,6 +122,9 @@ function DynamicLayerData:getDynamicTimePoint(time, side, visualSide)
 	timePoint.absoluteTime = nil
 	timePoint._tempoData = nil
 	timePoint._velocityData = nil
+	timePoint._stopData = nil
+	timePoint._expandData = nil
+	timePoint._signatureData = nil
 	timePoint.prev = nil
 	timePoint.next = nil
 
@@ -130,6 +141,7 @@ function DynamicLayerData:getDynamicTimePoint(time, side, visualSide)
 		timePoint._velocityData = a._velocityData
 		timePoint._stopData = a._stopData
 		timePoint._expandData = a._expandData
+		timePoint._signatureData = a._signatureData
 		timePoint.prev = a.prev
 		timePoint.next = b.next
 	elseif a and b then
@@ -185,6 +197,9 @@ function DynamicLayerData:getDynamicTimePointAbsolute(time, limit, side, visualS
 	timePoint.absoluteTime = time
 	timePoint._tempoData = nil
 	timePoint._velocityData = nil
+	timePoint._stopData = nil
+	timePoint._expandData = nil
+	timePoint._signatureData = nil
 
 	local t = time
 
@@ -200,6 +215,7 @@ function DynamicLayerData:getDynamicTimePointAbsolute(time, limit, side, visualS
 		timePoint._velocityData = a._velocityData
 		timePoint._stopData = a._stopData
 		timePoint._expandData = a._expandData
+		timePoint._signatureData = a._signatureData
 		timePoint.prev = a.prev
 		timePoint.next = b.next
 	elseif a and b then
@@ -506,13 +522,13 @@ function DynamicLayerData:getSignature(measureOffset)
 		return self.defaultSignature
 	end
 
-	local endSignatureData = range.endObject
-	while signatureData and signatureData <= endSignatureData do
+	signatureData = range.endObject
+	while signatureData and signatureData >= range.startObject do
 		local time = signatureData.timePoint.measureTime:floor()
 		if mode == "short" and time == measureOffset or mode == "long" and time <= measureOffset then
 			return signatureData.signature
 		end
-		signatureData = signatureData.next
+		signatureData = signatureData.prev
 	end
 	return self.defaultSignature
 end
