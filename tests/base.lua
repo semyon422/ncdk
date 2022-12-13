@@ -219,3 +219,29 @@ do
 		assert(ld:getBaseTimePoint(i, 9) == 3)
 	end
 end
+
+do
+	local nc = NoteChart:new()
+	local ld = nc:getLayerData(1)
+	ld:setTimeMode("interval")
+
+	ld:insertIntervalData(0, 10)
+	ld:insertIntervalData(10, 5)
+	ld:insertIntervalData(20, 1)
+
+	local tp0 = ld:getTimePoint(F(0))
+	local tp1 = ld:getTimePoint(F(1))
+	local tp_1 = ld:getTimePoint(F(-1))
+	local tp11 = ld:getTimePoint(F(11))
+	local tp15 = ld:getTimePoint(F(15))
+	local tp16 = ld:getTimePoint(F(16))
+
+	nc:compute()
+
+	assert(tp0.absoluteTime == 0)
+	assert(tp1.absoluteTime == 1)
+	assert(tp_1.absoluteTime == -1)
+	assert(tp11.absoluteTime == 12)
+	assert(tp15.absoluteTime == 20)
+	assert(tp16.absoluteTime == 22)
+end

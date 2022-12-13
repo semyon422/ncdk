@@ -4,6 +4,7 @@ local TempoData = require("ncdk.TempoData")
 local StopData = require("ncdk.StopData")
 local VelocityData = require("ncdk.VelocityData")
 local ExpandData = require("ncdk.ExpandData")
+local IntervalData = require("ncdk.IntervalData")
 
 local LayerData = {}
 
@@ -21,6 +22,7 @@ function LayerData:new()
 	layerData.stopDatas = {}
 	layerData.velocityDatas = {}
 	layerData.expandDatas = {}
+	layerData.intervalDatas = {}
 	layerData.noteDatas = {}
 
 	return setmetatable(layerData, mt)
@@ -33,6 +35,7 @@ function LayerData:compute()
 	table.sort(self.tempoDatas, sortByTimePoint)
 	table.sort(self.stopDatas, sortByTimePoint)
 	table.sort(self.velocityDatas, sortByTimePoint)
+	table.sort(self.intervalDatas, sortByTimePoint)
 	table.sort(self.noteDatas, function(a, b)
 		if a.timePoint == b.timePoint then
 			return a.id < b.id
@@ -47,7 +50,7 @@ function LayerData:setTimeMode(mode)
 	local time
 	if mode == "absolute" then
 		time = 0
-	elseif mode == "measure" then
+	elseif mode == "measure" or mode == "interval" then
 		time = Fraction:new(0)
 	else
 		error("Wrong time mode")
@@ -89,7 +92,7 @@ function LayerData:getTimePoint(time, side, visualSide)
 
 	if self.mode == "absolute" then
 		timePoint.absoluteTime = time
-	elseif self.mode == "measure" then
+	elseif self.mode == "measure" or self.mode == "interval" then
 		timePoint.measureTime = time
 	end
 
@@ -183,16 +186,23 @@ function LayerData:interpolateTimePointVisual(index, timePoint)
 end
 
 function LayerData:computeTimePoints()
-	assert(self.mode, "Mode should be set")
+	local mode = self.mode
+	assert(mode, "Mode should be set")
 
 	self:createTimePointList()
 
-	local isMeasure = self.mode == "measure"
+	local isMeasure = mode == "measure"
+	local isInterval = mode == "interval"
 	local isLong = self.signatureMode == "long"
 	local timePointList = self.timePointList
 
 	local tempoData = self:getTempoData(1)
 	local velocityData = self:getVelocityData(1)
+
+	local intervalDataIndex = 1
+	local intervalData = self:getIntervalData(intervalDataIndex)
+	local nextIntervalData = self:getIntervalData(intervalDataIndex + 1)
+	local intervalOffset = 0
 
 	local timePointIndex = 1
 	local timePoint = timePointList[timePointIndex]
@@ -229,6 +239,16 @@ function LayerData:computeTimePoints()
 				time = time + duration * (targetTime - currentTime)
 			end
 			currentTime = targetTime
+		elseif isInterval then
+			local _nextIntervalData = self:getIntervalData(intervalDataIndex + 2)
+			local nextIntervalOffset = intervalOffset + intervalData.intervals
+			if _nextIntervalData and timePoint.measureTime:tonumber() >= nextIntervalOffset then
+				intervalData, nextIntervalData = nextIntervalData, _nextIntervalData
+				intervalOffset = nextIntervalOffset
+				intervalDataIndex = intervalDataIndex + 1
+			end
+			local duration = (nextIntervalData.timePoint.absoluteTime - intervalData.timePoint.absoluteTime) / intervalData.intervals
+			time = intervalData.timePoint.absoluteTime + duration * (timePoint.measureTime - intervalOffset)
 		else
 			time = timePoint.absoluteTime
 		end
@@ -365,6 +385,15 @@ function LayerData:getSignature(measureOffset)
 	return self.signatures[measureOffset]
 end
 
+function LayerData:insertIntervalData(absoluteTime, ...)
+	local timePoint = TimePoint:new()
+	timePoint.absoluteTime = absoluteTime
+	return self:insertTimingObject(timePoint, "intervalData", IntervalData, ...)
+end
+function LayerData:removeIntervalData()
+	return self:removeTimingObject("intervalData")
+end
+
 function LayerData:getTempoData(i) return self.tempoDatas[i] end
 function LayerData:getTempoDataCount() return #self.tempoDatas end
 
@@ -376,6 +405,9 @@ function LayerData:getVelocityDataCount() return #self.velocityDatas end
 
 function LayerData:getExpandData(i) return self.expandDatas[i] end
 function LayerData:getExpandDataCount() return #self.expandDatas end
+
+function LayerData:getIntervalData(i) return self.intervalDatas[i] end
+function LayerData:getIntervalDataCount() return #self.intervalDatas end
 
 function LayerData:addNoteData(noteData)
 	local noteDatas = self.noteDatas
