@@ -4,6 +4,7 @@ local mt = {__index = TimePoint}
 
 TimePoint.side = -1
 TimePoint.visualSide = -1
+TimePoint.isAbsolute = false
 
 function TimePoint:new()
 	return setmetatable({}, mt)
@@ -21,14 +22,14 @@ end
 local format = "%s%s%s"
 function mt.__tostring(a)
 	local time = a.absoluteTime
-	if a.measureTime then
+	if a.measureTime and not a.isAbsolute then
 		time = a.measureTime
 	end
 	return format:format(time, a.side == -1 and "<-" or "->", a.visualSide == -1 and "<-" or "->")
 end
 
 local function getTimes(a, b)
-	if a.measureTime and b.measureTime then
+	if a.measureTime and b.measureTime and not a.isAbsolute then
 		return a.measureTime, b.measureTime
 	end
 	return a.absoluteTime, b.absoluteTime

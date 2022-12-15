@@ -4,6 +4,7 @@ local TempoData = require("ncdk.TempoData")
 local StopData = require("ncdk.StopData")
 local VelocityData = require("ncdk.VelocityData")
 local ExpandData = require("ncdk.ExpandData")
+local IntervalData = require("ncdk.IntervalData")
 local SignatureData = require("ncdk.SignatureData")
 local NoteData = require("ncdk.NoteData")
 local RangeTracker = require("ncdk.RangeTracker")
@@ -25,6 +26,7 @@ function DynamicLayerData:new()
 	layerData.velocityDatas = {}
 	layerData.expandDatas = {}
 	layerData.signatureDatas = {}
+	layerData.intervalDatas = {}
 	layerData.noteDatas = {}
 
 	local timePointsRange = RangeTracker:new()
@@ -51,6 +53,10 @@ function DynamicLayerData:new()
 	layerData.signatureDatasRange = signatureDatasRange
 	function signatureDatasRange:getObjectTime(object) return object.timePoint.measureTime end
 
+	local intervalDatasRange = RangeTracker:new()
+	layerData.intervalDatasRange = intervalDatasRange
+	function intervalDatasRange:getObjectTime(object) return object.timePoint.measureTime end
+
 	return setmetatable(layerData, mt)
 end
 
@@ -58,7 +64,7 @@ function DynamicLayerData:setTimeMode(mode)
 	local time
 	if mode == "absolute" then
 		time = 0
-	elseif mode == "measure" then
+	elseif mode == "measure" or mode == "interval" then
 		time = Fraction:new(0)
 	else
 		error("Wrong time mode")
@@ -93,6 +99,7 @@ function DynamicLayerData:_setRange(startTime, endTime)
 	self.velocityDatasRange:setRange(startTime, endTime)
 	self.expandDatasRange:setRange(startTime, endTime)
 	self.signatureDatasRange:setRange(startTime, endTime)
+	self.intervalDatasRange:setRange(startTime, endTime)
 end
 
 function DynamicLayerData:setRange(startTime, endTime)
@@ -111,7 +118,8 @@ local function map(x, a, b, c, d)
 end
 
 function DynamicLayerData:getDynamicTimePoint(time, side, visualSide)
-	assert(self.mode, "Mode should be set")
+	local mode = assert(self.mode, "Mode should be set")
+	assert(time)
 
 	self.dynamicTimePoint = self.dynamicTimePoint or TimePoint:new()
 	local timePoint = self.dynamicTimePoint
@@ -171,9 +179,16 @@ function DynamicLayerData:getDynamicTimePoint(time, side, visualSide)
 			tempoMultiplier = 0
 		end
 
-		local duration = (t - a.measureTime:tonumber()) * signature
-		timePoint.absoluteTime = a.absoluteTime + duration * a.tempoData:getBeatDuration()
-		timePoint.beatTime = a.beatTime + duration
+		if mode == "measure" then
+			local duration = (t - a.measureTime:tonumber()) * signature
+			timePoint.absoluteTime = a.absoluteTime + duration * a.tempoData:getBeatDuration()
+			timePoint.beatTime = a.beatTime + duration
+		elseif mode == "interval" then
+			local c = b and b.next or a.prev
+			local ta, tc = a.measureTime:tonumber(), c.measureTime:tonumber()
+			timePoint.absoluteTime = map(t, ta, tc, a.absoluteTime, c.absoluteTime)
+			timePoint.beatTime = 0
+		end
 
 		local currentSpeed = a.velocityData and a.velocityData.currentSpeed or 1
 		timePoint.visualTime = a.visualTime + (timePoint.absoluteTime - a.absoluteTime) * currentSpeed * tempoMultiplier
@@ -186,7 +201,8 @@ function DynamicLayerData:getDynamicTimePoint(time, side, visualSide)
 end
 
 function DynamicLayerData:getDynamicTimePointAbsolute(time, limit, side, visualSide)
-	assert(self.mode, "Mode should be set")
+	local mode = assert(self.mode, "Mode should be set")
+	assert(time and limit)
 
 	self.dynamicTimePoint = self.dynamicTimePoint or TimePoint:new()
 	local timePoint = self.dynamicTimePoint
@@ -246,9 +262,17 @@ function DynamicLayerData:getDynamicTimePointAbsolute(time, limit, side, visualS
 			tempoMultiplier = 0
 		end
 
-		local duration = (t - a.absoluteTime) / a.tempoData:getBeatDuration()
-		timePoint.measureTime = a.measureTime + Fraction:new(duration / signature, limit, false)
-		timePoint.beatTime = a.beatTime + duration
+		if mode == "measure" then
+			local duration = (t - a.absoluteTime) / a.tempoData:getBeatDuration()
+			timePoint.measureTime = a.measureTime + Fraction:new(duration / signature, limit, false)
+			timePoint.beatTime = a.beatTime + duration
+		elseif mode == "interval" then
+			local c = b and b.next or a.prev
+			local ta, tc = a.measureTime:tonumber(), c.measureTime:tonumber()
+			local measureTime = map(t, a.absoluteTime, c.absoluteTime, ta, tc)
+			timePoint.measureTime = Fraction:new(measureTime, limit, false)
+			timePoint.beatTime = 0
+		end
 
 		local currentSpeed = a.velocityData and a.velocityData.currentSpeed or 1
 		timePoint.visualTime = a.visualTime + (t - a.absoluteTime) * currentSpeed * tempoMultiplier
@@ -261,7 +285,8 @@ function DynamicLayerData:getDynamicTimePointAbsolute(time, limit, side, visualS
 end
 
 function DynamicLayerData:getTimePoint(time, side, visualSide)
-	assert(self.mode, "Mode should be set")
+	local mode = self.mode
+	assert(mode, "Mode should be set")
 
 	if type(time) == "number" then
 		time = math.min(math.max(time, -2147483648), 2147483647)
@@ -281,9 +306,9 @@ function DynamicLayerData:getTimePoint(time, side, visualSide)
 	timePoint.visualSide = visualSide
 	timePoints[key] = timePoint
 
-	if self.mode == "absolute" then
+	if mode == "absolute" then
 		timePoint.absoluteTime = time
-	elseif self.mode == "measure" then
+	elseif mode == "measure" or mode == "interval" then
 		timePoint.measureTime = time
 	end
 
@@ -294,13 +319,18 @@ function DynamicLayerData:getTimePoint(time, side, visualSide)
 end
 
 function DynamicLayerData:compute()
-	assert(self.mode, "Mode should be set")
+	local mode = self.mode
+	assert(mode, "Mode should be set")
 
-	local isMeasure = self.mode == "measure"
+	local isMeasure = mode == "measure"
+	local isInterval = mode == "interval"
 	local isLong = self.signatureMode == "long"
 
 	local tempoData = self.tempoDatasRange.startObject
 	local velocityData = self.velocityDatasRange.startObject
+
+	local intervalData = self.intervalDatasRange.startObject
+	local nextIntervalData = intervalData and intervalData.next or intervalData
 
 	local timePoint = self.timePointsRange.startObject
 	local endTimePoint = self.timePointsRange.endObject
@@ -348,7 +378,16 @@ function DynamicLayerData:compute()
 				time = time + duration * (targetTime - currentTime)
 			end
 			currentTime = targetTime
-		else
+		elseif isInterval and intervalData then
+			local _nextIntervalData = nextIntervalData.next
+			local nextIntervalOffset = intervalData.timePoint.measureTime + intervalData.intervals
+			if _nextIntervalData and timePoint.measureTime >= nextIntervalOffset then
+				intervalData, nextIntervalData = nextIntervalData, _nextIntervalData
+				intervalData.timePoint.measureTime = nextIntervalOffset
+			end
+			local duration = (nextIntervalData.timePoint.absoluteTime - intervalData.timePoint.absoluteTime) / intervalData.intervals
+			time = intervalData.timePoint.absoluteTime + duration * (timePoint.measureTime - intervalData.timePoint.measureTime)
+		elseif not isInterval then
 			time = timePoint.absoluteTime
 		end
 
@@ -531,6 +570,19 @@ function DynamicLayerData:getSignature(measureOffset)
 		signatureData = signatureData.prev
 	end
 	return self.defaultSignature
+end
+
+function DynamicLayerData:getIntervalData(absoluteTime, ...)
+	local timePoint = TimePoint:new()
+	timePoint.isAbsolute = true
+	timePoint.absoluteTime = absoluteTime
+	timePoint.measureTime = Fraction:new(0)
+	return self:getTimingObject(timePoint, "intervalData", IntervalData, ...)
+end
+function DynamicLayerData:removeIntervalData(absoluteTime)
+	local timePoint = TimePoint:new()
+	timePoint.absoluteTime = absoluteTime
+	return self:removeTimingObject(timePoint, "intervalData")
 end
 
 function DynamicLayerData:getNoteData(timePoint, inputType, inputIndex)
