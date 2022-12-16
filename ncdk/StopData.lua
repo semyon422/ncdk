@@ -18,7 +18,7 @@ function StopData:set(duration)
 end
 
 function mt.__tostring(a)
-	return a.timePoint .. "," .. a.duration
+	return tostring(a.timePoint) .. "," .. a.duration
 end
 
 function mt.__eq(a, b)

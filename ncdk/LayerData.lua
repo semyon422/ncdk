@@ -47,6 +47,7 @@ function LayerData:compute()
 	local intervalDatas = self.intervalDatas
 	for i = 1, #intervalDatas do
 		intervalDatas[i].next = intervalDatas[i + 1]
+		intervalDatas[i].prev = intervalDatas[i - 1]
 	end
 
 	self:computeTimePoints()
@@ -78,7 +79,7 @@ function LayerData:setPrimaryTempo(tempo)
 end
 
 function LayerData:getTimePoint(time, side, visualSide)
-	assert(self.mode, "Mode should be set")
+	local mode = assert(self.mode, "Mode should be set")
 
 	if type(time) == "number" then
 		time = math.min(math.max(time, -2147483648), 2147483647)
@@ -98,11 +99,11 @@ function LayerData:getTimePoint(time, side, visualSide)
 	timePoint.visualSide = visualSide
 	timePoints[key] = timePoint
 
-	if self.mode == "absolute" then
+	if mode == "absolute" then
 		timePoint.absoluteTime = time
-	elseif self.mode == "measure" then
+	elseif mode == "measure" then
 		timePoint.measureTime = time
-	elseif self.mode == "interval" then
+	elseif mode == "interval" then
 		timePoint.intervalTime = time
 	end
 

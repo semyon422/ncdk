@@ -88,6 +88,8 @@ function RangeTracker:getInterp(object)
 end
 
 function RangeTracker:insert(object)
+	local objectTime = assert(self:getObjectTime(object))
+
 	if not self.startObject then
 		self.startObject = object
 		self.firstObject = object
@@ -104,7 +106,6 @@ function RangeTracker:insert(object)
 		assert(object < self.endObject)
 	end
 
-	local objectTime = self:getObjectTime(object)
 	if object < self.firstObject then
 		assert(objectTime >= self.startTime, "attempt to get a time point out of range")
 		addBefore(object, self.firstObject)
