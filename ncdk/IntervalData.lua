@@ -20,14 +20,15 @@ function mt.__tostring(a)
 	return tostring(a.timePoint) .. "," .. a.intervals
 end
 
+-- prevent stackoverflow
 function mt.__eq(a, b)
-	return a.timePoint == b.timePoint
+	return a.timePoint.absoluteTime == b.timePoint.absoluteTime
 end
 function mt.__lt(a, b)
-	return a.timePoint < b.timePoint
+	return a.timePoint.absoluteTime < b.timePoint.absoluteTime
 end
 function mt.__le(a, b)
-	return a.timePoint <= b.timePoint
+	return a.timePoint.absoluteTime <= b.timePoint.absoluteTime
 end
 
 return IntervalData

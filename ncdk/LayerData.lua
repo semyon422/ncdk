@@ -5,6 +5,7 @@ local StopData = require("ncdk.StopData")
 local VelocityData = require("ncdk.VelocityData")
 local ExpandData = require("ncdk.ExpandData")
 local IntervalData = require("ncdk.IntervalData")
+local IntervalTime = require("ncdk.IntervalTime")
 
 local LayerData = {}
 
@@ -43,19 +44,26 @@ function LayerData:compute()
 		return a.timePoint < b.timePoint
 	end)
 
+	local intervalDatas = self.intervalDatas
+	for i = 1, #intervalDatas do
+		intervalDatas[i].next = intervalDatas[i + 1]
+	end
+
 	self:computeTimePoints()
 end
 
 function LayerData:setTimeMode(mode)
+	self.mode = mode
 	local time
 	if mode == "absolute" then
 		time = 0
-	elseif mode == "measure" or mode == "interval" then
+	elseif mode == "measure" then
 		time = Fraction:new(0)
+	elseif mode == "interval" then
+		return
 	else
 		error("Wrong time mode")
 	end
-	self.mode = mode
 	self.zeroTimePoint = self:getTimePoint(time, -1)
 end
 
@@ -79,7 +87,7 @@ function LayerData:getTimePoint(time, side, visualSide)
 	side = side or -1
 	visualSide = visualSide or -1
 	local timePoints = self.timePoints
-	local key = time .. "," .. side .. "," .. visualSide
+	local key = tostring(time) .. "," .. side .. "," .. visualSide
 	local timePoint = timePoints[key]
 	if timePoint then
 		return timePoint
@@ -92,8 +100,10 @@ function LayerData:getTimePoint(time, side, visualSide)
 
 	if self.mode == "absolute" then
 		timePoint.absoluteTime = time
-	elseif self.mode == "measure" or self.mode == "interval" then
+	elseif self.mode == "measure" then
 		timePoint.measureTime = time
+	elseif self.mode == "interval" then
+		timePoint.intervalTime = time
 	end
 
 	return timePoint
@@ -161,6 +171,7 @@ function LayerData:interpolateTimePointAbsolute(index, timePoint)
 
 	timePoint.tempoData = a.tempoData
 	timePoint.velocityData = a.velocityData
+	timePoint.intervalData = a.intervalData
 
 	return index
 end
@@ -181,6 +192,7 @@ function LayerData:interpolateTimePointVisual(index, timePoint)
 
 	timePoint.tempoData = a.tempoData
 	timePoint.velocityData = a.velocityData
+	timePoint.intervalData = a.intervalData
 
 	return index
 end
@@ -198,11 +210,7 @@ function LayerData:computeTimePoints()
 
 	local tempoData = self:getTempoData(1)
 	local velocityData = self:getVelocityData(1)
-
-	local intervalDataIndex = 1
-	local intervalData = self:getIntervalData(intervalDataIndex)
-	local nextIntervalData = self:getIntervalData(intervalDataIndex + 1)
-	local intervalOffset = 0
+	local intervalData = self:getIntervalData(1)
 
 	local timePointIndex = 1
 	local timePoint = timePointList[timePointIndex]
@@ -240,15 +248,12 @@ function LayerData:computeTimePoints()
 			end
 			currentTime = targetTime
 		elseif isInterval then
-			local _nextIntervalData = self:getIntervalData(intervalDataIndex + 2)
-			local nextIntervalOffset = intervalOffset + intervalData.intervals
-			if _nextIntervalData and timePoint.measureTime:tonumber() >= nextIntervalOffset then
-				intervalData, nextIntervalData = nextIntervalData, _nextIntervalData
-				intervalOffset = nextIntervalOffset
-				intervalDataIndex = intervalDataIndex + 1
+			if timePoint._intervalData and timePoint._intervalData.next then
+				intervalData = timePoint._intervalData
 			end
+			local nextIntervalData = intervalData.next
 			local duration = (nextIntervalData.timePoint.absoluteTime - intervalData.timePoint.absoluteTime) / intervalData.intervals
-			time = intervalData.timePoint.absoluteTime + duration * (timePoint.measureTime - intervalOffset)
+			time = intervalData.timePoint.absoluteTime + duration * timePoint.intervalTime.time
 		else
 			time = timePoint.absoluteTime
 		end
@@ -299,6 +304,7 @@ function LayerData:computeTimePoints()
 
 			timePoint.tempoData = tempoData
 			timePoint.velocityData = velocityData
+			timePoint.intervalData = intervalData
 
 			timePoint.beatTime = beatTime
 			timePoint.absoluteTime = time
@@ -310,6 +316,13 @@ function LayerData:computeTimePoints()
 	end
 
 	local zeroTimePoint = self.zeroTimePoint
+	if not zeroTimePoint then
+		zeroTimePoint = TimePoint:new()
+		zeroTimePoint.absoluteTime = 0
+		zeroTimePoint.beatTime = 0
+		zeroTimePoint.visualTime = 0
+		self:interpolateTimePointAbsolute(1, zeroTimePoint)
+	end
 
 	local zeroBeatTime = zeroTimePoint.beatTime
 	local zeroTime = zeroTimePoint.absoluteTime
@@ -386,9 +399,11 @@ function LayerData:getSignature(measureOffset)
 end
 
 function LayerData:insertIntervalData(absoluteTime, ...)
-	local timePoint = TimePoint:new()
+	local timePoint = self:getTimePoint(IntervalTime:new(absoluteTime, Fraction:new(0)))
+	local intervalData = self:insertTimingObject(timePoint, "intervalData", IntervalData, ...)
+	timePoint.intervalTime.intervalData = intervalData
 	timePoint.absoluteTime = absoluteTime
-	return self:insertTimingObject(timePoint, "intervalData", IntervalData, ...)
+	return intervalData
 end
 function LayerData:removeIntervalData()
 	return self:removeTimingObject("intervalData")

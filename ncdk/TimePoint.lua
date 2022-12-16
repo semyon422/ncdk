@@ -22,14 +22,18 @@ end
 local format = "%s%s%s"
 function mt.__tostring(a)
 	local time = a.absoluteTime
-	if a.measureTime and not a.isAbsolute then
+	if a.intervalTime then
+		time = a.intervalTime
+	elseif a.measureTime and not a.isAbsolute then
 		time = a.measureTime
 	end
 	return format:format(time, a.side == -1 and "<-" or "->", a.visualSide == -1 and "<-" or "->")
 end
 
 local function getTimes(a, b)
-	if a.measureTime and b.measureTime and not a.isAbsolute then
+	if a.intervalTime and b.intervalTime then
+		return a.intervalTime, b.intervalTime
+	elseif a.measureTime and b.measureTime and not a.isAbsolute then
 		return a.measureTime, b.measureTime
 	end
 	return a.absoluteTime, b.absoluteTime

@@ -1,6 +1,7 @@
 local NoteChart = require("ncdk.NoteChart")
 local NoteData = require("ncdk.NoteData")
 local Fraction = require("ncdk.Fraction")
+local IntervalTime = require("ncdk.IntervalTime")
 
 local function F(n)
 	return Fraction:new(n, 1000, true)
@@ -225,22 +226,23 @@ do
 	local ld = nc:getLayerData(1)
 	ld:setTimeMode("interval")
 
-	ld:insertIntervalData(0, 10)
-	ld:insertIntervalData(10, 5)
+	local id1 = ld:insertIntervalData(-1, 11)
+	local id2 = ld:insertIntervalData(10, 5)
 	ld:insertIntervalData(20, 1)
 
-	local tp0 = ld:getTimePoint(F(0))
-	local tp1 = ld:getTimePoint(F(1))
-	local tp_1 = ld:getTimePoint(F(-1))
-	local tp11 = ld:getTimePoint(F(11))
-	local tp15 = ld:getTimePoint(F(15))
-	local tp16 = ld:getTimePoint(F(16))
+	local tp0 = ld:getTimePoint(IntervalTime:new(id1, F(0)))
+	local tp1 = ld:getTimePoint(IntervalTime:new(id1, F(1)))
+	local tp_1 = ld:getTimePoint(IntervalTime:new(id1, F(-1)))
+
+	local tp11 = ld:getTimePoint(IntervalTime:new(id2, F(1)))
+	local tp15 = ld:getTimePoint(IntervalTime:new(id2, F(5)))
+	local tp16 = ld:getTimePoint(IntervalTime:new(id2, F(6)))
 
 	nc:compute()
 
-	assert(tp0.absoluteTime == 0)
-	assert(tp1.absoluteTime == 1)
-	assert(tp_1.absoluteTime == -1)
+	assert(tp0.absoluteTime == -1)
+	assert(tp1.absoluteTime == 0)
+	assert(tp_1.absoluteTime == -2)
 	assert(tp11.absoluteTime == 12)
 	assert(tp15.absoluteTime == 20)
 	assert(tp16.absoluteTime == 22)
