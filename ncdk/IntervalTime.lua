@@ -41,7 +41,12 @@ function IntervalTime:fromnumber(id, t, limit)
 		intervalTime = intervalTime - intervalData.intervals
 		intervalData = nextIntervalData
 	end
-	return IntervalTime:new(intervalData, Fraction:new(intervalTime, limit, false))
+	local time = Fraction:new(intervalTime, limit, false)
+	if time:floor() == intervalData.intervals and intervalData.next then
+		intervalData = intervalData.next
+		time = Fraction:new(0)
+	end
+	return IntervalTime:new(intervalData, time)
 end
 
 function mt.__tostring(a)
