@@ -140,7 +140,7 @@ function DynamicLayerData:resetDynamicTimePoint()
 	timePoint.measureTime = nil
 	timePoint.absoluteTime = nil
 	timePoint.intervalTime = nil
-	timePoint.beatTime = nil
+	timePoint.beatTime = 0
 	timePoint._tempoData = nil
 	timePoint._velocityData = nil
 	timePoint._stopData = nil
