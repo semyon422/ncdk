@@ -1,3 +1,5 @@
+local Fraction = require("ncdk.Fraction")
+
 local IntervalTime = {}
 
 local mt = {__index = IntervalTime}
@@ -8,6 +10,10 @@ function IntervalTime:new(intervalData, time)
 	expandData.intervalData = intervalData
 	expandData.time = time
 
+	if type(intervalData) == "table" and intervalData.next then
+		assert(time:tonumber() < intervalData.intervals)
+	end
+
 	return setmetatable(expandData, mt)
 end
 
@@ -16,19 +22,26 @@ function IntervalTime:tonumber()
 	if type(id) == "number" then
 		return id
 	end
-	local _n = id.next
-	if not _n then
-		local _p = id.prev
-		if not _p then
-			return 0
-		end
-		id, _n = _p, id
+	local a, b, offset = id:getPair()
+	if not a then
+		return 0
 	end
-	local t = id.timePoint.absoluteTime
-	if _n then
-		t = id.timePoint.absoluteTime + (_n.timePoint.absoluteTime - id.timePoint.absoluteTime) * self.time / id.intervals
+	local t = a.timePoint.absoluteTime
+	if b then
+		t = t + (b.timePoint.absoluteTime - t) * (self.time / a.intervals + (offset and 1 or 0))
 	end
 	return t
+end
+
+function IntervalTime:fromnumber(id, t, limit)
+	local intervalData, nextIntervalData, offset = id:getPair()
+	local _a, _b = intervalData.timePoint, nextIntervalData.timePoint
+	local intervalTime = (t - _a.absoluteTime) / (_b.absoluteTime - _a.absoluteTime) * intervalData.intervals
+	if offset then
+		intervalTime = intervalTime - intervalData.intervals
+		intervalData = nextIntervalData
+	end
+	return IntervalTime:new(intervalData, Fraction:new(intervalTime, limit, false))
 end
 
 function mt.__tostring(a)

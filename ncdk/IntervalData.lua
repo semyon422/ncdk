@@ -16,8 +16,21 @@ function IntervalData:set(intervals)
 	return _intervals ~= intervals
 end
 
+function IntervalData:getPair()
+	local a = self
+	local n = a.next
+	if n then
+		return a, n
+	end
+	local p = a.prev
+	if not p then
+		return
+	end
+	return p, a, true
+end
+
 function mt.__tostring(a)
-	return tostring(a.timePoint) .. "," .. a.intervals
+	return a.timePoint.absoluteTime .. "," .. a.intervals
 end
 
 -- prevent stackoverflow

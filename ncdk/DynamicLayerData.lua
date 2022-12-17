@@ -133,6 +133,42 @@ local function map(x, a, b, c, d)
 	return (x - a) * (d - c) / (b - a) + c
 end
 
+function DynamicLayerData:resetDynamicTimePoint()
+	local timePoint = self.dynamicTimePoint
+	timePoint.side = nil
+	timePoint.visualSide = nil
+	timePoint.measureTime = nil
+	timePoint.absoluteTime = nil
+	timePoint.intervalTime = nil
+	timePoint.beatTime = nil
+	timePoint._tempoData = nil
+	timePoint._velocityData = nil
+	timePoint._stopData = nil
+	timePoint._expandData = nil
+	timePoint._signatureData = nil
+	timePoint._intervalData = nil
+	timePoint.prev = nil
+	timePoint.next = nil
+end
+
+function DynamicLayerData:setExactDynamicTimePoint(a, b)
+	local timePoint = self.dynamicTimePoint
+	timePoint.side = a.side
+	timePoint.measureTime = a.measureTime
+	timePoint.visualTime = a.visualTime
+	timePoint.beatTime = a.beatTime
+	timePoint.absoluteTime = a.absoluteTime
+	timePoint.intervalTime = a.intervalTime
+	timePoint._tempoData = a._tempoData
+	timePoint._velocityData = a._velocityData
+	timePoint._stopData = a._stopData
+	timePoint._expandData = a._expandData
+	timePoint._signatureData = a._signatureData
+	timePoint._intervalData = a._intervalData
+	timePoint.prev = a.prev
+	timePoint.next = b.next
+end
+
 function DynamicLayerData:getDynamicTimePoint(time, side, visualSide)
 	local mode = assert(self.mode, "Mode should be set")
 	assert(time)
@@ -140,17 +176,14 @@ function DynamicLayerData:getDynamicTimePoint(time, side, visualSide)
 	self.dynamicTimePoint = self.dynamicTimePoint or TimePoint:new()
 	local timePoint = self.dynamicTimePoint
 
+	self:resetDynamicTimePoint()
 	timePoint.side = side
 	timePoint.visualSide = visualSide
-	timePoint.measureTime = time
-	timePoint.absoluteTime = nil
-	timePoint._tempoData = nil
-	timePoint._velocityData = nil
-	timePoint._stopData = nil
-	timePoint._expandData = nil
-	timePoint._signatureData = nil
-	timePoint.prev = nil
-	timePoint.next = nil
+	if mode == "measure" then
+		timePoint.measureTime = time
+	elseif mode == "interval" then
+		timePoint.intervalTime = time
+	end
 
 	local t = time:tonumber()
 
@@ -158,18 +191,14 @@ function DynamicLayerData:getDynamicTimePoint(time, side, visualSide)
 	if not a and not b then
 		return
 	elseif a == b then
-		timePoint.absoluteTime = a.absoluteTime
-		timePoint.visualTime = a.visualTime
-		timePoint.beatTime = a.beatTime
-		timePoint._tempoData = a._tempoData
-		timePoint._velocityData = a._velocityData
-		timePoint._stopData = a._stopData
-		timePoint._expandData = a._expandData
-		timePoint._signatureData = a._signatureData
-		timePoint.prev = a.prev
-		timePoint.next = b.next
+		self:setExactDynamicTimePoint(a, b)
 	elseif a and b then
-		local ta, tb = a.measureTime:tonumber(), b.measureTime:tonumber()
+		local ta, tb
+		if mode == "measure" then
+			ta, tb = a.measureTime:tonumber(), b.measureTime:tonumber()
+		elseif mode == "interval" then
+			ta, tb = a.intervalTime:tonumber(), b.intervalTime:tonumber()
+		end
 		timePoint.absoluteTime = map(t, ta, tb, a.absoluteTime, b.absoluteTime)
 		timePoint.visualTime = map(t, ta, tb, a.visualTime, b.visualTime)
 		timePoint.beatTime = map(t, ta, tb, a.beatTime, b.beatTime)
@@ -200,10 +229,10 @@ function DynamicLayerData:getDynamicTimePoint(time, side, visualSide)
 			timePoint.absoluteTime = a.absoluteTime + duration * a.tempoData:getBeatDuration()
 			timePoint.beatTime = a.beatTime + duration
 		elseif mode == "interval" then
-			local c = b and b.next or a.prev
-			local ta, tc = a.measureTime:tonumber(), c.measureTime:tonumber()
-			timePoint.absoluteTime = map(t, ta, tc, a.absoluteTime, c.absoluteTime)
-			timePoint.beatTime = 0
+			local intervalData, nextIntervalData = a.intervalData:getPair()
+			local _a, _b = intervalData.timePoint, nextIntervalData.timePoint
+			local ta, tb = _a.intervalTime:tonumber(), _b.intervalTime:tonumber()
+			timePoint.absoluteTime = map(t, ta, tb, _a.absoluteTime, _b.absoluteTime)
 		end
 
 		local currentSpeed = a.velocityData and a.velocityData.currentSpeed or 1
@@ -212,6 +241,7 @@ function DynamicLayerData:getDynamicTimePoint(time, side, visualSide)
 
 	timePoint.tempoData = a.tempoData
 	timePoint.velocityData = a.velocityData
+	timePoint.intervalData = a.intervalData
 
 	return timePoint
 end
@@ -223,15 +253,10 @@ function DynamicLayerData:getDynamicTimePointAbsolute(time, limit, side, visualS
 	self.dynamicTimePoint = self.dynamicTimePoint or TimePoint:new()
 	local timePoint = self.dynamicTimePoint
 
+	self:resetDynamicTimePoint()
 	timePoint.side = side
 	timePoint.visualSide = visualSide
-	timePoint.measureTime = nil
 	timePoint.absoluteTime = time
-	timePoint._tempoData = nil
-	timePoint._velocityData = nil
-	timePoint._stopData = nil
-	timePoint._expandData = nil
-	timePoint._signatureData = nil
 
 	local t = time
 
@@ -239,21 +264,15 @@ function DynamicLayerData:getDynamicTimePointAbsolute(time, limit, side, visualS
 	if not a and not b then
 		return
 	elseif a == b then
-		timePoint.side = a.side
-		timePoint.measureTime = a.measureTime
-		timePoint.visualTime = a.visualTime
-		timePoint.beatTime = a.beatTime
-		timePoint._tempoData = a._tempoData
-		timePoint._velocityData = a._velocityData
-		timePoint._stopData = a._stopData
-		timePoint._expandData = a._expandData
-		timePoint._signatureData = a._signatureData
-		timePoint.prev = a.prev
-		timePoint.next = b.next
+		self:setExactDynamicTimePoint(a, b)
 	elseif a and b then
-		local ta, tb = a.measureTime:tonumber(), b.measureTime:tonumber()
-		local measureTime = map(t, a.absoluteTime, b.absoluteTime, ta, tb)
-		timePoint.measureTime = Fraction:new(measureTime, limit, false)
+		if mode == "measure" then
+			local ta, tb = a.measureTime:tonumber(), b.measureTime:tonumber()
+			local measureTime = map(t, a.absoluteTime, b.absoluteTime, ta, tb)
+			timePoint.measureTime = Fraction:new(measureTime, limit, false)
+		elseif mode == "interval" then
+			timePoint.intervalTime = IntervalTime:fromnumber(a.intervalData, t, limit)
+		end
 		timePoint.visualTime = map(t, a.absoluteTime, b.absoluteTime, a.visualTime, b.visualTime)
 		timePoint.beatTime = map(t, a.absoluteTime, b.absoluteTime, a.beatTime, b.beatTime)
 		timePoint.prev = a
@@ -283,13 +302,7 @@ function DynamicLayerData:getDynamicTimePointAbsolute(time, limit, side, visualS
 			timePoint.measureTime = a.measureTime + Fraction:new(duration / signature, limit, false)
 			timePoint.beatTime = a.beatTime + duration
 		elseif mode == "interval" then
-			-- local intervalData = a.intervalData
-			-- local nextIntervalData = b and intervalData.next or intervalData.prev
-			local c = b and b.next or a.prev
-			local ta, tc = a.measureTime:tonumber(), c.measureTime:tonumber()
-			local measureTime = map(t, a.absoluteTime, c.absoluteTime, ta, tc)
-			timePoint.measureTime = Fraction:new(measureTime, limit, false)
-			timePoint.beatTime = 0
+			timePoint.intervalTime = IntervalTime:fromnumber(a.intervalData, t, limit)
 		end
 
 		local currentSpeed = a.velocityData and a.velocityData.currentSpeed or 1
@@ -298,6 +311,7 @@ function DynamicLayerData:getDynamicTimePointAbsolute(time, limit, side, visualS
 
 	timePoint.tempoData = a.tempoData
 	timePoint.velocityData = a.velocityData
+	timePoint.intervalData = a.intervalData
 
 	return timePoint
 end
@@ -403,12 +417,10 @@ function DynamicLayerData:compute()
 			end
 			currentTime = targetTime
 		elseif isInterval and intervalData then
-			if timePoint._intervalData and timePoint._intervalData.next then
+			if timePoint._intervalData then
 				intervalData = timePoint._intervalData
 			end
-			local nextIntervalData = intervalData.next
-			local duration = (nextIntervalData.timePoint.absoluteTime - intervalData.timePoint.absoluteTime) / intervalData.intervals
-			time = intervalData.timePoint.absoluteTime + duration * timePoint.intervalTime.time
+			time = timePoint.intervalTime:tonumber()
 		elseif not isInterval then
 			time = timePoint.absoluteTime
 		end
@@ -599,10 +611,10 @@ end
 
 function DynamicLayerData:getIntervalData(absoluteTime, ...)
 	local timePoint = self:getTimePoint(IntervalTime:new(absoluteTime, Fraction:new(0)))
-	local intervalData = self:getTimingObject(timePoint, "intervalData", IntervalData, ...)
-	timePoint.intervalTime.intervalData = intervalData
 	timePoint.absoluteTime = absoluteTime
 	timePoint.readonly = true
+	local intervalData = self:getTimingObject(timePoint, "intervalData", IntervalData, ...)
+	timePoint.intervalTime.intervalData = intervalData
 	return intervalData
 end
 function DynamicLayerData:removeIntervalData(absoluteTime)

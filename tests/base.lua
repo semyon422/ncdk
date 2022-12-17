@@ -228,15 +228,16 @@ do
 
 	local id1 = ld:insertIntervalData(-1, 11)
 	local id2 = ld:insertIntervalData(10, 5)
-	ld:insertIntervalData(20, 1)
+	local id3 = ld:insertIntervalData(20, 1)
 
 	local tp0 = ld:getTimePoint(IntervalTime:new(id1, F(0)))
 	local tp1 = ld:getTimePoint(IntervalTime:new(id1, F(1)))
 	local tp_1 = ld:getTimePoint(IntervalTime:new(id1, F(-1)))
 
 	local tp11 = ld:getTimePoint(IntervalTime:new(id2, F(1)))
-	local tp15 = ld:getTimePoint(IntervalTime:new(id2, F(5)))
+	local tp15 = ld:getTimePoint(IntervalTime:new(id2, F(5)))  -- not recommended here, not allowed in dynamic layer
 	local tp16 = ld:getTimePoint(IntervalTime:new(id2, F(6)))
+	local tp16_ = ld:getTimePoint(IntervalTime:new(id3, F(1)))
 
 	nc:compute()
 
@@ -246,4 +247,5 @@ do
 	assert(tp11.absoluteTime == 12)
 	assert(tp15.absoluteTime == 20)
 	assert(tp16.absoluteTime == 22)
+	assert(tp16_.absoluteTime == 22)
 end

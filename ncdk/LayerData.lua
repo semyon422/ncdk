@@ -249,12 +249,16 @@ function LayerData:computeTimePoints()
 			end
 			currentTime = targetTime
 		elseif isInterval then
-			if timePoint._intervalData and timePoint._intervalData.next then
+			-- if timePoint._intervalData and timePoint._intervalData.next then
+			-- 	intervalData = timePoint._intervalData
+			-- end
+			-- local nextIntervalData = intervalData.next
+			-- local duration = (nextIntervalData.timePoint.absoluteTime - intervalData.timePoint.absoluteTime) / intervalData.intervals
+			-- time = intervalData.timePoint.absoluteTime + duration * timePoint.intervalTime.time
+			if timePoint._intervalData then
 				intervalData = timePoint._intervalData
 			end
-			local nextIntervalData = intervalData.next
-			local duration = (nextIntervalData.timePoint.absoluteTime - intervalData.timePoint.absoluteTime) / intervalData.intervals
-			time = intervalData.timePoint.absoluteTime + duration * timePoint.intervalTime.time
+			time = timePoint.intervalTime:tonumber()
 		else
 			time = timePoint.absoluteTime
 		end
