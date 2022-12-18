@@ -690,4 +690,12 @@ do
 	assert(ld:getDynamicTimePointAbsolute(20, 192) == id3.timePoint)
 	assert(ld:getDynamicTimePointAbsolute(22, 192) == tp16_)
 	assert(ld:getDynamicTimePointAbsolute(23, 192))
+
+	assert(ld:getDynamicTimePoint(IntervalTime:new(id1, F(-2))).visualTime == -3)
+	assert(ld:getDynamicTimePoint(IntervalTime:new(id1, F(0))).visualTime == -1)
+	assert(ld:getDynamicTimePoint(IntervalTime:new(id1, F(1))).visualTime == 0)
+	assert(ld:getDynamicTimePoint(IntervalTime:new(id1, F(1.5))).visualTime == 0.5)
+	assert(ld:getDynamicTimePoint(IntervalTime:new(id1, F(5))).visualTime == 4)
+	assert(ld:getDynamicTimePoint(IntervalTime:new(id2, F(0))).visualTime == 10)
+	assert(ld:getDynamicTimePoint(IntervalTime:new(id3, F(4))).visualTime == 28)
 end

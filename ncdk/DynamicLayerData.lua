@@ -480,10 +480,10 @@ function DynamicLayerData:compute()
 			timePoint.intervalData = intervalData
 
 			if not timePoint.readonly then
-				timePoint.beatTime = beatTime
 				timePoint.absoluteTime = time
-				timePoint.visualTime = visualTime
 			end
+			timePoint.beatTime = beatTime
+			timePoint.visualTime = visualTime
 
 			timePoint = timePoint.next
 		end
