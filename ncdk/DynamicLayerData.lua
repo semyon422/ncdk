@@ -179,11 +179,8 @@ function DynamicLayerData:getDynamicTimePoint(time, side, visualSide)
 	self:resetDynamicTimePoint()
 	timePoint.side = side
 	timePoint.visualSide = visualSide
-	if mode == "measure" then
-		timePoint.measureTime = time
-	elseif mode == "interval" then
-		timePoint.intervalTime = time
-	end
+	timePoint.mode = mode
+	timePoint:setTime(time)
 
 	local t = time:tonumber()
 
@@ -257,6 +254,7 @@ function DynamicLayerData:getDynamicTimePointAbsolute(time, limit, side, visualS
 	timePoint.side = side
 	timePoint.visualSide = visualSide
 	timePoint.absoluteTime = time
+	timePoint.mode = mode
 
 	local t = time
 
@@ -337,13 +335,8 @@ function DynamicLayerData:getTimePoint(time, side, visualSide)
 	timePoint.visualSide = visualSide
 	timePoints[key] = timePoint
 
-	if mode == "absolute" then
-		timePoint.absoluteTime = time
-	elseif mode == "measure" then
-		timePoint.measureTime = time
-	elseif mode == "interval" then
-		timePoint.intervalTime = time
-	end
+	timePoint.mode = mode
+	timePoint:setTime(time)
 
 	self.timePointsRange:insert(timePoint)
 	self:compute()
@@ -420,6 +413,7 @@ function DynamicLayerData:compute()
 			if timePoint._intervalData then
 				intervalData = timePoint._intervalData
 			end
+			-- timePoint.intervalTime:fix()
 			time = timePoint.intervalTime:tonumber()
 		elseif not isInterval then
 			time = timePoint.absoluteTime
@@ -620,6 +614,34 @@ end
 function DynamicLayerData:removeIntervalData(absoluteTime)
 	local timePoint = self:getTimePoint(IntervalTime:new(absoluteTime, Fraction:new(0)))
 	return self:removeTimingObject(timePoint, "intervalData")
+end
+function DynamicLayerData:splitIntervalData(timePoint)
+	local intervalTime = timePoint.intervalTime
+	local leftIntervalData = timePoint.intervalData
+	if intervalTime.time:tonumber() == 0 then
+		return leftIntervalData
+	end
+
+	local leftIntervals = math.abs(intervalTime.time:ceil())
+	local rightIntervals = leftIntervalData.next and leftIntervalData.intervals - intervalTime.time:floor() or 1
+
+	local tp = timePoint.next
+	local rightIntervalData = self:getIntervalData(timePoint.absoluteTime, rightIntervals)
+	leftIntervalData.intervals = leftIntervals
+
+	local tp1 = rightIntervalData.next and rightIntervalData.next.timePoint
+
+	while tp and (not tp1 or tp < tp1) do
+		if tp.intervalTime.intervalData == leftIntervalData then
+			tp.intervalData = rightIntervalData
+			tp.intervalTime.intervalData = rightIntervalData
+			tp.intervalTime.time = tp.intervalTime.time - leftIntervals
+		end
+		tp = tp.next
+	end
+	self:compute()
+
+	return rightIntervalData
 end
 
 function DynamicLayerData:getNoteData(timePoint, inputType, inputIndex)

@@ -18,6 +18,28 @@ function TimePoint:getVisualTime(timePoint)
 		+ timePoint.absoluteTime
 end
 
+function TimePoint:setTime(time)
+	local mode = self.mode
+	if mode == "absolute" then
+		self.absoluteTime = time
+	elseif mode == "measure" then
+		self.measureTime = time
+	elseif mode == "interval" then
+		self.intervalTime = time
+	end
+end
+
+function TimePoint:getTime()
+	local mode = self.mode
+	if mode == "absolute" then
+		return self.absoluteTime
+	elseif mode == "measure" then
+		return self.measureTime
+	elseif mode == "interval" then
+		return self.intervalTime
+	end
+end
+
 local format = "%s%s%s"
 function mt.__tostring(a)
 	local time = a.absoluteTime

@@ -699,3 +699,44 @@ do
 	assert(ld:getDynamicTimePoint(IntervalTime:new(id2, F(0))).visualTime == 10)
 	assert(ld:getDynamicTimePoint(IntervalTime:new(id3, F(4))).visualTime == 28)
 end
+
+do
+	local ld = DynamicLayerData:new()
+	ld:setTimeMode("interval")
+	ld:setRange(-10, 30)
+
+	local id1 = ld:getIntervalData(0, 10)
+	local id2 = ld:getIntervalData(10, 1)
+
+	local tp1 = ld:getTimePoint(IntervalTime:new(id1, F(1)))
+	local tp6 = ld:getTimePoint(IntervalTime:new(id1, F(6)))
+	local tp11 = ld:getTimePoint(IntervalTime:new(id2, F(1)))
+	local tp21 = ld:getTimePoint(IntervalTime:new(id2, F(11)))
+
+	assert(tp1.absoluteTime == 1)
+	assert(tp6.absoluteTime == 6)
+	assert(tp11.absoluteTime == 11)
+	assert(tp21.absoluteTime == 21)
+
+	local id3 = ld:splitIntervalData(ld:getDynamicTimePointAbsolute(5, 192))
+
+	assert(id1.intervals == 5)
+	assert(id3.intervals == 5)
+	assert(id2.intervals == 1)
+
+	assert(tp1.absoluteTime == 1)
+	assert(tp6.absoluteTime == 6)
+
+	local id4 = ld:splitIntervalData(ld:getDynamicTimePointAbsolute(15, 192))
+
+	assert(id1.intervals == 5)
+	assert(id3.intervals == 5)
+	assert(id2.intervals == 5)
+	assert(id4.intervals == 1)
+
+	-- print(tp11, tp11.absoluteTime)
+	assert(tp11.absoluteTime == 11)
+	-- print(tp21, tp21.absoluteTime)
+	-- print(tp21.intervalTime)
+	assert(tp21.absoluteTime == 21)
+end

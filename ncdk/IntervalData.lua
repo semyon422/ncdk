@@ -5,6 +5,7 @@ local mt = {__index = IntervalData}
 function IntervalData:new(intervals)
 	local intervalData = {}
 
+	assert(intervals > 0, "intervals should be greater than 0")
 	intervalData.intervals = intervals
 
 	return setmetatable(intervalData, mt)
