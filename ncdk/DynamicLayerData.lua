@@ -20,13 +20,6 @@ function DynamicLayerData:new()
 	local layerData = {}
 
 	layerData.defaultSignature = Fraction:new(4)
-
-	layerData.tempoDatas = {}
-	layerData.stopDatas = {}
-	layerData.velocityDatas = {}
-	layerData.expandDatas = {}
-	layerData.signatureDatas = {}
-	layerData.intervalDatas = {}
 	layerData.noteDatas = {}
 
 	layerData.mainTimeField = "measureTime"
@@ -495,10 +488,7 @@ function DynamicLayerData:compute()
 end
 
 function DynamicLayerData:getTimingObject(timePoint, name, class, ...)
-	local objects = self[name .. "s"]
-	local key = tostring(timePoint)
-
-	local object = objects[key]
+	local object = timePoint["_" .. name]
 	if object then
 		if select("#", ...) > 0 and object:set(...) then
 			self:compute()
@@ -507,7 +497,6 @@ function DynamicLayerData:getTimingObject(timePoint, name, class, ...)
 	end
 
 	object = class:new(...)
-	objects[key] = object
 
 	timePoint["_" .. name] = object
 	object.timePoint = timePoint
@@ -519,15 +508,12 @@ function DynamicLayerData:getTimingObject(timePoint, name, class, ...)
 end
 
 function DynamicLayerData:removeTimingObject(timePoint, name)
-	local objects = self[name .. "s"]
-	local key = tostring(timePoint)
-	local object = assert(objects[key], name .. " not found")
-	objects[key] = nil
+	local object = assert(timePoint["_" .. name], name .. " not found")
 
 	self[name .. "sRange"]:remove(object)
 
-	object.timePoint["_" .. name] = nil
-	object.timePoint = nil
+	timePoint["_" .. name] = nil
+	timePoint = nil
 
 	self:compute()
 end
