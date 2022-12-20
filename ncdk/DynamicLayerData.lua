@@ -622,26 +622,41 @@ function DynamicLayerData:splitIntervalData(timePoint)
 		return leftIntervalData
 	end
 
-	local leftIntervals = math.abs(intervalTime.time:ceil())
-	local rightIntervals = leftIntervalData.next and leftIntervalData.intervals - intervalTime.time:floor() or 1
+	local intervalData
+	if intervalTime.time:tonumber() > 0 then
+		local leftIntervals = intervalTime.time:ceil()
+		local rightIntervals = leftIntervalData.next and leftIntervalData.intervals - intervalTime.time:floor() or 1
 
-	local tp = timePoint.next
-	local rightIntervalData = self:getIntervalData(timePoint.absoluteTime, rightIntervals)
-	leftIntervalData.intervals = leftIntervals
+		intervalData = self:getIntervalData(timePoint.absoluteTime, rightIntervals)
+		leftIntervalData.intervals = leftIntervals
 
-	local tp1 = rightIntervalData.next and rightIntervalData.next.timePoint
-
-	while tp and (not tp1 or tp < tp1) do
-		if tp.intervalTime.intervalData == leftIntervalData then
-			tp.intervalData = rightIntervalData
-			tp.intervalTime.intervalData = rightIntervalData
-			tp.intervalTime.time = tp.intervalTime.time - leftIntervals
+		local tp = timePoint.next
+		local tp1 = intervalData.next and intervalData.next.timePoint
+		while tp and (not tp1 or tp < tp1) do
+			if tp.intervalTime.intervalData == leftIntervalData then
+				tp.intervalData = intervalData
+				tp.intervalTime.intervalData = intervalData
+				tp.intervalTime.time = tp.intervalTime.time - leftIntervals
+			end
+			tp = tp.next
 		end
-		tp = tp.next
-	end
-	self:compute()
+	else
+		local intervals = math.abs(intervalTime.time:ceil())
+		intervalData = self:getIntervalData(timePoint.absoluteTime, intervals)
 
-	return rightIntervalData
+		local tp = leftIntervalData.timePoint.prev
+		while tp do
+			if tp.intervalTime.intervalData == leftIntervalData then
+				tp.intervalData = intervalData
+				tp.intervalTime.intervalData = intervalData
+				tp.intervalTime.time = tp.intervalTime.time + intervals
+			end
+			tp = tp.prev
+		end
+	end
+
+	self:compute()
+	return intervalData
 end
 
 function DynamicLayerData:getNoteData(timePoint, inputType, inputIndex)

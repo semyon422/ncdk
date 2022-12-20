@@ -708,11 +708,15 @@ do
 	local id1 = ld:getIntervalData(0, 10)
 	local id2 = ld:getIntervalData(10, 1)
 
+	local tp_6 = ld:getTimePoint(IntervalTime:new(id1, F(-6)))
+	local tp_1 = ld:getTimePoint(IntervalTime:new(id1, F(-1)))
 	local tp1 = ld:getTimePoint(IntervalTime:new(id1, F(1)))
 	local tp6 = ld:getTimePoint(IntervalTime:new(id1, F(6)))
 	local tp11 = ld:getTimePoint(IntervalTime:new(id2, F(1)))
 	local tp21 = ld:getTimePoint(IntervalTime:new(id2, F(11)))
 
+	assert(tp_6.absoluteTime == -6)
+	assert(tp_1.absoluteTime == -1)
 	assert(tp1.absoluteTime == 1)
 	assert(tp6.absoluteTime == 6)
 	assert(tp11.absoluteTime == 11)
@@ -734,9 +738,17 @@ do
 	assert(id2.intervals == 5)
 	assert(id4.intervals == 1)
 
-	-- print(tp11, tp11.absoluteTime)
 	assert(tp11.absoluteTime == 11)
-	-- print(tp21, tp21.absoluteTime)
-	-- print(tp21.intervalTime)
 	assert(tp21.absoluteTime == 21)
+
+	local id0 = ld:splitIntervalData(ld:getDynamicTimePointAbsolute(-5, 192))
+
+	assert(id1.intervals == 5)
+
+	assert(tp_6.absoluteTime == -6)
+	assert(tp_1.absoluteTime == -1)
+	assert(tp1.absoluteTime == 1)
+	assert(tp_6.intervalData == id0)
+	assert(tp_1.intervalData == id0)
+	assert(tp1.intervalData == id1)
 end
