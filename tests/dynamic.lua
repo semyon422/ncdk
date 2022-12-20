@@ -88,30 +88,31 @@ do
 
 	ld:getTempoData(F(0), 60)
 
+	local timePoints = {}
 	for i = 0, 10 do
-		ld:getTimePoint(F(i), -1)
+		timePoints[i] = ld:getTimePoint(F(i), -1)
 	end
 
 	ld:setRange(F(0), F(2))
 
-	assert(ld:getTimePoint(F(2), -1).absoluteTime == 8)
-	assert(ld:getTimePoint(F(3), -1).absoluteTime == 12)
-	assert(ld:getTimePoint(F(4), -1).absoluteTime == 16)
-	assert(ld:getTimePoint(F(5), -1).absoluteTime == 20)
+	assert(timePoints[2].absoluteTime == 8)
+	assert(timePoints[3].absoluteTime == 12)
+	assert(timePoints[4].absoluteTime == 16)
+	assert(timePoints[5].absoluteTime == 20)
 
 	ld:getTempoData(F(0), 120)
 
-	assert(ld:getTimePoint(F(2), -1).absoluteTime == 4)
-	assert(ld:getTimePoint(F(3), -1).absoluteTime == 6)
-	assert(ld:getTimePoint(F(4), -1).absoluteTime == 16)
-	assert(ld:getTimePoint(F(5), -1).absoluteTime == 20)
+	assert(timePoints[2].absoluteTime == 4)
+	assert(timePoints[3].absoluteTime == 6)
+	assert(timePoints[4].absoluteTime == 16)
+	assert(timePoints[5].absoluteTime == 20)
 
 	ld:setRange(F(5), F(7))
 
-	assert(ld:getTimePoint(F(2), -1).absoluteTime == 4)
-	assert(ld:getTimePoint(F(3), -1).absoluteTime == 6)
-	assert(ld:getTimePoint(F(4), -1).absoluteTime == 8)
-	assert(ld:getTimePoint(F(5), -1).absoluteTime == 10)
+	assert(timePoints[2].absoluteTime == 4)
+	assert(timePoints[3].absoluteTime == 6)
+	assert(timePoints[4].absoluteTime == 8)
+	assert(timePoints[5].absoluteTime == 10)
 end
 
 do
@@ -152,30 +153,31 @@ do
 
 	ld:getTempoData(F(0), 60)
 
+	local timePoints = {}
 	for i = 0, 10 do
-		ld:getTimePoint(F(i), -1)
+		timePoints[i] = ld:getTimePoint(F(i), -1)
 	end
 
-	assert(ld:getTimePoint(F(0), -1).absoluteTime == 0)
-	assert(ld:getTimePoint(F(1), -1).absoluteTime == 4)
-	assert(ld:getTimePoint(F(9), -1).absoluteTime == 36)
-	assert(ld:getTimePoint(F(10), -1).absoluteTime == 40)
+	assert(timePoints[0].absoluteTime == 0)
+	assert(timePoints[1].absoluteTime == 4)
+	assert(timePoints[9].absoluteTime == 36)
+	assert(timePoints[10].absoluteTime == 40)
 
 	ld:setRange(F(0), F(0))
 
 	ld:getTempoData(F(0), 120)
 
-	assert(ld:getTimePoint(F(0), -1).absoluteTime == 0)
-	assert(ld:getTimePoint(F(1), -1).absoluteTime == 2)
-	assert(ld:getTimePoint(F(9), -1).absoluteTime == 36)
-	assert(ld:getTimePoint(F(10), -1).absoluteTime == 40)
+	assert(timePoints[0].absoluteTime == 0)
+	assert(timePoints[1].absoluteTime == 2)
+	assert(timePoints[9].absoluteTime == 36)
+	assert(timePoints[10].absoluteTime == 40)
 
 	ld:setRange(F(10), F(10))
 
-	assert(ld:getTimePoint(F(0), -1).absoluteTime == 0)
-	assert(ld:getTimePoint(F(1), -1).absoluteTime == 2)
-	assert(ld:getTimePoint(F(9), -1).absoluteTime == 18)
-	assert(ld:getTimePoint(F(10), -1).absoluteTime == 20)
+	assert(timePoints[0].absoluteTime == 0)
+	assert(timePoints[1].absoluteTime == 2)
+	assert(timePoints[9].absoluteTime == 18)
+	assert(timePoints[10].absoluteTime == 20)
 end
 
 do
@@ -751,4 +753,39 @@ do
 	assert(tp_6.intervalData == id0)
 	assert(tp_1.intervalData == id0)
 	assert(tp1.intervalData == id1)
+end
+
+do
+	local ld = DynamicLayerData:new()
+	ld:setTimeMode("interval")
+	ld:setRange(-10, 30)
+
+	local id1 = ld:getIntervalData(0, 10)
+	local id2 = ld:getIntervalData(10, 1)
+
+	local tp5 = ld:getTimePoint(IntervalTime:new(id1, F(5)))
+	local tp6 = ld:getTimePoint(IntervalTime:new(id1, F(6)))
+
+	assert(tp5.absoluteTime == 5)
+	assert(tp6.absoluteTime == 6)
+
+	local id3 = ld:splitIntervalData(tp5)
+
+	assert(tp5.absoluteTime == 5)
+	assert(tp6.absoluteTime == 6)
+	assert(tp5.intervalData == id3)
+	assert(tp6.intervalData == id3)
+
+	local tp5_ = ld:getTimePoint(IntervalTime:new(id3, F(0)))
+	local tp6_ = ld:getTimePoint(IntervalTime:new(id3, F(1)))
+
+	assert(tp5_ == tp5)
+	assert(("%p"):format(tp5_) == ("%p"):format(tp5))
+	assert(tp5_.absoluteTime == 5)
+	assert(tp5_.intervalData == id3)
+
+	assert(tp6_ == tp6)
+	assert(("%p"):format(tp6_) == ("%p"):format(tp6))
+	assert(tp6_.absoluteTime == 6)
+	assert(tp6_.intervalData == id3)
 end

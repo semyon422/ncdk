@@ -87,6 +87,20 @@ function RangeTracker:getInterp(object)
 	end
 end
 
+function RangeTracker:find(object)
+	if not self.startObject then
+		return
+	end
+
+	local currentObject = self.startObject
+	while currentObject and currentObject <= self.endObject do
+		if object == currentObject then
+			return currentObject
+		end
+		currentObject = currentObject.next
+	end
+end
+
 function RangeTracker:insert(object)
 	local objectTime = assert(self:getObjectTime(object))
 

@@ -21,7 +21,6 @@ function DynamicLayerData:new()
 
 	layerData.defaultSignature = Fraction:new(4)
 
-	layerData.timePoints = {}
 	layerData.tempoDatas = {}
 	layerData.stopDatas = {}
 	layerData.velocityDatas = {}
@@ -317,26 +316,20 @@ end
 function DynamicLayerData:getTimePoint(time, side, visualSide)
 	local mode = assert(self.mode, "Mode should be set")
 
-	if type(time) == "number" then
-		time = math.min(math.max(time, -2147483648), 2147483647)
-	end
-
 	side = side or -1
 	visualSide = visualSide or -1
-	local timePoints = self.timePoints
-	local key = tostring(time) .. "," .. side .. "," .. visualSide
-	local timePoint = timePoints[key]
-	if timePoint then
-		return timePoint
-	end
 
-	timePoint = TimePoint:new()
+	local timePoint = TimePoint:new()
 	timePoint.side = side
 	timePoint.visualSide = visualSide
-	timePoints[key] = timePoint
 
 	timePoint.mode = mode
 	timePoint:setTime(time)
+
+	local t = self.timePointsRange:find(timePoint)
+	if t then
+		return t
+	end
 
 	self.timePointsRange:insert(timePoint)
 	self:compute()
@@ -603,11 +596,14 @@ function DynamicLayerData:getSignature(measureOffset)
 	return self.defaultSignature
 end
 
+function DynamicLayerData:_getIntervalData(timePoint, ...)
+	return self:getTimingObject(timePoint, "intervalData", IntervalData, ...)
+end
 function DynamicLayerData:getIntervalData(absoluteTime, ...)
 	local timePoint = self:getTimePoint(IntervalTime:new(absoluteTime, Fraction:new(0)))
 	timePoint.absoluteTime = absoluteTime
 	timePoint.readonly = true
-	local intervalData = self:getTimingObject(timePoint, "intervalData", IntervalData, ...)
+	local intervalData = self:_getIntervalData(timePoint, ...)
 	timePoint.intervalTime.intervalData = intervalData
 	return intervalData
 end
@@ -617,42 +613,42 @@ function DynamicLayerData:removeIntervalData(absoluteTime)
 end
 function DynamicLayerData:splitIntervalData(timePoint)
 	local intervalTime = timePoint.intervalTime
-	local leftIntervalData = timePoint.intervalData
-	if intervalTime.time:tonumber() == 0 then
-		return leftIntervalData
+	local _intervalData = timePoint.intervalData
+
+	local t = intervalTime.time:tonumber()
+	if t == 0 or t % 1 ~= 0 then
+		return _intervalData
 	end
 
 	local intervalData
-	if intervalTime.time:tonumber() > 0 then
-		local leftIntervals = intervalTime.time:ceil()
-		local rightIntervals = leftIntervalData.next and leftIntervalData.intervals - intervalTime.time:floor() or 1
-
-		intervalData = self:getIntervalData(timePoint.absoluteTime, rightIntervals)
-		leftIntervalData.intervals = leftIntervals
-
-		local tp = timePoint.next
-		local tp1 = intervalData.next and intervalData.next.timePoint
-		while tp and (not tp1 or tp < tp1) do
-			if tp.intervalTime.intervalData == leftIntervalData then
-				tp.intervalData = intervalData
-				tp.intervalTime.intervalData = intervalData
-				tp.intervalTime.time = tp.intervalTime.time - leftIntervals
-			end
-			tp = tp.next
+	local tp, dir
+	if t > 0 then
+		local intervals = _intervalData.next and _intervalData.intervals - t or 1
+		_intervalData.intervals = t
+		if timePoint == self.dynamicTimePoint then
+			intervalData = self:getIntervalData(timePoint.absoluteTime, intervals)
+		else
+			intervalData = self:_getIntervalData(timePoint, intervals)
+			timePoint.readonly = true
+			timePoint.intervalData = intervalData
+			timePoint.intervalTime.intervalData = intervalData
+			timePoint.intervalTime.time = Fraction:new(0)
 		end
+
+		tp = intervalData.timePoint.next
+		dir = "next"
 	else
-		local intervals = math.abs(intervalTime.time:ceil())
-		intervalData = self:getIntervalData(timePoint.absoluteTime, intervals)
-
-		local tp = leftIntervalData.timePoint.prev
-		while tp do
-			if tp.intervalTime.intervalData == leftIntervalData then
-				tp.intervalData = intervalData
-				tp.intervalTime.intervalData = intervalData
-				tp.intervalTime.time = tp.intervalTime.time + intervals
-			end
-			tp = tp.prev
+		intervalData = self:getIntervalData(timePoint.absoluteTime, -t)
+		tp = _intervalData.timePoint.prev
+		dir = "prev"
+	end
+	while tp and tp.intervalTime.time:tonumber() ~= 0 do
+		if tp.intervalTime.intervalData == _intervalData then
+			tp.intervalData = intervalData
+			tp.intervalTime.intervalData = intervalData
+			tp.intervalTime.time = tp.intervalTime.time - t
 		end
+		tp = tp[dir]
 	end
 
 	self:compute()
