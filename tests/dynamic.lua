@@ -724,7 +724,7 @@ do
 	assert(tp11.absoluteTime == 11)
 	assert(tp21.absoluteTime == 21)
 
-	local id3 = ld:splitIntervalData(ld:getDynamicTimePointAbsolute(5, 192))
+	local id3 = ld:splitInterval(ld:getDynamicTimePointAbsolute(5, 192))
 
 	assert(id1.intervals == 5)
 	assert(id3.intervals == 5)
@@ -733,7 +733,7 @@ do
 	assert(tp1.absoluteTime == 1)
 	assert(tp6.absoluteTime == 6)
 
-	local id4 = ld:splitIntervalData(ld:getDynamicTimePointAbsolute(15, 192))
+	local id4 = ld:splitInterval(ld:getDynamicTimePointAbsolute(15, 192))
 
 	assert(id1.intervals == 5)
 	assert(id3.intervals == 5)
@@ -743,7 +743,7 @@ do
 	assert(tp11.absoluteTime == 11)
 	assert(tp21.absoluteTime == 21)
 
-	local id0 = ld:splitIntervalData(ld:getDynamicTimePointAbsolute(-5, 192))
+	local id0 = ld:splitInterval(ld:getDynamicTimePointAbsolute(-5, 192))
 
 	assert(id1.intervals == 5)
 
@@ -768,13 +768,17 @@ do
 
 	assert(tp5.absoluteTime == 5)
 	assert(tp6.absoluteTime == 6)
+	assert(tp5.intervalData == id1)
+	assert(tp6.intervalData == id1)
 
-	local id3 = ld:splitIntervalData(tp5)
+	local id3 = ld:splitInterval(tp5)
 
 	assert(tp5.absoluteTime == 5)
 	assert(tp6.absoluteTime == 6)
 	assert(tp5.intervalData == id3)
 	assert(tp6.intervalData == id3)
+	assert(tp5.intervalTime.time == F(0))
+	assert(tp6.intervalTime.time == F(1))
 
 	local tp5_ = ld:getTimePoint(IntervalTime:new(id3, F(0)))
 	local tp6_ = ld:getTimePoint(IntervalTime:new(id3, F(1)))
@@ -788,4 +792,66 @@ do
 	assert(("%p"):format(tp6_) == ("%p"):format(tp6))
 	assert(tp6_.absoluteTime == 6)
 	assert(tp6_.intervalData == id3)
+
+	ld:mergeInterval(tp5)
+
+	assert(tp5.absoluteTime == 5)
+	assert(tp6.absoluteTime == 6)
+	assert(tp5.intervalData == id1)
+	assert(tp6.intervalData == id1)
+	assert(tp5.intervalTime.time == F(5))
+	assert(tp6.intervalTime.time == F(6))
+
+	local tp11 = ld:getTimePoint(IntervalTime:new(id2, F(1)))
+	local tp15 = ld:getTimePoint(IntervalTime:new(id2, F(5)))
+	local tp16 = ld:getTimePoint(IntervalTime:new(id2, F(6)))
+
+	id3 = ld:splitInterval(tp15)
+
+	assert(tp11.absoluteTime == 11)
+	assert(tp15.absoluteTime == 15)
+	assert(tp16.absoluteTime == 16)
+	assert(tp11.intervalData == id2)
+	assert(tp15.intervalData == id3)
+	assert(tp16.intervalData == id3)
+	assert(tp11.intervalTime.time == F(1))
+	assert(tp15.intervalTime.time == F(0))
+	assert(tp16.intervalTime.time == F(1))
+
+	ld:mergeInterval(tp15)
+
+	assert(tp11.absoluteTime == 11)
+	assert(tp15.absoluteTime == 15)
+	assert(tp16.absoluteTime == 16)
+	assert(tp11.intervalData == id2)
+	assert(tp15.intervalData == id2)
+	assert(tp16.intervalData == id2)
+	assert(tp11.intervalTime.time == F(1))
+	assert(tp15.intervalTime.time == F(5))
+	assert(tp16.intervalTime.time == F(6))
+
+	local tp_1 = ld:getTimePoint(IntervalTime:new(id1, F(-1)))
+	local tp_5 = ld:getTimePoint(IntervalTime:new(id1, F(-5)))
+	local tp_6 = ld:getTimePoint(IntervalTime:new(id1, F(-6)))
+
+	id3 = ld:splitInterval(tp_5)
+
+	assert(tp_1.absoluteTime == -1)
+	assert(tp_5.absoluteTime == -5)
+	assert(tp_6.absoluteTime == -6)
+	assert(tp_1.intervalData == id3)
+	assert(tp_5.intervalData == id3)
+	assert(tp_6.intervalData == id3)
+	assert(tp_1.intervalTime.time == F(4))
+	assert(tp_5.intervalTime.time == F(0))
+	assert(tp_6.intervalTime.time == F(-1))
+
+	ld:mergeInterval(tp_5)
+
+	assert(tp_1.absoluteTime == -1)
+	assert(tp_5.absoluteTime == -5)
+	assert(tp_6.absoluteTime == -6)
+	assert(tp_1.intervalData == id1)
+	assert(tp_5.intervalData == id1)
+	assert(tp_6.intervalData == id1)
 end

@@ -6,7 +6,9 @@ TimePoint.side = -1
 TimePoint.visualSide = -1
 
 function TimePoint:new()
-	return setmetatable({}, mt)
+	local timePoint = {}
+	timePoint.ptr = tonumber((("%p"):format(timePoint)):sub(3, -1), 16)
+	return setmetatable(timePoint, mt)
 end
 
 function TimePoint:getVisualTime(timePoint)

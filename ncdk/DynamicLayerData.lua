@@ -19,6 +19,7 @@ local mt = {__index = DynamicLayerData}
 function DynamicLayerData:new()
 	local layerData = {}
 
+	layerData.dynamicTimePoint = TimePoint:new()
 	layerData.defaultSignature = Fraction:new(4)
 	layerData.noteDatas = {}
 
@@ -165,7 +166,6 @@ function DynamicLayerData:getDynamicTimePoint(time, side, visualSide)
 	local mode = assert(self.mode, "Mode should be set")
 	assert(time)
 
-	self.dynamicTimePoint = self.dynamicTimePoint or TimePoint:new()
 	local timePoint = self.dynamicTimePoint
 
 	self:resetDynamicTimePoint()
@@ -180,7 +180,7 @@ function DynamicLayerData:getDynamicTimePoint(time, side, visualSide)
 	if not a and not b then
 		return
 	elseif a == b then
-		self:setExactDynamicTimePoint(a, b)
+		return a
 	elseif a and b then
 		local ta, tb
 		if mode == "measure" then
@@ -239,7 +239,6 @@ function DynamicLayerData:getDynamicTimePointAbsolute(time, limit, side, visualS
 	local mode = assert(self.mode, "Mode should be set")
 	assert(time and limit)
 
-	self.dynamicTimePoint = self.dynamicTimePoint or TimePoint:new()
 	local timePoint = self.dynamicTimePoint
 
 	self:resetDynamicTimePoint()
@@ -254,7 +253,7 @@ function DynamicLayerData:getDynamicTimePointAbsolute(time, limit, side, visualS
 	if not a and not b then
 		return
 	elseif a == b then
-		self:setExactDynamicTimePoint(a, b)
+		return a
 	elseif a and b then
 		if mode == "measure" then
 			local ta, tb = a.measureTime:tonumber(), b.measureTime:tonumber()
@@ -513,7 +512,7 @@ function DynamicLayerData:removeTimingObject(timePoint, name)
 	self[name .. "sRange"]:remove(object)
 
 	timePoint["_" .. name] = nil
-	timePoint = nil
+	object.timePoint = nil
 
 	self:compute()
 end
@@ -593,11 +592,14 @@ function DynamicLayerData:getIntervalData(absoluteTime, ...)
 	timePoint.intervalTime.intervalData = intervalData
 	return intervalData
 end
-function DynamicLayerData:removeIntervalData(absoluteTime)
-	local timePoint = self:getTimePoint(IntervalTime:new(absoluteTime, Fraction:new(0)))
+function DynamicLayerData:_removeIntervalData(timePoint)
 	return self:removeTimingObject(timePoint, "intervalData")
 end
-function DynamicLayerData:splitIntervalData(timePoint)
+function DynamicLayerData:removeIntervalData(absoluteTime)
+	local timePoint = self:getTimePoint(IntervalTime:new(absoluteTime, Fraction:new(0)))
+	return self:_removeIntervalData(timePoint)
+end
+function DynamicLayerData:splitInterval(timePoint)
 	local intervalTime = timePoint.intervalTime
 	local _intervalData = timePoint.intervalData
 
@@ -611,7 +613,7 @@ function DynamicLayerData:splitIntervalData(timePoint)
 	if t > 0 then
 		local intervals = _intervalData.next and _intervalData.intervals - t or 1
 		_intervalData.intervals = t
-		if timePoint == self.dynamicTimePoint then
+		if timePoint.ptr == self.dynamicTimePoint.ptr then
 			intervalData = self:getIntervalData(timePoint.absoluteTime, intervals)
 		else
 			intervalData = self:_getIntervalData(timePoint, intervals)
@@ -624,7 +626,7 @@ function DynamicLayerData:splitIntervalData(timePoint)
 		tp = intervalData.timePoint.next
 		dir = "next"
 	else
-		intervalData = self:getIntervalData(timePoint.absoluteTime, -t)
+		intervalData = self:_getIntervalData(timePoint, -t)
 		tp = _intervalData.timePoint.prev
 		dir = "prev"
 	end
@@ -639,6 +641,42 @@ function DynamicLayerData:splitIntervalData(timePoint)
 
 	self:compute()
 	return intervalData
+end
+function DynamicLayerData:mergeInterval(timePoint)
+	local _intervalData = timePoint._intervalData
+	if not _intervalData then
+		return
+	end
+
+	timePoint.readonly = false
+
+	local _prev, _next = _intervalData.prev, _intervalData.next
+
+	local t = _prev and _prev.intervals
+	local merged = _prev
+	local tp = timePoint
+	local dir, check0 = "next", true
+	if _prev and _next then
+		_prev.intervals = t + _intervalData.intervals
+	elseif _prev then
+		_prev.intervals = 1
+	elseif _next then
+		t = -_intervalData.intervals
+		tp = _next.timePoint
+		merged = _next
+		dir = "prev"
+		check0 = false
+	end
+	repeat
+		if tp.intervalTime.intervalData == _intervalData then
+			tp.intervalData = merged
+			tp.intervalTime.intervalData = merged
+			tp.intervalTime.time = tp.intervalTime.time + t
+		end
+		tp = tp[dir]
+	until not tp or (check0 and tp.intervalTime.time:tonumber() == 0)
+
+	self:_removeIntervalData(timePoint)
 end
 
 function DynamicLayerData:getNoteData(timePoint, inputType, inputIndex)
