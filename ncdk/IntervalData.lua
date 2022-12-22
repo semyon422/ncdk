@@ -30,6 +30,15 @@ function IntervalData:getPair()
 	return p, a, true
 end
 
+function IntervalData:getBeatLength()
+	local intervalData, nextIntervalData = self:getPair()
+	if not intervalData then
+		return
+	end
+	local _a, _b = intervalData.timePoint, nextIntervalData.timePoint
+	return (_b.absoluteTime - _a.absoluteTime) / intervalData.intervals
+end
+
 function mt.__tostring(a)
 	return a.timePoint.absoluteTime .. "," .. a.intervals
 end

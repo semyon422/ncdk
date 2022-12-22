@@ -13,6 +13,7 @@ local IntervalTime = require("ncdk.IntervalTime")
 local DynamicLayerData = {}
 
 DynamicLayerData.primaryTempo = 0
+DynamicLayerData.minimumBeatLength = 60 / 1000
 
 local mt = {__index = DynamicLayerData}
 
@@ -398,7 +399,6 @@ function DynamicLayerData:compute()
 			if timePoint._intervalData then
 				intervalData = timePoint._intervalData
 			end
-			-- timePoint.intervalTime:fix()
 			time = timePoint.intervalTime:tonumber()
 		elseif not isInterval then
 			time = timePoint.absoluteTime
@@ -686,14 +686,22 @@ function DynamicLayerData:moveInterval(intervalData, absoluteTime)
 	if intervalData.timePoint.absoluteTime == absoluteTime then
 		return
 	end
-	intervalData.timePoint.absoluteTime = absoluteTime
+	local minTime, maxTime = -math.huge, math.huge
+	if intervalData.prev then
+		minTime = intervalData.prev.timePoint.absoluteTime + self.minimumBeatLength * intervalData.prev.intervals
+	end
+	if intervalData.next then
+		maxTime = intervalData.next.timePoint.absoluteTime - self.minimumBeatLength * intervalData.intervals
+	end
+	intervalData.timePoint.absoluteTime = math.min(math.max(absoluteTime, minTime), maxTime)
 	self:compute()
 end
 function DynamicLayerData:updateInterval(intervalData, intervals)
 	if not intervals or intervals == intervalData.intervals or not intervalData.next then
 		return
 	end
-	intervals = math.max(intervals, 1)
+	local maxIntervals = (intervalData.next.timePoint.absoluteTime - intervalData.timePoint.absoluteTime) / self.minimumBeatLength
+	intervals = math.min(math.max(intervals, 1), math.floor(maxIntervals))
 	if intervals < intervalData.intervals then
 		local rightTimePoint = intervalData.next.timePoint
 		local tp = rightTimePoint.prev
