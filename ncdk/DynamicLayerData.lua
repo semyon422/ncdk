@@ -648,7 +648,7 @@ function DynamicLayerData:splitInterval(timePoint)
 end
 function DynamicLayerData:mergeInterval(timePoint)
 	local _intervalData = timePoint._intervalData
-	if not _intervalData then
+	if not _intervalData or self.intervalDatasRange.count == 2 then
 		return
 	end
 

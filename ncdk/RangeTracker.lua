@@ -3,7 +3,7 @@ local RangeTracker = {}
 local mt = {__index = RangeTracker}
 
 function RangeTracker:new()
-	return setmetatable({}, mt)
+	return setmetatable({count = 0}, mt)
 end
 
 local function addAfter(a, b)
@@ -67,13 +67,6 @@ function RangeTracker:getInterp(object)
 		return self.lastObject, nil
 	end
 
-	-- if self.startObject ~= self.firstObject and object < self.startObject then
-	-- 	return
-	-- end
-	-- if self.endObject ~= self.lastObject and object > self.endObject then
-	-- 	return
-	-- end
-
 	local currentObject = self.startObject
 	while currentObject < self.endObject do
 		if object == currentObject then
@@ -103,6 +96,7 @@ end
 
 function RangeTracker:insert(object)
 	local objectTime = assert(self:getObjectTime(object))
+	self.count = self.count + 1
 
 	if not self.startObject then
 		self.startObject = object
@@ -151,6 +145,8 @@ function RangeTracker:remove(object)
 	if not self.firstObject then
 		return
 	end
+	self.count = self.count - 1
+
 	if self.firstObject == self.lastObject then
 		self.startObject = nil
 		self.firstObject = nil
