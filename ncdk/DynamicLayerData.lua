@@ -22,7 +22,6 @@ function DynamicLayerData:new()
 
 	layerData.dynamicTimePoint = TimePoint:new()
 	layerData.defaultSignature = Fraction:new(4)
-	layerData.noteDatas = {}
 
 	layerData.mainTimeField = "measureTime"
 	local ld = layerData
