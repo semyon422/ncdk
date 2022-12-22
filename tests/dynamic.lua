@@ -855,3 +855,30 @@ do
 	assert(tp_5.intervalData == id1)
 	assert(tp_6.intervalData == id1)
 end
+
+do
+	local ld = DynamicLayerData:new()
+	ld:setTimeMode("interval")
+	ld:setRange(-10, 30)
+
+	local id1 = ld:getIntervalData(0, 10)
+	local id2 = ld:getIntervalData(10, 1)
+
+	local tp5 = ld:getTimePoint(IntervalTime:new(id1, F(5)))
+	assert(tp5.absoluteTime == 5)
+
+	ld:moveInterval(id2, 20)
+	assert(tp5.absoluteTime == 10)
+
+	ld:moveInterval(id2, 20)
+	ld:updateInterval(id1, 20)
+	assert(tp5.absoluteTime == 5)
+
+	local tp15 = ld:getTimePoint(IntervalTime:new(id1, F(15)))
+	assert(tp15.prev)
+	assert(tp15.next)
+
+	ld:updateInterval(id1, 10)
+	assert(not tp15.prev)
+	assert(not tp15.next)
+end

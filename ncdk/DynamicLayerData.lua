@@ -626,7 +626,11 @@ function DynamicLayerData:splitInterval(timePoint)
 		tp = intervalData.timePoint.next
 		dir = "next"
 	else
-		intervalData = self:_getIntervalData(timePoint, -t)
+		if timePoint.ptr == self.dynamicTimePoint.ptr then
+			intervalData = self:getIntervalData(timePoint.absoluteTime, -t)
+		else
+			intervalData = self:_getIntervalData(timePoint, -t)
+		end
 		tp = _intervalData.timePoint.prev
 		dir = "prev"
 	end
@@ -677,6 +681,29 @@ function DynamicLayerData:mergeInterval(timePoint)
 	until not tp or (check0 and tp.intervalTime.time:tonumber() == 0)
 
 	self:_removeIntervalData(timePoint)
+end
+function DynamicLayerData:moveInterval(intervalData, absoluteTime)
+	if intervalData.timePoint.absoluteTime == absoluteTime then
+		return
+	end
+	intervalData.timePoint.absoluteTime = absoluteTime
+	self:compute()
+end
+function DynamicLayerData:updateInterval(intervalData, intervals)
+	if not intervals or intervals == intervalData.intervals or not intervalData.next then
+		return
+	end
+	intervals = math.max(intervals, 1)
+	if intervals < intervalData.intervals then
+		local rightTimePoint = intervalData.next.timePoint
+		local tp = rightTimePoint.prev
+		while tp and tp.intervalTime.time:tonumber() >= intervals do
+			self.timePointsRange:remove(tp)
+			tp = rightTimePoint.prev
+		end
+	end
+	intervalData.intervals = intervals
+	self:compute()
 end
 
 function DynamicLayerData:getNoteData(timePoint, inputType, inputIndex)
