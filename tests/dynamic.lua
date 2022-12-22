@@ -882,3 +882,57 @@ do
 	assert(not tp15.prev)
 	assert(not tp15.next)
 end
+
+do
+	local ld = DynamicLayerData:new()
+	ld:setTimeMode("interval")
+	ld:setSignatureMode("short")
+	ld:setRange(-1, 2)
+
+	local id1 = ld:getIntervalData(0, 10)
+	local id2 = ld:getIntervalData(1, 1)
+
+	local tp1 = ld:getTimePoint(IntervalTime:new(id1, Fraction(3)))
+
+	local dtp = ld:getDynamicTimePointAbsolute(0.5, 192)
+	local id0 = ld:splitInterval(dtp)
+	local tp = id0.timePoint
+	assert(tp.intervalTime.time == F(0))
+	assert(tp.next.intervalTime.time == F(0))
+	assert(tp.prev.intervalTime.time == F(3))
+end
+
+do
+	local ld = DynamicLayerData:new()
+	ld:setTimeMode("interval")
+	ld:setSignatureMode("short")
+	ld:setRange(-1, 2)
+
+	local id1 = ld:getIntervalData(0, 10)
+	local id2 = ld:getIntervalData(1, 1)
+
+	local tp1 = ld:getTimePoint(IntervalTime:new(id1, Fraction(3)))
+
+	local id0 = ld:getIntervalData(0.5, 10)
+	local tp = id0.timePoint
+	assert(tp.intervalTime.time == F(0))
+	assert(tp.next.intervalTime.time == F(0))
+	assert(tp.prev.intervalTime.time == F(3))
+end
+
+do
+	local ld = DynamicLayerData:new()
+	ld:setTimeMode("interval")
+	ld:setSignatureMode("short")
+	ld:setRange(-1, 2)
+
+	local id1 = ld:getIntervalData(0, 10)
+	local id2 = ld:getIntervalData(1, 1)
+
+	local tp1 = ld:getTimePoint(IntervalTime:new(id1, Fraction(3)))
+
+	local tp = ld:getTimePoint(IntervalTime:new(0.5, Fraction:new(0)))
+	assert(tp.intervalTime.time == F(0))
+	assert(tp.next.intervalTime.time == F(0))
+	assert(tp.prev.intervalTime.time == F(3))
+end

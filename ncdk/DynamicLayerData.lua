@@ -611,16 +611,16 @@ function DynamicLayerData:splitInterval(timePoint)
 	local tp, dir
 	if t > 0 then
 		local intervals = _intervalData.next and _intervalData.intervals - t or 1
-		_intervalData.intervals = t
 		if timePoint.ptr == self.dynamicTimePoint.ptr then
 			intervalData = self:getIntervalData(timePoint.absoluteTime, intervals)
 		else
-			intervalData = self:_getIntervalData(timePoint, intervals)
 			timePoint.readonly = true
+			intervalData = self:_getIntervalData(timePoint, intervals)
 			timePoint.intervalData = intervalData
 			timePoint.intervalTime.intervalData = intervalData
 			timePoint.intervalTime.time = Fraction:new(0)
 		end
+		_intervalData.intervals = t
 
 		tp = intervalData.timePoint.next
 		dir = "next"
