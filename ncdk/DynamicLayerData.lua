@@ -714,9 +714,21 @@ function DynamicLayerData:updateInterval(intervalData, intervals)
 end
 
 function DynamicLayerData:getNoteData(timePoint, inputType, inputIndex)
+	local dtp = self.dynamicTimePoint
+	if timePoint.ptr == dtp.ptr then
+		timePoint = self:getTimePoint(dtp:getTime(), dtp.side, dtp.visualSide)
+	end
+
 	local noteData = NoteData:new(timePoint, inputType, inputIndex)
 	timePoint.noteDatas = timePoint.noteDatas or {}
-	table.insert(timePoint.noteDatas, noteData)
+	local noteDatas = noteData.timePoint.noteDatas
+	for _, _noteData in ipairs(noteDatas) do
+		if _noteData.inputType == inputType and _noteData.inputIndex == inputIndex then
+			return
+		end
+	end
+
+	table.insert(noteDatas, noteData)
 
 	return noteData
 end
