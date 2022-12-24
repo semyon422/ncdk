@@ -448,6 +448,8 @@ function DynamicLayerData:compute()
 				local duration = expandData.duration
 				if isMeasure then
 					duration = tempoData:getBeatDuration() * duration * currentSpeed
+				elseif isInterval then
+					duration = intervalData:getBeatDuration() * duration * currentSpeed
 				end
 				visualTime = visualTime + duration
 			end

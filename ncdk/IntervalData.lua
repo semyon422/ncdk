@@ -30,7 +30,7 @@ function IntervalData:getPair()
 	return p, a, true
 end
 
-function IntervalData:getBeatLength()
+function IntervalData:getBeatDuration()
 	local intervalData, nextIntervalData = self:getPair()
 	if not intervalData then
 		return
