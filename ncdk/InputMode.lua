@@ -22,6 +22,14 @@ function InputMode:set(s)
 	return self
 end
 
+function InputMode:getColumns()
+	local columns = 0
+	for _, inputCount in pairs(self) do
+		columns = columns + inputCount
+	end
+	return columns
+end
+
 local function sort(a, b)
 	if a[2] ~= b[2] then
 		return a[2] > b[2]
@@ -29,12 +37,31 @@ local function sort(a, b)
 	return a[1] < b[1]
 end
 
-function mt.__tostring(a)
+function InputMode:getList()
 	local inputs = {}
-	for inputType, inputCount in pairs(a) do
+	for inputType, inputCount in pairs(self) do
 		inputs[#inputs + 1] = {inputType, inputCount}
 	end
 	table.sort(inputs, sort)
+	return inputs
+end
+
+function InputMode:getInputMap()
+	local inputs = self:getList()
+
+	local map = {}
+	for i = 1, #inputs do
+		for j = 1, inputs[i][2] do
+			map[#map + 1] = {inputs[i][1], j}
+			map[inputs[i][1] .. j] = #map
+		end
+	end
+
+	return map
+end
+
+function mt.__tostring(a)
+	local inputs = a:getList()
 
 	for i = #inputs * 2, 1, -2 do
 		local input = inputs[i / 2]
