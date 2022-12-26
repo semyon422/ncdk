@@ -1,7 +1,6 @@
 local NoteChart = require("ncdk.NoteChart")
 local NoteData = require("ncdk.NoteData")
 local Fraction = require("ncdk.Fraction")
-local IntervalTime = require("ncdk.IntervalTime")
 
 local function F(n)
 	return Fraction:new(n, 1000, true)
@@ -230,14 +229,14 @@ do
 	local id2 = ld:insertIntervalData(10, 5)
 	local id3 = ld:insertIntervalData(20, 1)
 
-	local tp0 = ld:getTimePoint(IntervalTime:new(id1, F(0)))
-	local tp1 = ld:getTimePoint(IntervalTime:new(id1, F(1)))
-	local tp_1 = ld:getTimePoint(IntervalTime:new(id1, F(-1)))
+	local tp0 = ld:getTimePoint(id1, F(0))
+	local tp1 = ld:getTimePoint(id1, F(1))
+	local tp_1 = ld:getTimePoint(id1, F(-1))
 
-	local tp11 = ld:getTimePoint(IntervalTime:new(id2, F(1)))
-	local tp15 = ld:getTimePoint(IntervalTime:new(id2, F(5)))  -- not recommended here, not allowed in dynamic layer
-	local tp16 = ld:getTimePoint(IntervalTime:new(id2, F(6)))
-	local tp16_ = ld:getTimePoint(IntervalTime:new(id3, F(1)))
+	local tp11 = ld:getTimePoint(id2, F(1))
+	local tp15 = ld:getTimePoint(id2, F(5))  -- not recommended here, not allowed in dynamic layer
+	local tp16 = ld:getTimePoint(id2, F(6))
+	local tp16_ = ld:getTimePoint(id3, F(1))
 
 	nc:compute()
 

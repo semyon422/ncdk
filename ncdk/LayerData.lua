@@ -5,7 +5,9 @@ local StopData = require("ncdk.StopData")
 local VelocityData = require("ncdk.VelocityData")
 local ExpandData = require("ncdk.ExpandData")
 local IntervalData = require("ncdk.IntervalData")
-local IntervalTime = require("ncdk.IntervalTime")
+local AbsoluteTimePoint = require("ncdk.AbsoluteTimePoint")
+local IntervalTimePoint = require("ncdk.IntervalTimePoint")
+local MeasureTimePoint = require("ncdk.MeasureTimePoint")
 
 local LayerData = {}
 
@@ -78,34 +80,31 @@ function LayerData:setPrimaryTempo(tempo)
 	self.primaryTempo = tempo
 end
 
-function LayerData:getTimePoint(time, side, visualSide)
+function LayerData:newTimePoint()
 	local mode = assert(self.mode, "Mode should be set")
-
-	if type(time) == "number" then
-		time = math.min(math.max(time, -2147483648), 2147483647)
+	if mode == "absolute" then
+		return AbsoluteTimePoint:new()
+	elseif mode == "measure" then
+		return MeasureTimePoint:new()
+	elseif mode == "interval" then
+		return IntervalTimePoint:new()
 	end
+end
 
-	side = side or -1
-	visualSide = visualSide or -1
+function LayerData:getTimePoint(...)
+	self.testTimePoint = self.testTimePoint or self:newTimePoint()
+	self.testTimePoint:setTime(...)
+
 	local timePoints = self.timePoints
-	local key = tostring(time) .. "," .. side .. "," .. visualSide
+	local key = self.testTimePoint:getKey()
 	local timePoint = timePoints[key]
 	if timePoint then
 		return timePoint
 	end
 
-	timePoint = TimePoint:new()
-	timePoint.side = side
-	timePoint.visualSide = visualSide
+	timePoint = self:newTimePoint()
+	timePoint:setTime(...)
 	timePoints[key] = timePoint
-
-	if mode == "absolute" then
-		timePoint.absoluteTime = time
-	elseif mode == "measure" then
-		timePoint.measureTime = time
-	elseif mode == "interval" then
-		timePoint.intervalTime = time
-	end
 
 	return timePoint
 end
@@ -249,16 +248,10 @@ function LayerData:computeTimePoints()
 			end
 			currentTime = targetTime
 		elseif isInterval then
-			-- if timePoint._intervalData and timePoint._intervalData.next then
-			-- 	intervalData = timePoint._intervalData
-			-- end
-			-- local nextIntervalData = intervalData.next
-			-- local duration = (nextIntervalData.timePoint.absoluteTime - intervalData.timePoint.absoluteTime) / intervalData.intervals
-			-- time = intervalData.timePoint.absoluteTime + duration * timePoint.intervalTime.time
 			if timePoint._intervalData then
 				intervalData = timePoint._intervalData
 			end
-			time = timePoint.intervalTime:tonumber()
+			time = timePoint:tonumber()
 		else
 			time = timePoint.absoluteTime
 		end
@@ -406,9 +399,9 @@ function LayerData:getSignature(measureOffset)
 end
 
 function LayerData:insertIntervalData(absoluteTime, ...)
-	local timePoint = self:getTimePoint(IntervalTime:new(absoluteTime, Fraction:new(0)))
+	local timePoint = self:getTimePoint(absoluteTime)
 	local intervalData = self:insertTimingObject(timePoint, "intervalData", IntervalData, ...)
-	timePoint.intervalTime.intervalData = intervalData
+	timePoint.intervalData = intervalData
 	timePoint.absoluteTime = absoluteTime
 	return intervalData
 end
