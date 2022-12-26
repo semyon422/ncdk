@@ -34,19 +34,19 @@ function IntervalTime:tonumber()
 end
 
 function IntervalTime:fromnumber(id, t, limit)
-	local intervalData, nextIntervalData, offset = id:getPair()
-	local _a, _b = intervalData.timePoint, nextIntervalData.timePoint
-	local intervalTime = (t - _a.absoluteTime) / (_b.absoluteTime - _a.absoluteTime) * intervalData.intervals
+	local a, b, offset = id:getPair()
+	local ta, tb = a.timePoint, b.timePoint
+	local time = (t - ta.absoluteTime) / (tb.absoluteTime - ta.absoluteTime) * a.intervals
 	if offset then
-		intervalTime = intervalTime - intervalData.intervals
-		intervalData = nextIntervalData
+		time = time - a.intervals
+		a = b
 	end
-	local time = Fraction:new(intervalTime, limit, false)
-	if time:floor() == intervalData.intervals and intervalData.next then
-		intervalData = intervalData.next
+	time = Fraction:new(time, limit, false)
+	if time:floor() == a.intervals and a.next then
+		a = a.next
 		time = Fraction:new(0)
 	end
-	return IntervalTime:new(intervalData, time)
+	return IntervalTime:new(a, time)
 end
 
 function mt.__tostring(a)
@@ -59,39 +59,22 @@ end
 
 local function isNumbers(a, b)
 	local ia, ib = a.intervalData, b.intervalData
-	local ta, tb = type(ia) == "table", type(ib) == "table"
-	if ta and tb then
-		return
-	end
-	if ta then
-		ia = a:tonumber()
-	end
-	if tb then
-		ib = b:tonumber()
-	end
+	ia = type(ia) == "number" and ia or ia.timePoint.absoluteTime
+	ib = type(ib) == "number" and ib or ib.timePoint.absoluteTime
 	return ia, ib
 end
 
 function mt.__eq(a, b)
 	local na, nb = isNumbers(a, b)
-	if na then
-		return na == nb
-	end
-	return a.intervalData == b.intervalData and a.time == b.time
+	return na == nb and a.time == b.time
 end
 function mt.__lt(a, b)
 	local na, nb = isNumbers(a, b)
-	if na then
-		return na < nb
-	end
-	return a.intervalData < b.intervalData or a.intervalData == b.intervalData and a.time < b.time
+	return na < nb or na == nb and a.time < b.time
 end
 function mt.__le(a, b)
 	local na, nb = isNumbers(a, b)
-	if na then
-		return na <= nb
-	end
-	return a.intervalData < b.intervalData or a.intervalData == b.intervalData and a.time <= b.time
+	return na < nb or na == nb and a.time <= b.time
 end
 
 return IntervalTime
