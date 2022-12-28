@@ -289,10 +289,10 @@ function LayerData:computeTimePoints()
 			if nextVelocityData then
 				velocityData = nextVelocityData
 			end
+			currentSpeed = velocityData and velocityData.currentSpeed or 1
 
 			local expandData = timePoint._expandData
 			if expandData then
-				expandData.velocityData = velocityData
 				local duration = expandData.duration
 				if isMeasure then
 					duration = tempoData:getBeatDuration() * duration * currentSpeed
