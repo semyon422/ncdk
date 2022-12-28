@@ -25,6 +25,10 @@ function IntervalTimePoint:getTime()
 	return self.intervalData, self.time, self.visualSide
 end
 
+function IntervalTimePoint:getPrevVisualTime()
+	return self.intervalData, self.time, self.visualSide - 1
+end
+
 function IntervalTimePoint:tonumber()
 	local id = self.intervalData
 	if type(id) == "number" then

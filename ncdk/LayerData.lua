@@ -366,8 +366,9 @@ function LayerData:removeTempoData()
 end
 
 function LayerData:insertStopData(time, ...)
-	local stopData = self:insertTimingObject(self:getTimePoint(time, 1), "stopData", StopData, ...)
-	stopData.leftTimePoint = self:getTimePoint(time, 0)  -- for time point interpolation
+	local timePoint = self:getTimePoint(time, 1)
+	local stopData = self:insertTimingObject(timePoint, "stopData", StopData, ...)
+	stopData.leftTimePoint = self:getTimePoint(timePoint:getPrevTime())  -- for time point interpolation
 	return stopData
 end
 function LayerData:removeStopData()
@@ -382,8 +383,9 @@ function LayerData:removeVelocityData()
 end
 
 function LayerData:insertExpandData(time, side, ...)
-	local expandData = self:insertTimingObject(self:getTimePoint(time, side, 1), "expandData", ExpandData, ...)
-	expandData.leftTimePoint = self:getTimePoint(time, side, 0)  -- for time point interpolation
+	local timePoint = self:getTimePoint(time, side, 1)
+	local expandData = self:insertTimingObject(timePoint, "expandData", ExpandData, ...)
+	expandData.leftTimePoint = self:getTimePoint(timePoint:getPrevVisualTime())  -- for time point interpolation
 	return expandData
 end
 function LayerData:removeExpandData()

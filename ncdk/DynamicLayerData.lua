@@ -490,8 +490,9 @@ function DynamicLayerData:removeTempoData(time)
 end
 
 function DynamicLayerData:getStopData(time, ...)
-	local stopData = self:getTimingObject(self:getTimePoint(time, 1), "stopData", StopData, ...)
-	stopData.leftTimePoint = self:getTimePoint(time, 0)  -- for time point interpolation
+	local timePoint = self:getTimePoint(time, 1)
+	local stopData = self:getTimingObject(timePoint, "stopData", StopData, ...)
+	stopData.leftTimePoint = self:getTimePoint(timePoint:getPrevTime())  -- for time point interpolation
 	return stopData
 end
 function DynamicLayerData:removeStopData(time)
@@ -506,8 +507,9 @@ function DynamicLayerData:removeVelocityData(time, side)
 end
 
 function DynamicLayerData:getExpandData(time, side, ...)
-	local expandData = self:getTimingObject(self:getTimePoint(time, side, 1), "expandData", ExpandData, ...)
-	expandData.leftTimePoint = self:getTimePoint(time, side, 0)  -- for time point interpolation
+	local timePoint = self:getTimePoint(time, side, 1)
+	local expandData = self:getTimingObject(timePoint, "expandData", ExpandData, ...)
+	expandData.leftTimePoint = self:getTimePoint(timePoint:getPrevVisualTime())  -- for time point interpolation
 	return expandData
 end
 function DynamicLayerData:removeExpandData(time, side)

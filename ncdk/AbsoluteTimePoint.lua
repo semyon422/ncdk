@@ -13,6 +13,10 @@ function AbsoluteTimePoint:getTime()
 	return self.absoluteTime, self.visualSide
 end
 
+function AbsoluteTimePoint:getPrevVisualTime()
+	return self.absoluteTime, self.visualSide - 1
+end
+
 function AbsoluteTimePoint.__tostring(a)
 	return ("(%s,%s)"):format(a.absoluteTime, a.visualSide)
 end

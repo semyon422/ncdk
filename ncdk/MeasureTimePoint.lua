@@ -21,6 +21,14 @@ function MeasureTimePoint:getTime()
 	return self.measureTime, self.side, self.visualSide
 end
 
+function MeasureTimePoint:getPrevTime()
+	return self.measureTime, self.side - 1, 0
+end
+
+function MeasureTimePoint:getPrevVisualTime()
+	return self.measureTime, self.side, self.visualSide - 1
+end
+
 function MeasureTimePoint:tonumber()
 	return self.measureTime:tonumber()
 end
