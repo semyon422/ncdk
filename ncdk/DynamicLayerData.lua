@@ -427,9 +427,6 @@ function DynamicLayerData:compute()
 			timePoint.tempoData = tempoData
 			timePoint.velocityData = velocityData
 			timePoint.signatureData = signatureData
-			if not timePoint.intervalData then
-				timePoint.intervalData = intervalData
-			end
 
 			if not timePoint.readonly then
 				timePoint.absoluteTime = time
