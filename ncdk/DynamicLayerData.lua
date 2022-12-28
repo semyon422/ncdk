@@ -319,14 +319,6 @@ function DynamicLayerData:compute()
 		return
 	end
 
-	-- start with left time point to be not affected by stops and expands
-	if timePoint.side == 1 and timePoint.prev and timePoint.prev.side == 0 then
-		timePoint = timePoint.prev
-	end
-	if timePoint.visualSide == 1 and timePoint.prev and timePoint.prev.visualSide == 0 then
-		timePoint = timePoint.prev
-	end
-
 	local signatureData = self.signatureDatasRange.startObject
 	if signatureData and signatureData.timePoint > timePoint then
 		signatureData = nil
@@ -334,10 +326,12 @@ function DynamicLayerData:compute()
 
 	local primaryTempo = self.primaryTempo
 
-	local time = timePoint.absoluteTime or 0
-	local beatTime = timePoint.beatTime or 0
-	local visualTime = timePoint.visualTime or 0
-	local currentTime = timePoint.measureTime
+	-- start with prev time point to be not affected by stops and expands
+	local prevTimePoint = timePoint.prev or timePoint
+	local time = prevTimePoint.absoluteTime or 0
+	local beatTime = prevTimePoint.beatTime or 0
+	local visualTime = prevTimePoint.visualTime or 0
+	local currentTime = prevTimePoint.measureTime
 	local currentAbsoluteTime = time
 	while timePoint and timePoint <= endTimePoint do
 		local isAtTimePoint = not isMeasure

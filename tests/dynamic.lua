@@ -579,7 +579,6 @@ do
 	assert(tostring(ld:getDynamicTimePoint(F(5), 1, 0)) == "(5.0/1,1,0)")  -- 21, 22
 	assert(tostring(ld:getDynamicTimePoint(F(5), 1, 1)) == "(5.0/1,1,1)")  -- 21, 23
 
-	print(tostring(ld:getDynamicTimePointAbsolute(192, 20, 0, 0)))
 	assert(tostring(ld:getDynamicTimePointAbsolute(192, 20, 0, 0)) == "(5.0/1,0,0)")
 	assert(tostring(ld:getDynamicTimePointAbsolute(192, 20, 1, 0)) == "(5.0/1,0,0)")
 	assert(tostring(ld:getDynamicTimePointAbsolute(192, 21, 0, 0)) == "(5.0/1,1,0)")
