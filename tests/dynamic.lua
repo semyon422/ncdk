@@ -12,27 +12,27 @@ do
 
 	ld:getTempoData(F(0), 60)
 
-	local tp = ld:getTimePoint(F(0), -1)
+	local tp = ld:getTimePoint(F(0))
 	assert(tp.absoluteTime == 0)
 
-	tp = ld:getTimePoint(F(1), -1)
+	tp = ld:getTimePoint(F(1))
 	assert(tp.absoluteTime == 4)
 
-	tp = ld:getTimePoint(F(-1), -1)
+	tp = ld:getTimePoint(F(-1))
 	assert(tp.absoluteTime == -4)
 
-	ld:getTimePoint(F(-10), -1)
-	ld:getTimePoint(F(-9), -1)
-	ld:getTimePoint(F(-8), -1)
-	ld:getTimePoint(F(-7), -1)
-	ld:getTimePoint(F(10), -1)
-	ld:getTimePoint(F(9), -1)
-	ld:getTimePoint(F(8), -1)
-	ld:getTimePoint(F(7), -1)
+	ld:getTimePoint(F(-10))
+	ld:getTimePoint(F(-9))
+	ld:getTimePoint(F(-8))
+	ld:getTimePoint(F(-7))
+	ld:getTimePoint(F(10))
+	ld:getTimePoint(F(9))
+	ld:getTimePoint(F(8))
+	ld:getTimePoint(F(7))
 
 	ld:setRange(F(-8), F(-5))
 
-	tp = ld:getTimePoint(F(-7), -1)
+	tp = ld:getTimePoint(F(-7))
 	assert(tp.absoluteTime == -28)
 end
 
@@ -43,20 +43,20 @@ do
 
 	ld:getTempoData(F(0), 60)
 
-	assert(ld:getTimePoint(F(0), -1).absoluteTime == 0)
-	assert(ld:getTimePoint(F(1), -1).absoluteTime == 4)
+	assert(ld:getTimePoint(F(0)).absoluteTime == 0)
+	assert(ld:getTimePoint(F(1)).absoluteTime == 4)
 
 	ld:getTempoData(F(1), 120)
-	assert(ld:getTimePoint(F(2), -1).absoluteTime == 6)
+	assert(ld:getTimePoint(F(2)).absoluteTime == 6)
 
 	ld:getTempoData(F(2), 240)
-	assert(ld:getTimePoint(F(3), -1).absoluteTime == 7)
+	assert(ld:getTimePoint(F(3)).absoluteTime == 7)
 
 	ld:getTempoData(F(-1), 30)
-	assert(ld:getTimePoint(F(-1), -1).absoluteTime == -8)
+	assert(ld:getTimePoint(F(-1)).absoluteTime == -8)
 
 	ld:getTempoData(F(-2), 15)
-	assert(ld:getTimePoint(F(-2), -1).absoluteTime == -24)
+	assert(ld:getTimePoint(F(-2)).absoluteTime == -24)
 end
 
 do
@@ -66,18 +66,18 @@ do
 
 	ld:getTempoData(F(0), 60)
 
-	assert(ld:getTimePoint(F(1), -1).absoluteTime == 4)
+	assert(ld:getTimePoint(F(1)).absoluteTime == 4)
 
 	ld:setRange(F(4), F(8))
-	assert(ld:getTimePoint(F(4), -1).absoluteTime == 16)
-	assert(ld:getTimePoint(F(5), -1).absoluteTime == 20)
-	assert(ld:getTimePoint(F(6), -1).absoluteTime == 24)
-	assert(ld:getTimePoint(F(7), -1).absoluteTime == 28)
-	assert(ld:getTimePoint(F(8), -1).absoluteTime == 32)
+	assert(ld:getTimePoint(F(4)).absoluteTime == 16)
+	assert(ld:getTimePoint(F(5)).absoluteTime == 20)
+	assert(ld:getTimePoint(F(6)).absoluteTime == 24)
+	assert(ld:getTimePoint(F(7)).absoluteTime == 28)
+	assert(ld:getTimePoint(F(8)).absoluteTime == 32)
 	ld:setRange(F(4), F(6))
 
-	assert(ld.timePointsRange.startObject == ld:getTimePoint(F(1), -1))
-	assert(ld.timePointsRange.endObject == ld:getTimePoint(F(7), -1))
+	assert(ld.timePointsRange.startObject == ld:getTimePoint(F(1)))
+	assert(ld.timePointsRange.endObject == ld:getTimePoint(F(7)))
 end
 
 do
@@ -89,7 +89,7 @@ do
 
 	local timePoints = {}
 	for i = 0, 10 do
-		timePoints[i] = ld:getTimePoint(F(i), -1)
+		timePoints[i] = ld:getTimePoint(F(i))
 	end
 
 	ld:setRange(F(0), F(2))
@@ -122,27 +122,27 @@ do
 	ld:getTempoData(F(0), 60)
 
 	for i = 0, 10 do
-		ld:getTimePoint(F(i), -1)
+		ld:getTimePoint(F(i))
 	end
 
-	assert(ld:getTimePoint(F(0), -1).absoluteTime == 0)
-	assert(ld:getTimePoint(F(1), -1).absoluteTime == 4)
-	assert(ld:getTimePoint(F(2), -1).absoluteTime == 8)
-	assert(ld:getTimePoint(F(3), -1).absoluteTime == 12)
+	assert(ld:getTimePoint(F(0)).absoluteTime == 0)
+	assert(ld:getTimePoint(F(1)).absoluteTime == 4)
+	assert(ld:getTimePoint(F(2)).absoluteTime == 8)
+	assert(ld:getTimePoint(F(3)).absoluteTime == 12)
 
 	ld:getTempoData(F(1), 120)
 
-	assert(ld:getTimePoint(F(0), -1).absoluteTime == 0)
-	assert(ld:getTimePoint(F(1), -1).absoluteTime == 4)
-	assert(ld:getTimePoint(F(2), -1).absoluteTime == 6)
-	assert(ld:getTimePoint(F(3), -1).absoluteTime == 8)
+	assert(ld:getTimePoint(F(0)).absoluteTime == 0)
+	assert(ld:getTimePoint(F(1)).absoluteTime == 4)
+	assert(ld:getTimePoint(F(2)).absoluteTime == 6)
+	assert(ld:getTimePoint(F(3)).absoluteTime == 8)
 
 	ld:removeTempoData(F(0))
 
-	assert(ld:getTimePoint(F(0), -1).absoluteTime == 0)
-	assert(ld:getTimePoint(F(1), -1).absoluteTime == 2)
-	assert(ld:getTimePoint(F(2), -1).absoluteTime == 4)
-	assert(ld:getTimePoint(F(3), -1).absoluteTime == 6)
+	assert(ld:getTimePoint(F(0)).absoluteTime == 0)
+	assert(ld:getTimePoint(F(1)).absoluteTime == 2)
+	assert(ld:getTimePoint(F(2)).absoluteTime == 4)
+	assert(ld:getTimePoint(F(3)).absoluteTime == 6)
 end
 
 do
@@ -154,7 +154,7 @@ do
 
 	local timePoints = {}
 	for i = 0, 10 do
-		timePoints[i] = ld:getTimePoint(F(i), -1)
+		timePoints[i] = ld:getTimePoint(F(i))
 	end
 
 	assert(timePoints[0].absoluteTime == 0)
@@ -189,10 +189,10 @@ do
 	ld:getStopData(F(2), F(4))
 
 	local t = {
-		{F(0), -1, 0},
-		{F(1), -1, 4},
+		{F(0), 0, 0},
+		{F(1), 0, 4},
 		{F(1), 1, 8},
-		{F(2), -1, 12},
+		{F(2), 0, 12},
 		{F(2), 1, 16},
 	}
 
@@ -214,14 +214,14 @@ do
 	ld:getStopData(F(1), F(4))
 
 	local t = {
-		{F(-2), -1, -12},
-		{F(-1), -1, -8},
+		{F(-2), 0, -12},
+		{F(-1), 0, -8},
 		{F(-1), 1, -4},
-		{F(0), -1, 0},
+		{F(0), 0, 0},
 		{F(0.5), 1, 2},
-		{F(1), -1, 4},
+		{F(1), 0, 4},
 		{F(1), 1, 8},
-		{F(2), -1, 12},
+		{F(2), 0, 12},
 	}
 
 	for _, _t in ipairs(t) do
@@ -246,21 +246,21 @@ do
 	ld:getStopData(F(1.5), F(2))
 
 	local t = {
-		{F(-3), -1, -24},
-		{F(-2.5), -1, -22},
+		{F(-3), 0, -24},
+		{F(-2.5), 0, -22},
 		{F(-2.5), 1, -18},
-		{F(-2), -1, -16},
-		{F(-1), -1, -12},
+		{F(-2), 0, -16},
+		{F(-1), 0, -12},
 		{F(-1), 1, -4},
-		{F(0), -1, 0},
+		{F(0), 0, 0},
 		{F(0.5), 1, 2},  -- right time point only
-		{F(1), -1, 4},
-		{F(1.5), -1, 6},
+		{F(1), 0, 4},
+		{F(1.5), 0, 6},
 		{F(1.5), 1, 7},
-		{F(2), -1, 8},
-		{F(2.5), -1, 9},
-		{F(3), -1, 9.5},
-		{F(3.5), -1, 10},
+		{F(2), 0, 8},
+		{F(2.5), 0, 9},
+		{F(3), 0, 9.5},
+		{F(3.5), 0, 10},
 	}
 
 	for _, _t in ipairs(t) do
@@ -273,15 +273,15 @@ do
 	ld:removeStopData(F(-1))
 
 	local t = {
-		{F(-3), -1, -16},
-		{F(-2.5), -1, -14},
+		{F(-3), 0, -16},
+		{F(-2.5), 0, -14},
 		{F(-2.5), 1, -10},
-		{F(-2), -1, -8},
-		{F(-1), -1, -4},
+		{F(-2), 0, -8},
+		{F(-1), 0, -4},
 		{F(-1), 1, -4},
-		{F(0), -1, 0},
-		{F(0.5), -1, 2},
-		{F(1), -1, 4},
+		{F(0), 0, 0},
+		{F(0.5), 0, 2},
+		{F(1), 0, 4},
 	}
 
 	for _, _t in ipairs(t) do
@@ -295,20 +295,20 @@ do
 	ld:setRange(F(-10), F(10))
 	ld:getTempoData(F(0), 60)
 
-	local tp4 = ld:getTimePoint(F(-1), -1)
-	local tp1 = ld:getTimePoint(F(0), -1)
-	local tp2 = ld:getTimePoint(F(1), -1)
-	local tp3 = ld:getTimePoint(F(2), -1)
+	local tp4 = ld:getTimePoint(F(-1))
+	local tp1 = ld:getTimePoint(F(0))
+	local tp2 = ld:getTimePoint(F(1))
+	local tp3 = ld:getTimePoint(F(2))
 
-	ld:getVelocityData(F(0), -1, 1)
-	ld:getVelocityData(F(1), -1, 2)
+	ld:getVelocityData(F(0), 0, 1)
+	ld:getVelocityData(F(1), 0, 2)
 
 	assert(tp2.visualTime == tp1.absoluteTime + 4)
 	assert(tp3.visualTime == tp2.absoluteTime + 8)
 	assert(tp3.visualTime == tp1.absoluteTime + 12)
 	assert(tp4.visualTime == tp1.absoluteTime - 4)
 
-	ld:removeVelocityData(F(0), -1)
+	ld:removeVelocityData(F(0))
 
 	assert(tp2.visualTime == 8)
 	assert(tp3.visualTime == 16)
@@ -321,9 +321,9 @@ do
 	ld:setRange(F(-10), F(10))
 	ld:getTempoData(F(0), 60)
 
-	local tp1 = ld:getTimePoint(F(0), -1)
-	local tp2 = ld:getTimePoint(F(1), -1)
-	local tp3 = ld:getTimePoint(F(2), -1)
+	local tp1 = ld:getTimePoint(F(0))
+	local tp2 = ld:getTimePoint(F(1))
+	local tp3 = ld:getTimePoint(F(2))
 
 	local nd1 = ld:getNoteData(tp1, "key", 1)
 	local nd2 = ld:getNoteData(tp2, "key", 2)
@@ -338,24 +338,24 @@ do
 	ld:setRange(F(-10), F(10))
 	ld:getTempoData(F(0), 60)
 
-	local tp1 = ld:getTimePoint(F(0), -1)
-	local tp2 = ld:getTimePoint(F(1), -1)
-	local tp3 = ld:getTimePoint(F(2), -1)
+	local tp1 = ld:getTimePoint(F(0))
+	local tp2 = ld:getTimePoint(F(1))
+	local tp3 = ld:getTimePoint(F(2))
 
-	local dtp = ld:getDynamicTimePoint(F(0.5), -1)
+	local dtp = ld:getDynamicTimePoint(F(0.5))
 	assert(dtp.absoluteTime == 2)
 	assert(dtp.visualTime == 2)
 
-	dtp = ld:getDynamicTimePoint(F(-1), -1)
+	dtp = ld:getDynamicTimePoint(F(-1))
 	assert(dtp.absoluteTime == -4)
 	assert(dtp.visualTime == -4)
 
-	dtp = ld:getDynamicTimePoint(F(3.5), -1)
+	dtp = ld:getDynamicTimePoint(F(3.5))
 	assert(dtp.absoluteTime == 14)
 	assert(dtp.visualTime == 14)
 
 	ld:getStopData(F(1), F(4))
-	dtp = ld:getDynamicTimePoint(F(1), -1)
+	dtp = ld:getDynamicTimePoint(F(1))
 	assert(dtp.absoluteTime == 4)
 	assert(dtp.visualTime == 4)
 	dtp = ld:getDynamicTimePoint(F(1), 1)
@@ -369,15 +369,15 @@ do
 	ld:setRange(F(-10), F(10))
 	ld:getTempoData(F(0), 60)
 
-	ld:getExpandData(F(1), -1, F(1))
+	ld:getExpandData(F(1), 0, F(1))
 
-	assert(ld:getTimePoint(F(1), -1, -1).visualTime == 4)
-	assert(ld:getTimePoint(F(1), -1, 1).visualTime == 5)
+	assert(ld:getTimePoint(F(1), 0, 0).visualTime == 4)
+	assert(ld:getTimePoint(F(1), 0, 1).visualTime == 5)
 
-	ld:removeExpandData(F(1), -1)
+	ld:removeExpandData(F(1))
 
-	assert(ld:getTimePoint(F(1), -1, -1).visualTime == 4)
-	assert(ld:getTimePoint(F(1), -1, 1).visualTime == 4)
+	assert(ld:getTimePoint(F(1), 0, 0).visualTime == 4)
+	assert(ld:getTimePoint(F(1), 0, 1).visualTime == 4)
 end
 
 do
@@ -389,7 +389,7 @@ do
 	ld:getTempoData(Fraction(3, 10, true), 120)
 
 	local function dat(t)
-		return ld:getDynamicTimePoint(Fraction(t), -1).absoluteTime
+		return ld:getDynamicTimePoint(Fraction(t)).absoluteTime
 	end
 
 	assert(dat(1) == 4)
@@ -486,7 +486,7 @@ do
 	ld:getTimePoint(F(1))
 
 	local function geta(t)
-		return ld:getDynamicTimePointAbsolute(192, t, -1)
+		return ld:getDynamicTimePointAbsolute(192, t)
 	end
 
 	assert(geta(0).measureTime == F(0))
@@ -502,7 +502,7 @@ do
 	assert(geta(-4).visualTime == -4)
 
 	local function get(t)
-		return ld:getDynamicTimePoint(F(t), -1)
+		return ld:getDynamicTimePoint(F(t))
 	end
 
 	assert(get(0).absoluteTime == 0)
@@ -532,32 +532,32 @@ do
 
 	ld:getStopData(F(5), F(4))
 
-	ld:getVelocityData(F(0.5), -1, 1)
-	ld:getVelocityData(F(4.5), -1, 2)
-	ld:getVelocityData(F(5 / 4), -1, 0)
-	ld:getVelocityData(F(6 / 4), -1, 1)
+	ld:getVelocityData(F(0.5), 0, 1)
+	ld:getVelocityData(F(4.5), 0, 2)
+	ld:getVelocityData(F(5 / 4), 0, 0)
+	ld:getVelocityData(F(6 / 4), 0, 1)
 
-	ld:getExpandData(F(2), -1, F(1))
+	ld:getExpandData(F(2), 0, F(1))
 
 	ld:setRange(F(6), F(16))
-	local dtp = ld:getDynamicTimePointAbsolute(192, 32, -1)
+	local dtp = ld:getDynamicTimePointAbsolute(192, 32)
 	assert(dtp.measureTime == F(12))
 
 	ld:setRange(F(6), F(16))
-	local dtp = ld:getDynamicTimePointAbsolute(192, 32, -1)
+	local dtp = ld:getDynamicTimePointAbsolute(192, 32)
 	assert(dtp.measureTime == F(12))
 
 	ld:setRange(F(6), F(16))
-	local dtp = ld:getDynamicTimePointAbsolute(192, 32, -1)
+	local dtp = ld:getDynamicTimePointAbsolute(192, 32)
 	assert(dtp.measureTime == F(12))
 
 	ld:setRange(F(3), F(13))
-	local dtp = ld:getDynamicTimePointAbsolute(192, 24, -1)
+	local dtp = ld:getDynamicTimePointAbsolute(192, 24)
 	assert(dtp.measureTime == F(8))
 
 	ld:setRange(F(2), F(12))
-	assert(ld:getDynamicTimePointAbsolute(192, 22, -1))
-	assert(ld:getDynamicTimePoint(Fraction(2), -1))
+	assert(ld:getDynamicTimePointAbsolute(192, 22))
+	assert(ld:getDynamicTimePoint(Fraction(2)))
 end
 
 do
@@ -570,19 +570,20 @@ do
 	ld:getTempoData(F(1), 60)
 
 	ld:getStopData(F(5), F(1))
-	ld:getExpandData(F(5), -1, F(1))
+	ld:getExpandData(F(5), 0, F(1))
 	ld:getExpandData(F(5), 1, F(1))
 
-	assert(tostring(ld:getDynamicTimePoint(F(5))) == "5.0/1<-<-")  -- 20, 20
-	assert(tostring(ld:getDynamicTimePoint(F(5), -1, -1)) == "5.0/1<-<-")  -- 20, 20
-	assert(tostring(ld:getDynamicTimePoint(F(5), -1, 1)) == "5.0/1<-->")  -- 20, 21
-	assert(tostring(ld:getDynamicTimePoint(F(5), 1, -1)) == "5.0/1-><-")  -- 21, 22
-	assert(tostring(ld:getDynamicTimePoint(F(5), 1, 1)) == "5.0/1->->")  -- 21, 23
+	assert(tostring(ld:getDynamicTimePoint(F(5))) == "(5.0/1,0,0)")  -- 20, 20
+	assert(tostring(ld:getDynamicTimePoint(F(5), 0, 0)) == "(5.0/1,0,0)")  -- 20, 20
+	assert(tostring(ld:getDynamicTimePoint(F(5), 0, 1)) == "(5.0/1,0,1)")  -- 20, 21
+	assert(tostring(ld:getDynamicTimePoint(F(5), 1, 0)) == "(5.0/1,1,0)")  -- 21, 22
+	assert(tostring(ld:getDynamicTimePoint(F(5), 1, 1)) == "(5.0/1,1,1)")  -- 21, 23
 
-	assert(tostring(ld:getDynamicTimePointAbsolute(192, 20, -1, -1)) == "5.0/1<-<-")
-	assert(tostring(ld:getDynamicTimePointAbsolute(192, 20, 1, -1)) == "5.0/1<-<-")
-	assert(tostring(ld:getDynamicTimePointAbsolute(192, 21, -1, -1)) == "5.0/1-><-")
-	assert(tostring(ld:getDynamicTimePointAbsolute(192, 21, 1, -1)) == "5.0/1-><-")
+	print(tostring(ld:getDynamicTimePointAbsolute(192, 20, 0, 0)))
+	assert(tostring(ld:getDynamicTimePointAbsolute(192, 20, 0, 0)) == "(5.0/1,0,0)")
+	assert(tostring(ld:getDynamicTimePointAbsolute(192, 20, 1, 0)) == "(5.0/1,0,0)")
+	assert(tostring(ld:getDynamicTimePointAbsolute(192, 21, 0, 0)) == "(5.0/1,1,0)")
+	assert(tostring(ld:getDynamicTimePointAbsolute(192, 21, 1, 0)) == "(5.0/1,1,0)")
 end
 
 do
@@ -598,30 +599,30 @@ do
 
 	ld:getTimePoint(F(0))
 
-	ld:getTimePoint(F(-5), -1, -1)
-	ld:getTimePoint(F(-5), -1, 1)
-	ld:getTimePoint(F(-5), 1, -1)
+	ld:getTimePoint(F(-5), 0, 0)
+	ld:getTimePoint(F(-5), 0, 1)
+	ld:getTimePoint(F(-5), 1, 0)
 	ld:getTimePoint(F(-5), 1, 1)
-	ld:getTimePoint(F(5), -1, -1)
-	ld:getTimePoint(F(5), -1, 1)
-	ld:getTimePoint(F(5), 1, -1)
+	ld:getTimePoint(F(5), 0, 0)
+	ld:getTimePoint(F(5), 0, 1)
+	ld:getTimePoint(F(5), 1, 0)
 	ld:getTimePoint(F(5), 1, 1)
 
 	local range = ld.timePointsRange
 
-	assert(tostring(range.startObject) == "-5.0/1<-<-")
-	assert(tostring(range.endObject) == "5.0/1->->")
+	assert(tostring(range.startObject) == "(-5.0/1,0,0)")
+	assert(tostring(range.endObject) == "(5.0/1,1,1)")
 
 	ld:getTimePoint(F(-10))
 	ld:getTimePoint(F(10))
 
 	ld:setRange(F(-3), F(3))
-	assert(tostring(range.startObject) == "-5.0/1->->")
-	assert(tostring(range.endObject) == "5.0/1<-<-")
+	assert(tostring(range.startObject) == "(-5.0/1,1,1)")
+	assert(tostring(range.endObject) == "(5.0/1,0,0)")
 
 	ld:setRange(F(-5), F(5))
-	assert(tostring(range.startObject) == "-10.0/1<-<-")
-	assert(tostring(range.endObject) == "10.0/1<-<-")
+	assert(tostring(range.startObject) == "(-10.0/1,0,0)")
+	assert(tostring(range.endObject) == "(10.0/1,0,0)")
 end
 
 do

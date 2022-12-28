@@ -28,10 +28,10 @@ layerData1:insertStopData(Fraction:new(0), Fraction:new(4))
 
 local timePoint1 = layerData1:getTimePoint(
 	Fraction:new(0), -- measureTime in measure mode
-	-1 -- side
+	0 -- side
 )
 
-layerData1:insertVelocityData(Fraction:new(0), -1, 1)
+layerData1:insertVelocityData(Fraction:new(0), 0, 1)
 
 local noteData1 = NoteData:new(timePoint1)
 layerData1:addNoteData(noteData1)

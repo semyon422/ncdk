@@ -2,7 +2,7 @@ local TimePoint = require("ncdk.TimePoint")
 
 local AbsoluteTimePoint = TimePoint:new()
 
-AbsoluteTimePoint.visualSide = -1
+AbsoluteTimePoint.visualSide = 0
 
 function AbsoluteTimePoint:setTime(time, visualSide)
 	self.absoluteTime = time
@@ -13,12 +13,8 @@ function AbsoluteTimePoint:getTime()
 	return self.absoluteTime, self.visualSide
 end
 
-function AbsoluteTimePoint:getKey()
-	return self.absoluteTime .. "," .. self.visualSide
-end
-
 function AbsoluteTimePoint.__tostring(a)
-	return ("%s%s%s"):format(a.absoluteTime, a.visualSide == -1 and "<-" or "->")
+	return ("(%s,%s)"):format(a.absoluteTime, a.visualSide)
 end
 
 function AbsoluteTimePoint.__eq(a, b)

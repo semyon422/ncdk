@@ -77,7 +77,7 @@ do
 		{3, 5 * 4, 5 * 4}
 	}
 	for i, d in ipairs(cases) do
-		d[4] = ld:getTimePoint(F(d[1]), -1)
+		d[4] = ld:getTimePoint(F(d[1]), 0)
 		d[5] = ld:getTimePoint(F(d[1]), 1)
 	end
 

@@ -67,7 +67,7 @@ function LayerData:setTimeMode(mode)
 	else
 		error("Wrong time mode")
 	end
-	self.zeroTimePoint = self:getTimePoint(time, -1)
+	self.zeroTimePoint = self:getTimePoint(time)
 end
 
 function LayerData:setSignatureMode(mode)
@@ -96,7 +96,7 @@ function LayerData:getTimePoint(...)
 	self.testTimePoint:setTime(...)
 
 	local timePoints = self.timePoints
-	local key = self.testTimePoint:getKey()
+	local key = tostring(self.testTimePoint)
 	local timePoint = timePoints[key]
 	if timePoint then
 		return timePoint
@@ -367,7 +367,7 @@ end
 
 function LayerData:insertStopData(time, ...)
 	local stopData = self:insertTimingObject(self:getTimePoint(time, 1), "stopData", StopData, ...)
-	stopData.leftTimePoint = self:getTimePoint(time, -1)  -- for time point interpolation
+	stopData.leftTimePoint = self:getTimePoint(time, 0)  -- for time point interpolation
 	return stopData
 end
 function LayerData:removeStopData()
@@ -383,7 +383,7 @@ end
 
 function LayerData:insertExpandData(time, side, ...)
 	local expandData = self:insertTimingObject(self:getTimePoint(time, side, 1), "expandData", ExpandData, ...)
-	expandData.leftTimePoint = self:getTimePoint(time, side, -1)  -- for time point interpolation
+	expandData.leftTimePoint = self:getTimePoint(time, side, 0)  -- for time point interpolation
 	return expandData
 end
 function LayerData:removeExpandData()

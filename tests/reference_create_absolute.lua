@@ -15,10 +15,10 @@ noteChart.type = "osu"
 
 local timePoint1 = layerData1:getTimePoint(
 	0, -- absoluteTime in absolute mode
-	-1 -- side, doesn't affect anything in absolute mode
+	0 -- side, doesn't affect anything in absolute mode
 )
 
-layerData1:insertVelocityData(0, -1, 1)
+layerData1:insertVelocityData(0, 0, 1)
 
 local noteData1 = NoteData:new(timePoint1)
 layerData1:addNoteData(noteData1)

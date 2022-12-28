@@ -4,7 +4,7 @@ local Fraction = require("ncdk.Fraction")
 local IntervalTimePoint = TimePoint:new()
 
 IntervalTimePoint.time = Fraction:new(0)
-IntervalTimePoint.visualSide = -1
+IntervalTimePoint.visualSide = 0
 
 function IntervalTimePoint:setTime(intervalData, time, visualSide)
 	self.intervalData = intervalData
@@ -23,10 +23,6 @@ end
 
 function IntervalTimePoint:getTime()
 	return self.intervalData, self.time, self.visualSide
-end
-
-function IntervalTimePoint:getKey()
-	return tostring(self.intervalData) .. "," .. self.time .. "," .. self.visualSide
 end
 
 function IntervalTimePoint:tonumber()
@@ -62,7 +58,7 @@ function IntervalTimePoint:fromnumber(id, t, limit)
 end
 
 function IntervalTimePoint.__tostring(a)
-	return ("%s,%s%s"):format(a.intervalData, a.time, a.visualSide == -1 and "<-" or "->")
+	return ("(%s,%s,%s)"):format(a.intervalData, a.time, a.visualSide)
 end
 
 local function isNumbers(a, b)

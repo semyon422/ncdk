@@ -80,7 +80,7 @@ function DynamicLayerData:setTimeMode(mode)
 		error("Wrong time mode")
 	end
 	self:_setRange(time, time)
-	self.zeroTimePoint = self:getTimePoint(time, -1)
+	self.zeroTimePoint = self:getTimePoint(time)
 end
 
 function DynamicLayerData:setSignatureMode(mode)
@@ -320,10 +320,10 @@ function DynamicLayerData:compute()
 	end
 
 	-- start with left time point to be not affected by stops and expands
-	if timePoint.side == 1 and timePoint.prev and timePoint.prev.side == -1 then
+	if timePoint.side == 1 and timePoint.prev and timePoint.prev.side == 0 then
 		timePoint = timePoint.prev
 	end
-	if timePoint.visualSide == 1 and timePoint.prev and timePoint.prev.visualSide == -1 then
+	if timePoint.visualSide == 1 and timePoint.prev and timePoint.prev.visualSide == 0 then
 		timePoint = timePoint.prev
 	end
 
@@ -497,7 +497,7 @@ end
 
 function DynamicLayerData:getStopData(time, ...)
 	local stopData = self:getTimingObject(self:getTimePoint(time, 1), "stopData", StopData, ...)
-	stopData.leftTimePoint = self:getTimePoint(time, -1)  -- for time point interpolation
+	stopData.leftTimePoint = self:getTimePoint(time, 0)  -- for time point interpolation
 	return stopData
 end
 function DynamicLayerData:removeStopData(time)
@@ -513,7 +513,7 @@ end
 
 function DynamicLayerData:getExpandData(time, side, ...)
 	local expandData = self:getTimingObject(self:getTimePoint(time, side, 1), "expandData", ExpandData, ...)
-	expandData.leftTimePoint = self:getTimePoint(time, side, -1)  -- for time point interpolation
+	expandData.leftTimePoint = self:getTimePoint(time, side, 0)  -- for time point interpolation
 	return expandData
 end
 function DynamicLayerData:removeExpandData(time, side)
