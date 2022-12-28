@@ -215,16 +215,16 @@ function DynamicLayerData:getDynamicTimePoint(...)
 	return timePoint
 end
 
-function DynamicLayerData:getDynamicTimePointAbsolute(limit, ...)
+function DynamicLayerData:getDynamicTimePointAbsolute(limit, absoluteTime, visualSide)
 	local mode = assert(self.mode, "Mode should be set")
 	assert(limit)
 
 	local timePoint = self.dynamicTimePoint
 
 	self:resetDynamicTimePoint()
-	timePoint:setTimeAbsolute(...)
+	timePoint:setTimeAbsolute(absoluteTime, visualSide)
 
-	local t = ...
+	local t = absoluteTime
 
 	local a, b = self.timePointsRange:getInterp(timePoint)
 	if not a and not b then
@@ -279,6 +279,14 @@ function DynamicLayerData:getDynamicTimePointAbsolute(limit, ...)
 	timePoint.velocityData = a.velocityData
 	timePoint.intervalData = timePoint.intervalData or a.intervalData
 
+	return timePoint
+end
+
+function DynamicLayerData:checkTimePoint(timePoint)
+	local dtp = self.dynamicTimePoint
+	if timePoint.ptr == dtp.ptr then
+		timePoint = self:getTimePoint(dtp:getTime())
+	end
 	return timePoint
 end
 
@@ -499,21 +507,22 @@ function DynamicLayerData:removeStopData(time)
 	return self:removeTimingObject(self:getTimePoint(time, 1), "stopData")
 end
 
-function DynamicLayerData:getVelocityData(time, side, ...)
-	return self:getTimingObject(self:getTimePoint(time, side), "velocityData", VelocityData, ...)
+function DynamicLayerData:getVelocityData(timePoint, ...)
+	timePoint = self:checkTimePoint(timePoint)
+	return self:getTimingObject(timePoint, "velocityData", VelocityData, ...)
 end
-function DynamicLayerData:removeVelocityData(time, side)
-	return self:removeTimingObject(self:getTimePoint(time, side), "velocityData")
+function DynamicLayerData:removeVelocityData(timePoint)
+	return self:removeTimingObject(timePoint, "velocityData")
 end
 
-function DynamicLayerData:getExpandData(time, side, ...)
-	local timePoint = self:getTimePoint(time, side, 1)
+function DynamicLayerData:getExpandData(timePoint, ...)
+	timePoint = self:checkTimePoint(timePoint)
 	local expandData = self:getTimingObject(timePoint, "expandData", ExpandData, ...)
 	expandData.leftTimePoint = self:getTimePoint(timePoint:getPrevVisualTime())  -- for time point interpolation
 	return expandData
 end
-function DynamicLayerData:removeExpandData(time, side)
-	return self:removeTimingObject(self:getTimePoint(time, side, 1), "expandData")
+function DynamicLayerData:removeExpandData(timePoint)
+	return self:removeTimingObject(timePoint, "expandData")
 end
 
 function DynamicLayerData:getSignatureData(measureOffset, ...)
@@ -680,10 +689,7 @@ function DynamicLayerData:updateInterval(intervalData, intervals)
 end
 
 function DynamicLayerData:getNoteData(timePoint, inputType, inputIndex)
-	local dtp = self.dynamicTimePoint
-	if timePoint.ptr == dtp.ptr then
-		timePoint = self:getTimePoint(dtp:getTime())
-	end
+	timePoint = self:checkTimePoint(timePoint)
 
 	local noteData = NoteData:new(timePoint, inputType, inputIndex)
 	timePoint.noteDatas = timePoint.noteDatas or {}

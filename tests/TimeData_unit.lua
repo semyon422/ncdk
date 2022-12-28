@@ -109,8 +109,8 @@ do
 	local tp2 = ld:getTimePoint(Fraction:new(1), -1)
 	local tp3 = ld:getTimePoint(Fraction:new(2), -1)
 
-	ld:insertVelocityData(F(0), -1, 1)
-	ld:insertVelocityData(F(1), -1, 2)
+	ld:insertVelocityData(ld:getTimePoint(F(0)), 1)
+	ld:insertVelocityData(ld:getTimePoint(F(1)), 2)
 
 	ld:computeTimePoints()
 

@@ -17,6 +17,11 @@ function AbsoluteTimePoint:getPrevVisualTime()
 	return self.absoluteTime, self.visualSide - 1
 end
 
+function AbsoluteTimePoint:setTimeAbsolute(time, visualSide)
+	self.absoluteTime = time
+	self.visualSide = visualSide
+end
+
 function AbsoluteTimePoint.__tostring(a)
 	return ("(%s,%s)"):format(a.absoluteTime, a.visualSide)
 end

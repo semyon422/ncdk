@@ -31,7 +31,7 @@ local timePoint1 = layerData1:getTimePoint(
 	0 -- side
 )
 
-layerData1:insertVelocityData(Fraction:new(0), 0, 1)
+layerData1:insertVelocityData(layerData1:getTimePoint(Fraction:new(0)), 1)
 
 local noteData1 = NoteData:new(timePoint1)
 layerData1:addNoteData(noteData1)

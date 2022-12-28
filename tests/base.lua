@@ -14,7 +14,7 @@ do
 	local tp = ld:getTimePoint(F(0), 1)
 
 	ld:insertTempoData(F(0), 60)
-	ld:insertVelocityData(F(0), 1, 1)
+	ld:insertVelocityData(tp, 1)
 
 	local nd = NoteData:new(tp)
 	ld:addNoteData(nd)
@@ -31,9 +31,9 @@ do
 
 	ld:insertTempoData(mt, 60)
 
-	ld:insertVelocityData(F(-1), 1, 0.5)
-	ld:insertVelocityData(F(0), 1, 1)
-	ld:insertVelocityData(F(1), 1, 2)
+	ld:insertVelocityData(ld:getTimePoint(F(-1)), 0.5)
+	ld:insertVelocityData(ld:getTimePoint(F(0)), 1)
+	ld:insertVelocityData(ld:getTimePoint(F(1)), 2)
 
 	local cases = {
 		{-2, -1 * 4},
@@ -43,7 +43,7 @@ do
 		{ 2,  3 * 4},
 	}
 	for i, d in ipairs(cases) do
-		d[4] = ld:getTimePoint(F(d[1]), 1)
+		d[4] = ld:getTimePoint(F(d[1]))
 	end
 
 	nc:compute()
@@ -65,7 +65,7 @@ do
 	local mt = F(0)
 
 	ld:insertTempoData(mt, 60)
-	ld:insertVelocityData(mt, 1, 1)
+	ld:insertVelocityData(ld:getTimePoint(mt), 1)
 
 	ld:insertStopData(F(1), F(4))
 	ld:insertStopData(F(2), F(4))

@@ -300,15 +300,15 @@ do
 	local tp2 = ld:getTimePoint(F(1))
 	local tp3 = ld:getTimePoint(F(2))
 
-	ld:getVelocityData(F(0), 0, 1)
-	ld:getVelocityData(F(1), 0, 2)
+	ld:getVelocityData(tp1, 1)
+	ld:getVelocityData(tp2, 2)
 
 	assert(tp2.visualTime == tp1.absoluteTime + 4)
 	assert(tp3.visualTime == tp2.absoluteTime + 8)
 	assert(tp3.visualTime == tp1.absoluteTime + 12)
 	assert(tp4.visualTime == tp1.absoluteTime - 4)
 
-	ld:removeVelocityData(F(0))
+	ld:removeVelocityData(tp1)
 
 	assert(tp2.visualTime == 8)
 	assert(tp3.visualTime == 16)
@@ -369,12 +369,12 @@ do
 	ld:setRange(F(-10), F(10))
 	ld:getTempoData(F(0), 60)
 
-	ld:getExpandData(F(1), 0, F(1))
+	ld:getExpandData(ld:getTimePoint(F(1), 0, 1), F(1))
 
 	assert(ld:getTimePoint(F(1), 0, 0).visualTime == 4)
 	assert(ld:getTimePoint(F(1), 0, 1).visualTime == 5)
 
-	ld:removeExpandData(F(1))
+	ld:removeExpandData(ld:getTimePoint(F(1), 0, 1))
 
 	assert(ld:getTimePoint(F(1), 0, 0).visualTime == 4)
 	assert(ld:getTimePoint(F(1), 0, 1).visualTime == 4)
@@ -532,12 +532,12 @@ do
 
 	ld:getStopData(F(5), F(4))
 
-	ld:getVelocityData(F(0.5), 0, 1)
-	ld:getVelocityData(F(4.5), 0, 2)
-	ld:getVelocityData(F(5 / 4), 0, 0)
-	ld:getVelocityData(F(6 / 4), 0, 1)
+	ld:getVelocityData(ld:getTimePoint(F(0.5)), 1)
+	ld:getVelocityData(ld:getTimePoint(F(4.5)), 2)
+	ld:getVelocityData(ld:getTimePoint(F(5 / 4)), 0)
+	ld:getVelocityData(ld:getTimePoint(F(6 / 4)), 1)
 
-	ld:getExpandData(F(2), 0, F(1))
+	ld:getExpandData(ld:getTimePoint(F(2), 0, 1), F(1))
 
 	ld:setRange(F(6), F(16))
 	local dtp = ld:getDynamicTimePointAbsolute(192, 32)
@@ -570,8 +570,8 @@ do
 	ld:getTempoData(F(1), 60)
 
 	ld:getStopData(F(5), F(1))
-	ld:getExpandData(F(5), 0, F(1))
-	ld:getExpandData(F(5), 1, F(1))
+	ld:getExpandData(ld:getTimePoint(F(1), 0, 1), F(1))
+	ld:getExpandData(ld:getTimePoint(F(1), 1, 1), F(1))
 
 	assert(tostring(ld:getDynamicTimePoint(F(5))) == "(5.0/1,0,0)")  -- 20, 20
 	assert(tostring(ld:getDynamicTimePoint(F(5), 0, 0)) == "(5.0/1,0,0)")  -- 20, 20
@@ -579,10 +579,8 @@ do
 	assert(tostring(ld:getDynamicTimePoint(F(5), 1, 0)) == "(5.0/1,1,0)")  -- 21, 22
 	assert(tostring(ld:getDynamicTimePoint(F(5), 1, 1)) == "(5.0/1,1,1)")  -- 21, 23
 
-	assert(tostring(ld:getDynamicTimePointAbsolute(192, 20, 0, 0)) == "(5.0/1,0,0)")
-	assert(tostring(ld:getDynamicTimePointAbsolute(192, 20, 1, 0)) == "(5.0/1,0,0)")
-	assert(tostring(ld:getDynamicTimePointAbsolute(192, 21, 0, 0)) == "(5.0/1,1,0)")
-	assert(tostring(ld:getDynamicTimePointAbsolute(192, 21, 1, 0)) == "(5.0/1,1,0)")
+	assert(tostring(ld:getDynamicTimePointAbsolute(192, 20, 0)) == "(5.0/1,0,0)")
+	assert(tostring(ld:getDynamicTimePointAbsolute(192, 21, 0)) == "(5.0/1,1,0)")
 end
 
 do

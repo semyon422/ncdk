@@ -11,9 +11,9 @@ function MeasureTimePoint:setTime(time, side, visualSide)
 	self.visualSide = visualSide
 end
 
-function MeasureTimePoint:setTimeAbsolute(time, side, visualSide)
+function MeasureTimePoint:setTimeAbsolute(time, visualSide)
 	self.absoluteTime = time
-	self.side = side
+	self.time = nil
 	self.visualSide = visualSide
 end
 
