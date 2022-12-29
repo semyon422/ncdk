@@ -9,12 +9,14 @@ function MeasureTimePoint:setTime(time, side, visualSide)
 	self.measureTime = time
 	self.side = side
 	self.visualSide = visualSide
+	return self
 end
 
 function MeasureTimePoint:setTimeAbsolute(time, visualSide)
 	self.absoluteTime = time
 	self.time = nil
 	self.visualSide = visualSide
+	return self
 end
 
 function MeasureTimePoint:getTime()

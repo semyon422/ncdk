@@ -118,28 +118,28 @@ function LayerData:createTimePointList()
 	self.timePointList = timePointList
 end
 
-function LayerData:getBaseTimePoint(index, time, field)
-	field = field or "absoluteTime"
+function LayerData:getBaseTimePoint(index, t, mode)
 	local list = self.timePointList
+	index = math.min(math.max(index, 1), #list)
 
 	local timePoint = list[index]
-	if time == timePoint[field] or time < timePoint[field] and index == 1 then
+	if t == timePoint or t:compare(timePoint, mode) and index == 1 then
 		-- skip
-	elseif time > timePoint[field] then
+	elseif timePoint:compare(t, mode) then  -- t > timePoint
 		local nextTimePoint = list[index + 1]
 		while nextTimePoint do
-			if time >= nextTimePoint[field] then
+			if not t:compare(nextTimePoint, mode) then  -- t >= nextTimePoint
 				index = index + 1
 				nextTimePoint = list[index + 1]
 			else
 				break
 			end
 		end
-	elseif time < timePoint[field] then
+	elseif t:compare(timePoint, mode) then
 		index = index - 1
 		local prevTimePoint = list[index]
 		while prevTimePoint do
-			if time < prevTimePoint[field] then
+			if t:compare(prevTimePoint, mode) then
 				index = index - 1
 				prevTimePoint = list[index]
 			else
@@ -152,8 +152,7 @@ function LayerData:getBaseTimePoint(index, time, field)
 end
 
 function LayerData:interpolateTimePointAbsolute(index, timePoint)
-	local t = timePoint.absoluteTime
-	index = self:getBaseTimePoint(index, t, "absoluteTime")
+	index = self:getBaseTimePoint(index, timePoint, "absolute")
 
 	local list = self.timePointList
 
@@ -166,19 +165,19 @@ function LayerData:interpolateTimePointAbsolute(index, timePoint)
 		tempoMultiplier = 0
 	end
 
+	local t = timePoint.absoluteTime
 	local currentSpeed = a.velocityData and a.velocityData.currentSpeed or 1
 	timePoint.visualTime = a.visualTime + (t - a.absoluteTime) * currentSpeed * tempoMultiplier
+	timePoint.visualSection = a.visualSection
 
 	timePoint.tempoData = a.tempoData
 	timePoint.velocityData = a.velocityData
-	timePoint.intervalData = a.intervalData
 
 	return index
 end
 
 function LayerData:interpolateTimePointVisual(index, timePoint)
-	local t = timePoint.visualTime
-	index = self:getBaseTimePoint(index, t, "visualTime")
+	index = self:getBaseTimePoint(index, timePoint, "visual")
 
 	local list = self.timePointList
 
@@ -186,13 +185,14 @@ function LayerData:interpolateTimePointVisual(index, timePoint)
 	local b = list[index + 1]
 	a = a or b
 
+	local t = timePoint.visualTime
 	local tempoMultiplier = self.primaryTempo == 0 and 1 or a.tempoData.tempo / self.primaryTempo
 	local currentSpeed = a.velocityData and a.velocityData.currentSpeed or 1
 	timePoint.absoluteTime = a.absoluteTime + (t - a.visualTime) / currentSpeed / tempoMultiplier
+	timePoint.visualSection = a.visualSection
 
 	timePoint.tempoData = a.tempoData
 	timePoint.velocityData = a.velocityData
-	timePoint.intervalData = a.intervalData
 
 	return index
 end
@@ -221,6 +221,7 @@ function LayerData:computeTimePoints()
 	local time = 0
 	local beatTime = 0
 	local visualTime = 0
+	local visualSection = 0
 	local currentTime = timePoint.measureTime
 	local currentAbsoluteTime = 0
 	while timePoint do
@@ -299,7 +300,11 @@ function LayerData:computeTimePoints()
 				elseif isInterval then
 					duration = intervalData:getBeatDuration() * duration * currentSpeed
 				end
-				visualTime = visualTime + duration
+				if math.abs(duration) == math.huge then
+					visualSection = visualSection + 1
+				else
+					visualTime = visualTime + duration
+				end
 			end
 
 			timePoint.tempoData = tempoData
@@ -308,6 +313,7 @@ function LayerData:computeTimePoints()
 			timePoint.beatTime = beatTime
 			timePoint.absoluteTime = time
 			timePoint.visualTime = visualTime
+			timePoint.visualSection = visualSection
 
 			timePointIndex = timePointIndex + 1
 			timePoint = timePointList[timePointIndex]
@@ -316,10 +322,11 @@ function LayerData:computeTimePoints()
 
 	local zeroTimePoint = self.zeroTimePoint
 	if not zeroTimePoint then
-		zeroTimePoint = TimePoint:new()
+		zeroTimePoint = self:newTimePoint()
 		zeroTimePoint.absoluteTime = 0
 		zeroTimePoint.beatTime = 0
 		zeroTimePoint.visualTime = 0
+		zeroTimePoint.visualSection = 0
 		self:interpolateTimePointAbsolute(1, zeroTimePoint)
 	end
 

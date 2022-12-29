@@ -339,6 +339,7 @@ function DynamicLayerData:compute()
 	local time = prevTimePoint.absoluteTime or 0
 	local beatTime = prevTimePoint.beatTime or 0
 	local visualTime = prevTimePoint.visualTime or 0
+	local visualSection = prevTimePoint.visualSection or 0
 	local currentTime = prevTimePoint.measureTime
 	local currentAbsoluteTime = time
 	while timePoint and timePoint <= endTimePoint do
@@ -421,7 +422,11 @@ function DynamicLayerData:compute()
 				elseif isInterval then
 					duration = intervalData:getBeatDuration() * duration * currentSpeed
 				end
-				visualTime = visualTime + duration
+				if math.abs(duration) == math.huge then
+					visualSection = visualSection + 1
+				else
+					visualTime = visualTime + duration
+				end
 			end
 
 			timePoint.tempoData = tempoData
@@ -433,6 +438,7 @@ function DynamicLayerData:compute()
 			end
 			timePoint.beatTime = beatTime
 			timePoint.visualTime = visualTime
+			timePoint.visualSection = visualSection
 
 			timePoint = timePoint.next
 		end

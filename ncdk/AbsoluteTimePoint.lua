@@ -7,6 +7,13 @@ AbsoluteTimePoint.visualSide = 0
 function AbsoluteTimePoint:setTime(time, visualSide)
 	self.absoluteTime = time
 	self.visualSide = visualSide
+	return self
+end
+
+function AbsoluteTimePoint:setTimeAbsolute(time, visualSide)
+	self.absoluteTime = time
+	self.visualSide = visualSide
+	return self
 end
 
 function AbsoluteTimePoint:getTime()
@@ -15,11 +22,6 @@ end
 
 function AbsoluteTimePoint:getPrevVisualTime()
 	return self.absoluteTime, self.visualSide - 1
-end
-
-function AbsoluteTimePoint:setTimeAbsolute(time, visualSide)
-	self.absoluteTime = time
-	self.visualSide = visualSide
 end
 
 function AbsoluteTimePoint.__tostring(a)

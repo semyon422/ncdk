@@ -207,16 +207,26 @@ do
 	local tp1 = ld:getTimePoint(4)
 	local tp2 = ld:getTimePoint(8)
 
+	local tps = {
+		ld:newTimePoint():setTime(-1),
+		ld:newTimePoint():setTime(0),
+		ld:newTimePoint():setTime(2),
+		ld:newTimePoint():setTime(4),
+		ld:newTimePoint():setTime(5),
+		ld:newTimePoint():setTime(8),
+		ld:newTimePoint():setTime(9),
+	}
+
 	nc:compute()
 
 	for i = 1, 3 do
-		assert(ld:getBaseTimePoint(i, -1) == 1)
-		assert(ld:getBaseTimePoint(i, 0) == 1)
-		assert(ld:getBaseTimePoint(i, 2) == 1)
-		assert(ld:getBaseTimePoint(i, 4) == 2)
-		assert(ld:getBaseTimePoint(i, 5) == 2)
-		assert(ld:getBaseTimePoint(i, 8) == 3)
-		assert(ld:getBaseTimePoint(i, 9) == 3)
+		assert(ld:getBaseTimePoint(i, tps[1], "absolute") == 1)
+		assert(ld:getBaseTimePoint(i, tps[2], "absolute") == 1)
+		assert(ld:getBaseTimePoint(i, tps[3], "absolute") == 1)
+		assert(ld:getBaseTimePoint(i, tps[4], "absolute") == 2)
+		assert(ld:getBaseTimePoint(i, tps[5], "absolute") == 2)
+		assert(ld:getBaseTimePoint(i, tps[6], "absolute") == 3)
+		assert(ld:getBaseTimePoint(i, tps[7], "absolute") == 3)
 	end
 end
 
@@ -247,4 +257,35 @@ do
 	assert(tp15.absoluteTime == 20)
 	assert(tp16.absoluteTime == 22)
 	assert(tp16_.absoluteTime == 22)
+end
+
+do
+	local nc = NoteChart:new()
+	local ld = nc:getLayerData(1)
+	ld:setTimeMode("interval")
+
+	local id1 = ld:insertIntervalData(0, 10)
+	local id2 = ld:insertIntervalData(10, 1)
+
+	local tp1 = ld:getTimePoint(id1, F(5))
+	local tp2 = ld:getTimePoint(id1, F(5), 1)
+	local tp3 = ld:getTimePoint(id1, F(5), 2)
+	local tp4 = ld:getTimePoint(id1, F(5), 3)
+	ld:insertExpandData(tp2, math.huge)
+
+	nc:compute()
+
+	assert(tp1:getVisualTime(id1.timePoint) == 5)
+	assert(tp2:getVisualTime(id1.timePoint) == math.huge)
+	assert(tp3:getVisualTime(id1.timePoint) == math.huge)
+	assert(tp1:getVisualTime(id2.timePoint) == -math.huge)
+	assert(tp2:getVisualTime(id2.timePoint) == 5)
+	assert(tp3:getVisualTime(id2.timePoint) == 5)
+
+	local tp = ld:newTimePoint()
+	tp.absoluteTime = 5
+	ld:interpolateTimePointAbsolute(1, tp, "absolute")
+	assert(tp.visualTime == tp3.visualTime and tp.visualSection == tp3.visualSection)
+	ld:interpolateTimePointAbsolute(100, tp, "absolute")
+	assert(tp.visualTime == tp3.visualTime and tp.visualSection == tp3.visualSection)
 end

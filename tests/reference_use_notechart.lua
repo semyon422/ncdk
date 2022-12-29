@@ -12,7 +12,7 @@ for _, layerData in noteChart:getLayerDataIterator() do
 end
 
 local layerData = noteChart:getLayerData(1)
-local currentTimePoint = TimePoint:new() -- without arguments
+local currentTimePoint = layerData:newTimePoint()
 currentTimePoint.side = 0
 currentTimePoint.absoluteTime = 0 -- you should manually set absoluteTime
 currentTimePoint.velocityData = layerData:getVelocityData(1) -- and corresponding to this time VelocityData

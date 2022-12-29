@@ -968,3 +968,25 @@ do
 	local tp = ld:getDynamicTimePointAbsolute(192, 0.99999988697193)
 	assert(tp == id2.timePoint)
 end
+
+do
+	local ld = DynamicLayerData:new()
+	ld:setTimeMode("interval")
+	ld:setSignatureMode("short")
+	ld:setRange(-10, 20)
+
+	local id1 = ld:getIntervalData(0, 10)
+	local id2 = ld:getIntervalData(10, 1)
+
+	local tp1 = ld:getTimePoint(id1, F(5))
+	local tp2 = ld:getTimePoint(id1, F(5), 1)
+	local tp3 = ld:getTimePoint(id1, F(5), 2)
+	ld:getExpandData(tp2, math.huge)
+
+	assert(tp1:getVisualTime(id1.timePoint) == 5)
+	assert(tp2:getVisualTime(id1.timePoint) == math.huge)
+	assert(tp3:getVisualTime(id1.timePoint) == math.huge)
+	assert(tp1:getVisualTime(id2.timePoint) == -math.huge)
+	assert(tp2:getVisualTime(id2.timePoint) == 5)
+	assert(tp3:getVisualTime(id2.timePoint) == 5)
+end
