@@ -80,12 +80,14 @@ function DynamicLayerData:setTimeMode(mode)
 	elseif mode == "interval" then
 		self.mainTimeField = "intervalTime"
 		self:_setRange(0, 0)
+		self.dynamicTimePoint = self:newTimePoint()
 		return
 	else
 		error("Wrong time mode")
 	end
 	self:_setRange(time, time)
 	self.zeroTimePoint = self:getTimePoint(time)
+	self.dynamicTimePoint = self:newTimePoint()
 end
 
 function DynamicLayerData:setSignatureMode(mode)
@@ -121,8 +123,6 @@ function DynamicLayerData:setRange(startTime, endTime)
 	self.startTime, self.endTime = startTime, endTime
 	self:_setRange(self.startTime, self.endTime)
 	self:compute()
-
-	self.dynamicTimePoint = self:newTimePoint()
 end
 
 function DynamicLayerData:newTimePoint()
