@@ -1,4 +1,5 @@
 local DynamicLayerData = require("ncdk.DynamicLayerData")
+local LayerData = require("ncdk.LayerData")
 local Fraction = require("ncdk.Fraction")
 
 local function F(n)
@@ -883,7 +884,6 @@ end
 do
 	local ld = DynamicLayerData:new()
 	ld:setTimeMode("interval")
-	ld:setSignatureMode("short")
 	ld:setRange(-1, 2)
 
 	local id1 = ld:getIntervalData(0, 10)
@@ -902,7 +902,6 @@ end
 do
 	local ld = DynamicLayerData:new()
 	ld:setTimeMode("interval")
-	ld:setSignatureMode("short")
 	ld:setRange(-1, 2)
 
 	local id1 = ld:getIntervalData(0, 10)
@@ -920,7 +919,6 @@ end
 do
 	local ld = DynamicLayerData:new()
 	ld:setTimeMode("interval")
-	ld:setSignatureMode("short")
 	ld:setRange(-1, 2)
 
 	local id1 = ld:getIntervalData(0, 10)
@@ -937,7 +935,6 @@ end
 do
 	local ld = DynamicLayerData:new()
 	ld:setTimeMode("interval")
-	ld:setSignatureMode("short")
 	ld:setRange(-1, 2)
 
 	local id1 = ld:getIntervalData(0, 10)
@@ -959,7 +956,6 @@ end
 do
 	local ld = DynamicLayerData:new()
 	ld:setTimeMode("interval")
-	ld:setSignatureMode("short")
 	ld:setRange(-1, 1)
 
 	local id1 = ld:getIntervalData(0, 10)
@@ -972,7 +968,6 @@ end
 do
 	local ld = DynamicLayerData:new()
 	ld:setTimeMode("interval")
-	ld:setSignatureMode("short")
 	ld:setRange(-10, 20)
 
 	local id1 = ld:getIntervalData(0, 10)
@@ -989,4 +984,40 @@ do
 	assert(tp1:getVisualTime(id2.timePoint) == -math.huge)
 	assert(tp2:getVisualTime(id2.timePoint) == 5)
 	assert(tp3:getVisualTime(id2.timePoint) == 5)
+end
+
+do
+	local ld = LayerData:new()
+	ld:setTimeMode("interval")
+
+	local id1 = ld:insertIntervalData(0, 10)
+	local id2 = ld:insertIntervalData(10, 1)
+	local tp1 = ld:getTimePoint(id1, F(5))
+
+	ld:compute()
+	assert(tp1.absoluteTime == 5)
+
+	local dld = DynamicLayerData:new(ld)
+	dld:setRange(-10, 20)
+
+	local tp2 = dld:getTimePoint(id1, F(6))
+	assert(tp2.absoluteTime == 6)
+end
+
+do
+	local ld = LayerData:new()
+	ld:setTimeMode("measure")
+	ld:setSignatureMode("short")
+
+	ld:insertTempoData(F(0), 60)
+	local tp1 = ld:getTimePoint(F(1))
+
+	ld:compute()
+	assert(tp1.absoluteTime == 4)
+
+	local dld = DynamicLayerData:new(ld)
+	dld:setRange(F(-1), F(3))
+
+	local tp2 = dld:getTimePoint(F(2))
+	assert(tp2.absoluteTime == 8)
 end

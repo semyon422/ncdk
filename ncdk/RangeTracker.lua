@@ -2,8 +2,22 @@ local RangeTracker = {}
 
 local mt = {__index = RangeTracker}
 
+RangeTracker.count = 0
+
 function RangeTracker:new()
-	return setmetatable({count = 0}, mt)
+	return setmetatable({}, mt)
+end
+
+function RangeTracker:fromList(list)
+	self.count = #list
+	self.first = list[1]
+	self.last = list[#list]
+	self.head = self.first
+	self.tail = self.last
+	for i = 1, #list do
+		list[i].prev = list[i - 1]
+		list[i].next = list[i + 1]
+	end
 end
 
 local function addAfter(a, b)
@@ -94,6 +108,10 @@ function RangeTracker:find(object)
 	end
 end
 
+local function assertTime(c)
+	return assert(c, "attempt to get an object out of range")
+end
+
 function RangeTracker:insert(object)
 	local time = assert(self:getTime(object))
 	self.count = self.count + 1
@@ -108,21 +126,21 @@ function RangeTracker:insert(object)
 	end
 
 	if self.head ~= self.first then
-		assert(object > self.head)
+		assertTime(object > self.head)
 	end
 	if self.tail ~= self.last then
-		assert(object < self.tail)
+		assertTime(object < self.tail)
 	end
 
 	if object < self.first then
-		assert(time >= self.startTime, "attempt to get an object out of range")
+		assertTime(time >= self.startTime)
 		addBefore(object, self.first)
 		self.first = object
 		self:update()
 		return
 	end
 	if object > self.last then
-		assert(time <= self.endTime, "attempt to get an object out of range")
+		assertTime(time <= self.endTime)
 		addAfter(self.last, object)
 		self.last = object
 		self:update()

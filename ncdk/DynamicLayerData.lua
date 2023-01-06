@@ -16,22 +16,28 @@ local DynamicLayerData = {}
 DynamicLayerData.primaryTempo = 0
 DynamicLayerData.minimumBeatLength = 60 / 1000
 
+DynamicLayerData.defaultSignature = Fraction:new(4)
+DynamicLayerData.mainTimeField = "measureTime"
+
 local mt = {__index = DynamicLayerData}
+function DynamicLayerData:new(ld)
+	local layerData = setmetatable({}, mt)
+
+	layerData:init()
+	if ld then
+		layerData:load(ld)
+	end
+
+	return layerData
+end
 
 local rangeNames = {"timePoint", "tempo", "stop", "velocity", "expand", "signature", "interval"}
-function DynamicLayerData:new()
-	local layerData = {}
-
-	layerData.defaultSignature = Fraction:new(4)
-
-	layerData.mainTimeField = "measureTime"
-	local ld = layerData
-
+function DynamicLayerData:init()
 	local function getTime(_, object)
 		if object.timePoint then
 			object = object.timePoint
 		end
-		if ld.mainTimeField == "measureTime" then
+		if self.mainTimeField == "measureTime" then
 			return object.measureTime
 		end
 		return object:tonumber()
@@ -45,8 +51,22 @@ function DynamicLayerData:new()
 		ranges[name] = range
 		range.getTime = getTime
 	end
+end
 
-	return setmetatable(layerData, mt)
+function DynamicLayerData:load(layerData)
+	local ranges = self.ranges
+	ranges.timePoint:fromList(layerData.timePointList)
+	ranges.tempo:fromList(layerData.tempoDatas)
+	ranges.stop:fromList(layerData.stopDatas)
+	ranges.velocity:fromList(layerData.velocityDatas)
+	ranges.expand:fromList(layerData.expandDatas)
+	ranges.interval:fromList(layerData.intervalDatas)
+	ranges.signature:fromList(layerData.signatures)
+
+	self:setTimeMode(layerData.mode)
+	if layerData.signatureMode then
+		self:setSignatureMode(layerData.signatureMode)
+	end
 end
 
 function DynamicLayerData:setTimeMode(mode)
