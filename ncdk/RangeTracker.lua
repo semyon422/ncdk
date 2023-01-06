@@ -32,10 +32,10 @@ local function remove(a)
 end
 
 function RangeTracker:printRanges()
-	print("start", self.startObject)
-	print("end", self.endObject)
-	print("first", self.firstObject)
-	print("last", self.lastObject)
+	print("start", self.head)
+	print("end", self.tail)
+	print("first", self.first)
+	print("last", self.last)
 end
 
 function RangeTracker:setRange(startTime, endTime)
@@ -43,130 +43,130 @@ function RangeTracker:setRange(startTime, endTime)
 	self:update()
 end
 
-function RangeTracker:getObjectTime(object)
+function RangeTracker:getTime(object)
 	error("not implemented")
 end
 
 function RangeTracker:getInterp(object)
-	if object == self.startObject then
-		return self.startObject, self.startObject
+	if object == self.head then
+		return self.head, self.head
 	end
-	if object == self.firstObject then
-		return self.firstObject, self.firstObject
+	if object == self.first then
+		return self.first, self.first
 	end
-	if object == self.endObject then
-		return self.endObject, self.endObject
+	if object == self.tail then
+		return self.tail, self.tail
 	end
-	if object == self.lastObject then
-		return self.lastObject, self.lastObject
+	if object == self.last then
+		return self.last, self.last
 	end
-	if object < self.firstObject then
-		return nil, self.firstObject
+	if object < self.first then
+		return nil, self.first
 	end
-	if object > self.lastObject then
-		return self.lastObject, nil
+	if object > self.last then
+		return self.last, nil
 	end
 
-	local currentObject = self.startObject
-	while currentObject < self.endObject do
-		if object == currentObject then
-			return currentObject, currentObject
+	local current = self.head
+	while current < self.tail do
+		if object == current then
+			return current, current
 		end
-		local next = currentObject.next
-		if next and object > currentObject and object < next then
-			return currentObject, next
+		local next = current.next
+		if next and object > current and object < next then
+			return current, next
 		end
-		currentObject = next
+		current = next
 	end
 end
 
 function RangeTracker:find(object)
-	if not self.startObject then
+	if not self.head then
 		return
 	end
 
-	local currentObject = self.startObject
-	while currentObject and currentObject <= self.endObject do
-		if object == currentObject then
-			return currentObject
+	local current = self.head
+	while current and current <= self.tail do
+		if object == current then
+			return current
 		end
-		currentObject = currentObject.next
+		current = current.next
 	end
 end
 
 function RangeTracker:insert(object)
-	local objectTime = assert(self:getObjectTime(object))
+	local time = assert(self:getTime(object))
 	self.count = self.count + 1
 
-	if not self.startObject then
-		self.startObject = object
-		self.firstObject = object
-		self.endObject = object
-		self.lastObject = object
+	if not self.head then
+		self.head = object
+		self.first = object
+		self.tail = object
+		self.last = object
 		self:update()
 		return
 	end
 
-	if self.startObject ~= self.firstObject then
-		assert(object > self.startObject)
+	if self.head ~= self.first then
+		assert(object > self.head)
 	end
-	if self.endObject ~= self.lastObject then
-		assert(object < self.endObject)
+	if self.tail ~= self.last then
+		assert(object < self.tail)
 	end
 
-	if object < self.firstObject then
-		assert(objectTime >= self.startTime, "attempt to get a time point out of range")
-		addBefore(object, self.firstObject)
-		self.firstObject = object
+	if object < self.first then
+		assert(time >= self.startTime, "attempt to get an object out of range")
+		addBefore(object, self.first)
+		self.first = object
 		self:update()
 		return
 	end
-	if object > self.lastObject then
-		assert(objectTime <= self.endTime, "attempt to get a time point out of range")
-		addAfter(self.lastObject, object)
-		self.lastObject = object
+	if object > self.last then
+		assert(time <= self.endTime, "attempt to get an object out of range")
+		addAfter(self.last, object)
+		self.last = object
 		self:update()
 		return
 	end
 
-	local currentObject = self.startObject
-	while currentObject <= self.endObject do
-		local next = currentObject.next
-		if not next or object > currentObject and object < next then
-			addAfter(currentObject, object)
+	local current = self.head
+	while current <= self.tail do
+		local next = current.next
+		if not next or object > current and object < next then
+			addAfter(current, object)
 			break
 		end
-		currentObject = next
+		current = next
 	end
 	self:update()
 end
 
 function RangeTracker:remove(object)
-	if not self.firstObject then
+	if not self.first then
 		return
 	end
 	self.count = self.count - 1
 
-	if self.firstObject == self.lastObject then
-		self.startObject = nil
-		self.firstObject = nil
-		self.endObject = nil
-		self.lastObject = nil
+	if self.first == self.last then
+		self.head = nil
+		self.first = nil
+		self.tail = nil
+		self.last = nil
 		remove(object)
 		return
 	end
 
-	if self.startObject ~= self.firstObject then
-		assert(object > self.startObject)
+	if self.head ~= self.first then
+		assert(object > self.head)
 	end
-	if self.endObject ~= self.lastObject then
-		assert(object < self.endObject)
+	if self.tail ~= self.last then
+		assert(object < self.tail)
 	end
 
-	if object == self.firstObject then self.firstObject = object.next end
-	if object == self.startObject then self.startObject = object.next end
-	if object == self.lastObject then self.lastObject = object.prev end
-	if object == self.endObject then self.endObject = object.prev end
+	if object == self.first then self.first = object.next end
+	if object == self.head then self.head = object.next end
+	if object == self.last then self.last = object.prev end
+	if object == self.tail then self.tail = object.prev end
 
 	remove(object)
 
@@ -174,35 +174,35 @@ function RangeTracker:remove(object)
 end
 
 function RangeTracker:update()
-	local object = self.startObject
+	local object = self.head
 	if not object then
 		return
 	end
 
-	while self:getObjectTime(object) >= self.startTime do
+	while self:getTime(object) >= self.startTime do
 		local prev = object.prev
-		self.startObject = prev or object
+		self.head = prev or object
 		if not prev then break end
 		object = prev
 	end
-	while self:getObjectTime(object) < self.startTime do
-		self.startObject = object
+	while self:getTime(object) < self.startTime do
+		self.head = object
 		local next = object.next
-		if not next or self:getObjectTime(next) >= self.startTime then break end
+		if not next or self:getTime(next) >= self.startTime then break end
 		object = next
 	end
 
-	object = self.endObject
-	while self:getObjectTime(object) <= self.endTime do
+	object = self.tail
+	while self:getTime(object) <= self.endTime do
 		local next = object.next
-		self.endObject = next or object
+		self.tail = next or object
 		if not next then break end
 		object = next
 	end
-	while self:getObjectTime(object) > self.endTime do
-		self.endObject = object
+	while self:getTime(object) > self.endTime do
+		self.tail = object
 		local prev = object.prev
-		if not prev or self:getObjectTime(prev) <= self.endTime then break end
+		if not prev or self:getTime(prev) <= self.endTime then break end
 		object = prev
 	end
 end

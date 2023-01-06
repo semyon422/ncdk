@@ -76,8 +76,8 @@ do
 	assert(ld:getTimePoint(F(8)).absoluteTime == 32)
 	ld:setRange(F(4), F(6))
 
-	assert(ld.timePointsRange.startObject == ld:getTimePoint(F(1)))
-	assert(ld.timePointsRange.endObject == ld:getTimePoint(F(7)))
+	assert(ld.ranges.timePoint.head == ld:getTimePoint(F(1)))
+	assert(ld.ranges.timePoint.tail == ld:getTimePoint(F(7)))
 end
 
 do
@@ -605,21 +605,21 @@ do
 	ld:getTimePoint(F(5), 1, 0)
 	ld:getTimePoint(F(5), 1, 1)
 
-	local range = ld.timePointsRange
+	local range = ld.ranges.timePoint
 
-	assert(tostring(range.startObject) == "(-5.0/1,0,0)")
-	assert(tostring(range.endObject) == "(5.0/1,1,1)")
+	assert(tostring(range.head) == "(-5.0/1,0,0)")
+	assert(tostring(range.tail) == "(5.0/1,1,1)")
 
 	ld:getTimePoint(F(-10))
 	ld:getTimePoint(F(10))
 
 	ld:setRange(F(-3), F(3))
-	assert(tostring(range.startObject) == "(-5.0/1,1,1)")
-	assert(tostring(range.endObject) == "(5.0/1,0,0)")
+	assert(tostring(range.head) == "(-5.0/1,1,1)")
+	assert(tostring(range.tail) == "(5.0/1,0,0)")
 
 	ld:setRange(F(-5), F(5))
-	assert(tostring(range.startObject) == "(-10.0/1,0,0)")
-	assert(tostring(range.endObject) == "(10.0/1,0,0)")
+	assert(tostring(range.head) == "(-10.0/1,0,0)")
+	assert(tostring(range.tail) == "(10.0/1,0,0)")
 end
 
 do

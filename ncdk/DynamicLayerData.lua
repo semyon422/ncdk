@@ -18,6 +18,7 @@ DynamicLayerData.minimumBeatLength = 60 / 1000
 
 local mt = {__index = DynamicLayerData}
 
+local rangeNames = {"timePoint", "tempo", "stop", "velocity", "expand", "signature", "interval"}
 function DynamicLayerData:new()
 	local layerData = {}
 
@@ -26,40 +27,24 @@ function DynamicLayerData:new()
 	layerData.mainTimeField = "measureTime"
 	local ld = layerData
 
-	local function getTime(object)
+	local function getTime(_, object)
+		if object.timePoint then
+			object = object.timePoint
+		end
 		if ld.mainTimeField == "measureTime" then
 			return object.measureTime
 		end
 		return object:tonumber()
 	end
 
-	local timePointsRange = RangeTracker:new()
-	layerData.timePointsRange = timePointsRange
-	function timePointsRange:getObjectTime(object) return getTime(object) end
+	local ranges = {}
+	self.ranges = ranges
 
-	local tempoDatasRange = RangeTracker:new()
-	layerData.tempoDatasRange = tempoDatasRange
-	function tempoDatasRange:getObjectTime(object) return getTime(object.timePoint) end
-
-	local stopDatasRange = RangeTracker:new()
-	layerData.stopDatasRange = stopDatasRange
-	function stopDatasRange:getObjectTime(object) return getTime(object.timePoint) end
-
-	local velocityDatasRange = RangeTracker:new()
-	layerData.velocityDatasRange = velocityDatasRange
-	function velocityDatasRange:getObjectTime(object) return getTime(object.timePoint) end
-
-	local expandDatasRange = RangeTracker:new()
-	layerData.expandDatasRange = expandDatasRange
-	function expandDatasRange:getObjectTime(object) return getTime(object.timePoint) end
-
-	local signatureDatasRange = RangeTracker:new()
-	layerData.signatureDatasRange = signatureDatasRange
-	function signatureDatasRange:getObjectTime(object) return getTime(object.timePoint) end
-
-	local intervalDatasRange = RangeTracker:new()
-	layerData.intervalDatasRange = intervalDatasRange
-	function intervalDatasRange:getObjectTime(object) return getTime(object.timePoint) end
+	for _, name in ipairs(rangeNames) do
+		local range = RangeTracker:new()
+		ranges[name] = range
+		range.getTime = getTime
+	end
 
 	return setmetatable(layerData, mt)
 end
@@ -102,13 +87,9 @@ function DynamicLayerData:setDefaultSignature(signature)
 end
 
 function DynamicLayerData:_setRange(startTime, endTime)
-	self.timePointsRange:setRange(startTime, endTime)
-	self.tempoDatasRange:setRange(startTime, endTime)
-	self.stopDatasRange:setRange(startTime, endTime)
-	self.velocityDatasRange:setRange(startTime, endTime)
-	self.expandDatasRange:setRange(startTime, endTime)
-	self.signatureDatasRange:setRange(startTime, endTime)
-	self.intervalDatasRange:setRange(startTime, endTime)
+	for _, name in ipairs(rangeNames) do
+		self.ranges[name]:setRange(startTime, endTime)
+	end
 end
 
 function DynamicLayerData:setRange(startTime, endTime)
@@ -156,7 +137,7 @@ function DynamicLayerData:getDynamicTimePoint(...)
 
 	local t = timePoint:tonumber()
 
-	local a, b = self.timePointsRange:getInterp(timePoint)
+	local a, b = self.ranges.timePoint:getInterp(timePoint)
 	if not a and not b then
 		return
 	elseif a == b then
@@ -226,7 +207,7 @@ function DynamicLayerData:getDynamicTimePointAbsolute(limit, absoluteTime, visua
 
 	local t = absoluteTime
 
-	local a, b = self.timePointsRange:getInterp(timePoint)
+	local a, b = self.ranges.timePoint:getInterp(timePoint)
 	if not a and not b then
 		return
 	elseif a == b then
@@ -294,12 +275,12 @@ function DynamicLayerData:getTimePoint(...)
 	local timePoint = self:newTimePoint()
 	timePoint:setTime(...)
 
-	local t = self.timePointsRange:find(timePoint)
+	local t = self.ranges.timePoint:find(timePoint)
 	if t then
 		return t
 	end
 
-	self.timePointsRange:insert(timePoint)
+	self.ranges.timePoint:insert(timePoint)
 	self:compute()
 
 	return timePoint
@@ -312,22 +293,23 @@ function DynamicLayerData:compute()
 	local isInterval = mode == "interval"
 	local isLong = self.signatureMode == "long"
 
-	local tempoData = self.tempoDatasRange.startObject
-	local velocityData = self.velocityDatasRange.startObject
+	local ranges = self.ranges
+	local tempoData = ranges.tempo.head
+	local velocityData = ranges.velocity.head
 
-	local intervalData = self.intervalDatasRange.startObject
+	local intervalData = ranges.interval.head
 	if intervalData and not intervalData.next and intervalData.prev then
 		intervalData = intervalData.prev
 	end
 
-	local timePoint = self.timePointsRange.startObject
-	local endTimePoint = self.timePointsRange.endObject
+	local timePoint = ranges.timePoint.head
+	local endTimePoint = ranges.timePoint.tail
 
 	if not timePoint then
 		return
 	end
 
-	local signatureData = self.signatureDatasRange.startObject
+	local signatureData = ranges.signature.head
 	if signatureData and signatureData.timePoint > timePoint then
 		signatureData = nil
 	end
@@ -453,8 +435,8 @@ function DynamicLayerData:compute()
 	local zeroTime = zeroTimePoint.absoluteTime
 	local zeroVisualTime = zeroTimePoint.visualTime
 
-	local t = self.timePointsRange.startObject
-	while t do
+	local t = self.ranges.timePoint.head
+	while t and t <= endTimePoint  do
 		t.beatTime = t.beatTime - zeroBeatTime
 		t.absoluteTime = t.absoluteTime - zeroTime
 		t.visualTime = t.visualTime - zeroVisualTime
@@ -463,7 +445,8 @@ function DynamicLayerData:compute()
 end
 
 function DynamicLayerData:getTimingObject(timePoint, name, class, ...)
-	local object = timePoint["_" .. name]
+	local key = "_" .. name .. "Data"
+	local object = timePoint[key]
 	if object then
 		if select("#", ...) > 0 and object:set(...) then
 			self:compute()
@@ -473,84 +456,85 @@ function DynamicLayerData:getTimingObject(timePoint, name, class, ...)
 
 	object = class:new(...)
 
-	timePoint["_" .. name] = object
+	timePoint[key] = object
 	object.timePoint = timePoint
 
-	self[name .. "sRange"]:insert(object)
+	self.ranges[name]:insert(object)
 	self:compute()
 
 	return object
 end
 
 function DynamicLayerData:removeTimingObject(timePoint, name)
-	local object = assert(timePoint["_" .. name], name .. " not found")
+	local key = "_" .. name .. "Data"
+	local object = assert(timePoint[key], name .. " not found")
 
-	self[name .. "sRange"]:remove(object)
+	self.ranges[name]:remove(object)
 
-	timePoint["_" .. name] = nil
+	timePoint[key] = nil
 	object.timePoint = nil
 
 	self:compute()
 end
 
 function DynamicLayerData:getTempoData(time, ...)
-	return self:getTimingObject(self:getTimePoint(time), "tempoData", TempoData, ...)
+	return self:getTimingObject(self:getTimePoint(time), "tempo", TempoData, ...)
 end
 function DynamicLayerData:removeTempoData(time)
-	return self:removeTimingObject(self:getTimePoint(time), "tempoData")
+	return self:removeTimingObject(self:getTimePoint(time), "tempo")
 end
 
 function DynamicLayerData:getStopData(time, ...)
 	local timePoint = self:getTimePoint(time, 1)
-	local stopData = self:getTimingObject(timePoint, "stopData", StopData, ...)
+	local stopData = self:getTimingObject(timePoint, "stop", StopData, ...)
 	stopData.leftTimePoint = self:getTimePoint(timePoint:getPrevTime())  -- for time point interpolation
 	return stopData
 end
 function DynamicLayerData:removeStopData(time)
-	return self:removeTimingObject(self:getTimePoint(time, 1), "stopData")
+	return self:removeTimingObject(self:getTimePoint(time, 1), "stop")
 end
 
 function DynamicLayerData:getVelocityData(timePoint, ...)
 	timePoint = self:checkTimePoint(timePoint)
-	return self:getTimingObject(timePoint, "velocityData", VelocityData, ...)
+	return self:getTimingObject(timePoint, "velocity", VelocityData, ...)
 end
 function DynamicLayerData:removeVelocityData(timePoint)
-	return self:removeTimingObject(timePoint, "velocityData")
+	return self:removeTimingObject(timePoint, "velocity")
 end
 
 function DynamicLayerData:getExpandData(timePoint, ...)
 	timePoint = self:checkTimePoint(timePoint)
-	local expandData = self:getTimingObject(timePoint, "expandData", ExpandData, ...)
+	local expandData = self:getTimingObject(timePoint, "expand", ExpandData, ...)
 	expandData.leftTimePoint = self:getTimePoint(timePoint:getPrevVisualTime())  -- for time point interpolation
 	return expandData
 end
 function DynamicLayerData:removeExpandData(timePoint)
-	return self:removeTimingObject(timePoint, "expandData")
+	return self:removeTimingObject(timePoint, "expand")
 end
 
 function DynamicLayerData:getSignatureData(measureOffset, ...)
 	assert(self.signatureMode, "Signature mode should be set")
 	local timePoint = self:getTimePoint(Fraction:new(measureOffset))
 	self:getTimePoint(Fraction:new(measureOffset + 1))  -- for time point interpolation
-	return self:getTimingObject(timePoint, "signatureData", SignatureData, ...)
+	return self:getTimingObject(timePoint, "signature", SignatureData, ...)
 end
 function DynamicLayerData:removeSignatureData(measureOffset)
 	local timePoint = self:getTimePoint(Fraction:new(measureOffset))
-	return self:removeTimingObject(timePoint, "signatureData")
+	return self:removeTimingObject(timePoint, "signature")
 end
 
 function DynamicLayerData:getSignature(measureOffset)
 	local mode = self.signatureMode
 	assert(mode, "Signature mode should be set")
 
-	local range = self.signatureDatasRange
-	local signatureData = range.startObject
+	local range = self.ranges.signature
+	local signatureData = range.head
 	if not signatureData or measureOffset < signatureData.timePoint.measureTime:floor() then
 		return self.defaultSignature
 	end
 
-	signatureData = range.endObject
-	while signatureData and signatureData >= range.startObject do
+	signatureData = range.tail
+	while signatureData and signatureData >= range.head do
 		local time = signatureData.timePoint.measureTime:floor()
 		if mode == "short" and time == measureOffset or mode == "long" and time <= measureOffset then
 			return signatureData.signature
@@ -561,7 +545,7 @@ function DynamicLayerData:getSignature(measureOffset)
 end
 
 function DynamicLayerData:_getIntervalData(timePoint, ...)
-	return self:getTimingObject(timePoint, "intervalData", IntervalData, ...)
+	return self:getTimingObject(timePoint, "interval", IntervalData, ...)
 end
 function DynamicLayerData:getIntervalData(absoluteTime, ...)
 	local timePoint = self:getTimePoint(absoluteTime)
@@ -572,7 +556,7 @@ function DynamicLayerData:getIntervalData(absoluteTime, ...)
 	return intervalData
 end
 function DynamicLayerData:_removeIntervalData(timePoint)
-	return self:removeTimingObject(timePoint, "intervalData")
+	return self:removeTimingObject(timePoint, "interval")
 end
 function DynamicLayerData:removeIntervalData(absoluteTime)
 	local timePoint = self:getTimePoint(absoluteTime)
@@ -626,7 +610,7 @@ function DynamicLayerData:splitInterval(timePoint)
 end
 function DynamicLayerData:mergeInterval(timePoint)
 	local _intervalData = timePoint._intervalData
-	if not _intervalData or self.intervalDatasRange.count == 2 then
+	if not _intervalData or self.ranges.interval.count == 2 then
 		return
 	end
 
@@ -683,7 +667,7 @@ function DynamicLayerData:updateInterval(intervalData, intervals)
 		local rightTimePoint = intervalData.next.timePoint
 		local tp = rightTimePoint.prev
 		while tp and tp.time:tonumber() >= intervals do
-			self.timePointsRange:remove(tp)
+			self.ranges.timePoint:remove(tp)
 			tp = rightTimePoint.prev
 		end
 	end
