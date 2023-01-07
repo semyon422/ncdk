@@ -63,6 +63,13 @@ function DynamicLayerData:load(layerData)
 	ranges.interval:fromList(layerData.intervalDatas)
 	ranges.signature:fromList(layerData.signatures)
 
+	for _, timePoint in ipairs(layerData.timePointList) do
+		timePoint.noteDatas = {}
+	end
+	for _, noteData in ipairs(layerData.noteDatas) do
+		table.insert(noteData.timePoint.noteDatas, noteData)
+	end
+
 	self:setTimeMode(layerData.mode)
 	if layerData.signatureMode then
 		self:setSignatureMode(layerData.signatureMode)
