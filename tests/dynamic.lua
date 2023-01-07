@@ -1041,4 +1041,11 @@ do
 
 	local tp2 = dld:getTimePoint(F(2))
 	assert(tp2.absoluteTime == 8)
+
+	ld = LayerData:new()
+	dld:save(ld)
+	tp1 = ld:getTimePoint(F(1))
+
+	ld:compute()
+	assert(tp1.absoluteTime == 4)
 end

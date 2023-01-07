@@ -20,6 +20,15 @@ function RangeTracker:fromList(list)
 	end
 end
 
+function RangeTracker:toList()
+	local list, i = {}, 1
+	local object = self.first
+	while object do
+		list[i], object, i = object, object.next, i + 1
+	end
+	return list
+end
+
 local function addAfter(a, b)
 	b.prev = a
 	if a.next then

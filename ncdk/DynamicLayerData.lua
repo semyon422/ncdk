@@ -61,7 +61,10 @@ function DynamicLayerData:load(layerData)
 	ranges.velocity:fromList(layerData.velocityDatas)
 	ranges.expand:fromList(layerData.expandDatas)
 	ranges.interval:fromList(layerData.intervalDatas)
-	ranges.signature:fromList(layerData.signatures)
+
+	for measureOffset, signature in pairs(layerData.signatures) do
+		self:getSignatureData(measureOffset, signature)
+	end
 
 	for _, timePoint in ipairs(layerData.timePointList) do
 		timePoint.noteDatas = {}
@@ -73,6 +76,33 @@ function DynamicLayerData:load(layerData)
 	self:setTimeMode(layerData.mode)
 	if layerData.signatureMode then
 		self:setSignatureMode(layerData.signatureMode)
+	end
+end
+
+function DynamicLayerData:save(layerData)
+	local ranges = self.ranges
+	layerData.timePointList = ranges.timePoint:toList()
+	layerData.tempoDatas = ranges.tempo:toList()
+	layerData.stopDatas = ranges.stop:toList()
+	layerData.velocityDatas = ranges.velocity:toList()
+	layerData.expandDatas = ranges.expand:toList()
+	layerData.intervalDatas = ranges.interval:toList()
+
+	for _, signatureData in ipairs(ranges.signature:toList()) do
+		layerData.signatures[signatureData.timePoint.measureTime:tonumber()] = signatureData.signature
+	end
+
+	for _, timePoint in ipairs(layerData.timePointList) do
+		if timePoint.noteDatas then
+			for _, noteData in ipairs(timePoint.noteDatas) do
+				table.insert(layerData.noteDatas, noteData)
+			end
+		end
+	end
+
+	layerData:setTimeMode(self.mode)
+	if self.signatureMode then
+		layerData:setSignatureMode(self.signatureMode)
 	end
 end
 
