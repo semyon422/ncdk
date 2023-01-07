@@ -571,8 +571,8 @@ do
 	ld:getTempoData(F(1), 60)
 
 	ld:getStopData(F(5), F(1))
-	ld:getExpandData(ld:getTimePoint(F(1), 0, 1), F(1))
-	ld:getExpandData(ld:getTimePoint(F(1), 1, 1), F(1))
+	ld:getExpandData(ld:getTimePoint(F(5), 1, 1), F(1))
+	ld:getExpandData(ld:getTimePoint(F(5), 0, 1), F(1))
 
 	assert(tostring(ld:getDynamicTimePoint(F(5))) == "(5.0/1,0,0)")  -- 20, 20
 	assert(tostring(ld:getDynamicTimePoint(F(5), 0, 0)) == "(5.0/1,0,0)")  -- 20, 20
@@ -581,7 +581,28 @@ do
 	assert(tostring(ld:getDynamicTimePoint(F(5), 1, 1)) == "(5.0/1,1,1)")  -- 21, 23
 
 	assert(tostring(ld:getDynamicTimePointAbsolute(192, 20, 0)) == "(5.0/1,0,0)")
+	assert(tostring(ld:getDynamicTimePointAbsolute(192, 20, 1)) == "(5.0/1,0,1)")
 	assert(tostring(ld:getDynamicTimePointAbsolute(192, 21, 0)) == "(5.0/1,1,0)")
+	assert(tostring(ld:getDynamicTimePointAbsolute(192, 21, 1)) == "(5.0/1,1,1)")
+end
+
+do
+	local ld = DynamicLayerData:new()
+
+	ld:setTimeMode("interval")
+	ld:setRange(-10, 20)
+
+	local id = ld:getIntervalData(0, 10)
+	ld:getIntervalData(10, 1)
+
+	ld:getExpandData(ld:getTimePoint(id, F(5), 1), F(1))
+
+	assert(tostring(ld:getDynamicTimePoint(id, F(5))) == "(0,10,5.0/1,0)")
+	assert(tostring(ld:getDynamicTimePoint(id, F(5), 0)) == "(0,10,5.0/1,0)")
+	assert(tostring(ld:getDynamicTimePoint(id, F(5), 1)) == "(0,10,5.0/1,1)")
+
+	assert(tostring(ld:getDynamicTimePointAbsolute(192, 5, 0)) == "(0,10,5.0/1,0)")
+	assert(tostring(ld:getDynamicTimePointAbsolute(192, 5, 1)) == "(0,10,5.0/1,1)")
 end
 
 do

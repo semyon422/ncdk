@@ -83,7 +83,7 @@ end
 function IntervalTimePoint.__eq(a, b)
 	local na, nb = isNumbers(a, b)
 	if na then
-		return na == nb
+		return na == nb and a.visualSide == b.visualSide
 	end
 	na, nb = a.intervalData, b.intervalData
 	return na == nb and a.time == b.time and a.visualSide == b.visualSide
@@ -91,7 +91,7 @@ end
 function IntervalTimePoint.__lt(a, b)
 	local na, nb = isNumbers(a, b)
 	if na then
-		return na < nb
+		return na < nb or na == nb and a.visualSide < b.visualSide
 	end
 	na, nb = a.intervalData, b.intervalData
 	return na < nb or na == nb and a.time < b.time or na == nb and a.time == b.time and a.visualSide < b.visualSide
@@ -99,7 +99,7 @@ end
 function IntervalTimePoint.__le(a, b)
 	local na, nb = isNumbers(a, b)
 	if na then
-		return na <= nb
+		return na < nb or na == nb and a.visualSide <= b.visualSide
 	end
 	na, nb = a.intervalData, b.intervalData
 	return na < nb or na == nb and a.time < b.time or na == nb and a.time == b.time and a.visualSide <= b.visualSide
