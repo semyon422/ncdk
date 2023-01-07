@@ -407,9 +407,12 @@ end
 
 function LayerData:insertIntervalData(absoluteTime, ...)
 	local timePoint = self:getTimePoint(absoluteTime)
+	local key = tostring(timePoint)
 	local intervalData = self:insertTimingObject(timePoint, "intervalData", IntervalData, ...)
 	timePoint.intervalData = intervalData
 	timePoint.absoluteTime = absoluteTime
+	self.timePoints[key] = nil
+	self.timePoints[tostring(timePoint)] = timePoint
 	return intervalData
 end
 function LayerData:removeIntervalData()

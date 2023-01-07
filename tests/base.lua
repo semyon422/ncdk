@@ -289,3 +289,19 @@ do
 	ld:interpolateTimePointAbsolute(100, tp, "absolute")
 	assert(tp.visualTime == tp3.visualTime and tp.visualSection == tp3.visualSection)
 end
+
+do
+	local nc = NoteChart:new()
+	local ld = nc:getLayerData(1)
+	ld:setTimeMode("interval")
+
+	local id1 = ld:insertIntervalData(0, 10)
+	local id2 = ld:insertIntervalData(10, 1)
+
+	local tp1 = ld:getTimePoint(id1, F(0))
+
+	nc:compute()
+
+	assert(id1.timePoint == tp1)
+	assert(id1.timePoint.ptr == tp1.ptr)
+end
