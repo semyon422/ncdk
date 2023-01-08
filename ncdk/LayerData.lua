@@ -8,6 +8,7 @@ local IntervalData = require("ncdk.IntervalData")
 local AbsoluteTimePoint = require("ncdk.AbsoluteTimePoint")
 local IntervalTimePoint = require("ncdk.IntervalTimePoint")
 local MeasureTimePoint = require("ncdk.MeasureTimePoint")
+local NoteData = require("ncdk.NoteData")
 
 local LayerData = {}
 
@@ -438,6 +439,10 @@ function LayerData:addNoteData(noteData)
 	local noteDatas = self.noteDatas
 	table.insert(noteDatas, noteData)
 	noteData.id = #noteDatas
+
+	local timePoint = noteData.timePoint
+	timePoint.noteDatas = timePoint.noteDatas or {}
+	table.insert(timePoint.noteDatas, noteData)
 
 	self.noteChart:increaseInputCount(noteData.inputType, noteData.inputIndex, 1)
 end
