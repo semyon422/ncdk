@@ -76,6 +76,7 @@ function DynamicLayerData:load(layerData)
 	self:setTimeMode(layerData.mode)
 	if layerData.signatureMode then
 		self:setSignatureMode(layerData.signatureMode)
+		self.defaultSignature = layerData.defaultSignature
 	end
 end
 
@@ -88,11 +89,14 @@ function DynamicLayerData:save(layerData)
 	layerData.expandDatas = ranges.expand:toList()
 	layerData.intervalDatas = ranges.interval:toList()
 
+	layerData.signatures = {}
 	for _, signatureData in ipairs(ranges.signature:toList()) do
 		layerData.signatures[signatureData.timePoint.measureTime:tonumber()] = signatureData.signature
 	end
 
+	layerData.timePoints = {}
 	for _, timePoint in ipairs(layerData.timePointList) do
+		layerData.timePoints[tostring(timePoint)] = timePoint
 		if timePoint.noteDatas then
 			for _, noteData in ipairs(timePoint.noteDatas) do
 				table.insert(layerData.noteDatas, noteData)
@@ -103,6 +107,7 @@ function DynamicLayerData:save(layerData)
 	layerData:setTimeMode(self.mode)
 	if self.signatureMode then
 		layerData:setSignatureMode(self.signatureMode)
+		layerData.defaultSignature = self.defaultSignature
 	end
 end
 
