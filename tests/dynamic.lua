@@ -1220,3 +1220,17 @@ do
 	assert(tp11.absoluteTime == 10)
 	assert(tp21.absoluteTime == 20)
 end
+
+do
+	local ld = DynamicLayerData:new()
+	ld:setTimeMode("interval")
+	ld:setRange(-10, 30)
+
+	local id1 = ld:getIntervalData(0, F(10))
+	local id2 = ld:getIntervalData(10, F(1))
+
+	local id3 = ld:splitInterval(ld:getDynamicTimePointAbsolute(192, 1.5))
+
+	local dtp = ld:getDynamicTimePointAbsolute(192, 1)
+	assert(dtp.intervalData == id1)
+end

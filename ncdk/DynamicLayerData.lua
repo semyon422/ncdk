@@ -615,6 +615,7 @@ function DynamicLayerData:getIntervalData(absoluteTime, ...)
 	timePoint.readonly = true
 	local intervalData = self:_getIntervalData(timePoint, ...)
 	timePoint.intervalData = intervalData
+	timePoint.time = intervalData.start
 	return intervalData
 end
 function DynamicLayerData:_removeIntervalData(timePoint)

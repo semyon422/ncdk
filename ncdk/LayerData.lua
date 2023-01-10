@@ -411,7 +411,7 @@ function LayerData:insertIntervalData(absoluteTime, ...)
 	local key = tostring(timePoint)
 	local intervalData = self:insertTimingObject(timePoint, "intervalData", IntervalData, ...)
 	timePoint.intervalData = intervalData
-	timePoint.time = Fraction:new(intervalData.start)
+	timePoint.time = intervalData.start
 	timePoint.absoluteTime = absoluteTime
 	self.timePoints[key] = nil
 	self.timePoints[tostring(timePoint)] = timePoint
