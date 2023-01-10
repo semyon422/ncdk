@@ -18,6 +18,10 @@ function IntervalData:new(beats, start)
 	return setmetatable(intervalData, mt)
 end
 
+function IntervalData:_end()
+	return self.start + self.beats
+end
+
 function IntervalData:set(start, beats)
 	local _start, _beats = self.start, self.beats
 	self.start = start

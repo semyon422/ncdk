@@ -630,7 +630,7 @@ function DynamicLayerData:splitInterval(timePoint)
 
 	local t = timePoint.time
 	local beatsLeft = t - _intervalData.start
-	local start = Fraction:new(t[1] % t[2], t[2])
+	local start = t:fractional()
 
 	local intervalData
 	local tp, dir
@@ -690,7 +690,7 @@ function DynamicLayerData:mergeInterval(timePoint)
 		_prev.beats = Fraction(1)
 		t = t + _prev.start - _intervalData.start
 	elseif _next then
-		t = -_intervalData.beats + _next.start - _intervalData.start
+		t = -_intervalData:_end() + _next.start
 		tp = _next.timePoint
 		merged = _next
 		dir = "prev"

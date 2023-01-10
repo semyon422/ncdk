@@ -22,6 +22,13 @@ assert(Fraction:new(2) >= Fraction:new(2))
 assert(-Fraction:new(2) == Fraction:new(-2))
 
 assert(Fraction:new(1, 2):tonumber() == 1 / 2)
+assert(Fraction:new(5, 4):integral() == 1)
+assert(Fraction:new(5, 4):fractional() == Fraction:new(1, 4))
+assert(Fraction:new(-5, 4):integral() == -2)
+assert(Fraction:new(-5, 4):fractional() == Fraction:new(3, 4))
+assert(-Fraction:new(5, 4):integral() == -1)
+assert(-Fraction:new(5, 4):fractional() == Fraction:new(-1, 4))
+
 assert(tostring(Fraction:new()) == "0.0/1")
 assert(tostring(Fraction:new(1, 2)) == "0.1/2")
 assert(tostring(Fraction:new(1)) == "1.0/1")
