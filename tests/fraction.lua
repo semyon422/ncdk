@@ -22,12 +22,20 @@ assert(Fraction:new(2) >= Fraction:new(2))
 assert(-Fraction:new(2) == Fraction:new(-2))
 
 assert(Fraction:new(1, 2):tonumber() == 1 / 2)
-assert(Fraction:new(5, 4):integral() == 1)
-assert(Fraction:new(5, 4):fractional() == Fraction:new(1, 4))
-assert(Fraction:new(-5, 4):integral() == -2)
-assert(Fraction:new(-5, 4):fractional() == Fraction:new(3, 4))
-assert(-Fraction:new(5, 4):integral() == -1)
-assert(-Fraction:new(5, 4):fractional() == Fraction:new(-1, 4))
+assert(Fraction:new(5, 4) % 1 == Fraction:new(1, 4))
+assert(Fraction:new(-5, 4) % 1 == Fraction:new(3, 4))
+assert(8 % Fraction:new(3) == 2)
+print(math.abs(1.1 % Fraction:new(1001, 1000) - 0.099) < 1e-6)
+
+-- __mod(a, b) return a - b * (a / b):floor() end
+-- for i = -10, 10 do for j = -10, 10 do for k = -10, 10 do for l = -10, 10 do
+-- 	if j * k * l ~= 0 then
+-- 		assert(
+-- 			math.abs(((i + 1e-9) / j) % (k / l) - Fraction(i, j) % Fraction(k, l)) < 1e-6 or
+-- 			math.abs(((i - 1e-9) / j) % (k / l) - Fraction(i, j) % Fraction(k, l)) < 1e-6
+-- 		)
+-- 	end
+-- end end end end
 
 assert(tostring(Fraction:new()) == "0.0/1")
 assert(tostring(Fraction:new(1, 2)) == "0.1/2")

@@ -104,16 +104,6 @@ function Fraction:tonumber()
 	return self[1] / self[2]
 end
 
-function Fraction:integral()
-	local n, d = self[1], self[2]
-	return (n - n % d) / d
-end
-
-function Fraction:fractional()
-	local n, d = self[1], self[2]
-	return Fraction:new(n % d, d)
-end
-
 function mt.__tostring(a)
 	local n, d = math.abs(a[1]), a[2]
 	return ("%s%d.%d/%d"):format(a[1] < 0 and "-" or "", math.floor(n / d), n % d, d)
@@ -125,6 +115,10 @@ end
 
 function mt.__unm(a)
 	return fraction(-a[1], a[2])
+end
+
+function mt.__mod(a, b)
+	return type(a) == "number" and a % b:tonumber() or a - b * (a / b):floor()
 end
 
 local function add(a, b)
