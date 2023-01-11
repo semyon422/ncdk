@@ -50,16 +50,16 @@ function IntervalTimePoint:fromnumber(id, t, limit)
 	local a, b, offset = id:getPair()
 	local ta, tb = a.timePoint, b.timePoint
 	local time = (t - ta.absoluteTime) / (tb.absoluteTime - ta.absoluteTime) * a.beats
-	time = Fraction:new(time, limit, false)
 	if offset then
 		time = time - a.beats + b.start
 		a = b
 	else
 		time = time + a.start
 	end
-	if time == a.beats and a.next then
-		a = a.next
-		time = Fraction:new(0)
+	time = Fraction:new(time, limit, false)
+	if not offset and time == a:_end() then
+		time = b.start
+		a = b
 	end
 	self:setTime(a, time)
 end
