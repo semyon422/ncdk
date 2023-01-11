@@ -61,10 +61,7 @@ function DynamicLayerData:load(layerData)
 	ranges.velocity:fromList(layerData.velocityDatas)
 	ranges.expand:fromList(layerData.expandDatas)
 	ranges.interval:fromList(layerData.intervalDatas)
-
-	for measureOffset, signature in pairs(layerData.signatures) do
-		self:getSignatureData(measureOffset, signature)
-	end
+	ranges.signature:fromList(layerData.signatureDatas)
 
 	for _, timePoint in ipairs(layerData.timePointList) do
 		timePoint.noteDatas = {}
@@ -73,11 +70,12 @@ function DynamicLayerData:load(layerData)
 		table.insert(noteData.timePoint.noteDatas, noteData)
 	end
 
-	self:setTimeMode(layerData.mode)
+	self.mode = layerData.mode
 	if layerData.signatureMode then
-		self:setSignatureMode(layerData.signatureMode)
+		self.signatureMode = layerData.signatureMode
 		self.defaultSignature = layerData.defaultSignature
 	end
+	self:setTimeMode(layerData.mode)
 end
 
 function DynamicLayerData:save(layerData)
@@ -104,9 +102,9 @@ function DynamicLayerData:save(layerData)
 		end
 	end
 
-	layerData:setTimeMode(self.mode)
+	layerData.mode = self.mode
 	if self.signatureMode then
-		layerData:setSignatureMode(self.signatureMode)
+		layerData.signatureMode = self.signatureMode
 		layerData.defaultSignature = self.defaultSignature
 	end
 end
@@ -122,12 +120,14 @@ function DynamicLayerData:setTimeMode(mode)
 	elseif mode == "interval" then
 		self.mainTimeField = "intervalTime"
 		self:_setRange(0, 0)
+		self.startTime, self.endTime = time, time
 		self.dynamicTimePoint = self:newTimePoint()
 		return
 	else
 		error("Wrong time mode")
 	end
 	self:_setRange(time, time)
+	self.startTime, self.endTime = time, time
 	self.zeroTimePoint = self:getTimePoint(time)
 	self.dynamicTimePoint = self:newTimePoint()
 end
@@ -630,7 +630,7 @@ function DynamicLayerData:splitInterval(timePoint)
 
 	local t = timePoint.time
 	local beatsLeft = t - _intervalData.start
-	local start = t:fractional()
+	local start = t % 1
 
 	local intervalData
 	local tp, dir

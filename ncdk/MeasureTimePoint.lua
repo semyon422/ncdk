@@ -13,8 +13,9 @@ function MeasureTimePoint:setTime(time, side, visualSide)
 end
 
 function MeasureTimePoint:setTimeAbsolute(time, visualSide)
+	self.measureTime = nil
 	self.absoluteTime = time
-	self.time = nil
+	self.side = nil
 	self.visualSide = visualSide
 	return self
 end
@@ -36,7 +37,10 @@ function MeasureTimePoint:tonumber()
 end
 
 function MeasureTimePoint.__tostring(a)
-	return ("(%s,%s,%s)"):format(a.measureTime, a.side, a.visualSide)
+	if a.measureTime then
+		return ("(%s,%s,%s)"):format(a.measureTime, a.side, a.visualSide)
+	end
+	return ("(A%s,%s,%s)"):format(a.absoluteTime, a.side, a.visualSide)
 end
 
 local function getTimes(a, b)

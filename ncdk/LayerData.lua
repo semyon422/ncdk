@@ -1,6 +1,7 @@
 local Fraction = require("ncdk.Fraction")
 local TimePoint = require("ncdk.TimePoint")
 local TempoData = require("ncdk.TempoData")
+local SignatureData = require("ncdk.SignatureData")
 local StopData = require("ncdk.StopData")
 local VelocityData = require("ncdk.VelocityData")
 local ExpandData = require("ncdk.ExpandData")
@@ -21,6 +22,7 @@ function LayerData:new()
 
 	layerData.defaultSignature = Fraction:new(4)
 	layerData.signatures = {}
+	layerData.signatureDatas = {}
 	layerData.timePoints = {}
 	layerData.tempoDatas = {}
 	layerData.stopDatas = {}
@@ -401,6 +403,9 @@ end
 function LayerData:setSignature(measureOffset, signature)
 	assert(self.signatureMode, "Signature mode should be set")
 	self.signatures[measureOffset] = signature
+	local timePoint = self:getTimePoint(Fraction:new(measureOffset))  -- for easier conversion to DynamicLayerData
+	self:getTimePoint(Fraction:new(measureOffset + 1))  -- for time point interpolation
+	return self:insertTimingObject(timePoint, "signatureData", SignatureData, signature)
 end
 function LayerData:getSignature(measureOffset)
 	return self.signatures[measureOffset]
