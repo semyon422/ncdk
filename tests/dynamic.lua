@@ -1259,3 +1259,46 @@ do
 	assert(dtp.intervalData == id2)
 	assert(dtp.time == F(0))
 end
+
+do
+	local ld = DynamicLayerData:new()
+	ld:setTimeMode("interval")
+	ld:setRange(-10, 30)
+
+	local id1 = ld:getIntervalData(0, F(10))
+	local id2 = ld:getIntervalData(10, F(1))
+
+	local tp1 = ld:getTimePoint(id1, F(2))
+
+	local id3 = ld:splitInterval(ld:getDynamicTimePointAbsolute(192, 0.5))
+	local id4 = ld:splitInterval(ld:getDynamicTimePointAbsolute(192, 1.25))
+
+	ld:mergeInterval(id4.timePoint)
+
+	assert(id3.beats == F(9.5))
+	assert(tp1.time == F(2))
+end
+
+do
+	local ld = DynamicLayerData:new()
+	ld:setTimeMode("interval")
+	ld:setRange(-10, 30)
+
+	local id1 = ld:getIntervalData(0, F(10))
+	local id2 = ld:getIntervalData(10, F(1))
+
+	local tp1 = ld:getTimePoint(id1, F(2))
+	local tp2 = ld:getTimePoint(id1, F(3.25))
+
+	local id3 = ld:splitInterval(ld:getDynamicTimePointAbsolute(192, 0.5))
+	local id4 = ld:splitInterval(ld:getDynamicTimePointAbsolute(192, 1.25))
+
+	assert(tp2.time == F(2.25))
+
+	local id5 = ld:splitInterval(ld:getDynamicTimePointAbsolute(192, 2.75))
+
+	ld:mergeInterval(id4.timePoint)
+
+	assert(tp1.time == F(2))
+	assert(tp2.time == F(1.25))
+end

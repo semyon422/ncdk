@@ -680,29 +680,24 @@ function DynamicLayerData:mergeInterval(timePoint)
 
 	local _prev, _next = _intervalData.prev, _intervalData.next
 
-	local t = _prev and _prev.beats
-	local merged = _prev
-	local tp = timePoint
-	local dir, check0 = "next", true
-	if _prev and _next then
-		_prev.beats = t + _intervalData.beats
-	elseif _prev then
-		_prev.beats = Fraction(1)
-		t = t + _prev.start - _intervalData.start
+	local delta, merged, tp, dir
+	if _prev then
+		delta = _prev:_end() - _intervalData.start
+		_prev.beats = _next and _prev.beats + _intervalData.beats or Fraction:new(1)
+		tp = timePoint
+		merged = _prev
+		dir = "next"
 	elseif _next then
-		t = -_intervalData:_end() + _next.start
-		tp = _next.timePoint
+		delta = _next.start - _intervalData:_end()
+		tp = _next.timePoint.prev
 		merged = _next
 		dir = "prev"
-		check0 = false
 	end
-	repeat
-		if tp.intervalData == _intervalData then
-			tp.intervalData = merged
-			tp.time = tp.time + t
-		end
+	while tp and tp.intervalData == _intervalData do
+		tp.intervalData = merged
+		tp.time = tp.time + delta
 		tp = tp[dir]
-	until not tp or (check0 and tp.time:tonumber() == 0)
+	end
 
 	self:_removeIntervalData(timePoint)
 end
