@@ -36,25 +36,20 @@ function IntervalTimePoint:tonumber()
 	end
 	local a, b, offset = id:getPair()
 	if not a then
-		return 0
+		return not b and 0 or a.timePoint.absoluteTime
 	end
-	local t = a.timePoint.absoluteTime
-	local time = self.time + (offset and a.beats - b.start or -a.start)
-	if b then
-		t = t + (b.timePoint.absoluteTime - t) * time / a.beats
-	end
-	return t
+
+	local ta = a.timePoint.absoluteTime
+	local time = self.time - a.start + (offset and a.beats or 0)
+	return ta + a:getBeatDuration() * time
 end
 
 function IntervalTimePoint:fromnumber(id, t, limit)
 	local a, b, offset = id:getPair()
-	local ta, tb = a.timePoint, b.timePoint
-	local time = (t - ta.absoluteTime) / (tb.absoluteTime - ta.absoluteTime) * a.beats
+	local time = (t - a.timePoint.absoluteTime) / a:getBeatDuration() + a.start
 	if offset then
-		time = time - a.beats + b.start
+		time = time - a.beats
 		a = b
-	else
-		time = time + a.start
 	end
 	time = Fraction:new(time, limit, false)
 	if not offset and time == a:_end() then

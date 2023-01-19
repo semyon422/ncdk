@@ -592,17 +592,17 @@ do
 	ld:setTimeMode("interval")
 	ld:setRange(-10, 20)
 
-	local id = ld:getIntervalData(0, F(10))
-	ld:getIntervalData(10, F(1))
+	local id = ld:getIntervalData(0, 10)
+	ld:getIntervalData(10, 1)
 
 	ld:getExpandData(ld:getTimePoint(id, F(5), 1), F(1))
 
-	assert(tostring(ld:getDynamicTimePoint(id, F(5))) == "(0,10.0/1,5.0/1,0)")
-	assert(tostring(ld:getDynamicTimePoint(id, F(5), 0)) == "(0,10.0/1,5.0/1,0)")
-	assert(tostring(ld:getDynamicTimePoint(id, F(5), 1)) == "(0,10.0/1,5.0/1,1)")
+	assert(tostring(ld:getDynamicTimePoint(id, F(5))) == "(0,10,5.0/1,0)")
+	assert(tostring(ld:getDynamicTimePoint(id, F(5), 0)) == "(0,10,5.0/1,0)")
+	assert(tostring(ld:getDynamicTimePoint(id, F(5), 1)) == "(0,10,5.0/1,1)")
 
-	assert(tostring(ld:getDynamicTimePointAbsolute(192, 5, 0)) == "(0,10.0/1,5.0/1,0)")
-	assert(tostring(ld:getDynamicTimePointAbsolute(192, 5, 1)) == "(0,10.0/1,5.0/1,1)")
+	assert(tostring(ld:getDynamicTimePointAbsolute(192, 5, 0)) == "(0,10,5.0/1,0)")
+	assert(tostring(ld:getDynamicTimePointAbsolute(192, 5, 1)) == "(0,10,5.0/1,1)")
 end
 
 do
@@ -673,9 +673,9 @@ do
 	ld:setTimeMode("interval")
 	ld:setRange(-10, 30)
 
-	local id1 = ld:getIntervalData(-1, F(11))
-	local id2 = ld:getIntervalData(10, F(5))
-	local id3 = ld:getIntervalData(20, F(1))
+	local id1 = ld:getIntervalData(-1, 11)
+	local id2 = ld:getIntervalData(10, 5)
+	local id3 = ld:getIntervalData(20, 1)
 
 	local tp0 = ld:getTimePoint(id1, F(0))
 	local tp1 = ld:getTimePoint(id1, F(1))
@@ -726,8 +726,8 @@ do
 	ld:setTimeMode("interval")
 	ld:setRange(-10, 30)
 
-	local id1 = ld:getIntervalData(0, F(10))
-	local id2 = ld:getIntervalData(10, F(1))
+	local id1 = ld:getIntervalData(0, 10)
+	local id2 = ld:getIntervalData(10, 1)
 
 	local tp_6 = ld:getTimePoint(id1, F(-6))
 	local tp_1 = ld:getTimePoint(id1, F(-1))
@@ -745,26 +745,26 @@ do
 
 	local id3 = ld:splitInterval(ld:getDynamicTimePointAbsolute(192, 5))
 
-	assert(id1.beats == F(5))
-	assert(id3.beats == F(5))
-	assert(id2.beats == F(1))
+	assert(id1.beats == 5)
+	assert(id3.beats == 5)
+	assert(id2.beats == 1)
 
 	assert(tp1.absoluteTime == 1)
 	assert(tp6.absoluteTime == 6)
 
 	local id4 = ld:splitInterval(ld:getDynamicTimePointAbsolute(192, 15))
 
-	assert(id1.beats == F(5))
-	assert(id3.beats == F(5))
-	assert(id2.beats == F(5))
-	assert(id4.beats == F(1))
+	assert(id1.beats == 5)
+	assert(id3.beats == 5)
+	assert(id2.beats == 5)
+	assert(id4.beats == 1)
 
 	assert(tp11.absoluteTime == 11)
 	assert(tp21.absoluteTime == 21)
 
 	local id0 = ld:splitInterval(ld:getDynamicTimePointAbsolute(192, -5))
 
-	assert(id1.beats == F(5))
+	assert(id1.beats == 5)
 
 	assert(tp_6.absoluteTime == -6)
 	assert(tp_1.absoluteTime == -1)
@@ -779,8 +779,8 @@ do
 	ld:setTimeMode("interval")
 	ld:setRange(-10, 30)
 
-	local id1 = ld:getIntervalData(0, F(10))
-	local id2 = ld:getIntervalData(10, F(1))
+	local id1 = ld:getIntervalData(0, 10)
+	local id2 = ld:getIntervalData(10, 1)
 
 	local tp5 = ld:getTimePoint(id1, F(5))
 	local tp6 = ld:getTimePoint(id1, F(6))
@@ -880,8 +880,8 @@ do
 	ld:setTimeMode("interval")
 	ld:setRange(-10, 30)
 
-	local id1 = ld:getIntervalData(0, F(10))
-	local id2 = ld:getIntervalData(10, F(1))
+	local id1 = ld:getIntervalData(0, 10)
+	local id2 = ld:getIntervalData(10, 1)
 
 	local tp5 = ld:getTimePoint(id1, F(5))
 	assert(tp5.absoluteTime == 5)
@@ -890,14 +890,14 @@ do
 	assert(tp5.absoluteTime == 10)
 
 	ld:moveInterval(id2, 20)
-	ld:updateInterval(id1, F(20))
+	ld:updateInterval(id1, 20)
 	assert(tp5.absoluteTime == 5)
 
 	local tp15 = ld:getTimePoint(id1, F(15))
 	assert(tp15.prev)
 	assert(tp15.next)
 
-	ld:updateInterval(id1, F(10))
+	ld:updateInterval(id1, 10)
 	assert(not tp15.prev)
 	assert(not tp15.next)
 end
@@ -907,8 +907,8 @@ do
 	ld:setTimeMode("interval")
 	ld:setRange(-1, 2)
 
-	local id1 = ld:getIntervalData(0, F(10))
-	local id2 = ld:getIntervalData(1, F(1))
+	local id1 = ld:getIntervalData(0, 10)
+	local id2 = ld:getIntervalData(1, 1)
 
 	local tp1 = ld:getTimePoint(id1, Fraction(3))
 
@@ -925,12 +925,12 @@ do
 	ld:setTimeMode("interval")
 	ld:setRange(-1, 2)
 
-	local id1 = ld:getIntervalData(0, F(10))
-	local id2 = ld:getIntervalData(1, F(1))
+	local id1 = ld:getIntervalData(0, 10)
+	local id2 = ld:getIntervalData(1, 1)
 
 	local tp1 = ld:getTimePoint(id1, Fraction(3))
 
-	local id0 = ld:getIntervalData(0.5, F(10))
+	local id0 = ld:getIntervalData(0.5, 10)
 	local tp = id0.timePoint
 	assert(tp.time == F(0))
 	assert(tp.next.time == F(0))
@@ -942,8 +942,8 @@ do
 	ld:setTimeMode("interval")
 	ld:setRange(-1, 2)
 
-	local id1 = ld:getIntervalData(0, F(10))
-	local id2 = ld:getIntervalData(1, F(1))
+	local id1 = ld:getIntervalData(0, 10)
+	local id2 = ld:getIntervalData(1, 1)
 
 	local tp1 = ld:getTimePoint(id1, Fraction(3))
 
@@ -958,8 +958,8 @@ do
 	ld:setTimeMode("interval")
 	ld:setRange(-1, 2)
 
-	local id1 = ld:getIntervalData(0, F(10))
-	local id2 = ld:getIntervalData(1, F(1))
+	local id1 = ld:getIntervalData(0, 10)
+	local id2 = ld:getIntervalData(1, 1)
 
 	local tp1 = ld:getTimePoint(id1, Fraction(3))
 
@@ -979,8 +979,8 @@ do
 	ld:setTimeMode("interval")
 	ld:setRange(-1, 1)
 
-	local id1 = ld:getIntervalData(0, F(10))
-	local id2 = ld:getIntervalData(1, F(1))
+	local id1 = ld:getIntervalData(0, 10)
+	local id2 = ld:getIntervalData(1, 1)
 
 	local tp = ld:getDynamicTimePointAbsolute(192, 0.99999988697193)
 	assert(tp == id2.timePoint)
@@ -991,8 +991,8 @@ do
 	ld:setTimeMode("interval")
 	ld:setRange(-10, 20)
 
-	local id1 = ld:getIntervalData(0, F(10))
-	local id2 = ld:getIntervalData(10, F(1))
+	local id1 = ld:getIntervalData(0, 10)
+	local id2 = ld:getIntervalData(10, 1)
 
 	local tp1 = ld:getTimePoint(id1, F(5))
 	local tp2 = ld:getTimePoint(id1, F(5), 1)
@@ -1011,8 +1011,8 @@ do
 	local ld = LayerData:new()
 	ld:setTimeMode("interval")
 
-	local id1 = ld:insertIntervalData(0, F(10))
-	local id2 = ld:insertIntervalData(10, F(1))
+	local id1 = ld:insertIntervalData(0, 10)
+	local id2 = ld:insertIntervalData(10, 1)
 	local tp1 = ld:getTimePoint(id1, F(5))
 
 	ld:compute()
@@ -1055,14 +1055,25 @@ do
 	ld:setTimeMode("interval")
 	ld:setRange(-10, 30)
 
-	local id1 = ld:getIntervalData(0.25, F(9.5), F(0.25))
-	local id2 = ld:getIntervalData(9.75, F(1), F(0.75))
+	local id1 = ld:getIntervalData(0.25, 9, F(0.25))
+	local id2 = ld:getIntervalData(9.75, 1, F(0.75))
 
+	local tp_1 = ld:getTimePoint(id1, F(-1))
 	local tp1 = ld:getTimePoint(id1, F(1))
 	local tp2 = ld:getTimePoint(id2, F(2))
 
+	assert(tp_1.absoluteTime == -1)
 	assert(tp1.absoluteTime == 1)
 	assert(tp2.absoluteTime == 11)
+
+	local tp = ld:getDynamicTimePointAbsolute(192, 5)
+	assert(tp.time == F(5))
+
+	local tp = ld:getDynamicTimePointAbsolute(192, 11)
+	assert(tp.time == F(2))
+
+	local tp = ld:getDynamicTimePointAbsolute(192, -1)
+	assert(tp.time == F(-1))
 end
 
 do
@@ -1070,8 +1081,8 @@ do
 	ld:setTimeMode("interval")
 	ld:setRange(-10, 30)
 
-	local id1 = ld:getIntervalData(0.25, F(9.5), F(0.25))
-	local id2 = ld:getIntervalData(9.75, F(1), F(0.75))
+	local id1 = ld:getIntervalData(0.25, 9, F(0.25))
+	local id2 = ld:getIntervalData(9.75, 1, F(0.75))
 
 	local tp_6 = ld:getTimePoint(id1, F(-6))
 	local tp_1 = ld:getTimePoint(id1, F(-1))
@@ -1088,6 +1099,11 @@ do
 	assert(tp21.absoluteTime == 20)
 
 	local id3 = ld:splitInterval(ld:getDynamicTimePointAbsolute(192, 5))
+	assert(id3.timePoint.time == F(0))
+
+	assert(id1.beats == 5)
+	assert(id3.beats == 4)
+	assert(id2.beats == 1)
 
 	assert(tp_6.absoluteTime == -6)
 	assert(tp_1.absoluteTime == -1)
@@ -1096,24 +1112,24 @@ do
 	assert(tp11.absoluteTime == 10)
 	assert(tp21.absoluteTime == 20)
 
-	assert(id1.beats == F(4.75))
-	assert(id3.beats == F(4.75))
-	assert(id2.beats == F(1))
+	local dtp = ld:getDynamicTimePointAbsolute(192, 15)
+	assert(dtp.time == F(6))
+	local id4 = ld:splitInterval(dtp)
+	assert(id4.timePoint.time == F(0))
 
-	local id4 = ld:splitInterval(ld:getDynamicTimePointAbsolute(192, 15))
-
-	assert(id1.beats == F(4.75))
-	assert(id3.beats == F(4.75))
-	assert(id2.beats == F(5.25))
-	assert(id4.beats == F(1))
+	assert(id1.beats == 5)
+	assert(id3.beats == 4)
+	assert(id2.beats == 6)
+	assert(id4.beats == 1)
 
 	assert(tp11.absoluteTime == 10)
 	assert(tp21.absoluteTime == 20)
 
 	local id0 = ld:splitInterval(ld:getDynamicTimePointAbsolute(192, -5))
+	assert(id0.timePoint.time == F(0))
 
-	assert(id1.beats == F(4.75))
-	assert(id0.beats == F(5.25))
+	assert(id1.beats == 5)
+	assert(id0.beats == 5)
 
 	assert(tp_6.absoluteTime == -6)
 	assert(tp_1.absoluteTime == -1)
@@ -1128,8 +1144,8 @@ do
 	ld:setTimeMode("interval")
 	ld:setRange(-10, 30)
 
-	local id1 = ld:getIntervalData(0.25, F(9.5), F(0.25))
-	local id2 = ld:getIntervalData(9.75, F(1), F(0.75))
+	local id1 = ld:getIntervalData(0.25, 9, F(0.25))
+	local id2 = ld:getIntervalData(9.75, 1, F(0.75))
 
 	local tp_6 = ld:getTimePoint(id1, F(-6))
 	local tp_1 = ld:getTimePoint(id1, F(-1))
@@ -1138,7 +1154,11 @@ do
 	local tp11 = ld:getTimePoint(id2, F(1))
 	local tp21 = ld:getTimePoint(id2, F(11))
 
-	local id3 = ld:splitInterval(ld:getDynamicTimePointAbsolute(192, 5.25))
+	local dtp = ld:getDynamicTimePointAbsolute(192, 5.25)
+	assert(dtp.time == F(5.25))
+	local id3 = ld:splitInterval(dtp)
+
+	assert(tp6.time == F(1))
 
 	assert(tp_6.absoluteTime == -6)
 	assert(tp_1.absoluteTime == -1)
@@ -1147,21 +1167,19 @@ do
 	assert(tp11.absoluteTime == 10)
 	assert(tp21.absoluteTime == 20)
 
-	assert(tp6.time == F(1))
-
-	assert(id1.beats == F(5))
-	assert(id3.beats == F(4.5))
-	assert(id2.beats == F(1))
+	assert(id1.beats == 5)
+	assert(id3.beats == 4)
+	assert(id2.beats == 1)
 	assert(id1.start == F(0.25))
 	assert(id3.start == F(0.25))
 	assert(id2.start == F(0.75))
 
 	local id4 = ld:splitInterval(ld:getDynamicTimePointAbsolute(192, 15.25))
 
-	assert(id1.beats == F(5))
-	assert(id3.beats == F(4.5))
-	assert(id2.beats == F(5.5))
-	assert(id4.beats == F(1))
+	assert(id1.beats == 5)
+	assert(id3.beats == 4)
+	assert(id2.beats == 6)
+	assert(id4.beats == 1)
 	assert(id1.start == F(0.25))
 	assert(id3.start == F(0.25))
 	assert(id2.start == F(0.75))
@@ -1172,8 +1190,8 @@ do
 
 	local id0 = ld:splitInterval(ld:getDynamicTimePointAbsolute(192, -5.25))
 
-	assert(id1.beats == F(5))
-	assert(id0.beats == F(5.5))
+	assert(id1.beats == 5)
+	assert(id0.beats == 6)
 	assert(id0.start == F(0.75))
 
 	assert(tp_6.time == F(0))
@@ -1196,7 +1214,7 @@ do
 
 	assert(tp6.time == F(6))
 
-	assert(id1.beats == F(9.5))
+	assert(id1.beats == 9)
 	assert(id1.start == F(0.25))
 
 	ld:mergeInterval(id0.timePoint)  -- -5.25
@@ -1208,7 +1226,7 @@ do
 	assert(tp11.absoluteTime == 10)
 	assert(tp21.absoluteTime == 20)
 
-	assert(id1.beats == F(9.5))
+	assert(id1.beats == 9)
 	assert(tp_6.time == F(-6))
 
 	ld:mergeInterval(id4.timePoint)  -- -15.25
@@ -1226,8 +1244,8 @@ do
 	ld:setTimeMode("interval")
 	ld:setRange(-10, 30)
 
-	local id1 = ld:getIntervalData(0, F(10))
-	local id2 = ld:getIntervalData(10, F(1))
+	local id1 = ld:getIntervalData(0, 10)
+	local id2 = ld:getIntervalData(10, 1)
 
 	local id3 = ld:splitInterval(ld:getDynamicTimePointAbsolute(192, 1.5))
 
@@ -1240,8 +1258,8 @@ do
 	ld:setTimeMode("interval")
 	ld:setRange(-10, 30)
 
-	local id1 = ld:getIntervalData(0, F(10))
-	local id2 = ld:getIntervalData(10, F(1))
+	local id1 = ld:getIntervalData(0, 10)
+	local id2 = ld:getIntervalData(10, 1)
 
 	local id3 = ld:splitInterval(ld:getDynamicTimePointAbsolute(192, 0.5))
 
@@ -1265,8 +1283,8 @@ do
 	ld:setTimeMode("interval")
 	ld:setRange(-10, 30)
 
-	local id1 = ld:getIntervalData(0, F(10))
-	local id2 = ld:getIntervalData(10, F(1))
+	local id1 = ld:getIntervalData(0, 10)
+	local id2 = ld:getIntervalData(10, 1)
 
 	local tp1 = ld:getTimePoint(id1, F(2))
 
@@ -1275,7 +1293,7 @@ do
 
 	ld:mergeInterval(id4.timePoint)
 
-	assert(id3.beats == F(9.5))
+	assert(id3.beats == 10)
 	assert(tp1.time == F(2))
 end
 
@@ -1284,8 +1302,8 @@ do
 	ld:setTimeMode("interval")
 	ld:setRange(-10, 30)
 
-	local id1 = ld:getIntervalData(0, F(10))
-	local id2 = ld:getIntervalData(10, F(1))
+	local id1 = ld:getIntervalData(0, 10)
+	local id2 = ld:getIntervalData(10, 1)
 
 	local tp1 = ld:getTimePoint(id1, F(2))
 	local tp2 = ld:getTimePoint(id1, F(3.25))
@@ -1301,4 +1319,52 @@ do
 
 	assert(tp1.time == F(2))
 	assert(tp2.time == F(1.25))
+end
+
+do
+	local ld = DynamicLayerData:new()
+	ld:setTimeMode("interval")
+	ld:setRange(-10, 30)
+
+	local id1 = ld:getIntervalData(0.5, 1, F(0.5))
+	local id2 = ld:getIntervalData(1.25, 1, F(0.25))
+
+	ld:updateInterval(id1, 0)
+	assert(id1.beats == 1)
+end
+
+do
+	local ld = DynamicLayerData:new()
+	ld:setTimeMode("interval")
+	ld:setRange(-10, 30)
+
+	local id1 = ld:getIntervalData(0.5, 1, F(0.5))
+	local id2 = ld:getIntervalData(1.5, 1, F(0.5))
+
+	ld:updateInterval(id1, 0)
+	assert(id1.beats == 1)
+end
+
+do
+	local ld = DynamicLayerData:new()
+	ld:setTimeMode("interval")
+	ld:setRange(-10, 30)
+
+	local id1 = ld:getIntervalData(0.5, 1, F(0.5))
+	local id2 = ld:getIntervalData(1.75, 1, F(0.75))
+
+	ld:updateInterval(id1, 0)
+	assert(id1.beats == 0)
+end
+
+do
+	local ld = DynamicLayerData:new()
+	ld:setTimeMode("interval")
+	ld:setRange(-10, 30)
+
+	local id1 = ld:getIntervalData(0.5, 1, F(0.5))
+	local id2 = ld:getIntervalData(1.75, 1, F(0.75))
+
+	ld:moveInterval(id2, 0)
+	assert(math.abs(id1:getBeatDuration() - ld.minBeatDuration) < 1e-6)
 end

@@ -9,7 +9,7 @@ IntervalData.start = Fraction:new(0)
 function IntervalData:new(beats, start)
 	local intervalData = {}
 
-	assert(type(beats) == "table" and beats[1] > 0)
+	assert(type(beats) == "number" and beats >= 0 and beats % 1 == 0)
 	intervalData.beats = beats
 
 	assert(not start or type(start) == "table" and start[1] >= 0 and start[1] < start[2])
@@ -18,15 +18,25 @@ function IntervalData:new(beats, start)
 	return setmetatable(intervalData, mt)
 end
 
-function IntervalData:_end()
-	return self.start + self.beats
-end
-
 function IntervalData:set(start, beats)
 	local _start, _beats = self.start, self.beats
 	self.start = start
 	self.beats = beats
 	return _start ~= start or _beats ~= beats
+end
+
+function IntervalData:_end()
+	return self.next.start + self.beats
+end
+
+function IntervalData:getDuration()
+	return self.next.start - self.start + self.beats
+end
+
+function IntervalData:getBeatDuration()
+	local a, b = self, self.next
+	local _a, _b = a.timePoint, b.timePoint
+	return (_b.absoluteTime - _a.absoluteTime) / self:getDuration()
 end
 
 function IntervalData:getPair()
@@ -40,15 +50,6 @@ function IntervalData:getPair()
 		return
 	end
 	return p, a, true
-end
-
-function IntervalData:getBeatDuration()
-	local intervalData, nextIntervalData = self:getPair()
-	if not intervalData then
-		return
-	end
-	local _a, _b = intervalData.timePoint, nextIntervalData.timePoint
-	return (_b.absoluteTime - _a.absoluteTime) / intervalData.beats
 end
 
 function mt.__tostring(a)

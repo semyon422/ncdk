@@ -14,7 +14,7 @@ local MeasureTimePoint = require("ncdk.MeasureTimePoint")
 local DynamicLayerData = {}
 
 DynamicLayerData.primaryTempo = 0
-DynamicLayerData.minimumBeatLength = 60 / 1000
+DynamicLayerData.minBeatDuration = 60 / 1000
 
 DynamicLayerData.defaultSignature = Fraction:new(4)
 DynamicLayerData.mainTimeField = "measureTime"
@@ -628,42 +628,38 @@ end
 function DynamicLayerData:splitInterval(timePoint)
 	local _intervalData = timePoint.intervalData
 
-	local t = timePoint.time
-	local beatsLeft = t - _intervalData.start
-	local start = t % 1
+	local time = timePoint.time
+	local _beats = time:floor()
+	local start = time % 1
 
 	local intervalData
 	local tp, dir
-	if t[1] > 0 then
-		local beats = _intervalData.next and _intervalData.beats - beatsLeft or Fraction:new(1)
+	if time[1] > 0 then
+		local beats = _intervalData.next and _intervalData.beats - _beats or 1
 		if timePoint.ptr == self.dynamicTimePoint.ptr then
 			intervalData = self:getIntervalData(timePoint.absoluteTime, beats, start)
 		else
 			timePoint.readonly = true
 			intervalData = self:_getIntervalData(timePoint, beats, start)
-			timePoint.intervalData = intervalData
-			timePoint.time = Fraction:new(0)
+			timePoint:setTime(intervalData, start)
 		end
-		_intervalData.beats = beatsLeft
+		_intervalData.beats = _beats
 
-		tp = intervalData.timePoint.next
+		tp = timePoint.next
 		dir = "next"
 	else
 		if timePoint.ptr == self.dynamicTimePoint.ptr then
-			intervalData = self:getIntervalData(timePoint.absoluteTime, -beatsLeft, start)
+			intervalData = self:getIntervalData(timePoint.absoluteTime, -_beats, start)
 		else
-			intervalData = self:_getIntervalData(timePoint, -beatsLeft, start)
+			intervalData = self:_getIntervalData(timePoint, -_beats, start)
 		end
-		intervalData.timePoint.intervalData = _intervalData
-		intervalData.timePoint.time = t
+		intervalData.timePoint:setTime(_intervalData, time)
 		tp = _intervalData.timePoint.prev
 		dir = "prev"
 	end
-	while tp and tp.time:tonumber() ~= 0 do
-		if tp.intervalData == _intervalData then
-			tp.intervalData = intervalData
-			tp.time = tp.time - t + start
-		end
+	while tp and tp.intervalData == _intervalData do
+		tp.intervalData = intervalData
+		tp.time = tp.time - _beats
 		tp = tp[dir]
 	end
 
@@ -680,22 +676,22 @@ function DynamicLayerData:mergeInterval(timePoint)
 
 	local _prev, _next = _intervalData.prev, _intervalData.next
 
-	local delta, merged, tp, dir
+	local _beats, intervalData, tp, dir
 	if _prev then
-		delta = _prev:_end() - _intervalData.start
-		_prev.beats = _next and _prev.beats + _intervalData.beats or Fraction:new(1)
+		_beats = _prev.beats
+		_prev.beats = _next and _prev.beats + _intervalData.beats or 1
 		tp = timePoint
-		merged = _prev
+		intervalData = _prev
 		dir = "next"
 	elseif _next then
-		delta = _next.start - _intervalData:_end()
+		_beats = -_intervalData.beats
 		tp = _next.timePoint.prev
-		merged = _next
+		intervalData = _next
 		dir = "prev"
 	end
 	while tp and tp.intervalData == _intervalData do
-		tp.intervalData = merged
-		tp.time = tp.time + delta
+		tp.intervalData = intervalData
+		tp.time = tp.time + _beats
 		tp = tp[dir]
 	end
 
@@ -707,27 +703,35 @@ function DynamicLayerData:moveInterval(intervalData, absoluteTime)
 	end
 	local minTime, maxTime = -math.huge, math.huge
 	if intervalData.prev then
-		minTime = intervalData.prev.timePoint.absoluteTime + self.minimumBeatLength * intervalData.prev.beats
+		minTime = intervalData.prev.timePoint.absoluteTime + self.minBeatDuration * intervalData.prev:getDuration()
 	end
 	if intervalData.next then
-		maxTime = intervalData.next.timePoint.absoluteTime - self.minimumBeatLength * intervalData.beats
+		maxTime = intervalData.next.timePoint.absoluteTime - self.minBeatDuration * intervalData:getDuration()
+	end
+	if minTime >= maxTime then
+		return
 	end
 	intervalData.timePoint.absoluteTime = math.min(math.max(absoluteTime, minTime), maxTime)
 	self:compute()
 end
 function DynamicLayerData:updateInterval(intervalData, beats)
-	if not beats or beats == intervalData.beats or not intervalData.next then
+	local a, b = intervalData, intervalData.next
+	beats = math.max(beats, 0)
+	assert(math.floor(beats) == beats)
+
+	if not b or beats == a.beats or beats == 0 and a.start >= b.start then
 		return
 	end
 
-	local maxIntervals = (intervalData.next.timePoint.absoluteTime - intervalData.timePoint.absoluteTime) / self.minimumBeatLength
-	local _beats = math.min(math.max(beats:tonumber(), 1), math.floor(maxIntervals))
-	beats = _beats == beats:tonumber() and beats or Fraction:new(_beats)
+	local _a, _b = a.timePoint, b.timePoint
+
+	local maxBeats = (_b.absoluteTime - _a.absoluteTime) / self.minBeatDuration + a.start - b.start
+	beats = math.min(beats, math.floor(maxBeats))
 
 	if beats < intervalData.beats then
-		local rightTimePoint = intervalData.next.timePoint
+		local rightTimePoint = b.timePoint
 		local tp = rightTimePoint.prev
-		while tp and tp.time >= beats do
+		while tp and tp ~= _a and tp.time >= b.start + beats do
 			self.ranges.timePoint:remove(tp)
 			tp = rightTimePoint.prev
 		end

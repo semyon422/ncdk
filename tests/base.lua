@@ -235,9 +235,9 @@ do
 	local ld = nc:getLayerData(1)
 	ld:setTimeMode("interval")
 
-	local id1 = ld:insertIntervalData(-1, F(11))
-	local id2 = ld:insertIntervalData(10, F(5))
-	local id3 = ld:insertIntervalData(20, F(1))
+	local id1 = ld:insertIntervalData(-1, 11)
+	local id2 = ld:insertIntervalData(10, 5)
+	local id3 = ld:insertIntervalData(20, 1)
 
 	local tp0 = ld:getTimePoint(id1, F(0))
 	local tp1 = ld:getTimePoint(id1, F(1))
@@ -264,8 +264,8 @@ do
 	local ld = nc:getLayerData(1)
 	ld:setTimeMode("interval")
 
-	local id1 = ld:insertIntervalData(0, F(10))
-	local id2 = ld:insertIntervalData(10, F(1))
+	local id1 = ld:insertIntervalData(0, 10)
+	local id2 = ld:insertIntervalData(10, 1)
 
 	local tp1 = ld:getTimePoint(id1, F(5))
 	local tp2 = ld:getTimePoint(id1, F(5), 1)
@@ -295,8 +295,8 @@ do
 	local ld = nc:getLayerData(1)
 	ld:setTimeMode("interval")
 
-	local id1 = ld:insertIntervalData(0, F(10))
-	local id2 = ld:insertIntervalData(10, F(1))
+	local id1 = ld:insertIntervalData(0, 10)
+	local id2 = ld:insertIntervalData(10, 1)
 
 	local tp1 = ld:getTimePoint(id1, F(0))
 
@@ -311,14 +311,16 @@ do
 	local ld = nc:getLayerData(1)
 	ld:setTimeMode("interval")
 
-	local id1 = ld:insertIntervalData(0.25, F(9.5), F(0.25))
-	local id2 = ld:insertIntervalData(9.75, F(1), F(0.75))
+	local id1 = ld:insertIntervalData(0.25, 9, F(0.25))
+	local id2 = ld:insertIntervalData(9.75, 1, F(0.75))
 
+	local tp_1 = ld:getTimePoint(id1, F(-1))
 	local tp1 = ld:getTimePoint(id1, F(1))
 	local tp2 = ld:getTimePoint(id2, F(2))
 
 	nc:compute()
 
+	assert(tp_1.absoluteTime == -1)
 	assert(tp1.absoluteTime == 1)
 	assert(tp2.absoluteTime == 11)
 end
