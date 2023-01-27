@@ -34,20 +34,18 @@ function LayerData:new()
 	return setmetatable(layerData, mt)
 end
 
-local function sortByTimePoint(a, b)
-	return a.timePoint < b.timePoint
-end
 function LayerData:compute()
-	table.sort(self.tempoDatas, sortByTimePoint)
-	table.sort(self.stopDatas, sortByTimePoint)
-	table.sort(self.velocityDatas, sortByTimePoint)
-	table.sort(self.intervalDatas, sortByTimePoint)
-	table.sort(self.noteDatas, function(a, b)
-		if a.timePoint == b.timePoint then
-			return a.id < b.id
-		end
-		return a.timePoint < b.timePoint
-	end)
+	table.sort(self.tempoDatas)
+	table.sort(self.stopDatas)
+	table.sort(self.velocityDatas)
+	table.sort(self.intervalDatas)
+	table.sort(self.noteDatas)
+
+	-- for _, r in pairs(self.noteDatas) do
+	-- 	for _, noteDatas in pairs(r) do
+	-- 		table.sort(noteDatas)
+	-- 	end
+	-- end
 
 	local intervalDatas = self.intervalDatas
 	for i = 1, #intervalDatas do
@@ -442,7 +440,13 @@ function LayerData:getIntervalData(i) return self.intervalDatas[i] end
 function LayerData:getIntervalDataCount() return #self.intervalDatas end
 
 function LayerData:addNoteData(noteData)
+	local inputType, inputIndex = noteData.inputType, noteData.inputIndex
+
 	local noteDatas = self.noteDatas
+	-- noteDatas[inputType] = noteDatas[inputType] or {}
+	-- noteDatas[inputType][inputIndex] = noteDatas[inputType][inputIndex] or {}
+	-- noteDatas = noteDatas[inputType][inputIndex]
+
 	table.insert(noteDatas, noteData)
 	noteData.id = #noteDatas
 
@@ -450,7 +454,7 @@ function LayerData:addNoteData(noteData)
 	timePoint.noteDatas = timePoint.noteDatas or {}
 	table.insert(timePoint.noteDatas, noteData)
 
-	self.noteChart:increaseInputCount(noteData.inputType, noteData.inputIndex, 1)
+	self.noteChart:increaseInputCount(inputType, inputIndex, 1)
 end
 
 function LayerData:getNoteData(i) return self.noteDatas[i] end
