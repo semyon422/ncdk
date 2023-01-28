@@ -14,37 +14,19 @@ function NoteChart:new()
 	noteChart.inputMode = InputMode:new()
 	noteChart.resourceList = ResourceList:new()
 
-	noteChart.inputCount = {}
-
 	return setmetatable(noteChart, mt)
 end
 
 function NoteChart:getInputIterator()
-	local inputs = {}
-	for inputType, inputTypeData in pairs(self.inputCount) do
-		for inputIndex in pairs(inputTypeData) do
-			inputs[#inputs + 1] = {inputType, inputIndex}
+	return coroutine.wrap(function()
+		for layerDataIndex, layerData in ipairs(self.layerDatas) do
+			for inputType, r in pairs(layerData.noteDatas) do
+				for inputIndex, noteDatas in pairs(r) do
+					coroutine.yield(noteDatas, inputType, inputIndex, layerDataIndex)
+				end
+			end
 		end
-	end
-	local counter = 1
-
-	return function()
-		local input = inputs[counter]
-		if not input then return end
-		counter = counter + 1
-		return unpack(input)
-	end
-end
-
-function NoteChart:increaseInputCount(inputType, inputIndex, value)
-	local inputCount = self.inputCount
-	inputCount[inputType] = inputCount[inputType] or {}
-	local t = inputCount[inputType]
-	t[inputIndex] = (t[inputIndex] or 0) + value
-	assert(t[inputIndex] >= 0)
-	if t[inputIndex] == 0 then
-		t[inputIndex] = nil
-	end
+	end)
 end
 
 function NoteChart:getLayerDataIterator() return ipairs(self.layerDatas) end

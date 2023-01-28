@@ -79,16 +79,8 @@ function DynamicLayerData:load(layerData)
 	ranges.interval:fromList(layerData.intervalDatas)
 	ranges.signature:fromList(layerData.signatureDatas)
 
-	local notes = {}
-	for _, noteData in ipairs(layerData.noteDatas) do
-		local inputType, inputIndex = noteData.inputType, noteData.inputIndex
-		notes[inputType] = notes[inputType] or {}
-		notes[inputType][inputIndex] = notes[inputType][inputIndex] or {}
-		table.insert(notes[inputType][inputIndex], noteData)
-	end
-	for inputType, r in pairs(notes) do
+	for inputType, r in pairs(layerData.noteDatas) do
 		for inputIndex, noteDatas in pairs(r) do
-			table.sort(noteDatas)
 			local range = self:getNoteRange(inputType, inputIndex)
 			range:fromList(noteDatas)
 		end
@@ -119,10 +111,11 @@ function DynamicLayerData:save(layerData)
 	layerData.timePoints = {}
 	for _, timePoint in ipairs(layerData.timePointList) do
 		layerData.timePoints[tostring(timePoint)] = timePoint
-		if timePoint.noteDatas then
-			for _, noteData in ipairs(timePoint.noteDatas) do
-				table.insert(layerData.noteDatas, noteData)
-			end
+	end
+	for inputType, r in pairs(ranges.note) do
+		layerData.noteDatas[inputType] = {}
+		for inputIndex, range in pairs(r) do
+			layerData.noteDatas[inputType][inputIndex] = range:toList()
 		end
 	end
 
@@ -772,32 +765,17 @@ end
 function DynamicLayerData:getNoteData(timePoint, inputType, inputIndex)
 	timePoint = self:checkTimePoint(timePoint)
 
-	local noteData = NoteData:new(timePoint, inputType, inputIndex)
-	timePoint.noteDatas = timePoint.noteDatas or {}
-	local noteDatas = noteData.timePoint.noteDatas
-	for _, _noteData in ipairs(noteDatas) do
-		if _noteData.inputType == inputType and _noteData.inputIndex == inputIndex then
-			return
-		end
-	end
+	local noteData = NoteData:new(timePoint)
 
-	table.insert(noteDatas, noteData)
 	local range = self:getNoteRange(inputType, inputIndex)
 	range:insert(noteData)
 
 	return noteData
 end
 
-function DynamicLayerData:removeNoteData(noteData)
-	local noteDatas = noteData.timePoint.noteDatas
-	for i, v in ipairs(noteDatas) do
-		if v == noteData then
-			table.remove(noteDatas, i)
-			local range = self:getNoteRange(noteData.inputType, noteData.inputIndex)
-			range:remove(noteData)
-			return
-		end
-	end
+function DynamicLayerData:removeNoteData(noteData, inputType, inputIndex)
+	local range = self:getNoteRange(inputType, inputIndex)
+	range:remove(noteData)
 end
 
 return DynamicLayerData

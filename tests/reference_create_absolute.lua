@@ -21,9 +21,7 @@ local timePoint1 = layerData1:getTimePoint(
 layerData1:insertVelocityData(layerData1:getTimePoint(0), 1)
 
 local noteData1 = NoteData:new(timePoint1)
-layerData1:addNoteData(noteData1)
-noteData1.inputType = "key"
-noteData1.inputIndex = 1
+layerData1:addNoteData(noteData1, "key", 1)
 
 -- not related to ncdk
 noteData1.sounds = {}

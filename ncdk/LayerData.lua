@@ -39,13 +39,13 @@ function LayerData:compute()
 	table.sort(self.stopDatas)
 	table.sort(self.velocityDatas)
 	table.sort(self.intervalDatas)
-	table.sort(self.noteDatas)
+	-- table.sort(self.noteDatas)
 
-	-- for _, r in pairs(self.noteDatas) do
-	-- 	for _, noteDatas in pairs(r) do
-	-- 		table.sort(noteDatas)
-	-- 	end
-	-- end
+	for _, r in pairs(self.noteDatas) do
+		for _, noteDatas in pairs(r) do
+			table.sort(noteDatas)
+		end
+	end
 
 	local intervalDatas = self.intervalDatas
 	for i = 1, #intervalDatas do
@@ -439,25 +439,18 @@ function LayerData:getExpandDataCount() return #self.expandDatas end
 function LayerData:getIntervalData(i) return self.intervalDatas[i] end
 function LayerData:getIntervalDataCount() return #self.intervalDatas end
 
-function LayerData:addNoteData(noteData)
-	local inputType, inputIndex = noteData.inputType, noteData.inputIndex
-
-	local noteDatas = self.noteDatas
-	-- noteDatas[inputType] = noteDatas[inputType] or {}
-	-- noteDatas[inputType][inputIndex] = noteDatas[inputType][inputIndex] or {}
-	-- noteDatas = noteDatas[inputType][inputIndex]
+function LayerData:addNoteData(noteData, inputType, inputIndex)
+	local noteDatas = self:getNoteDatasList(inputType, inputIndex)
 
 	table.insert(noteDatas, noteData)
 	noteData.id = #noteDatas
-
-	local timePoint = noteData.timePoint
-	timePoint.noteDatas = timePoint.noteDatas or {}
-	table.insert(timePoint.noteDatas, noteData)
-
-	self.noteChart:increaseInputCount(inputType, inputIndex, 1)
 end
 
-function LayerData:getNoteData(i) return self.noteDatas[i] end
-function LayerData:getNoteDataCount() return #self.noteDatas end
+function LayerData:getNoteDatasList(inputType, inputIndex)
+	local noteDatas = self.noteDatas
+	noteDatas[inputType] = noteDatas[inputType] or {}
+	noteDatas[inputType][inputIndex] = noteDatas[inputType][inputIndex] or {}
+	return noteDatas[inputType][inputIndex]
+end
 
 return LayerData

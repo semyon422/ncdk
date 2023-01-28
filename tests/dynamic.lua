@@ -330,7 +330,7 @@ do
 	local nd2 = ld:getNoteData(tp2, "key", 2)
 	local nd3 = ld:getNoteData(tp3, "key", 3)
 
-	ld:removeNoteData(nd2)
+	ld:removeNoteData(tp2, "key", 2)
 end
 
 do

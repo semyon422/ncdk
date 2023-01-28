@@ -17,7 +17,7 @@ do
 	ld:insertVelocityData(tp, 1)
 
 	local nd = NoteData:new(tp)
-	ld:addNoteData(nd)
+	ld:addNoteData(nd, "key", 1)
 
 	nc:compute()
 end

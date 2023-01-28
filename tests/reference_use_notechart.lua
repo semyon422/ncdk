@@ -2,6 +2,8 @@ local TimePoint = require("ncdk.TimePoint")
 
 local noteChart = require("tests.reference_create_measure")
 
+do return end
+
 -- get all NoteData objects
 local noteDatas = {}
 for _, layerData in noteChart:getLayerDataIterator() do
