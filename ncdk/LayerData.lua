@@ -110,15 +110,6 @@ function LayerData:getTimePoint(...)
 	return timePoint
 end
 
-function LayerData:createTimePointList()
-	local timePointList = {}
-	for _, timePoint in pairs(self.timePoints) do
-		timePointList[#timePointList + 1] = timePoint
-	end
-	table.sort(timePointList)
-	self.timePointList = timePointList
-end
-
 function LayerData:getBaseTimePoint(index, t, mode)
 	local list = self.timePointList
 	index = math.min(math.max(index, 1), #list)
@@ -198,16 +189,34 @@ function LayerData:interpolateTimePointVisual(index, timePoint)
 	return index
 end
 
+function LayerData:assignNoteDatas()
+	for _, timePoint in pairs(self.timePoints) do
+		timePoint.noteDatas = {}
+	end
+
+	for inputType, r in pairs(self.noteDatas) do
+		for inputIndex, noteDatas in pairs(r) do
+			for _, noteData in ipairs(noteDatas) do
+				noteData.timePoint.noteDatas[inputType .. inputIndex] = noteData
+			end
+		end
+	end
+end
+
 function LayerData:computeTimePoints()
 	local mode = self.mode
 	assert(mode, "Mode should be set")
 
-	self:createTimePointList()
+	local timePointList = {}
+	for _, timePoint in pairs(self.timePoints) do
+		timePointList[#timePointList + 1] = timePoint
+	end
+	table.sort(timePointList)
+	self.timePointList = timePointList
 
 	local isMeasure = mode == "measure"
 	local isInterval = mode == "interval"
 	local isLong = self.signatureMode == "long"
-	local timePointList = self.timePointList
 
 	local tempoData = self:getTempoData(1)
 	local velocityData = self:getVelocityData(1)
