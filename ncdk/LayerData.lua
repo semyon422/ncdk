@@ -152,7 +152,10 @@ function LayerData:interpolateTimePointAbsolute(index, timePoint)
 	local b = list[index + 1]
 	a = a or b
 
-	local tempoMultiplier = self.primaryTempo == 0 and 1 or a.tempoData.tempo / self.primaryTempo
+	local tempoMultiplier = 1
+	if self.primaryTempo ~= 0 and a.tempoData then
+		tempoMultiplier = a.tempoData.tempo / self.primaryTempo
+	end
 	if b and b._stopData then
 		tempoMultiplier = 0
 	end
@@ -177,8 +180,12 @@ function LayerData:interpolateTimePointVisual(index, timePoint)
 	local b = list[index + 1]
 	a = a or b
 
+	local tempoMultiplier = 1
+	if self.primaryTempo ~= 0 and a.tempoData then
+		tempoMultiplier = a.tempoData.tempo / self.primaryTempo
+	end
+
 	local t = timePoint.visualTime
-	local tempoMultiplier = self.primaryTempo == 0 and 1 or a.tempoData.tempo / self.primaryTempo
 	local currentSpeed = a.velocityData and a.velocityData.currentSpeed or 1
 	timePoint.absoluteTime = a.absoluteTime + (t - a.visualTime) / currentSpeed / tempoMultiplier
 	timePoint.visualSection = a.visualSection
