@@ -276,6 +276,7 @@ function DynamicLayerData:getDynamicTimePoint(...)
 	timePoint.tempoData = a.tempoData
 	timePoint.velocityData = a.velocityData
 	timePoint.intervalData = timePoint.intervalData or a.intervalData
+	timePoint.visualSection = a.visualSection
 
 	return timePoint
 end
@@ -343,6 +344,7 @@ function DynamicLayerData:getDynamicTimePointAbsolute(limit, absoluteTime, visua
 	timePoint.tempoData = a.tempoData
 	timePoint.velocityData = a.velocityData
 	timePoint.intervalData = timePoint.intervalData or a.intervalData
+	timePoint.visualSection = a.visualSection
 
 	return timePoint
 end
