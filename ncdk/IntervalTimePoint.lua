@@ -14,6 +14,7 @@ function IntervalTimePoint:setTime(intervalData, time, visualSide)
 end
 
 function IntervalTimePoint:setTimeAbsolute(time, visualSide)
+	assert(type(time) == "number")
 	self.absoluteTime = time
 	self.intervalData = time
 	self.time = nil

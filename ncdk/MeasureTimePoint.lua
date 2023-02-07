@@ -6,6 +6,7 @@ MeasureTimePoint.side = 0
 MeasureTimePoint.visualSide = 0
 
 function MeasureTimePoint:setTime(time, side, visualSide)
+	assert(type(time) == "table")
 	self.measureTime = time
 	self.side = side
 	self.visualSide = visualSide
@@ -13,6 +14,7 @@ function MeasureTimePoint:setTime(time, side, visualSide)
 end
 
 function MeasureTimePoint:setTimeAbsolute(time, visualSide)
+	assert(type(time) == "number")
 	self.measureTime = nil
 	self.absoluteTime = time
 	self.side = nil

@@ -5,16 +5,13 @@ local AbsoluteTimePoint = TimePoint:new()
 AbsoluteTimePoint.visualSide = 0
 
 function AbsoluteTimePoint:setTime(time, visualSide)
+	assert(type(time) == "number")
 	self.absoluteTime = time
 	self.visualSide = visualSide
 	return self
 end
 
-function AbsoluteTimePoint:setTimeAbsolute(time, visualSide)
-	self.absoluteTime = time
-	self.visualSide = visualSide
-	return self
-end
+AbsoluteTimePoint.setTimeAbsolute = AbsoluteTimePoint.setTime
 
 function AbsoluteTimePoint:getTime()
 	return self.absoluteTime, self.visualSide
