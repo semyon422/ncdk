@@ -766,12 +766,13 @@ end
 
 function DynamicLayerData:getNoteData(timePoint, inputType, inputIndex)
 	timePoint = self:checkTimePoint(timePoint)
-
 	local noteData = NoteData:new(timePoint)
+	return self:addNoteData(noteData, inputType, inputIndex)
+end
 
+function DynamicLayerData:addNoteData(noteData, inputType, inputIndex)
 	local range = self:getNoteRange(inputType, inputIndex)
 	range:insert(noteData)
-
 	return noteData
 end
 
