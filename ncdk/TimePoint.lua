@@ -10,6 +10,20 @@ function TimePoint:new()
 	return setmetatable(timePoint, self)
 end
 
+local ignoredKeys = {"ptr"}
+for _, k in ipairs(ignoredKeys) do
+	ignoredKeys[k] = true
+end
+function TimePoint:clone(timePoint)
+	timePoint = timePoint or TimePoint:new()
+	for k, v in pairs(self) do
+		if not ignoredKeys[k] then
+			timePoint[k] = v
+		end
+	end
+	return timePoint
+end
+
 function TimePoint:getVisualTime(timePoint)
 	if self.visualSection ~= timePoint.visualSection then
 		return (self.visualSection - timePoint.visualSection) / 0
