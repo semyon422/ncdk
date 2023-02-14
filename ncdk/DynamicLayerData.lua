@@ -4,6 +4,7 @@ local StopData = require("ncdk.StopData")
 local VelocityData = require("ncdk.VelocityData")
 local ExpandData = require("ncdk.ExpandData")
 local IntervalData = require("ncdk.IntervalData")
+local MeasureData = require("ncdk.MeasureData")
 local SignatureData = require("ncdk.SignatureData")
 local NoteData = require("ncdk.NoteData")
 local RangeTracker = require("ncdk.RangeTracker")
@@ -31,7 +32,7 @@ function DynamicLayerData:new(ld)
 	return layerData
 end
 
-local rangeNames = {"timePoint", "tempo", "stop", "velocity", "expand", "signature", "interval"}
+local rangeNames = {"timePoint", "tempo", "stop", "velocity", "expand", "signature", "interval", "measure"}
 function DynamicLayerData:init()
 	local function getTime(_, object)
 		if object.timePoint then
@@ -77,6 +78,7 @@ function DynamicLayerData:load(layerData)
 	ranges.velocity:fromList(layerData.velocityDatas)
 	ranges.expand:fromList(layerData.expandDatas)
 	ranges.interval:fromList(layerData.intervalDatas)
+	ranges.measure:fromList(layerData.measureDatas)
 	ranges.signature:fromList(layerData.signatureDatas)
 
 	for inputType, r in pairs(layerData.noteDatas) do
@@ -102,6 +104,7 @@ function DynamicLayerData:save(layerData)
 	layerData.velocityDatas = ranges.velocity:toList()
 	layerData.expandDatas = ranges.expand:toList()
 	layerData.intervalDatas = ranges.interval:toList()
+	layerData.measureDatas = ranges.measure:toList()
 
 	layerData.signatures = {}
 	for _, signatureData in ipairs(ranges.signature:toList()) do
@@ -277,6 +280,7 @@ function DynamicLayerData:getDynamicTimePoint(...)
 	timePoint.velocityData = a.velocityData
 	timePoint.intervalData = timePoint.intervalData or a.intervalData
 	timePoint.visualSection = a.visualSection
+	timePoint.measureData = a.measureData
 
 	return timePoint
 end
@@ -303,7 +307,7 @@ function DynamicLayerData:getDynamicTimePointAbsolute(limit, absoluteTime, visua
 			local measureTime = map(t, a.absoluteTime, b.absoluteTime, ta, tb)
 			timePoint.measureTime = Fraction:new(measureTime, limit, false)
 		elseif mode == "interval" then
-			timePoint:fromnumber(a.intervalData, t, limit)
+			timePoint:fromnumber(a.intervalData, t, limit, a.measureData)
 		end
 		timePoint.visualTime = map(t, a.absoluteTime, b.absoluteTime, a.visualTime, b.visualTime)
 		timePoint.beatTime = map(t, a.absoluteTime, b.absoluteTime, a.beatTime, b.beatTime)
@@ -334,7 +338,7 @@ function DynamicLayerData:getDynamicTimePointAbsolute(limit, absoluteTime, visua
 			timePoint.measureTime = a.measureTime + Fraction:new(duration / signature, limit, false)
 			timePoint.beatTime = a.beatTime + duration
 		elseif mode == "interval" then
-			timePoint:fromnumber(a.intervalData, t, limit)
+			timePoint:fromnumber(a.intervalData, t, limit, a.measureData)
 		end
 
 		local currentSpeed = a.velocityData and a.velocityData.currentSpeed or 1
@@ -345,6 +349,7 @@ function DynamicLayerData:getDynamicTimePointAbsolute(limit, absoluteTime, visua
 	timePoint.velocityData = a.velocityData
 	timePoint.intervalData = timePoint.intervalData or a.intervalData
 	timePoint.visualSection = a.visualSection
+	timePoint.measureData = a.measureData
 
 	return timePoint
 end
@@ -382,6 +387,7 @@ function DynamicLayerData:compute()
 	local ranges = self.ranges
 	local tempoData = ranges.tempo.head
 	local velocityData = ranges.velocity.head
+	local measureData = ranges.measure.head
 
 	local intervalData = ranges.interval.head
 	if intervalData and not intervalData.next and intervalData.prev then
@@ -436,6 +442,9 @@ function DynamicLayerData:compute()
 		elseif isInterval and intervalData then
 			if timePoint._intervalData then
 				intervalData = timePoint._intervalData
+			end
+			if timePoint._measureData then
+				measureData = timePoint._measureData
 			end
 			time = timePoint:tonumber()
 		elseif not isInterval then
@@ -500,6 +509,7 @@ function DynamicLayerData:compute()
 			timePoint.tempoData = tempoData
 			timePoint.velocityData = velocityData
 			timePoint.signatureData = signatureData
+			timePoint.measureData = measureData
 
 			if not timePoint.readonly then
 				timePoint.absoluteTime = time
@@ -762,6 +772,14 @@ function DynamicLayerData:updateInterval(intervalData, beats)
 	end
 	intervalData.beats = beats
 	self:compute()
+end
+
+function DynamicLayerData:getMeasureData(timePoint, ...)
+	timePoint = self:checkTimePoint(timePoint)
+	return self:getTimingObject(timePoint, "measure", MeasureData, ...)
+end
+function DynamicLayerData:removeMeasureData(timePoint)
+	return self:removeTimingObject(timePoint, "measure")
 end
 
 function DynamicLayerData:getNoteData(timePoint, inputType, inputIndex)

@@ -157,6 +157,14 @@ function RangeTracker:insert(object)
 	end
 
 	local current = self.head
+	while current and current <= self.tail do
+		if current == object then
+			return
+		end
+		current = current.next
+	end
+
+	local current = self.head
 	while current <= self.tail do
 		local next = current.next
 		if not next or object > current and object < next then

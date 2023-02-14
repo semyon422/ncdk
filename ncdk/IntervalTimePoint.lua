@@ -30,6 +30,31 @@ function IntervalTimePoint:getPrevVisualTime()
 	return self.intervalData, self.time, self.visualSide - 1
 end
 
+function IntervalTimePoint:getBeatModulo()
+	local measureData = self.measureData
+	if not measureData then
+		return self.time % 1
+	end
+	return (self.time - measureData.timePoint.time + measureData.start) % 1
+end
+
+local function add(intervalData, time)
+	if intervalData.next and time >= intervalData:_end() then
+		time = time - intervalData.beats
+		intervalData = intervalData.next
+		return add(intervalData, time)
+	elseif intervalData.prev and time < intervalData.start then
+		intervalData = intervalData.prev
+		time = time + intervalData.beats
+		return add(intervalData, time)
+	end
+	return intervalData, time
+end
+
+function IntervalTimePoint:add(duration)
+	return add(self.intervalData, self.time + duration)
+end
+
 function IntervalTimePoint:tonumber()
 	local id = self.intervalData
 	if type(id) == "number" then
@@ -45,14 +70,15 @@ function IntervalTimePoint:tonumber()
 	return ta + a:getBeatDuration() * time
 end
 
-function IntervalTimePoint:fromnumber(id, t, limit)
+function IntervalTimePoint:fromnumber(id, t, limit, measureData)
 	local a, b, offset = id:getPair()
 	local time = (t - a.timePoint.absoluteTime) / a:getBeatDuration() + a.start
 	if offset then
 		time = time - a.beats
 		a = b
 	end
-	time = Fraction:new(time, limit, false)
+	local measureOffset = measureData and measureData.timePoint.time - measureData.start or 0
+	time = Fraction:new(time - measureOffset, limit, false) + measureOffset
 	if not offset and time == a:_end() then
 		time = b.start
 		a = b

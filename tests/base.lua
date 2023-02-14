@@ -324,3 +324,61 @@ do
 	assert(tp1.absoluteTime == 1)
 	assert(tp2.absoluteTime == 11)
 end
+
+do
+	local nc = NoteChart:new()
+	local ld = nc:getLayerData(1)
+	ld:setTimeMode("interval")
+
+	local id1 = ld:insertIntervalData(0, 10)
+	local id2 = ld:insertIntervalData(10, 1)
+
+	local tp_1 = ld:getTimePoint(id1, F(-1))
+	local tp1 = ld:getTimePoint(id1, F(1))
+	local tp2 = ld:getTimePoint(id1, F(2))
+	local tp3 = ld:getTimePoint(id1, F(3))
+	local tp4 = ld:getTimePoint(id1, F(4))
+	local tp5 = ld:getTimePoint(id1, F(5))
+	local tp6 = ld:getTimePoint(id1, F(6))
+	local tp7 = ld:getTimePoint(id1, F(7))
+
+	local md_1 = ld:insertMeasureData(ld:getTimePoint(id1, F(-0.5)))
+	local md0 = ld:insertMeasureData(ld:getTimePoint(id1, F(0)))
+	local md1 = ld:insertMeasureData(ld:getTimePoint(id1, F(2.5)))
+	local md2 = ld:insertMeasureData(ld:getTimePoint(id1, F(4)), F(0.75))
+	local md3 = ld:insertMeasureData(ld:getTimePoint(id1, F(6)))
+	local md4 = ld:insertMeasureData(ld:getTimePoint(id1, F(6.5)))
+
+	nc:compute()
+
+	assert(tp_1.absoluteTime == -1)
+	assert(tp1.absoluteTime == 1)
+
+	assert(tp_1:getBeatModulo() == F(0.5))
+	assert(tp1:getBeatModulo() == F(0))
+	assert(tp2:getBeatModulo() == F(0))
+	assert(tp3:getBeatModulo() == F(0.5))
+	assert(tp4:getBeatModulo() == F(0.75))
+	assert(tp5:getBeatModulo() == F(0.75))
+	assert(tp6:getBeatModulo() == F(0))
+	assert(tp7:getBeatModulo() == F(0.5))
+end
+
+
+do
+	local nc = NoteChart:new()
+	local ld = nc:getLayerData(1)
+	ld:setTimeMode("interval")
+
+	local id1 = ld:insertIntervalData(0, 1)
+	local id2 = ld:insertIntervalData(1, 1)
+	local id3 = ld:insertIntervalData(2, 1)
+	local id4 = ld:insertIntervalData(4, 1)
+
+	local tp_1 = ld:getTimePoint(id1, F(-1))
+	local tp3 = ld:getTimePoint(id1, F(3))
+
+	nc:compute()
+	assert(tp_1:add(F(3.5)) == id3)
+	assert(tp3:add(F(-1.5)) == id2)
+end

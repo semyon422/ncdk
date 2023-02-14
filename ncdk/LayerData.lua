@@ -6,6 +6,7 @@ local StopData = require("ncdk.StopData")
 local VelocityData = require("ncdk.VelocityData")
 local ExpandData = require("ncdk.ExpandData")
 local IntervalData = require("ncdk.IntervalData")
+local MeasureData = require("ncdk.MeasureData")
 local AbsoluteTimePoint = require("ncdk.AbsoluteTimePoint")
 local IntervalTimePoint = require("ncdk.IntervalTimePoint")
 local MeasureTimePoint = require("ncdk.MeasureTimePoint")
@@ -29,6 +30,8 @@ function LayerData:new()
 	layerData.velocityDatas = {}
 	layerData.expandDatas = {}
 	layerData.intervalDatas = {}
+	layerData.intervalDatas = {}
+	layerData.measureDatas = {}
 	layerData.noteDatas = {}
 
 	return setmetatable(layerData, mt)
@@ -39,7 +42,7 @@ function LayerData:compute()
 	table.sort(self.stopDatas)
 	table.sort(self.velocityDatas)
 	table.sort(self.intervalDatas)
-	-- table.sort(self.noteDatas)
+	table.sort(self.measureDatas)
 
 	for _, r in pairs(self.noteDatas) do
 		for _, noteDatas in pairs(r) do
@@ -228,6 +231,7 @@ function LayerData:computeTimePoints()
 	local tempoData = self:getTempoData(1)
 	local velocityData = self:getVelocityData(1)
 	local intervalData = self:getIntervalData(1)
+	local measureData = self:getMeasureData(1)
 
 	local timePointIndex = 1
 	local timePoint = timePointList[timePointIndex]
@@ -268,6 +272,9 @@ function LayerData:computeTimePoints()
 		elseif isInterval then
 			if timePoint._intervalData then
 				intervalData = timePoint._intervalData
+			end
+			if timePoint._measureData then
+				measureData = timePoint._measureData
 			end
 			time = timePoint:tonumber()
 		else
@@ -326,6 +333,7 @@ function LayerData:computeTimePoints()
 
 			timePoint.tempoData = tempoData
 			timePoint.velocityData = velocityData
+			timePoint.measureData = measureData
 
 			timePoint.beatTime = beatTime
 			timePoint.absoluteTime = time
@@ -440,6 +448,13 @@ function LayerData:removeIntervalData()
 	return self:removeTimingObject("intervalData")
 end
 
+function LayerData:insertMeasureData(timePoint, ...)
+	return self:insertTimingObject(timePoint, "measureData", MeasureData, ...)
+end
+function LayerData:removeMeasureData()
+	return self:removeTimingObject("measureData")
+end
+
 function LayerData:getTempoData(i) return self.tempoDatas[i] end
 function LayerData:getTempoDataCount() return #self.tempoDatas end
 
@@ -454,6 +469,9 @@ function LayerData:getExpandDataCount() return #self.expandDatas end
 
 function LayerData:getIntervalData(i) return self.intervalDatas[i] end
 function LayerData:getIntervalDataCount() return #self.intervalDatas end
+
+function LayerData:getMeasureData(i) return self.measureDatas[i] end
+function LayerData:getMeasureDataCount() return #self.measureDatas end
 
 function LayerData:addNoteData(noteData, inputType, inputIndex)
 	local noteDatas = self:getNoteDatasList(inputType, inputIndex)
