@@ -57,7 +57,7 @@ local Fraction = {}
 
 local mt = {__index = Fraction}
 
-function Fraction:new(n, d, decimal)
+function Fraction:new(n, d, round)
 	local _n = type(n) == "number" and n or 0
 	local _d = type(d) == "number" and d or 1
 	if type(n) == "table" then
@@ -70,9 +70,9 @@ function Fraction:new(n, d, decimal)
 
 	assert(d % 1 == 0 and d ~= 0, ("invalid denominator: %s"):format(d))
 
-	if decimal == true then
-		n = math.floor(n * d)
-	elseif decimal == false then
+	if round == true then
+		n = math.floor(n * d + 0.5)
+	elseif round == false then
 		n, d = closest(n, d)
 	end
 

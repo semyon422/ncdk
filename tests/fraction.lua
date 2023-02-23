@@ -70,7 +70,7 @@ assert(Fraction:new(-3, 2):ceil() == -1)
 assert(Fraction:new(-3, 2):floor() == -2)
 
 assert(Fraction:new(1.234, 1, true) == Fraction:new(1, 1))
-assert(Fraction:new(-1.234, 1, true) == Fraction:new(-2, 1))
+assert(Fraction:new(-1.234, 1, true) == Fraction:new(-1, 1))
 assert(Fraction:new(1.234, 10, true) == Fraction:new(12, 10))
 assert(Fraction:new(1.234, 100, true) == Fraction:new(123, 100))
 
