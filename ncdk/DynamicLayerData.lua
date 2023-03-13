@@ -307,7 +307,7 @@ function DynamicLayerData:getDynamicTimePointAbsolute(limit, absoluteTime, visua
 			local measureTime = map(t, a.absoluteTime, b.absoluteTime, ta, tb)
 			timePoint.measureTime = Fraction:new(measureTime, limit, true)
 		elseif mode == "interval" then
-			timePoint:fromnumber(a.intervalData, t, limit, a.measureData)
+			timePoint:fromnumber(a.intervalData, t, limit, a.measureData, true)
 		end
 		timePoint.visualTime = map(t, a.absoluteTime, b.absoluteTime, a.visualTime, b.visualTime)
 		timePoint.beatTime = map(t, a.absoluteTime, b.absoluteTime, a.beatTime, b.beatTime)
@@ -338,7 +338,7 @@ function DynamicLayerData:getDynamicTimePointAbsolute(limit, absoluteTime, visua
 			timePoint.measureTime = a.measureTime + Fraction:new(duration / signature, limit, true)
 			timePoint.beatTime = a.beatTime + duration
 		elseif mode == "interval" then
-			timePoint:fromnumber(a.intervalData, t, limit, a.measureData)
+			timePoint:fromnumber(a.intervalData, t, limit, a.measureData, true)
 		end
 
 		local currentSpeed = a.velocityData and a.velocityData.currentSpeed or 1

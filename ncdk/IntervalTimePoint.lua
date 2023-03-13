@@ -70,7 +70,7 @@ function IntervalTimePoint:tonumber()
 	return ta + a:getBeatDuration() * time
 end
 
-function IntervalTimePoint:fromnumber(id, t, limit, measureData)
+function IntervalTimePoint:fromnumber(id, t, limit, measureData, round)
 	local a, b, offset = id:getPair()
 	local time = (t - a.timePoint.absoluteTime) / a:getBeatDuration() + a.start
 	if offset then
@@ -78,7 +78,7 @@ function IntervalTimePoint:fromnumber(id, t, limit, measureData)
 		a = b
 	end
 	local measureOffset = measureData and measureData.timePoint.time - measureData.start or 0
-	time = Fraction:new(time - measureOffset, limit, false) + measureOffset
+	time = Fraction:new(time - measureOffset, limit, not not round) + measureOffset
 	if not offset and time == a:_end() then
 		time = b.start
 		a = b
