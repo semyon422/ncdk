@@ -53,10 +53,11 @@ function IntervalData:getPair()
 end
 
 function mt.__tostring(a)
+	local time = a.timePoint:getAbsoluteTimeKey()
 	if rawget(a, "start") then
-		return a.timePoint.absoluteTime .. "," .. a.start .. "+" .. a.beats
+		return time .. "," .. a.start .. "+" .. a.beats
 	end
-	return a.timePoint.absoluteTime .. "," .. a.beats
+	return time .. "," .. a.beats
 end
 
 -- prevent stackoverflow

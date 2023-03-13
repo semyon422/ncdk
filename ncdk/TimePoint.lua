@@ -1,3 +1,6 @@
+local ffi = require("ffi")
+local bit = require("bit")
+
 local TimePoint = {}
 
 TimePoint.visualTime = 0
@@ -22,6 +25,14 @@ function TimePoint:clone(timePoint)
 		end
 	end
 	return timePoint
+end
+
+local uint64_ptr = ffi.new("uint64_t[1]")
+local double_ptr = ffi.cast("double*", uint64_ptr)
+function TimePoint:getAbsoluteTimeKey()
+	local time = self.absoluteTime
+	double_ptr[0] = time
+	return ("%s[%s]"):format(bit.tohex(uint64_ptr[0]), time)
 end
 
 function TimePoint:getVisualTime(timePoint)

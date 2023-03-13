@@ -22,7 +22,7 @@ function AbsoluteTimePoint:getPrevVisualTime()
 end
 
 function AbsoluteTimePoint.__tostring(a)
-	return ("(%s,%s)"):format(a.absoluteTime, a.visualSide)
+	return ("(%s,%s)"):format(a:getAbsoluteTimeKey(), a.visualSide)
 end
 
 function AbsoluteTimePoint.__eq(a, b)
