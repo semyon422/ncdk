@@ -30,7 +30,6 @@ function LayerData:new()
 	layerData.velocityDatas = {}
 	layerData.expandDatas = {}
 	layerData.intervalDatas = {}
-	layerData.intervalDatas = {}
 	layerData.measureDatas = {}
 	layerData.noteDatas = {}
 
@@ -335,8 +334,10 @@ function LayerData:computeTimePoints()
 			timePoint.velocityData = velocityData
 			timePoint.measureData = measureData
 
+			if not timePoint.readonly then
+				timePoint.absoluteTime = time
+			end
 			timePoint.beatTime = beatTime
-			timePoint.absoluteTime = time
 			timePoint.visualTime = visualTime
 			timePoint.visualSection = visualSection
 
@@ -435,13 +436,16 @@ end
 
 function LayerData:insertIntervalData(absoluteTime, ...)
 	local timePoint = self:getTimePoint(absoluteTime)
+	timePoint.readonly = true
 	local key = tostring(timePoint)
 	local intervalData = self:insertTimingObject(timePoint, "intervalData", IntervalData, ...)
 	timePoint.intervalData = intervalData
 	timePoint.time = intervalData.start
 	timePoint.absoluteTime = absoluteTime
+	local newKey = tostring(timePoint)
+	assert(not self.timePoints[newKey])
 	self.timePoints[key] = nil
-	self.timePoints[tostring(timePoint)] = timePoint
+	self.timePoints[newKey] = timePoint
 	return intervalData
 end
 function LayerData:removeIntervalData()
