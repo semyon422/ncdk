@@ -434,13 +434,13 @@ function LayerData:getSignature(measureOffset)
 	return self.signatures[measureOffset]
 end
 
-function LayerData:insertIntervalData(absoluteTime, ...)
+function LayerData:insertIntervalData(absoluteTime, beats, start)
 	local timePoint = self:getTimePoint(absoluteTime)
 	timePoint.readonly = true
 	local key = tostring(timePoint)
-	local intervalData = self:insertTimingObject(timePoint, "intervalData", IntervalData, ...)
+	local intervalData = self:insertTimingObject(timePoint, "intervalData", IntervalData, beats)
 	timePoint.intervalData = intervalData
-	timePoint.time = intervalData.start
+	timePoint.time = start
 	timePoint.absoluteTime = absoluteTime
 	local newKey = tostring(timePoint)
 	assert(not self.timePoints[newKey])

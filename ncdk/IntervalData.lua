@@ -1,36 +1,32 @@
-local Fraction = require("ncdk.Fraction")
-
 local IntervalData = {}
 
 local mt = {__index = IntervalData}
 
-IntervalData.start = Fraction:new(0)
-
-function IntervalData:new(beats, start)
+function IntervalData:new(beats)
 	local intervalData = {}
 
 	assert(type(beats) == "number" and beats >= 0 and beats % 1 == 0)
 	intervalData.beats = beats
 
-	assert(not start or type(start) == "table" and start[1] >= 0 and start[1] < start[2])
-	intervalData.start = start
-
 	return setmetatable(intervalData, mt)
 end
 
-function IntervalData:set(start, beats)
-	local _start, _beats = self.start, self.beats
-	self.start = start
+function IntervalData:set(beats)
+	local _beats = self.beats
 	self.beats = beats
-	return _start ~= start or _beats ~= beats
+	return _beats ~= beats
+end
+
+function IntervalData:start()
+	return self.timePoint.time % 1
 end
 
 function IntervalData:_end()
-	return self.next.start + self.beats
+	return self.next:start() + self.beats
 end
 
 function IntervalData:getDuration()
-	return self.next.start - self.start + self.beats
+	return self.next:start() - self:start() + self.beats
 end
 
 function IntervalData:getBeatDuration()
@@ -54,10 +50,7 @@ end
 
 function mt.__tostring(a)
 	local time = a.timePoint:getAbsoluteTimeKey()
-	if rawget(a, "start") then
-		return time .. "," .. a.start .. "+" .. a.beats
-	end
-	return time .. "," .. a.beats
+	return time .. "," .. a:start() .. "+" .. a.beats
 end
 
 -- prevent stackoverflow

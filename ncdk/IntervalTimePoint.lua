@@ -43,7 +43,7 @@ local function add(intervalData, time)
 		time = time - intervalData.beats
 		intervalData = intervalData.next
 		return add(intervalData, time)
-	elseif intervalData.prev and time < intervalData.start then
+	elseif intervalData.prev and time < intervalData:start() then
 		intervalData = intervalData.prev
 		time = time + intervalData.beats
 		return add(intervalData, time)
@@ -66,13 +66,13 @@ function IntervalTimePoint:tonumber()
 	end
 
 	local ta = a.timePoint.absoluteTime
-	local time = self.time - a.start + (offset and a.beats or 0)
+	local time = self.time - a:start() + (offset and a.beats or 0)
 	return ta + a:getBeatDuration() * time
 end
 
 function IntervalTimePoint:fromnumber(id, t, limit, measureData, round)
 	local a, b, offset = id:getPair()
-	local time = (t - a.timePoint.absoluteTime) / a:getBeatDuration() + a.start
+	local time = (t - a.timePoint.absoluteTime) / a:getBeatDuration() + a:start()
 	if offset then
 		time = time - a.beats
 		a = b
@@ -80,7 +80,7 @@ function IntervalTimePoint:fromnumber(id, t, limit, measureData, round)
 	local measureOffset = measureData and measureData.timePoint.time - measureData.start or 0
 	time = Fraction:new(time - measureOffset, limit, not not round) + measureOffset
 	if not offset and time == a:_end() then
-		time = b.start
+		time = b:start()
 		a = b
 	end
 	self:setTime(a, time)

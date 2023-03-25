@@ -643,13 +643,13 @@ end
 function DynamicLayerData:_getIntervalData(timePoint, ...)
 	return self:getTimingObject(timePoint, "interval", IntervalData, ...)
 end
-function DynamicLayerData:getIntervalData(absoluteTime, ...)
+function DynamicLayerData:getIntervalData(absoluteTime, beats, start)
 	local timePoint = self:getTimePoint(absoluteTime)
 	timePoint.absoluteTime = absoluteTime
 	timePoint.readonly = true
-	local intervalData = self:_getIntervalData(timePoint, ...)
+	local intervalData = self:_getIntervalData(timePoint, beats)
 	timePoint.intervalData = intervalData
-	timePoint.time = intervalData.start
+	timePoint.time = start
 	return intervalData
 end
 function DynamicLayerData:_removeIntervalData(timePoint)
@@ -664,18 +664,17 @@ function DynamicLayerData:splitInterval(timePoint)
 
 	local time = timePoint.time
 	local _beats = time:floor()
-	local start = time % 1
 
 	local intervalData
 	local tp, dir
 	if time[1] > 0 then
 		local beats = _intervalData.next and _intervalData.beats - _beats or 1
 		if timePoint.ptr == self.dynamicTimePoint.ptr then
-			intervalData = self:getIntervalData(timePoint.absoluteTime, beats, start)
+			intervalData = self:getIntervalData(timePoint.absoluteTime, beats, time % 1)
 		else
 			timePoint.readonly = true
-			intervalData = self:_getIntervalData(timePoint, beats, start)
-			timePoint:setTime(intervalData, start)
+			intervalData = self:_getIntervalData(timePoint, beats)
+			timePoint:setTime(intervalData, time % 1)
 		end
 		_intervalData.beats = _beats
 
@@ -683,9 +682,9 @@ function DynamicLayerData:splitInterval(timePoint)
 		dir = "next"
 	else
 		if timePoint.ptr == self.dynamicTimePoint.ptr then
-			intervalData = self:getIntervalData(timePoint.absoluteTime, -_beats, start)
+			intervalData = self:getIntervalData(timePoint.absoluteTime, -_beats, time % 1)
 		else
-			intervalData = self:_getIntervalData(timePoint, -_beats, start)
+			intervalData = self:_getIntervalData(timePoint, -_beats)
 		end
 		intervalData.timePoint:setTime(_intervalData, time)
 		tp = _intervalData.timePoint.prev
@@ -753,19 +752,19 @@ function DynamicLayerData:updateInterval(intervalData, beats)
 	beats = math.max(beats, 0)
 	assert(math.floor(beats) == beats)
 
-	if not b or beats == a.beats or beats == 0 and a.start >= b.start then
+	if not b or beats == a.beats or beats == 0 and a:start() >= b:start() then
 		return
 	end
 
 	local _a, _b = a.timePoint, b.timePoint
 
-	local maxBeats = (_b.absoluteTime - _a.absoluteTime) / self.minBeatDuration + a.start - b.start
+	local maxBeats = (_b.absoluteTime - _a.absoluteTime) / self.minBeatDuration + a:start() - b:start()
 	beats = math.min(beats, math.floor(maxBeats))
 
 	if beats < intervalData.beats then
 		local rightTimePoint = b.timePoint
 		local tp = rightTimePoint.prev
-		while tp and tp ~= _a and tp.time >= b.start + beats do
+		while tp and tp ~= _a and tp.time >= b:start() + beats do
 			self.ranges.timePoint:remove(tp)
 			tp = rightTimePoint.prev
 		end

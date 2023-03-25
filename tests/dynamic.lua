@@ -597,12 +597,12 @@ do
 
 	ld:getExpandData(ld:getTimePoint(id, F(5), 1), F(1))
 
-	assert(tostring(ld:getDynamicTimePoint(id, F(5))) == "(0,10,5.0/1,0)")
-	assert(tostring(ld:getDynamicTimePoint(id, F(5), 0)) == "(0,10,5.0/1,0)")
-	assert(tostring(ld:getDynamicTimePoint(id, F(5), 1)) == "(0,10,5.0/1,1)")
+	assert(tostring(ld:getDynamicTimePoint(id, F(5))) == "(0000000000000000[0],0.0/1+10,5.0/1,0)")
+	assert(tostring(ld:getDynamicTimePoint(id, F(5), 0)) == "(0000000000000000[0],0.0/1+10,5.0/1,0)")
+	assert(tostring(ld:getDynamicTimePoint(id, F(5), 1)) == "(0000000000000000[0],0.0/1+10,5.0/1,1)")
 
-	assert(tostring(ld:getDynamicTimePointAbsolute(192, 5, 0)) == "(0,10,5.0/1,0)")
-	assert(tostring(ld:getDynamicTimePointAbsolute(192, 5, 1)) == "(0,10,5.0/1,1)")
+	assert(tostring(ld:getDynamicTimePointAbsolute(192, 5, 0)) == "(0000000000000000[0],0.0/1+10,5.0/1,0)")
+	assert(tostring(ld:getDynamicTimePointAbsolute(192, 5, 1)) == "(0000000000000000[0],0.0/1+10,5.0/1,1)")
 end
 
 do
@@ -1170,9 +1170,9 @@ do
 	assert(id1.beats == 5)
 	assert(id3.beats == 4)
 	assert(id2.beats == 1)
-	assert(id1.start == F(0.25))
-	assert(id3.start == F(0.25))
-	assert(id2.start == F(0.75))
+	assert(id1:start() == F(0.25))
+	assert(id3:start() == F(0.25))
+	assert(id2:start() == F(0.75))
 
 	local id4 = ld:splitInterval(ld:getDynamicTimePointAbsolute(192, 15.25))
 
@@ -1180,10 +1180,10 @@ do
 	assert(id3.beats == 4)
 	assert(id2.beats == 6)
 	assert(id4.beats == 1)
-	assert(id1.start == F(0.25))
-	assert(id3.start == F(0.25))
-	assert(id2.start == F(0.75))
-	assert(id4.start == F(0.25))
+	assert(id1:start() == F(0.25))
+	assert(id3:start() == F(0.25))
+	assert(id2:start() == F(0.75))
+	assert(id4:start() == F(0.25))
 
 	assert(tp11.time == F(1))
 	assert(tp21.time == F(5))
@@ -1192,7 +1192,7 @@ do
 
 	assert(id1.beats == 5)
 	assert(id0.beats == 6)
-	assert(id0.start == F(0.75))
+	assert(id0:start() == F(0.75))
 
 	assert(tp_6.time == F(0))
 
@@ -1215,7 +1215,7 @@ do
 	assert(tp6.time == F(6))
 
 	assert(id1.beats == 9)
-	assert(id1.start == F(0.25))
+	assert(id1:start() == F(0.25))
 
 	ld:mergeInterval(id0.timePoint)  -- -5.25
 
