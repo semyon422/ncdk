@@ -17,7 +17,7 @@ function MeasureData:set(start)
 end
 
 function mt.__tostring(a)
-	return tostring(a.timePoint) .. "," .. a.time
+	return tostring(a.timePoint) .. "," .. a.start
 end
 
 function mt.__eq(a, b)
