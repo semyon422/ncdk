@@ -78,3 +78,9 @@ assert(Fraction:new(1.234, 1, false) == Fraction:new(1, 1))
 assert(Fraction:new(-1.234, 1, false) == Fraction:new(-1, 1))
 assert(Fraction:new(1.234, 10, false) == Fraction:new(11, 9))
 assert(Fraction:new(1.234, 100, false) == Fraction:new(58, 47))
+
+assert(("%p"):format(Fraction:new(99, 101)) == ("%p"):format(Fraction:new(100, 101) - Fraction:new(1, 101)))
+
+local p = ("%p"):format(Fraction:new(99, 101))
+collectgarbage("collect")
+assert(p ~= ("%p"):format(Fraction:new(99, 101)))

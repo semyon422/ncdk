@@ -1,3 +1,5 @@
+local ffi = require("ffi")
+
 local function gcd(a, b)
 	a, b = math.abs(a), math.abs(b)
 	a, b = math.max(a, b), math.min(a, b)
@@ -53,6 +55,16 @@ local function closest(R, limit)
 	end
 end
 
+local fractions = setmetatable({}, {__mode = "v"})
+
+local ck = ffi.new("uint8_t[16]")
+local cn, cd = ffi.cast("double*", ck), ffi.cast("double*", ck + 8)
+local function get_key(n, d)
+	cn[0] = n
+	cd[0] = d
+	return ffi.string(ck, 16)
+end
+
 local Fraction = {}
 
 local mt = {__index = Fraction}
@@ -78,7 +90,16 @@ function Fraction:new(n, d, round)
 
 	assert(n % 1 == 0, ("invalid numerator: %s"):format(n))
 
-	return setmetatable({reduce(n, d)}, mt)
+	n, d = reduce(n, d)
+	local key = get_key(n, d)
+	if fractions[key] then
+		return fractions[key]
+	end
+
+	local f = setmetatable({n, d}, mt)
+	fractions[key] = f
+
+	return f
 end
 
 setmetatable(Fraction, {__call = Fraction.new})
