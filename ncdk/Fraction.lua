@@ -92,11 +92,12 @@ function Fraction:new(n, d, round)
 
 	n, d = reduce(n, d)
 	local key = get_key(n, d)
-	if fractions[key] then
-		return fractions[key]
+	local f = fractions[key]
+	if f then
+		return f
 	end
 
-	local f = setmetatable({n, d}, mt)
+	f = setmetatable({n, d}, mt)
 	fractions[key] = f
 
 	return f
