@@ -30,6 +30,7 @@ function RangeTracker:toList()
 end
 
 local function addAfter(a, b)
+	b.next = nil
 	b.prev = a
 	if a.next then
 		b.next = a.next
@@ -39,6 +40,7 @@ local function addAfter(a, b)
 end
 
 local function addBefore(a, b)
+	a.prev = nil
 	a.next = b
 	if b.prev then
 		a.prev = b.prev
