@@ -8,6 +8,14 @@ function NoteData:new(timePoint)
 	return setmetatable({timePoint = timePoint}, mt)
 end
 
+function NoteData:clone()
+	local noteData = NoteData:new()
+	for k, v in pairs(self) do
+		noteData[k] = v
+	end
+	return noteData
+end
+
 function mt.__tostring(a)
 	return ("note %s"):format(a.timePoint)
 end
