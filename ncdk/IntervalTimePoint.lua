@@ -55,6 +55,19 @@ function IntervalTimePoint:add(duration)
 	return add(self.intervalData, self.time + duration)
 end
 
+local function sub(id1, t1, id2, t2)
+	if id1 > id2 then
+		return sub(id1.prev, t1 + id1.prev.beats, id2, t2)
+	elseif id1 < id2 then
+		return -sub(id2, t2, id1, t1)
+	end
+	return t1 - t2
+end
+
+function IntervalTimePoint:sub(timePoint)
+	return sub(self.intervalData, self.time, timePoint.intervalData, timePoint.time)
+end
+
 function IntervalTimePoint:tonumber()
 	local id = self.intervalData
 	if type(id) == "number" then

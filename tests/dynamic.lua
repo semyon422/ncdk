@@ -1405,3 +1405,28 @@ do
 	assert(tp6:getBeatModulo() == F(0))
 	assert(tp7:getBeatModulo() == F(0.5))
 end
+
+do
+	local ld = DynamicLayerData:new()
+	ld:setTimeMode("interval")
+	ld:setRange(-10, 30)
+
+	local id1 = ld:getIntervalData(0, 10)
+	local id2 = ld:getIntervalData(10, 10)
+	local id3 = ld:getIntervalData(20, 1)
+
+	local id, t = ld:getTimePoint(id1, F(-1)):add(F(12))
+	assert(id == id2)
+	assert(t == F(1))
+
+	id, t = ld:getTimePoint(id1, F(-1)):add(F(23))
+	assert(id == id3)
+	assert(t == F(2))
+
+	id, t = ld:getTimePoint(id3, F(2)):add(-F(23))
+	assert(id == id1)
+	assert(t == -F(1))
+
+	t = ld:getTimePoint(id3, F(2)):sub(ld:getTimePoint(id1, F(-1)))
+	assert(t == F(23))
+end
