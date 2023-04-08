@@ -4,8 +4,137 @@ local mt = {__index = RangeTracker}
 
 RangeTracker.count = 0
 
+local function addAfter(a, b)
+	b.next = nil
+	b.prev = a
+	if a.next then
+		b.next = a.next
+		a.next.prev = b
+	end
+	a.next = b
+end
+
+local function addBefore(a, b)
+	a.prev = nil
+	a.next = b
+	if b.prev then
+		a.prev = b.prev
+		b.prev.next = a
+	end
+	b.prev = a
+end
+
+local function cleanObject(a)
+	a.prev, a.next = nil, nil
+end
+
+local function remove(a)
+	local prev, next = a.prev, a.next
+	if prev then prev.next = next end
+	if next then next.prev = prev end
+	cleanObject(a)
+end
+
 function RangeTracker:new()
-	return setmetatable({}, mt)
+	return setmetatable({
+		changes = {},
+		changeCursor = 0,
+		changeOffset = 0,
+	}, mt)
+end
+
+function RangeTracker:fillChange(t)
+	t.count = self.count
+	t.first = self.first
+	t.last = self.last
+	t.head = self.head
+	t.tail = self.tail
+end
+
+function RangeTracker:addChange(action, object)
+	print("add", action, object)
+	local offset = self.changeOffset
+	local changes = self.changes
+
+	local change = {
+		offset = offset,
+		action = action,
+		object = object,
+		before = {},
+		after = {},
+	}
+	table.insert(changes, change)
+	self.changeCursor = #changes
+
+	return change
+end
+
+function RangeTracker:resetRedos()
+	local changes = self.changes
+	for i = self.changeCursor + 1, #changes do
+		changes[i] = nil
+	end
+end
+
+function RangeTracker:undoChange(change)
+	print("undo", change.action, change.object)
+	if change.action == "insert" then
+		remove(change.object)
+	elseif change.action == "remove" then
+		if change.prev then
+			addAfter(change.prev, change.object)
+		elseif change.next then
+			addBefore(change.object, change.next)
+		end
+	end
+
+	local before = change.before
+	self.count = before.count
+	self.first = before.first
+	self.last = before.last
+	self.head = before.head
+	self.tail = before.tail
+
+	self.changeCursor = self.changeCursor - 1
+end
+
+function RangeTracker:redoChange(change)
+	print("redo", change.action, change.object)
+	if change.action == "insert" then
+		if change.prev then
+			addAfter(change.prev, change.object)
+		elseif change.next then
+			addBefore(change.object, change.next)
+		end
+	elseif change.action == "remove" then
+		remove(change.object)
+	end
+
+	local after = change.after
+	self.count = after.count
+	self.first = after.first
+	self.last = after.last
+	self.head = after.head
+	self.tail = after.tail
+
+	self.changeCursor = self.changeCursor + 1
+end
+
+function RangeTracker:syncChanges(newOffset)
+	self.changeOffset = newOffset
+	local changes = self.changes
+
+	local changePrev = changes[self.changeCursor]
+	while changePrev and changePrev.offset >= newOffset do
+		self:undoChange(changePrev)
+		changePrev = changes[self.changeCursor]
+	end
+
+	local changeNext = changes[self.changeCursor + 1]
+	while changeNext and changeNext.offset < newOffset do
+		self:redoChange(changeNext)
+		changeNext = changes[self.changeCursor + 1]
+	end
 end
 
 function RangeTracker:fromList(list)
@@ -27,33 +156,6 @@ function RangeTracker:toList()
 		list[i], object, i = object, object.next, i + 1
 	end
 	return list
-end
-
-local function addAfter(a, b)
-	b.next = nil
-	b.prev = a
-	if a.next then
-		b.next = a.next
-		a.next.prev = b
-	end
-	a.next = b
-end
-
-local function addBefore(a, b)
-	a.prev = nil
-	a.next = b
-	if b.prev then
-		a.prev = b.prev
-		b.prev.next = a
-	end
-	b.prev = a
-end
-
-local function remove(a)
-	local prev, next = a.prev, a.next
-	if prev then prev.next = next end
-	if next then next.prev = prev end
-	a.prev, a.next = nil, nil
 end
 
 function RangeTracker:printRanges()
@@ -144,6 +246,10 @@ local function assertTime(c)
 end
 
 function RangeTracker:insert(object)
+	local change = self:addChange("insert", object)
+	self:fillChange(change.before)
+	cleanObject(object)
+
 	local time = assert(self:getTime(object))
 	self.count = self.count + 1
 
@@ -153,6 +259,7 @@ function RangeTracker:insert(object)
 		self.tail = object
 		self.last = object
 		self:update()
+		self:fillChange(change.after)
 		return
 	end
 
@@ -166,21 +273,26 @@ function RangeTracker:insert(object)
 	if object < self.first then
 		assertTime(time >= self.startTime)
 		addBefore(object, self.first)
+		change.next = self.first
 		self.first = object
 		self:update()
+		self:fillChange(change.after)
 		return
 	end
 	if object > self.last then
 		assertTime(time <= self.endTime)
 		addAfter(self.last, object)
+		change.prev = self.last
 		self.last = object
 		self:update()
+		self:fillChange(change.after)
 		return
 	end
 
 	local current = self.head
 	while current and current <= self.tail do
 		if current == object then
+			-- error here?
 			return
 		end
 		current = current.next
@@ -191,17 +303,24 @@ function RangeTracker:insert(object)
 		local next = current.next
 		if not next or object > current and object < next then
 			addAfter(current, object)
+			change.prev, change.next = object.prev, object.next
 			break
 		end
 		current = next
 	end
 	self:update()
+	self:fillChange(change.after)
 end
 
 function RangeTracker:remove(object)
 	if not self.first then
 		return
 	end
+	local change = self:addChange("remove", object)
+	self:fillChange(change.before)
+	change.prev = object.prev
+	change.next = object.next
+
 	self.count = self.count - 1
 
 	if self.first == self.last then
@@ -210,6 +329,7 @@ function RangeTracker:remove(object)
 		self.tail = nil
 		self.last = nil
 		remove(object)
+		self:fillChange(change.after)
 		return
 	end
 
@@ -228,6 +348,7 @@ function RangeTracker:remove(object)
 	remove(object)
 
 	self:update()
+	self:fillChange(change.after)
 end
 
 function RangeTracker:update()

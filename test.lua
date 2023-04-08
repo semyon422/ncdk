@@ -20,6 +20,10 @@ print("TimeData_unit: ")
 require("tests.TimeData_unit")
 print("OK!")
 
+print("RangeTracker: ")
+require("tests.tracker")
+print("OK!")
+
 io.write("reference_create_measure: ")
 require("tests.reference_create_measure")
 print("OK!")

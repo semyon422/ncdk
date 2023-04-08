@@ -192,6 +192,28 @@ function DynamicLayerData:setRange(startTime, endTime)
 	self:compute()
 end
 
+function DynamicLayerData:syncChanges(offset)
+	for _, name in ipairs(rangeNames) do
+		self.ranges[name]:syncChanges(offset)
+	end
+	for _, r in pairs(self.ranges.note) do
+		for _, range in pairs(r) do
+			range:syncChanges(offset)
+		end
+	end
+end
+
+function DynamicLayerData:resetRedos()
+	for _, name in ipairs(rangeNames) do
+		self.ranges[name]:resetRedos()
+	end
+	for _, r in pairs(self.ranges.note) do
+		for _, range in pairs(r) do
+			range:resetRedos()
+		end
+	end
+end
+
 function DynamicLayerData:newTimePoint()
 	local mode = assert(self.mode, "Mode should be set")
 	if mode == "absolute" then
