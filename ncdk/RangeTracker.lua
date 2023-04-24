@@ -195,7 +195,7 @@ function RangeTracker:getInterp(object)
 	end
 
 	local current = self.head
-	while current < self.tail do
+	while current and current <= self.tail do
 		if object == current then
 			return current, current
 		end
@@ -207,7 +207,7 @@ function RangeTracker:getInterp(object)
 	end
 
 	current = self.first
-	while current < self.last do
+	while current and current <= self.last do
 		if object == current then
 			return current, current
 		end

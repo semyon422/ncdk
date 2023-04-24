@@ -239,7 +239,8 @@ function LayerData:computeTimePoints()
 	local primaryTempo = self.primaryTempo
 
 	local time = 0
-	local beatTime = 0
+	local beatTime = Fraction:new(0)
+	local fullBeatTime = Fraction:new(0)
 	local visualTime = 0
 	local visualSection = 0
 	local currentTime = timePoint.measureTime
@@ -261,7 +262,8 @@ function LayerData:computeTimePoints()
 			end
 			signature = self:getSignature(measureOffset) or defaultSignature
 
-			beatTime = beatTime + signature:tonumber() * (targetTime - currentTime)
+			beatTime = beatTime + signature * (targetTime - currentTime)
+			fullBeatTime = fullBeatTime + signature * (targetTime - currentTime)
 
 			if tempoData then
 				local duration = tempoData:getBeatDuration() * signature
@@ -297,6 +299,7 @@ function LayerData:computeTimePoints()
 						duration = tempoData:getBeatDuration() * duration
 					end
 					time = time + duration
+					fullBeatTime = fullBeatTime + stopData.duration
 					if primaryTempo ~= 0 then
 						tempoMultiplier = 0
 					end
@@ -338,6 +341,7 @@ function LayerData:computeTimePoints()
 				timePoint.absoluteTime = time
 			end
 			timePoint.beatTime = beatTime
+			timePoint.fullBeatTime = fullBeatTime
 			timePoint.visualTime = visualTime
 			timePoint.visualSection = visualSection
 
@@ -350,19 +354,22 @@ function LayerData:computeTimePoints()
 	if not zeroTimePoint then
 		zeroTimePoint = self:newTimePoint()
 		zeroTimePoint.absoluteTime = 0
-		zeroTimePoint.beatTime = 0
+		zeroTimePoint.beatTime = Fraction:new(0)
+		zeroTimePoint.fullBeatTime = Fraction:new(0)
 		zeroTimePoint.visualTime = 0
 		zeroTimePoint.visualSection = 0
 		self:interpolateTimePointAbsolute(1, zeroTimePoint)
 	end
 
 	local zeroBeatTime = zeroTimePoint.beatTime
+	local zeroFullBeatTime = zeroTimePoint.beatTime
 	local zeroTime = zeroTimePoint.absoluteTime
 	local zeroVisualTime = zeroTimePoint.visualTime
 
 	for i, t in ipairs(timePointList) do
 		t.index = i
 		t.beatTime = t.beatTime - zeroBeatTime
+		t.fullBeatTime = t.fullBeatTime - zeroFullBeatTime
 		t.absoluteTime = t.absoluteTime - zeroTime
 		t.visualTime = t.visualTime - zeroVisualTime
 	end

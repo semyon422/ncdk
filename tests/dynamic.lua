@@ -653,19 +653,19 @@ do
 
 	ld:getTempoData(F(0), 60)
 
-	assert(ld:getTimePoint(F(1)).beatTime == 4)
-	assert(ld:getTimePoint(F(-1)).beatTime == -4)
-	assert(ld:getTimePoint(F(2)).beatTime == 8)
+	assert(ld:getTimePoint(F(1)).beatTime == F(4))
+	assert(ld:getTimePoint(F(-1)).beatTime == F(-4))
+	assert(ld:getTimePoint(F(2)).beatTime == F(8))
 
 	ld:getSignatureData(2, F(3))
 
-	assert(ld:getTimePoint(F(3)).beatTime == 11)
-	assert(ld:getTimePoint(F(4)).beatTime == 15)
+	assert(ld:getTimePoint(F(3)).beatTime == F(11))
+	assert(ld:getTimePoint(F(4)).beatTime == F(15))
 
 	ld:getSignatureData(-2, F(3))
 
-	assert(ld:getTimePoint(F(-2)).beatTime == -7)
-	assert(ld:getTimePoint(F(-3)).beatTime == -11)
+	assert(ld:getTimePoint(F(-2)).beatTime == F(-7))
+	assert(ld:getTimePoint(F(-3)).beatTime == F(-11))
 end
 
 do

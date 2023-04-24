@@ -255,12 +255,12 @@ function DynamicLayerData:getDynamicTimePoint(...)
 		local ta, tb
 		if mode == "measure" then
 			ta, tb = a.measureTime:tonumber(), b.measureTime:tonumber()
+			timePoint.beatTime = map(timePoint.measureTime, a.measureTime, b.measureTime, a.beatTime, b.beatTime)
 		elseif mode == "interval" then
 			ta, tb = a:tonumber(), b:tonumber()
 		end
 		timePoint.absoluteTime = map(t, ta, tb, a.absoluteTime, b.absoluteTime)
 		timePoint.visualTime = map(t, ta, tb, a.visualTime, b.visualTime)
-		timePoint.beatTime = map(t, ta, tb, a.beatTime, b.beatTime)
 		timePoint.prev = a
 		timePoint.next = b
 	else
@@ -284,8 +284,8 @@ function DynamicLayerData:getDynamicTimePoint(...)
 		end
 
 		if mode == "measure" then
-			local duration = (t - a.measureTime:tonumber()) * signature
-			timePoint.absoluteTime = a.absoluteTime + duration * a.tempoData:getBeatDuration()
+			local duration = (timePoint.measureTime - a.measureTime) * signature
+			timePoint.absoluteTime = a.absoluteTime + duration:tonumber() * a.tempoData:getBeatDuration()
 			timePoint.beatTime = a.beatTime + duration
 		elseif mode == "interval" then
 			local intervalData, nextIntervalData = a.intervalData:getPair()
@@ -328,11 +328,12 @@ function DynamicLayerData:getDynamicTimePointAbsolute(limit, absoluteTime, visua
 			local ta, tb = a.measureTime:tonumber(), b.measureTime:tonumber()
 			local measureTime = map(t, a.absoluteTime, b.absoluteTime, ta, tb)
 			timePoint.measureTime = Fraction:new(measureTime, limit, true)
+			local beatTime = map(t, a.absoluteTime, b.absoluteTime, a.beatTime:tonumber(), b.beatTime:tonumber())
+			timePoint.beatTime = Fraction:new(beatTime, limit, true)
 		elseif mode == "interval" then
 			timePoint:fromnumber(a.intervalData, t, limit, a.measureData, true)
 		end
 		timePoint.visualTime = map(t, a.absoluteTime, b.absoluteTime, a.visualTime, b.visualTime)
-		timePoint.beatTime = map(t, a.absoluteTime, b.absoluteTime, a.beatTime, b.beatTime)
 		timePoint.prev = a
 		timePoint.next = b
 	elseif a or b then
@@ -358,7 +359,7 @@ function DynamicLayerData:getDynamicTimePointAbsolute(limit, absoluteTime, visua
 		if mode == "measure" then
 			local duration = (t - a.absoluteTime) / a.tempoData:getBeatDuration()
 			timePoint.measureTime = a.measureTime + Fraction:new(duration / signature, limit, true)
-			timePoint.beatTime = a.beatTime + duration
+			timePoint.beatTime = a.beatTime + Fraction:new(duration, limit, true)
 		elseif mode == "interval" then
 			timePoint:fromnumber(a.intervalData, t, limit, a.measureData, true)
 		end
@@ -433,7 +434,7 @@ function DynamicLayerData:compute()
 	-- start with prev time point to be not affected by stops and expands
 	local prevTimePoint = timePoint.prev or timePoint
 	local time = prevTimePoint.absoluteTime or 0
-	local beatTime = prevTimePoint.beatTime or 0
+	local beatTime = prevTimePoint.beatTime or Fraction:new(0)
 	local visualTime = prevTimePoint.visualTime or 0
 	local visualSection = prevTimePoint.visualSection or 0
 	local currentTime = prevTimePoint.measureTime
@@ -454,7 +455,7 @@ function DynamicLayerData:compute()
 				signature = signatureData.signature
 			end
 
-			beatTime = beatTime + signature:tonumber() * (targetTime - currentTime)
+			beatTime = beatTime + signature * (targetTime - currentTime)
 
 			if tempoData then
 				local duration = tempoData:getBeatDuration() * signature
