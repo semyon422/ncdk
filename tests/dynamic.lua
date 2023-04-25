@@ -8,592 +8,11 @@ end
 
 do
 	local ld = DynamicLayerData:new()
-	ld:setTimeMode("measure")
-	ld:setRange(F(-10), F(10))
-
-	ld:getTempoData(F(0), 60)
-
-	local tp = ld:getTimePoint(F(0))
-	assert(tp.absoluteTime == 0)
-
-	tp = ld:getTimePoint(F(1))
-	assert(tp.absoluteTime == 4)
-
-	tp = ld:getTimePoint(F(-1))
-	assert(tp.absoluteTime == -4)
-
-	ld:getTimePoint(F(-10))
-	ld:getTimePoint(F(-9))
-	ld:getTimePoint(F(-8))
-	ld:getTimePoint(F(-7))
-	ld:getTimePoint(F(10))
-	ld:getTimePoint(F(9))
-	ld:getTimePoint(F(8))
-	ld:getTimePoint(F(7))
-
-	ld:setRange(F(-8), F(-5))
-
-	tp = ld:getTimePoint(F(-7))
-	assert(tp.absoluteTime == -28)
-end
-
-do
-	local ld = DynamicLayerData:new()
-	ld:setTimeMode("measure")
-	ld:setRange(F(-10), F(10))
-
-	ld:getTempoData(F(0), 60)
-
-	assert(ld:getTimePoint(F(0)).absoluteTime == 0)
-	assert(ld:getTimePoint(F(1)).absoluteTime == 4)
-
-	ld:getTempoData(F(1), 120)
-	assert(ld:getTimePoint(F(2)).absoluteTime == 6)
-
-	ld:getTempoData(F(2), 240)
-	assert(ld:getTimePoint(F(3)).absoluteTime == 7)
-
-	ld:getTempoData(F(-1), 30)
-	assert(ld:getTimePoint(F(-1)).absoluteTime == -8)
-
-	ld:getTempoData(F(-2), 15)
-	assert(ld:getTimePoint(F(-2)).absoluteTime == -24)
-end
-
-do
-	local ld = DynamicLayerData:new()
-	ld:setTimeMode("measure")
-	ld:setRange(F(0), F(2))
-
-	ld:getTempoData(F(0), 60)
-
-	assert(ld:getTimePoint(F(1)).absoluteTime == 4)
-
-	ld:setRange(F(4), F(8))
-	assert(ld:getTimePoint(F(4)).absoluteTime == 16)
-	assert(ld:getTimePoint(F(5)).absoluteTime == 20)
-	assert(ld:getTimePoint(F(6)).absoluteTime == 24)
-	assert(ld:getTimePoint(F(7)).absoluteTime == 28)
-	assert(ld:getTimePoint(F(8)).absoluteTime == 32)
-	ld:setRange(F(4), F(6))
-
-	assert(ld.ranges.timePoint.head == ld:getTimePoint(F(1)))
-	assert(ld.ranges.timePoint.tail == ld:getTimePoint(F(7)))
-end
-
-do
-	local ld = DynamicLayerData:new()
-	ld:setTimeMode("measure")
-	ld:setRange(F(0), F(10))
-
-	ld:getTempoData(F(0), 60)
-
-	local timePoints = {}
-	for i = 0, 10 do
-		timePoints[i] = ld:getTimePoint(F(i))
-	end
-
-	ld:setRange(F(0), F(2))
-
-	assert(timePoints[2].absoluteTime == 8)
-	assert(timePoints[3].absoluteTime == 12)
-	assert(timePoints[4].absoluteTime == 16)
-	assert(timePoints[5].absoluteTime == 20)
-
-	ld:getTempoData(F(0), 120)
-
-	assert(timePoints[2].absoluteTime == 4)
-	assert(timePoints[3].absoluteTime == 6)
-	assert(timePoints[4].absoluteTime == 16)
-	assert(timePoints[5].absoluteTime == 20)
-
-	ld:setRange(F(5), F(7))
-
-	assert(timePoints[2].absoluteTime == 4)
-	assert(timePoints[3].absoluteTime == 6)
-	assert(timePoints[4].absoluteTime == 8)
-	assert(timePoints[5].absoluteTime == 10)
-end
-
-do
-	local ld = DynamicLayerData:new()
-	ld:setTimeMode("measure")
-	ld:setRange(F(0), F(10))
-
-	ld:getTempoData(F(0), 60)
-
-	for i = 0, 10 do
-		ld:getTimePoint(F(i))
-	end
-
-	assert(ld:getTimePoint(F(0)).absoluteTime == 0)
-	assert(ld:getTimePoint(F(1)).absoluteTime == 4)
-	assert(ld:getTimePoint(F(2)).absoluteTime == 8)
-	assert(ld:getTimePoint(F(3)).absoluteTime == 12)
-
-	ld:getTempoData(F(1), 120)
-
-	assert(ld:getTimePoint(F(0)).absoluteTime == 0)
-	assert(ld:getTimePoint(F(1)).absoluteTime == 4)
-	assert(ld:getTimePoint(F(2)).absoluteTime == 6)
-	assert(ld:getTimePoint(F(3)).absoluteTime == 8)
-
-	ld:removeTempoData(F(0))
-
-	assert(ld:getTimePoint(F(0)).absoluteTime == 0)
-	assert(ld:getTimePoint(F(1)).absoluteTime == 2)
-	assert(ld:getTimePoint(F(2)).absoluteTime == 4)
-	assert(ld:getTimePoint(F(3)).absoluteTime == 6)
-end
-
-do
-	local ld = DynamicLayerData:new()
-	ld:setTimeMode("measure")
-	ld:setRange(F(0), F(10))
-
-	ld:getTempoData(F(0), 60)
-
-	local timePoints = {}
-	for i = 0, 10 do
-		timePoints[i] = ld:getTimePoint(F(i))
-	end
-
-	assert(timePoints[0].absoluteTime == 0)
-	assert(timePoints[1].absoluteTime == 4)
-	assert(timePoints[9].absoluteTime == 36)
-	assert(timePoints[10].absoluteTime == 40)
-
-	ld:setRange(F(0), F(0))
-
-	ld:getTempoData(F(0), 120)
-
-	assert(timePoints[0].absoluteTime == 0)
-	assert(timePoints[1].absoluteTime == 2)
-	assert(timePoints[9].absoluteTime == 36)
-	assert(timePoints[10].absoluteTime == 40)
-
-	ld:setRange(F(10), F(10))
-
-	assert(timePoints[0].absoluteTime == 0)
-	assert(timePoints[1].absoluteTime == 2)
-	assert(timePoints[9].absoluteTime == 18)
-	assert(timePoints[10].absoluteTime == 20)
-end
-
-do
-	local ld = DynamicLayerData:new()
-	ld:setTimeMode("measure")
-	ld:setRange(F(-10), F(10))
-
-	ld:getTempoData(F(0), 60)
-	ld:getStopData(F(1), F(4))
-	ld:getStopData(F(2), F(4))
-
-	local t = {
-		{F(0), 0, 0},
-		{F(1), 0, 4},
-		{F(1), 1, 8},
-		{F(2), 0, 12},
-		{F(2), 1, 16},
-	}
-
-	for _, _t in ipairs(t) do
-		ld:getTimePoint(_t[1], _t[2])
-	end
-	for _, _t in ipairs(t) do
-		assert(ld:getTimePoint(_t[1], _t[2]).absoluteTime == _t[3])
-	end
-end
-
-do
-	local ld = DynamicLayerData:new()
-	ld:setTimeMode("measure")
-	ld:setRange(F(-10), F(10))
-
-	ld:getTempoData(F(0), 60)
-	ld:getStopData(F(-1), F(4))
-	ld:getStopData(F(1), F(4))
-
-	local t = {
-		{F(-2), 0, -12},
-		{F(-1), 0, -8},
-		{F(-1), 1, -4},
-		{F(0), 0, 0},
-		{F(0.5), 1, 2},
-		{F(1), 0, 4},
-		{F(1), 1, 8},
-		{F(2), 0, 12},
-	}
-
-	for _, _t in ipairs(t) do
-		ld:getTimePoint(_t[1], _t[2])
-	end
-	for _, _t in ipairs(t) do
-		assert(ld:getTimePoint(_t[1], _t[2]).absoluteTime == _t[3])
-	end
-end
-
-do
-	local ld = DynamicLayerData:new()
-	ld:setTimeMode("measure")
-	ld:setRange(F(-10), F(10))
-
-	ld:getTempoData(F(0.5), 60)
-	ld:getTempoData(F(1.5), 120)
-	ld:getTempoData(F(2.5), 240)
-
-	ld:getStopData(F(-2.5), F(4))
-	ld:getStopData(F(-1), F(8))
-	ld:getStopData(F(1.5), F(2))
-
-	local t = {
-		{F(-3), 0, -24},
-		{F(-2.5), 0, -22},
-		{F(-2.5), 1, -18},
-		{F(-2), 0, -16},
-		{F(-1), 0, -12},
-		{F(-1), 1, -4},
-		{F(0), 0, 0},
-		{F(0.5), 1, 2},  -- right time point only
-		{F(1), 0, 4},
-		{F(1.5), 0, 6},
-		{F(1.5), 1, 7},
-		{F(2), 0, 8},
-		{F(2.5), 0, 9},
-		{F(3), 0, 9.5},
-		{F(3.5), 0, 10},
-	}
-
-	for _, _t in ipairs(t) do
-		ld:getTimePoint(_t[1], _t[2])
-	end
-	for _, _t in ipairs(t) do
-		assert(ld:getTimePoint(_t[1], _t[2]).absoluteTime == _t[3])
-	end
-
-	ld:removeStopData(F(-1))
-
-	local t = {
-		{F(-3), 0, -16},
-		{F(-2.5), 0, -14},
-		{F(-2.5), 1, -10},
-		{F(-2), 0, -8},
-		{F(-1), 0, -4},
-		{F(-1), 1, -4},
-		{F(0), 0, 0},
-		{F(0.5), 0, 2},
-		{F(1), 0, 4},
-	}
-
-	for _, _t in ipairs(t) do
-		assert(ld:getTimePoint(_t[1], _t[2]).absoluteTime == _t[3])
-	end
-end
-
-do
-	local ld = DynamicLayerData:new()
-	ld:setTimeMode("measure")
-	ld:setRange(F(-10), F(10))
-	ld:getTempoData(F(0), 60)
-
-	local tp4 = ld:getTimePoint(F(-1))
-	local tp1 = ld:getTimePoint(F(0))
-	local tp2 = ld:getTimePoint(F(1))
-	local tp3 = ld:getTimePoint(F(2))
-
-	ld:getVelocityData(tp1, 1)
-	ld:getVelocityData(tp2, 2)
-
-	assert(tp2.visualTime == tp1.absoluteTime + 4)
-	assert(tp3.visualTime == tp2.absoluteTime + 8)
-	assert(tp3.visualTime == tp1.absoluteTime + 12)
-	assert(tp4.visualTime == tp1.absoluteTime - 4)
-
-	ld:removeVelocityData(tp1)
-
-	assert(tp2.visualTime == 8)
-	assert(tp3.visualTime == 16)
-	assert(tp4.visualTime == -8)
-end
-
-do
-	local ld = DynamicLayerData:new()
-	ld:setTimeMode("measure")
-	ld:setRange(F(-10), F(10))
-	ld:getTempoData(F(0), 60)
-
-	local tp1 = ld:getTimePoint(F(0))
-	local tp2 = ld:getTimePoint(F(1))
-	local tp3 = ld:getTimePoint(F(2))
-
-	local nd1 = ld:getNoteData(tp1, "key", 1)
-	local nd2 = ld:getNoteData(tp2, "key", 2)
-	local nd3 = ld:getNoteData(tp3, "key", 3)
-
-	ld:removeNoteData(nd2, "key", 2)
-end
-
-do
-	local ld = DynamicLayerData:new()
-	ld:setTimeMode("measure")
-	ld:setRange(F(-10), F(10))
-	ld:getTempoData(F(0), 60)
-
-	local tp1 = ld:getTimePoint(F(0))
-	local tp2 = ld:getTimePoint(F(1))
-	local tp3 = ld:getTimePoint(F(2))
-
-	local dtp = ld:getDynamicTimePoint(F(0.5))
-	assert(dtp.absoluteTime == 2)
-	assert(dtp.visualTime == 2)
-
-	dtp = ld:getDynamicTimePoint(F(-1))
-	assert(dtp.absoluteTime == -4)
-	assert(dtp.visualTime == -4)
-
-	dtp = ld:getDynamicTimePoint(F(3.5))
-	assert(dtp.absoluteTime == 14)
-	assert(dtp.visualTime == 14)
-
-	ld:getStopData(F(1), F(4))
-	dtp = ld:getDynamicTimePoint(F(1))
-	assert(dtp.absoluteTime == 4)
-	assert(dtp.visualTime == 4)
-	dtp = ld:getDynamicTimePoint(F(1), 1)
-	assert(dtp.absoluteTime == 8)
-	assert(dtp.visualTime == 8)
-end
-
-do
-	local ld = DynamicLayerData:new()
-	ld:setTimeMode("measure")
-	ld:setRange(F(-10), F(10))
-	ld:getTempoData(F(0), 60)
-
-	ld:getExpandData(ld:getTimePoint(F(1), 0, 1), F(1))
-
-	assert(ld:getTimePoint(F(1), 0, 0).visualTime == 4)
-	assert(ld:getTimePoint(F(1), 0, 1).visualTime == 5)
-
-	ld:removeExpandData(ld:getTimePoint(F(1), 0, 1))
-
-	assert(ld:getTimePoint(F(1), 0, 0).visualTime == 4)
-	assert(ld:getTimePoint(F(1), 0, 1).visualTime == 4)
-end
-
-do
-	local ld = DynamicLayerData:new()
-	ld:setTimeMode("measure")
-	ld:setRange(Fraction(0), Fraction(10))
-
-	ld:getTempoData(Fraction(1), 60)
-	ld:getTempoData(Fraction(3, 10, true), 120)
-
-	local function dat(t)
-		return ld:getDynamicTimePoint(Fraction(t)).absoluteTime
-	end
-
-	assert(dat(1) == 4)
-	assert(dat(2) == 8)
-	assert(dat(3) == 12)
-	assert(dat(4) == 14)
-end
-
-do
-	local ld = DynamicLayerData:new()
-	ld:setTimeMode("measure")
-	ld:setSignatureMode("short")
-	ld:setRange(Fraction(0), Fraction(10))
-
-	local mt = Fraction:new(0)
-
-	ld:getTempoData(mt, 60)
-	ld:getSignatureData(1, Fraction:new(8))
-	ld:getSignatureData(3, Fraction:new(2))
-	local tp0 = ld:getTimePoint(F(0))
-	local tp1 = ld:getTimePoint(F(1))
-	local tp2 = ld:getTimePoint(F(2))
-	local tp3 = ld:getTimePoint(F(3))
-	local tp4 = ld:getTimePoint(F(4))
-
-	assert(tp0.absoluteTime == 0)
-	assert(tp1.absoluteTime == 4)
-	assert(tp2.absoluteTime == 12)
-	assert(tp3.absoluteTime == 16)
-	assert(tp4.absoluteTime == 18)
-
-	ld:setRange(Fraction(5), Fraction(10))
-	assert(ld:getTimePoint(F(5)).absoluteTime == 22)
-	assert(ld:getTimePoint(F(6)).absoluteTime == 26)
-end
-
-do
-	local ld = DynamicLayerData:new()
-	ld:setTimeMode("measure")
-	ld:setSignatureMode("short")
-	ld:setRange(Fraction(0), Fraction(10))
-
-	local mt = Fraction:new(0)
-
-	ld:getTempoData(mt, 60)
-	ld:getSignatureData(2, Fraction:new(2))
-
-	assert(ld:getDynamicTimePoint(F(2)).absoluteTime == 8)
-	assert(ld:getDynamicTimePoint(F(3)).absoluteTime == 10)
-	assert(ld:getDynamicTimePoint(F(4)).absoluteTime == 14)
-
-	ld:setSignatureMode("long")
-
-	assert(ld:getDynamicTimePoint(F(4)).absoluteTime == 12)
-end
-
-do
-	local ld = DynamicLayerData:new()
-	ld:setTimeMode("measure")
-	ld:setSignatureMode("long")
-	ld:setRange(Fraction(0), Fraction(10))
-
-	local mt = Fraction:new(0)
-
-	ld:getTempoData(mt, 60)
-	ld:getSignatureData(1, Fraction:new(8))
-	ld:getSignatureData(3, Fraction:new(2))
-	local tp0 = ld:getTimePoint(F(0))
-	local tp1 = ld:getTimePoint(F(1))
-	local tp2 = ld:getTimePoint(F(2))
-	local tp3 = ld:getTimePoint(F(3))
-	local tp4 = ld:getTimePoint(F(4))
-
-	assert(tp0.absoluteTime == 0)
-	assert(tp1.absoluteTime == 4)
-	assert(tp2.absoluteTime == 12)
-	assert(tp3.absoluteTime == 20)
-	assert(tp4.absoluteTime == 22)
-
-	ld:setRange(Fraction(5), Fraction(10))
-	assert(ld:getTimePoint(F(5)).absoluteTime == 24)
-	assert(ld:getTimePoint(F(6)).absoluteTime == 26)
-end
-
-do
-	local ld = DynamicLayerData:new()
-	ld:setTimeMode("measure")
-	ld:setSignatureMode("long")
-	ld:setRange(Fraction(0), Fraction(1))
-
-	ld:getTempoData(F(0), 60)
-
-	ld:getTimePoint(F(0))
-	ld:getTimePoint(F(1))
-
-	local function geta(t)
-		return ld:getDynamicTimePointAbsolute(192, t)
-	end
-
-	assert(geta(0).measureTime == F(0))
-	assert(geta(2).measureTime == F(0.5))
-	assert(geta(4).measureTime == F(1))
-	assert(geta(8).measureTime == F(2))
-	assert(geta(-4).measureTime == F(-1))
-
-	assert(geta(0).visualTime == 0)
-	assert(geta(2).visualTime == 2)
-	assert(geta(4).visualTime == 4)
-	assert(geta(8).visualTime == 8)
-	assert(geta(-4).visualTime == -4)
-
-	local function get(t)
-		return ld:getDynamicTimePoint(F(t))
-	end
-
-	assert(get(0).absoluteTime == 0)
-	assert(get(0.5).absoluteTime == 2)
-	assert(get(1).absoluteTime == 4)
-	assert(get(2).absoluteTime == 8)
-	assert(get(-1).absoluteTime == -4)
-
-	assert(get(0).visualTime == 0)
-	assert(get(0.5).visualTime == 2)
-	assert(get(1).visualTime == 4)
-	assert(get(2).visualTime == 8)
-	assert(get(-1).visualTime == -4)
-end
-
-do
-	local ld = DynamicLayerData:new()
-
-	ld:setTimeMode("measure")
-	ld:setSignatureMode("short")
-	ld:setRange(F(0), F(10))
-
-	ld:getSignatureData(2, F(3))
-
-	ld:getTempoData(F(1), 60)
-	ld:getTempoData(F(3.5), 120)
-
-	ld:getStopData(F(5), F(4))
-
-	ld:getVelocityData(ld:getTimePoint(F(0.5)), 1)
-	ld:getVelocityData(ld:getTimePoint(F(4.5)), 2)
-	ld:getVelocityData(ld:getTimePoint(F(5 / 4)), 0)
-	ld:getVelocityData(ld:getTimePoint(F(6 / 4)), 1)
-
-	ld:getExpandData(ld:getTimePoint(F(2), 0, 1), F(1))
-
-	ld:setRange(F(6), F(16))
-	local dtp = ld:getDynamicTimePointAbsolute(192, 32)
-	assert(dtp.measureTime == F(12))
-
-	ld:setRange(F(6), F(16))
-	local dtp = ld:getDynamicTimePointAbsolute(192, 32)
-	assert(dtp.measureTime == F(12))
-
-	ld:setRange(F(6), F(16))
-	local dtp = ld:getDynamicTimePointAbsolute(192, 32)
-	assert(dtp.measureTime == F(12))
-
-	ld:setRange(F(3), F(13))
-	local dtp = ld:getDynamicTimePointAbsolute(192, 24)
-	assert(dtp.measureTime == F(8))
-
-	ld:setRange(F(2), F(12))
-	assert(ld:getDynamicTimePointAbsolute(192, 22))
-	assert(ld:getDynamicTimePoint(Fraction(2)))
-end
-
-do
-	local ld = DynamicLayerData:new()
-
-	ld:setTimeMode("measure")
-	ld:setSignatureMode("short")
-	ld:setRange(F(0), F(10))
-
-	ld:getTempoData(F(1), 60)
-
-	ld:getStopData(F(5), F(1))
-	ld:getExpandData(ld:getTimePoint(F(5), 1, 1), F(1))
-	ld:getExpandData(ld:getTimePoint(F(5), 0, 1), F(1))
-
-	assert(tostring(ld:getDynamicTimePoint(F(5))) == "(5.0/1,0,0)")  -- 20, 20
-	assert(tostring(ld:getDynamicTimePoint(F(5), 0, 0)) == "(5.0/1,0,0)")  -- 20, 20
-	assert(tostring(ld:getDynamicTimePoint(F(5), 0, 1)) == "(5.0/1,0,1)")  -- 20, 21
-	assert(tostring(ld:getDynamicTimePoint(F(5), 1, 0)) == "(5.0/1,1,0)")  -- 21, 22
-	assert(tostring(ld:getDynamicTimePoint(F(5), 1, 1)) == "(5.0/1,1,1)")  -- 21, 23
-
-	assert(tostring(ld:getDynamicTimePointAbsolute(192, 20, 0)) == "(5.0/1,0,0)")
-	assert(tostring(ld:getDynamicTimePointAbsolute(192, 20, 1)) == "(5.0/1,0,1)")
-	assert(tostring(ld:getDynamicTimePointAbsolute(192, 21, 0)) == "(5.0/1,1,0)")
-	assert(tostring(ld:getDynamicTimePointAbsolute(192, 21, 1)) == "(5.0/1,1,1)")
-end
-
-do
-	local ld = DynamicLayerData:new()
-
-	ld:setTimeMode("interval")
 	ld:setRange(-10, 20)
 
 	local id = ld:getIntervalData(0, 10)
 	ld:getIntervalData(10, 1)
+	ld:getTimePoint(id, F(5), 1)
 
 	ld:getExpandData(ld:getTimePoint(id, F(5), 1), F(1))
 
@@ -607,70 +26,6 @@ end
 
 do
 	local ld = DynamicLayerData:new()
-
-	ld:setTimeMode("measure")
-	ld:setSignatureMode("short")
-	ld:setRange(F(-10), F(10))
-
-	ld:getSignatureData(2, F(3))
-
-	ld:getTempoData(F(1), 60)
-
-	ld:getTimePoint(F(0))
-
-	ld:getTimePoint(F(-5), 0, 0)
-	ld:getTimePoint(F(-5), 0, 1)
-	ld:getTimePoint(F(-5), 1, 0)
-	ld:getTimePoint(F(-5), 1, 1)
-	ld:getTimePoint(F(5), 0, 0)
-	ld:getTimePoint(F(5), 0, 1)
-	ld:getTimePoint(F(5), 1, 0)
-	ld:getTimePoint(F(5), 1, 1)
-
-	local range = ld.ranges.timePoint
-
-	assert(tostring(range.head) == "(-5.0/1,0,0)")
-	assert(tostring(range.tail) == "(5.0/1,1,1)")
-
-	ld:getTimePoint(F(-10))
-	ld:getTimePoint(F(10))
-
-	ld:setRange(F(-3), F(3))
-	assert(tostring(range.head) == "(-5.0/1,1,1)")
-	assert(tostring(range.tail) == "(5.0/1,0,0)")
-
-	ld:setRange(F(-5), F(5))
-	assert(tostring(range.head) == "(-10.0/1,0,0)")
-	assert(tostring(range.tail) == "(10.0/1,0,0)")
-end
-
-do
-	local ld = DynamicLayerData:new()
-
-	ld:setTimeMode("measure")
-	ld:setSignatureMode("short")
-	ld:setRange(F(-10), F(10))
-
-	ld:getTempoData(F(0), 60)
-
-	assert(ld:getTimePoint(F(1)).beatTime == F(4))
-	assert(ld:getTimePoint(F(-1)).beatTime == F(-4))
-	assert(ld:getTimePoint(F(2)).beatTime == F(8))
-
-	ld:getSignatureData(2, F(3))
-
-	assert(ld:getTimePoint(F(3)).beatTime == F(11))
-	assert(ld:getTimePoint(F(4)).beatTime == F(15))
-
-	ld:getSignatureData(-2, F(3))
-
-	assert(ld:getTimePoint(F(-2)).beatTime == F(-7))
-	assert(ld:getTimePoint(F(-3)).beatTime == F(-11))
-end
-
-do
-	local ld = DynamicLayerData:new()
-	ld:setTimeMode("interval")
 	ld:setRange(-10, 30)
 
 	local id1 = ld:getIntervalData(-1, 11)
@@ -723,7 +78,6 @@ end
 
 do
 	local ld = DynamicLayerData:new()
-	ld:setTimeMode("interval")
 	ld:setRange(-10, 30)
 
 	local id1 = ld:getIntervalData(0, 10)
@@ -776,7 +130,6 @@ end
 
 do
 	local ld = DynamicLayerData:new()
-	ld:setTimeMode("interval")
 	ld:setRange(-10, 30)
 
 	local id1 = ld:getIntervalData(0, 10)
@@ -877,7 +230,6 @@ end
 
 do
 	local ld = DynamicLayerData:new()
-	ld:setTimeMode("interval")
 	ld:setRange(-10, 30)
 
 	local id1 = ld:getIntervalData(0, 10)
@@ -904,7 +256,6 @@ end
 
 do
 	local ld = DynamicLayerData:new()
-	ld:setTimeMode("interval")
 	ld:setRange(-1, 2)
 
 	local id1 = ld:getIntervalData(0, 10)
@@ -922,7 +273,6 @@ end
 
 do
 	local ld = DynamicLayerData:new()
-	ld:setTimeMode("interval")
 	ld:setRange(-1, 2)
 
 	local id1 = ld:getIntervalData(0, 10)
@@ -939,7 +289,6 @@ end
 
 do
 	local ld = DynamicLayerData:new()
-	ld:setTimeMode("interval")
 	ld:setRange(-1, 2)
 
 	local id1 = ld:getIntervalData(0, 10)
@@ -955,7 +304,6 @@ end
 
 do
 	local ld = DynamicLayerData:new()
-	ld:setTimeMode("interval")
 	ld:setRange(-1, 2)
 
 	local id1 = ld:getIntervalData(0, 10)
@@ -976,7 +324,6 @@ end
 
 do
 	local ld = DynamicLayerData:new()
-	ld:setTimeMode("interval")
 	ld:setRange(-1, 1)
 
 	local id1 = ld:getIntervalData(0, 10)
@@ -988,7 +335,6 @@ end
 
 do
 	local ld = DynamicLayerData:new()
-	ld:setTimeMode("interval")
 	ld:setRange(-10, 20)
 
 	local id1 = ld:getIntervalData(0, 10)
@@ -1026,33 +372,7 @@ do
 end
 
 do
-	local ld = LayerData:new()
-	ld:setTimeMode("measure")
-	ld:setSignatureMode("short")
-
-	ld:insertTempoData(F(0), 60)
-	local tp1 = ld:getTimePoint(F(1))
-
-	ld:compute()
-	assert(tp1.absoluteTime == 4)
-
-	local dld = DynamicLayerData:new(ld)
-	dld:setRange(F(-1), F(3))
-
-	local tp2 = dld:getTimePoint(F(2))
-	assert(tp2.absoluteTime == 8)
-
-	ld = LayerData:new()
-	dld:save(ld)
-	tp1 = ld:getTimePoint(F(1))
-
-	ld:compute()
-	assert(tp1.absoluteTime == 4)
-end
-
-do
 	local ld = DynamicLayerData:new()
-	ld:setTimeMode("interval")
 	ld:setRange(-10, 30)
 
 	local id1 = ld:getIntervalData(0.25, 9, F(0.25))
@@ -1078,7 +398,6 @@ end
 
 do
 	local ld = DynamicLayerData:new()
-	ld:setTimeMode("interval")
 	ld:setRange(-10, 30)
 
 	local id1 = ld:getIntervalData(0.25, 9, F(0.25))
@@ -1141,7 +460,6 @@ end
 
 do
 	local ld = DynamicLayerData:new()
-	ld:setTimeMode("interval")
 	ld:setRange(-10, 30)
 
 	local id1 = ld:getIntervalData(0.25, 9, F(0.25))
@@ -1241,7 +559,6 @@ end
 
 do
 	local ld = DynamicLayerData:new()
-	ld:setTimeMode("interval")
 	ld:setRange(-10, 30)
 
 	local id1 = ld:getIntervalData(0, 10)
@@ -1255,7 +572,6 @@ end
 
 do
 	local ld = DynamicLayerData:new()
-	ld:setTimeMode("interval")
 	ld:setRange(-10, 30)
 
 	local id1 = ld:getIntervalData(0, 10)
@@ -1280,7 +596,6 @@ end
 
 do
 	local ld = DynamicLayerData:new()
-	ld:setTimeMode("interval")
 	ld:setRange(-10, 30)
 
 	local id1 = ld:getIntervalData(0, 10)
@@ -1299,7 +614,6 @@ end
 
 do
 	local ld = DynamicLayerData:new()
-	ld:setTimeMode("interval")
 	ld:setRange(-10, 30)
 
 	local id1 = ld:getIntervalData(0, 10)
@@ -1323,7 +637,6 @@ end
 
 do
 	local ld = DynamicLayerData:new()
-	ld:setTimeMode("interval")
 	ld:setRange(-10, 30)
 
 	local id1 = ld:getIntervalData(0.5, 1, F(0.5))
@@ -1335,7 +648,6 @@ end
 
 do
 	local ld = DynamicLayerData:new()
-	ld:setTimeMode("interval")
 	ld:setRange(-10, 30)
 
 	local id1 = ld:getIntervalData(0.5, 1, F(0.5))
@@ -1347,7 +659,6 @@ end
 
 do
 	local ld = DynamicLayerData:new()
-	ld:setTimeMode("interval")
 	ld:setRange(-10, 30)
 
 	local id1 = ld:getIntervalData(0.5, 1, F(0.5))
@@ -1359,7 +670,6 @@ end
 
 do
 	local ld = DynamicLayerData:new()
-	ld:setTimeMode("interval")
 	ld:setRange(-10, 30)
 
 	local id1 = ld:getIntervalData(0.5, 1, F(0.5))
@@ -1371,7 +681,6 @@ end
 
 do
 	local ld = DynamicLayerData:new()
-	ld:setTimeMode("interval")
 	ld:setRange(-10, 30)
 
 	local id1 = ld:getIntervalData(0, 10)
@@ -1408,7 +717,6 @@ end
 
 do
 	local ld = DynamicLayerData:new()
-	ld:setTimeMode("interval")
 	ld:setRange(-10, 30)
 
 	local id1 = ld:getIntervalData(0, 10)

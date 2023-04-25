@@ -35,6 +35,10 @@ function IntervalData:getBeatDuration()
 	return (_b.absoluteTime - _a.absoluteTime) / self:getDuration()
 end
 
+function IntervalData:getTempo()
+	return 60 / self:getBeatDuration()
+end
+
 function IntervalData:getPair()
 	local a = self
 	local n = a.next

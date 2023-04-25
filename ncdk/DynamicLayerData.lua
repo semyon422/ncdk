@@ -1,24 +1,15 @@
-local Fraction = require("ncdk.Fraction")
-local TempoData = require("ncdk.TempoData")
-local StopData = require("ncdk.StopData")
 local VelocityData = require("ncdk.VelocityData")
 local ExpandData = require("ncdk.ExpandData")
 local IntervalData = require("ncdk.IntervalData")
 local MeasureData = require("ncdk.MeasureData")
-local SignatureData = require("ncdk.SignatureData")
 local NoteData = require("ncdk.NoteData")
 local RangeTracker = require("ncdk.RangeTracker")
-local AbsoluteTimePoint = require("ncdk.AbsoluteTimePoint")
 local IntervalTimePoint = require("ncdk.IntervalTimePoint")
-local MeasureTimePoint = require("ncdk.MeasureTimePoint")
 
 local DynamicLayerData = {}
 
 DynamicLayerData.primaryTempo = 0
 DynamicLayerData.minBeatDuration = 60 / 1000
-
-DynamicLayerData.defaultSignature = Fraction:new(4)
-DynamicLayerData.mainTimeField = "measureTime"
 
 local mt = {__index = DynamicLayerData}
 function DynamicLayerData:new(ld)
@@ -32,14 +23,11 @@ function DynamicLayerData:new(ld)
 	return layerData
 end
 
-local rangeNames = {"timePoint", "tempo", "stop", "velocity", "expand", "signature", "interval", "measure"}
+local rangeNames = {"timePoint", "velocity", "expand", "interval", "measure"}
 function DynamicLayerData:init()
 	local function getTime(_, object)
 		if object.timePoint then
 			object = object.timePoint
-		end
-		if self.mainTimeField == "measureTime" then
-			return object.measureTime
 		end
 		return object:tonumber()
 	end
@@ -55,6 +43,11 @@ function DynamicLayerData:init()
 	end
 
 	ranges.note = {}
+
+	self:_setRange(0, 0)
+	self.startTime, self.endTime = 0, 0
+	self.dynamicTimePoint = self:newTimePoint()
+	self.searchTimePoint = self:newTimePoint()
 end
 
 function DynamicLayerData:getNoteRange(inputType, inputIndex)
@@ -71,15 +64,14 @@ function DynamicLayerData:getNoteRange(inputType, inputIndex)
 end
 
 function DynamicLayerData:load(layerData)
+	assert(layerData.mode == "interval", "only interval mode supported")
+
 	local ranges = self.ranges
 	ranges.timePoint:fromList(layerData.timePointList)
-	ranges.tempo:fromList(layerData.tempoDatas)
-	ranges.stop:fromList(layerData.stopDatas)
 	ranges.velocity:fromList(layerData.velocityDatas)
 	ranges.expand:fromList(layerData.expandDatas)
 	ranges.interval:fromList(layerData.intervalDatas)
 	ranges.measure:fromList(layerData.measureDatas)
-	ranges.signature:fromList(layerData.signatureDatas)
 
 	for inputType, r in pairs(layerData.noteDatas) do
 		for inputIndex, noteDatas in pairs(r) do
@@ -87,29 +79,15 @@ function DynamicLayerData:load(layerData)
 			range:fromList(noteDatas)
 		end
 	end
-
-	self.mode = layerData.mode
-	if layerData.signatureMode then
-		self.signatureMode = layerData.signatureMode
-		self.defaultSignature = layerData.defaultSignature
-	end
-	self:setTimeMode(layerData.mode)
 end
 
 function DynamicLayerData:save(layerData)
 	local ranges = self.ranges
 	layerData.timePointList = ranges.timePoint:toList()
-	layerData.tempoDatas = ranges.tempo:toList()
-	layerData.stopDatas = ranges.stop:toList()
 	layerData.velocityDatas = ranges.velocity:toList()
 	layerData.expandDatas = ranges.expand:toList()
 	layerData.intervalDatas = ranges.interval:toList()
 	layerData.measureDatas = ranges.measure:toList()
-
-	layerData.signatures = {}
-	for _, signatureData in ipairs(ranges.signature:toList()) do
-		layerData.signatures[signatureData.timePoint.measureTime:tonumber()] = signatureData.signature
-	end
 
 	layerData.timePoints = {}
 	for _, timePoint in ipairs(layerData.timePointList) do
@@ -122,51 +100,12 @@ function DynamicLayerData:save(layerData)
 		end
 	end
 
-	layerData.mode = self.mode
-	if self.signatureMode then
-		layerData.signatureMode = self.signatureMode
-		layerData.defaultSignature = self.defaultSignature
-	end
-end
-
-function DynamicLayerData:setTimeMode(mode)
-	self.mode = mode
-	local time
-	if mode == "absolute" then
-		time = 0
-	elseif mode == "measure" then
-		self.mainTimeField = "measureTime"
-		time = Fraction:new(0)
-	elseif mode == "interval" then
-		self.mainTimeField = "intervalTime"
-		self:_setRange(0, 0)
-		self.startTime, self.endTime = time, time
-		self.dynamicTimePoint = self:newTimePoint()
-		return
-	else
-		error("Wrong time mode")
-	end
-	self:_setRange(time, time)
-	self.startTime, self.endTime = time, time
-	self.zeroTimePoint = self:getTimePoint(time)
-	self.dynamicTimePoint = self:newTimePoint()
-end
-
-function DynamicLayerData:setSignatureMode(mode)
-	assert(mode == "long" or mode == "short", "Wrong signature mode")
-	self.signatureMode = mode
-	self:compute()
+	layerData.mode = "interval"
 end
 
 function DynamicLayerData:setPrimaryTempo(tempo)
 	assert(tempo >= 0, "Wrong primary tempo")
 	self.primaryTempo = tempo
-	self:compute()
-end
-
-function DynamicLayerData:setDefaultSignature(signature)
-	assert(type(signature) == "table" and signature[1] > 0, "Wrong default signature tempo")
-	self.defaultSignature = signature
 	self:compute()
 end
 
@@ -215,14 +154,7 @@ function DynamicLayerData:resetRedos()
 end
 
 function DynamicLayerData:newTimePoint()
-	local mode = assert(self.mode, "Mode should be set")
-	if mode == "absolute" then
-		return AbsoluteTimePoint:new()
-	elseif mode == "measure" then
-		return MeasureTimePoint:new()
-	elseif mode == "interval" then
-		return IntervalTimePoint:new()
-	end
+	return IntervalTimePoint:new()
 end
 
 local function map(x, a, b, c, d)
@@ -231,14 +163,14 @@ end
 
 function DynamicLayerData:resetDynamicTimePoint()
 	local timePoint = self.dynamicTimePoint
+	local ptr = timePoint.ptr
 	for k in pairs(timePoint) do
 		timePoint[k] = nil
 	end
+	timePoint.ptr = ptr
 end
 
 function DynamicLayerData:getDynamicTimePoint(...)
-	local mode = assert(self.mode, "Mode should be set")
-
 	local timePoint = self.dynamicTimePoint
 
 	self:resetDynamicTimePoint()
@@ -252,53 +184,27 @@ function DynamicLayerData:getDynamicTimePoint(...)
 	elseif a == b then
 		return a
 	elseif a and b then
-		local ta, tb
-		if mode == "measure" then
-			ta, tb = a.measureTime:tonumber(), b.measureTime:tonumber()
-			timePoint.beatTime = map(timePoint.measureTime, a.measureTime, b.measureTime, a.beatTime, b.beatTime)
-		elseif mode == "interval" then
-			ta, tb = a:tonumber(), b:tonumber()
-		end
+		local ta, tb = a:tonumber(), b:tonumber()
 		timePoint.absoluteTime = map(t, ta, tb, a.absoluteTime, b.absoluteTime)
 		timePoint.visualTime = map(t, ta, tb, a.visualTime, b.visualTime)
 		timePoint.prev = a
 		timePoint.next = b
 	else
-		local signature = self.defaultSignature
-		if a then
-			local signatureData = a.signatureData
-			if signatureData and signatureData.timePoint > timePoint then
-				signatureData = nil
-			end
-			if signatureData and self.signatureMode == "long" then
-				signature = signatureData.signature
-			end
-		end
 		timePoint.prev = a and a.prev
 		timePoint.next = b and b.next
 		a = a or b
 
-		local tempoMultiplier = self.primaryTempo == 0 and 1 or a.tempoData.tempo / self.primaryTempo
-		if b and b._stopData then
-			tempoMultiplier = 0
-		end
+		local intervalData, nextIntervalData = a.intervalData:getPair()
+		local tempoMultiplier = self.primaryTempo == 0 and 1 or intervalData:getTempo() / self.primaryTempo
 
-		if mode == "measure" then
-			local duration = (timePoint.measureTime - a.measureTime) * signature
-			timePoint.absoluteTime = a.absoluteTime + duration:tonumber() * a.tempoData:getBeatDuration()
-			timePoint.beatTime = a.beatTime + duration
-		elseif mode == "interval" then
-			local intervalData, nextIntervalData = a.intervalData:getPair()
-			local _a, _b = intervalData.timePoint, nextIntervalData.timePoint
-			local ta, tb = _a:tonumber(), _b:tonumber()
-			timePoint.absoluteTime = map(t, ta, tb, _a.absoluteTime, _b.absoluteTime)
-		end
+		local _a, _b = intervalData.timePoint, nextIntervalData.timePoint
+		local ta, tb = _a:tonumber(), _b:tonumber()
+		timePoint.absoluteTime = map(t, ta, tb, _a.absoluteTime, _b.absoluteTime)
 
 		local currentSpeed = a.velocityData and a.velocityData.currentSpeed or 1
 		timePoint.visualTime = a.visualTime + (timePoint.absoluteTime - a.absoluteTime) * currentSpeed * tempoMultiplier
 	end
 
-	timePoint.tempoData = a.tempoData
 	timePoint.velocityData = a.velocityData
 	timePoint.intervalData = timePoint.intervalData or a.intervalData
 	timePoint.visualSection = a.visualSection
@@ -308,7 +214,6 @@ function DynamicLayerData:getDynamicTimePoint(...)
 end
 
 function DynamicLayerData:getDynamicTimePointAbsolute(limit, absoluteTime, visualSide)
-	local mode = assert(self.mode, "Mode should be set")
 	assert(limit)
 
 	local timePoint = self.dynamicTimePoint
@@ -324,51 +229,24 @@ function DynamicLayerData:getDynamicTimePointAbsolute(limit, absoluteTime, visua
 	elseif a == b then
 		return a
 	elseif a and b then
-		if mode == "measure" then
-			local ta, tb = a.measureTime:tonumber(), b.measureTime:tonumber()
-			local measureTime = map(t, a.absoluteTime, b.absoluteTime, ta, tb)
-			timePoint.measureTime = Fraction:new(measureTime, limit, true)
-			local beatTime = map(t, a.absoluteTime, b.absoluteTime, a.beatTime:tonumber(), b.beatTime:tonumber())
-			timePoint.beatTime = Fraction:new(beatTime, limit, true)
-		elseif mode == "interval" then
-			timePoint:fromnumber(a.intervalData, t, limit, a.measureData, true)
-		end
+		timePoint:fromnumber(a.intervalData, t, limit, a.measureData, true)
 		timePoint.visualTime = map(t, a.absoluteTime, b.absoluteTime, a.visualTime, b.visualTime)
 		timePoint.prev = a
 		timePoint.next = b
 	elseif a or b then
-		local signature = self.defaultSignature
-		if a then
-			local signatureData = a.signatureData
-			if signatureData and signatureData.timePoint > timePoint then
-				signatureData = nil
-			end
-			if signatureData and self.signatureMode == "long" then
-				signature = signatureData.signature
-			end
-		end
 		timePoint.prev = a and a.prev
 		timePoint.next = b and b.next
 		a = a or b
 
-		local tempoMultiplier = self.primaryTempo == 0 and 1 or a.tempoData.tempo / self.primaryTempo
-		if b and b._stopData then
-			tempoMultiplier = 0
-		end
+		local intervalData, nextIntervalData = a.intervalData:getPair()
+		local tempoMultiplier = self.primaryTempo == 0 and 1 or intervalData:getTempo() / self.primaryTempo
 
-		if mode == "measure" then
-			local duration = (t - a.absoluteTime) / a.tempoData:getBeatDuration()
-			timePoint.measureTime = a.measureTime + Fraction:new(duration / signature, limit, true)
-			timePoint.beatTime = a.beatTime + Fraction:new(duration, limit, true)
-		elseif mode == "interval" then
-			timePoint:fromnumber(a.intervalData, t, limit, a.measureData, true)
-		end
+		timePoint:fromnumber(a.intervalData, t, limit, a.measureData, true)
 
 		local currentSpeed = a.velocityData and a.velocityData.currentSpeed or 1
 		timePoint.visualTime = a.visualTime + (t - a.absoluteTime) * currentSpeed * tempoMultiplier
 	end
 
-	timePoint.tempoData = a.tempoData
 	timePoint.velocityData = a.velocityData
 	timePoint.intervalData = timePoint.intervalData or a.intervalData
 	timePoint.visualSection = a.visualSection
@@ -386,13 +264,16 @@ function DynamicLayerData:checkTimePoint(timePoint)
 end
 
 function DynamicLayerData:getTimePoint(...)
-	local timePoint = self:newTimePoint()
+	local timePoint = self.searchTimePoint
 	timePoint:setTime(...)
 
 	local t = self.ranges.timePoint:find(timePoint)
 	if t then
 		return t
 	end
+
+	timePoint = self:newTimePoint()
+	timePoint:setTime(...)
 
 	self.ranges.timePoint:insert(timePoint)
 	self:compute()
@@ -401,19 +282,15 @@ function DynamicLayerData:getTimePoint(...)
 end
 
 function DynamicLayerData:compute()
-	local mode = assert(self.mode, "Mode should be set")
-
-	local isMeasure = mode == "measure"
-	local isInterval = mode == "interval"
-	local isLong = self.signatureMode == "long"
-
 	local ranges = self.ranges
-	local tempoData = ranges.tempo.head
 	local velocityData = ranges.velocity.head
 	local measureData = ranges.measure.head
 
 	local intervalData = ranges.interval.head
-	if intervalData and not intervalData.next and intervalData.prev then
+	if not intervalData then
+		return
+	end
+	if not intervalData.next and intervalData.prev then
 		intervalData = intervalData.prev
 	end
 
@@ -424,142 +301,55 @@ function DynamicLayerData:compute()
 		return
 	end
 
-	local signatureData = ranges.signature.head
-	if signatureData and signatureData.timePoint > timePoint then
-		signatureData = nil
-	end
-
 	local primaryTempo = self.primaryTempo
 
 	-- start with prev time point to be not affected by stops and expands
 	local prevTimePoint = timePoint.prev or timePoint
 	local time = prevTimePoint.absoluteTime or 0
-	local beatTime = prevTimePoint.beatTime or Fraction:new(0)
 	local visualTime = prevTimePoint.visualTime or 0
 	local visualSection = prevTimePoint.visualSection or 0
-	local currentTime = prevTimePoint.measureTime
 	local currentAbsoluteTime = time
 	while timePoint and timePoint <= endTimePoint do
-		local isAtTimePoint = not isMeasure
-		if isMeasure then
-			local measureOffset = currentTime:floor()
-
-			local targetTime = Fraction:new(measureOffset + 1)
-			if timePoint.measureTime < targetTime then
-				targetTime = timePoint.measureTime
-			end
-			isAtTimePoint = timePoint.measureTime == targetTime
-
-			local signature = self.defaultSignature
-			if signatureData and (isLong or measureOffset == signatureData.timePoint.measureTime:tonumber()) then
-				signature = signatureData.signature
-			end
-
-			beatTime = beatTime + signature * (targetTime - currentTime)
-
-			if tempoData then
-				local duration = tempoData:getBeatDuration() * signature
-				time = time + duration * (targetTime - currentTime)
-			end
-			currentTime = targetTime
-		elseif isInterval and intervalData then
-			if timePoint._intervalData then
-				intervalData = timePoint._intervalData
-			end
-			if timePoint._measureData then
-				measureData = timePoint._measureData
-			end
-			time = timePoint:tonumber()
-		elseif not isInterval then
-			time = timePoint.absoluteTime
+		if timePoint._intervalData then
+			intervalData = timePoint._intervalData
 		end
-
-		local tempoMultiplier = (primaryTempo == 0 or not tempoData) and 1 or tempoData.tempo / primaryTempo
-
-		if isAtTimePoint then
-			local nextTempoData = timePoint._tempoData
-			if nextTempoData then
-				tempoData = nextTempoData
-			end
-
-			local nextSignatureData = timePoint._signatureData
-			if nextSignatureData then
-				signatureData = nextSignatureData
-			end
-
-			local stopData = timePoint._stopData
-			if stopData then
-				stopData.tempoData = tempoData
-				if isMeasure then
-					local duration = stopData.duration
-					if not stopData.isAbsolute then
-						duration = tempoData:getBeatDuration() * duration
-					end
-					time = time + duration
-					if primaryTempo ~= 0 then
-						tempoMultiplier = 0
-					end
-				end
-			end
+		if timePoint._measureData then
+			measureData = timePoint._measureData
 		end
+		time = timePoint:tonumber()
+
+		local tempoMultiplier = primaryTempo == 0 and 1 or intervalData:getTempo() / primaryTempo
 
 		local currentSpeed = velocityData and velocityData.currentSpeed or 1
 		visualTime = visualTime + (time - currentAbsoluteTime) * currentSpeed * tempoMultiplier
 		currentAbsoluteTime = time
 
-		if isAtTimePoint then
-			local nextVelocityData = timePoint._velocityData
-			if nextVelocityData then
-				velocityData = nextVelocityData
-			end
-			currentSpeed = velocityData and velocityData.currentSpeed or 1
-
-			local expandData = timePoint._expandData
-			if expandData then
-				local duration = expandData.duration
-				if isMeasure then
-					duration = tempoData:getBeatDuration() * duration * currentSpeed
-				elseif isInterval then
-					duration = intervalData:getBeatDuration() * duration * currentSpeed
-				end
-				if math.abs(duration) == math.huge then
-					visualSection = visualSection + 1
-				else
-					visualTime = visualTime + duration
-				end
-			end
-
-			timePoint.tempoData = tempoData
-			timePoint.velocityData = velocityData
-			timePoint.signatureData = signatureData
-			timePoint.measureData = measureData
-
-			if not timePoint.readonly then
-				timePoint.absoluteTime = time
-			end
-			timePoint.beatTime = beatTime
-			timePoint.visualTime = visualTime
-			timePoint.visualSection = visualSection
-
-			timePoint = timePoint.next
+		local nextVelocityData = timePoint._velocityData
+		if nextVelocityData then
+			velocityData = nextVelocityData
 		end
-	end
+		currentSpeed = velocityData and velocityData.currentSpeed or 1
 
-	local zeroTimePoint = self.zeroTimePoint
-	if not zeroTimePoint then
-		return
-	end
+		local expandData = timePoint._expandData
+		if expandData then
+			local duration = intervalData:getBeatDuration() * expandData.duration * currentSpeed
+			if math.abs(duration) == math.huge then
+				visualSection = visualSection + 1
+			else
+				visualTime = visualTime + duration
+			end
+		end
 
-	local zeroBeatTime = zeroTimePoint.beatTime
-	local zeroTime = zeroTimePoint.absoluteTime
-	local zeroVisualTime = zeroTimePoint.visualTime
+		timePoint.velocityData = velocityData
+		timePoint.measureData = measureData
 
-	local t = self.ranges.timePoint.head
-	while t and t <= endTimePoint  do
-		t.beatTime = t.beatTime - zeroBeatTime
-		t.absoluteTime = t.absoluteTime - zeroTime
-		t.visualTime = t.visualTime - zeroVisualTime
-		t = t.next
+		if not timePoint.readonly then
+			timePoint.absoluteTime = time
+		end
+		timePoint.visualTime = visualTime
+		timePoint.visualSection = visualSection
+
+		timePoint = timePoint.next
 	end
 end
 
@@ -596,23 +386,6 @@ function DynamicLayerData:removeTimingObject(timePoint, name)
 	self:compute()
 end
 
-function DynamicLayerData:getTempoData(time, ...)
-	return self:getTimingObject(self:getTimePoint(time), "tempo", TempoData, ...)
-end
-function DynamicLayerData:removeTempoData(time)
-	return self:removeTimingObject(self:getTimePoint(time), "tempo")
-end
-
-function DynamicLayerData:getStopData(time, ...)
-	local timePoint = self:getTimePoint(time, 1)
-	local stopData = self:getTimingObject(timePoint, "stop", StopData, ...)
-	stopData.leftTimePoint = self:getTimePoint(timePoint:getPrevTime())  -- for time point interpolation
-	return stopData
-end
-function DynamicLayerData:removeStopData(time)
-	return self:removeTimingObject(self:getTimePoint(time, 1), "stop")
-end
-
 function DynamicLayerData:getVelocityData(timePoint, ...)
 	timePoint = self:checkTimePoint(timePoint)
 	return self:getTimingObject(timePoint, "velocity", VelocityData, ...)
@@ -629,38 +402,6 @@ function DynamicLayerData:getExpandData(timePoint, ...)
 end
 function DynamicLayerData:removeExpandData(timePoint)
 	return self:removeTimingObject(timePoint, "expand")
-end
-
-function DynamicLayerData:getSignatureData(measureOffset, ...)
-	assert(self.signatureMode, "Signature mode should be set")
-	local timePoint = self:getTimePoint(Fraction:new(measureOffset))
-	self:getTimePoint(Fraction:new(measureOffset + 1))  -- for time point interpolation
-	return self:getTimingObject(timePoint, "signature", SignatureData, ...)
-end
-function DynamicLayerData:removeSignatureData(measureOffset)
-	local timePoint = self:getTimePoint(Fraction:new(measureOffset))
-	return self:removeTimingObject(timePoint, "signature")
-end
-
-function DynamicLayerData:getSignature(measureOffset)
-	local mode = self.signatureMode
-	assert(mode, "Signature mode should be set")
-
-	local range = self.ranges.signature
-	local signatureData = range.head
-	if not signatureData or measureOffset < signatureData.timePoint.measureTime:floor() then
-		return self.defaultSignature
-	end
-
-	signatureData = range.tail
-	while signatureData and signatureData >= range.head do
-		local time = signatureData.timePoint.measureTime:floor()
-		if mode == "short" and time == measureOffset or mode == "long" and time <= measureOffset then
-			return signatureData.signature
-		end
-		signatureData = signatureData.prev
-	end
-	return self.defaultSignature
 end
 
 function DynamicLayerData:_getIntervalData(timePoint, ...)
