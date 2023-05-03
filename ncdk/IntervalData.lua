@@ -5,7 +5,7 @@ local mt = {__index = IntervalData}
 function IntervalData:new(beats)
 	local intervalData = {}
 
-	assert(type(beats) == "number" and beats >= 0 and beats % 1 == 0)
+	assert(type(beats) == "number" and beats >= 0 and beats % 1 == 0, "invalid beats: " .. beats)
 	intervalData.beats = beats
 
 	return setmetatable(intervalData, mt)
