@@ -60,6 +60,7 @@ function RangeTracker:fillChange(t)
 	t.last = self.last
 	t.head = self.head
 	t.tail = self.tail
+	t.current = self.current
 end
 
 function RangeTracker:addChange(action, object)
@@ -105,6 +106,7 @@ function RangeTracker:undoChange(change)
 	self.last = before.last
 	self.head = before.head
 	self.tail = before.tail
+	self.current = before.current
 
 	self.changeCursor = self.changeCursor - 1
 end
@@ -127,6 +129,7 @@ function RangeTracker:redoChange(change)
 	self.last = after.last
 	self.head = after.head
 	self.tail = after.tail
+	self.current = after.current
 
 	self.changeCursor = self.changeCursor + 1
 end
@@ -154,6 +157,7 @@ function RangeTracker:fromList(list)
 	self.last = list[#list]
 	self.head = self.first
 	self.tail = self.last
+	self.current = self.head
 	for i = 1, #list do
 		list[i].prev = list[i - 1]
 		list[i].next = list[i + 1]
@@ -170,10 +174,12 @@ function RangeTracker:toList()
 end
 
 function RangeTracker:printRanges()
+	print("count", self.count)
 	print("start", self.head)
 	print("end", self.tail)
 	print("first", self.first)
 	print("last", self.last)
+	print("current", self.current)
 end
 
 function RangeTracker:setRange(startTime, endTime)
@@ -198,6 +204,9 @@ function RangeTracker:getInterp(object)
 	if object == self.last then
 		return self.last, self.last
 	end
+	if object == self.current then
+		return self.current, self.current
+	end
 	if object < self.first then
 		return nil, self.first
 	end
@@ -205,28 +214,35 @@ function RangeTracker:getInterp(object)
 		return self.last, nil
 	end
 
-	local current = self.head
-	while current and current <= self.tail do
-		if object == current then
-			return current, current
-		end
-		local next = current.next
-		if next and object > current and object < next then
-			return current, next
-		end
-		current = next
-	end
+	local current = self.current
 
-	current = self.first
-	while current and current <= self.last do
-		if object == current then
-			return current, current
+	local steps = 0
+	if object > current then
+		while current and current <= self.last do
+			if object == current then
+				return current, current
+			end
+			local next = current.next
+			if next and object > current and object < next then
+				return current, next
+			end
+			current = next
+			self.current = next
+			steps = steps + 1
 		end
-		local next = current.next
-		if next and object > current and object < next then
-			return current, next
+	else
+		while current and current >= self.first do
+			if object == current then
+				return current, current
+			end
+			local prev = current.prev
+			if prev and object > prev and object < current then
+				return prev, current
+			end
+			current = prev
+			self.current = prev
+			steps = steps + 1
 		end
-		current = next
 	end
 end
 
@@ -269,6 +285,7 @@ function RangeTracker:insert(object)
 		self.first = object
 		self.tail = object
 		self.last = object
+		self.current = object
 		self:update()
 		self:fillChange(change.after)
 		return
