@@ -26,7 +26,9 @@ function IntervalData:_end()
 end
 
 function IntervalData:getDuration()
-	return self.next:start() - self:start() + self.beats
+	local duration = self.next:start() - self:start() + self.beats
+	assert(duration[1] > 0, "zero interval duration found: " .. tostring(self) .. ", " .. tostring(self.next))
+	return duration
 end
 
 function IntervalData:getBeatDuration()

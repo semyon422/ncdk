@@ -364,7 +364,6 @@ do
 	assert(tp7:getBeatModulo() == F(0.5))
 end
 
-
 do
 	local nc = NoteChart:new()
 	local ld = nc:getLayerData(1)
@@ -381,4 +380,20 @@ do
 	nc:compute()
 	assert(tp_1:add(F(3.5)) == id3)
 	assert(tp3:add(F(-1.5)) == id2)
+end
+
+do
+	local nc = NoteChart:new()
+	local ld = nc:getLayerData(1)
+	ld:setTimeMode("interval")
+
+	local id1 = ld:insertIntervalData(0, 0)
+	local id2 = ld:insertIntervalData(1, 1)
+
+	local ok, err = pcall(function()
+		nc:compute()
+	end)
+
+	assert(not ok)
+	assert(err:find("zero interval duration found"))
 end
