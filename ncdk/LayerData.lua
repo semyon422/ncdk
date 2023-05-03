@@ -18,30 +18,33 @@ LayerData.primaryTempo = 0
 
 local mt = {__index = LayerData}
 
+local listNames = {
+	"signatureDatas",
+	"tempoDatas",
+	"stopDatas",
+	"velocityDatas",
+	"expandDatas",
+	"intervalDatas",
+	"measureDatas",
+}
 function LayerData:new()
 	local layerData = {}
 
 	layerData.defaultSignature = Fraction:new(4)
 	layerData.signatures = {}
-	layerData.signatureDatas = {}
 	layerData.timePoints = {}
-	layerData.tempoDatas = {}
-	layerData.stopDatas = {}
-	layerData.velocityDatas = {}
-	layerData.expandDatas = {}
-	layerData.intervalDatas = {}
-	layerData.measureDatas = {}
 	layerData.noteDatas = {}
+	for _, name in ipairs(listNames) do
+		layerData[name] = {}
+	end
 
 	return setmetatable(layerData, mt)
 end
 
 function LayerData:compute()
-	table.sort(self.tempoDatas)
-	table.sort(self.stopDatas)
-	table.sort(self.velocityDatas)
-	table.sort(self.intervalDatas)
-	table.sort(self.measureDatas)
+	for _, name in ipairs(listNames) do
+		table.sort(self[name])
+	end
 
 	for _, r in pairs(self.noteDatas) do
 		for _, noteDatas in pairs(r) do
@@ -56,6 +59,32 @@ function LayerData:compute()
 	end
 
 	self:computeTimePoints()
+end
+
+local function isListValid(list)
+	for i = 1, #list - 1 do
+		if list[i] >= list[i + 1] then
+			return false
+		end
+	end
+	return true
+end
+function LayerData:isValid()
+	for _, name in ipairs(listNames) do
+		if not isListValid(self[name]) then
+			return false, name
+		end
+	end
+
+	for inputType, r in pairs(self.noteDatas) do
+		for inputIndex, noteDatas in pairs(r) do
+			if not isListValid(noteDatas) then
+				return false, inputType .. inputIndex
+			end
+		end
+	end
+
+	return true
 end
 
 function LayerData:setTimeMode(mode)

@@ -50,6 +50,25 @@ function DynamicLayerData:init()
 	self.searchTimePoint = self:newTimePoint()
 end
 
+function DynamicLayerData:isValid()
+	local ranges = self.ranges
+	for _, name in ipairs(rangeNames) do
+		if not ranges[name]:isValid() then
+			return false, name
+		end
+	end
+
+	for inputType, d in pairs(ranges.note) do
+		for inputIndex, range in pairs(d) do
+			if not range:isValid() then
+				return false, inputType .. inputIndex
+			end
+		end
+	end
+
+	return true
+end
+
 function DynamicLayerData:getNoteRange(inputType, inputIndex)
 	local ranges = self.ranges.note
 	ranges[inputType] = ranges[inputType] or {}

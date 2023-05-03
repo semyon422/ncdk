@@ -43,6 +43,17 @@ function RangeTracker:new()
 	}, mt)
 end
 
+function RangeTracker:isValid()
+	local current = self.first
+	while current and current.next do
+		if current >= current.next then
+			return false
+		end
+		current = current.next
+	end
+	return true
+end
+
 function RangeTracker:fillChange(t)
 	t.count = self.count
 	t.first = self.first
