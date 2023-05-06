@@ -19,6 +19,11 @@ for _, k in ipairs(ignoredKeys) do
 end
 function TimePoint:clone(timePoint)
 	timePoint = timePoint or TimePoint:new()
+	for k, v in pairs(timePoint) do
+		if not ignoredKeys[k] then
+			timePoint[k] = nil
+		end
+	end
 	for k, v in pairs(self) do
 		if not ignoredKeys[k] then
 			timePoint[k] = v
