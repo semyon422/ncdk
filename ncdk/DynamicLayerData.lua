@@ -198,6 +198,9 @@ function DynamicLayerData:getDynamicTimePoint(...)
 	local t = timePoint:tonumber()
 
 	local a, b = self.ranges.timePoint:getInterp(timePoint)
+	timePoint.prev = a
+	timePoint.next = b
+
 	if not a and not b then
 		return
 	elseif a == b then
@@ -206,11 +209,7 @@ function DynamicLayerData:getDynamicTimePoint(...)
 		local ta, tb = a:tonumber(), b:tonumber()
 		timePoint.absoluteTime = map(t, ta, tb, a.absoluteTime, b.absoluteTime)
 		timePoint.visualTime = map(t, ta, tb, a.visualTime, b.visualTime)
-		timePoint.prev = a
-		timePoint.next = b
 	else
-		timePoint.prev = a and a.prev
-		timePoint.next = b and b.next
 		a = a or b
 
 		local intervalData, nextIntervalData = a.intervalData:getPair()
@@ -243,6 +242,9 @@ function DynamicLayerData:getDynamicTimePointAbsolute(limit, absoluteTime, visua
 	local t = absoluteTime
 
 	local a, b = self.ranges.timePoint:getInterp(timePoint)
+	timePoint.prev = a
+	timePoint.next = b
+
 	if not a and not b then
 		return
 	elseif a == b then
@@ -250,11 +252,7 @@ function DynamicLayerData:getDynamicTimePointAbsolute(limit, absoluteTime, visua
 	elseif a and b then
 		timePoint:fromnumber(a.intervalData, t, limit, a.measureData, true)
 		timePoint.visualTime = map(t, a.absoluteTime, b.absoluteTime, a.visualTime, b.visualTime)
-		timePoint.prev = a
-		timePoint.next = b
-	elseif a or b then
-		timePoint.prev = a and a.prev
-		timePoint.next = b and b.next
+	else
 		a = a or b
 
 		local intervalData, nextIntervalData = a.intervalData:getPair()
