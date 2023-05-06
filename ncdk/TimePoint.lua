@@ -18,6 +18,7 @@ for _, k in ipairs(ignoredKeys) do
 	ignoredKeys[k] = true
 end
 function TimePoint:clone(timePoint)
+	assert(not rawequal(self, timePoint), "not allowed to clone to itself")
 	timePoint = timePoint or TimePoint:new()
 	for k, v in pairs(timePoint) do
 		if not ignoredKeys[k] then
