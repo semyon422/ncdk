@@ -109,10 +109,10 @@ local function isNumbers(a, b)
 		return
 	end
 	if ta then
-		ia = a:tonumber()
+		ia = a.absoluteTime
 	end
 	if tb then
-		ib = b:tonumber()
+		ib = b.absoluteTime
 	end
 	return ia, ib
 end
