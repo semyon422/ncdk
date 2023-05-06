@@ -191,7 +191,9 @@ function RangeTracker:getTime(object)
 	error("not implemented")
 end
 
-function RangeTracker:getInterp(object)
+function RangeTracker:getInterp(object, startObject)
+	local current = startObject or self.current
+
 	if object == self.head then
 		return self.head, self.head
 	end
@@ -204,8 +206,8 @@ function RangeTracker:getInterp(object)
 	if object == self.last then
 		return self.last, self.last
 	end
-	if object == self.current then
-		return self.current, self.current
+	if object == current then
+		return current, current
 	end
 	if object < self.first then
 		return nil, self.first
@@ -214,9 +216,6 @@ function RangeTracker:getInterp(object)
 		return self.last, nil
 	end
 
-	local current = self.current
-
-	local steps = 0
 	if object > current then
 		while current and current <= self.last do
 			if object == current then
@@ -228,7 +227,6 @@ function RangeTracker:getInterp(object)
 			end
 			current = next
 			self.current = next
-			steps = steps + 1
 		end
 	else
 		while current and current >= self.first do
@@ -241,7 +239,6 @@ function RangeTracker:getInterp(object)
 			end
 			current = prev
 			self.current = prev
-			steps = steps + 1
 		end
 	end
 end
