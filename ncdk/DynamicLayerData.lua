@@ -189,23 +189,25 @@ function DynamicLayerData:resetDynamicTimePoint()
 	timePoint.ptr = ptr
 end
 
-function DynamicLayerData:getDynamicTimePoint(...)
+function DynamicLayerData:getDynamicTimePoint(intervalData, time, visualSide, startTimePoint)
 	local timePoint = self.dynamicTimePoint
 
 	self:resetDynamicTimePoint()
-	timePoint:setTime(...)
+	timePoint:setTime(intervalData, time, visualSide)
 
 	local t = timePoint:tonumber()
 
-	local a, b = self.ranges.timePoint:getInterp(timePoint)
-	timePoint.prev = a
-	timePoint.next = b
-
+	local a, b = self.ranges.timePoint:getInterp(timePoint, startTimePoint)
 	if not a and not b then
 		return
 	elseif a == b then
 		return a
-	elseif a and b then
+	end
+
+	timePoint.prev = a
+	timePoint.next = b
+
+	if a and b then
 		local ta, tb = a:tonumber(), b:tonumber()
 		timePoint.absoluteTime = map(t, ta, tb, a.absoluteTime, b.absoluteTime)
 		timePoint.visualTime = map(t, ta, tb, a.visualTime, b.visualTime)
@@ -231,7 +233,7 @@ function DynamicLayerData:getDynamicTimePoint(...)
 	return timePoint
 end
 
-function DynamicLayerData:getDynamicTimePointAbsolute(limit, absoluteTime, visualSide)
+function DynamicLayerData:getDynamicTimePointAbsolute(limit, absoluteTime, visualSide, startTimePoint)
 	assert(limit)
 
 	local timePoint = self.dynamicTimePoint
@@ -241,15 +243,17 @@ function DynamicLayerData:getDynamicTimePointAbsolute(limit, absoluteTime, visua
 
 	local t = absoluteTime
 
-	local a, b = self.ranges.timePoint:getInterp(timePoint)
-	timePoint.prev = a
-	timePoint.next = b
-
+	local a, b = self.ranges.timePoint:getInterp(timePoint, startTimePoint)
 	if not a and not b then
 		return
 	elseif a == b then
 		return a
-	elseif a and b then
+	end
+
+	timePoint.prev = a
+	timePoint.next = b
+
+	if a and b then
 		timePoint:fromnumber(a.intervalData, t, limit, a.measureData, true)
 		timePoint.visualTime = map(t, a.absoluteTime, b.absoluteTime, a.visualTime, b.visualTime)
 	else
@@ -262,6 +266,13 @@ function DynamicLayerData:getDynamicTimePointAbsolute(limit, absoluteTime, visua
 
 		local currentSpeed = a.velocityData and a.velocityData.currentSpeed or 1
 		timePoint.visualTime = a.visualTime + (t - a.absoluteTime) * currentSpeed * tempoMultiplier
+	end
+
+	if timePoint == a then
+		return a
+	end
+	if timePoint == b then
+		return b
 	end
 
 	timePoint.velocityData = a.velocityData
