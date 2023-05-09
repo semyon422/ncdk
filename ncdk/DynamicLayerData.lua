@@ -314,14 +314,6 @@ function DynamicLayerData:compute()
 	local velocityData = ranges.velocity.head
 	local measureData = ranges.measure.head
 
-	local intervalData = ranges.interval.head
-	if not intervalData then
-		return
-	end
-	if not intervalData.next and intervalData.prev then
-		intervalData = intervalData.prev
-	end
-
 	local timePoint = ranges.timePoint.head
 	local endTimePoint = ranges.timePoint.tail
 
@@ -338,15 +330,12 @@ function DynamicLayerData:compute()
 	local visualSection = prevTimePoint.visualSection or 0
 	local currentAbsoluteTime = time
 	while timePoint and timePoint <= endTimePoint do
-		if timePoint._intervalData then
-			intervalData = timePoint._intervalData
-		end
 		if timePoint._measureData then
 			measureData = timePoint._measureData
 		end
 		time = timePoint:tonumber()
 
-		local tempoMultiplier = primaryTempo == 0 and 1 or intervalData:getTempo() / primaryTempo
+		local tempoMultiplier = primaryTempo == 0 and 1 or timePoint.intervalData:getTempo() / primaryTempo
 
 		local currentSpeed = velocityData and velocityData.currentSpeed or 1
 		visualTime = visualTime + (time - currentAbsoluteTime) * currentSpeed * tempoMultiplier
@@ -360,7 +349,7 @@ function DynamicLayerData:compute()
 
 		local expandData = timePoint._expandData
 		if expandData then
-			local duration = intervalData:getBeatDuration() * expandData.duration * currentSpeed
+			local duration = timePoint.intervalData:getBeatDuration() * expandData.duration * currentSpeed
 			if math.abs(duration) == math.huge then
 				visualSection = visualSection + 1
 			else
