@@ -3,6 +3,7 @@ local RangeTracker = {}
 local mt = {__index = RangeTracker}
 
 RangeTracker.count = 0
+RangeTracker.debugChanges = false
 
 local function addAfter(a, b)
 	b.next = nil
@@ -64,7 +65,9 @@ function RangeTracker:fillChange(t)
 end
 
 function RangeTracker:addChange(action, object)
-	print("add", action, object)
+	if self.debugChanges then
+		print("add", action, object)
+	end
 	local offset = self.changeOffset
 	local changes = self.changes
 
@@ -89,7 +92,9 @@ function RangeTracker:resetRedos()
 end
 
 function RangeTracker:undoChange(change)
-	print("undo", change.action, change.object)
+	if self.debugChanges then
+		print("undo", change.action, change.object)
+	end
 	if change.action == "insert" then
 		remove(change.object)
 	elseif change.action == "remove" then
@@ -112,7 +117,9 @@ function RangeTracker:undoChange(change)
 end
 
 function RangeTracker:redoChange(change)
-	print("redo", change.action, change.object)
+	if self.debugChanges then
+		print("redo", change.action, change.object)
+	end
 	if change.action == "insert" then
 		if change.prev then
 			addAfter(change.prev, change.object)
