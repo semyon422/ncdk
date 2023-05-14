@@ -1,29 +1,11 @@
+local rbtree = require("rbtree")
+
 local RangeTracker = {}
 
 local mt = {__index = RangeTracker}
 
 RangeTracker.count = 0
 RangeTracker.debugChanges = false
-
-local function addAfter(a, b)
-	b.next = nil
-	b.prev = a
-	if a.next then
-		b.next = a.next
-		a.next.prev = b
-	end
-	a.next = b
-end
-
-local function addBefore(a, b)
-	a.prev = nil
-	a.next = b
-	if b.prev then
-		a.prev = b.prev
-		b.prev.next = a
-	end
-	b.prev = a
-end
 
 local function cleanObject(a)
 	a.prev, a.next = nil, nil
@@ -36,33 +18,53 @@ local function remove(a)
 	cleanObject(a)
 end
 
+local function insert(a, _prev, _next)
+	cleanObject(a)
+	if _prev then
+		_prev.next = a
+		a.prev = _prev
+	end
+	if _next then
+		_next.prev = a
+		a.next = _next
+	end
+end
+
 function RangeTracker:new()
-	return setmetatable({
+	local tree = rbtree.new()
+
+	local rt = {
 		changes = {},
 		changeCursor = 0,
 		changeOffset = 0,
-	}, mt)
-end
+		tree = tree,
+	}
 
-function RangeTracker:isValid()
-	local current = self.first
-	while current and current.next do
-		if current >= current.next then
-			return false
+	function tree:findsub(key)
+		local y
+		local x = self.root
+		while x and key ~= rt:getTime(x.key) do
+			y = x
+			if key < rt:getTime(x.key) then
+				x = x.left
+			else
+				x = x.right
+			end
 		end
-		current = current.next
+		return x, y
 	end
-	return true
+
+	return setmetatable(rt, mt)
 end
 
-function RangeTracker:fillChange(t)
-	t.count = self.count
-	t.first = self.first
-	t.last = self.last
-	t.head = self.head
-	t.tail = self.tail
-	t.current = self.current
-end
+-- function RangeTracker:fillChange(t)
+-- 	t.count = self.count
+-- 	t.first = self.first
+-- 	t.last = self.last
+-- 	t.head = self.head
+-- 	t.tail = self.tail
+-- 	t.current = self.current
+-- end
 
 function RangeTracker:addChange(action, object)
 	if self.debugChanges then
@@ -75,8 +77,6 @@ function RangeTracker:addChange(action, object)
 		offset = offset,
 		action = action,
 		object = object,
-		before = {},
-		after = {},
 	}
 	table.insert(changes, change)
 	self.changeCursor = #changes
@@ -96,22 +96,16 @@ function RangeTracker:undoChange(change)
 		print("undo", change.action, change.object)
 	end
 	if change.action == "insert" then
+		self.count = self.count - 1
+		assert(self.tree:remove(change.object))
 		remove(change.object)
 	elseif change.action == "remove" then
-		if change.prev then
-			addAfter(change.prev, change.object)
-		elseif change.next then
-			addBefore(change.object, change.next)
-		end
+		self.count = self.count + 1
+		self.tree:insert(change.object)
+		insert(change.object, change.prev, change.next)
 	end
 
-	local before = change.before
-	self.count = before.count
-	self.first = before.first
-	self.last = before.last
-	self.head = before.head
-	self.tail = before.tail
-	self.current = before.current
+	self:update()
 
 	self.changeCursor = self.changeCursor - 1
 end
@@ -121,22 +115,17 @@ function RangeTracker:redoChange(change)
 		print("redo", change.action, change.object)
 	end
 	if change.action == "insert" then
-		if change.prev then
-			addAfter(change.prev, change.object)
-		elseif change.next then
-			addBefore(change.object, change.next)
-		end
+		self.count = self.count + 1
+		local node = self.tree:insert(change.object)
+		local _prev, _next = node:prev(), node:next()
+		insert(node.key, _prev and _prev.key, _next and _next.key)
 	elseif change.action == "remove" then
+		self.count = self.count - 1
+		assert(self.tree:remove(change.object))
 		remove(change.object)
 	end
 
-	local after = change.after
-	self.count = after.count
-	self.first = after.first
-	self.last = after.last
-	self.head = after.head
-	self.tail = after.tail
-	self.current = after.current
+	self:update()
 
 	self.changeCursor = self.changeCursor + 1
 end
@@ -159,34 +148,27 @@ function RangeTracker:syncChanges(newOffset)
 end
 
 function RangeTracker:fromList(list)
-	self.count = #list
-	self.first = list[1]
-	self.last = list[#list]
-	self.head = self.first
-	self.tail = self.last
-	self.current = self.head
+	local tree = self.tree
 	for i = 1, #list do
-		list[i].prev = list[i - 1]
-		list[i].next = list[i + 1]
+		tree:insert(list[i])
 	end
+	local prev_node
+	for node in tree:iter() do
+		if prev_node then
+			prev_node.key.next = node.key
+			node.key.prev = prev_node.key
+		end
+		prev_node = node
+	end
+	self:update()
 end
 
 function RangeTracker:toList()
 	local list, i = {}, 1
-	local object = self.first
-	while object do
-		list[i], object, i = object, object.next, i + 1
+	for node in self.tree:iter() do
+		list[i], i = node.key, i + 1
 	end
 	return list
-end
-
-function RangeTracker:printRanges()
-	print("count", self.count)
-	print("start", self.head)
-	print("end", self.tail)
-	print("first", self.first)
-	print("last", self.last)
-	print("current", self.current)
 end
 
 function RangeTracker:setRange(startTime, endTime)
@@ -198,223 +180,82 @@ function RangeTracker:getTime(object)
 	error("not implemented")
 end
 
-function RangeTracker:getInterp(object, startObject)
-	local current = startObject or self.current
-
-	if object == self.head then
-		return self.head, self.head
-	end
-	if object == self.first then
-		return self.first, self.first
-	end
-	if object == self.tail then
-		return self.tail, self.tail
-	end
-	if object == self.last then
-		return self.last, self.last
-	end
-	if object == current then
-		return current, current
-	end
-	if object < self.first then
-		return nil, self.first
-	end
-	if object > self.last then
-		return self.last, nil
+function RangeTracker:getInterp(object)
+	local a, b = self.tree:find(object)
+	a = a or b
+	if not a then
+		return
 	end
 
-	if object > current then
-		while current and current <= self.last do
-			if object == current then
-				return current, current
-			end
-			local next = current.next
-			if next and object > current and object < next then
-				return current, next
-			end
-			current = next
-			self.current = next
-		end
-	else
-		while current and current >= self.first do
-			if object == current then
-				return current, current
-			end
-			local prev = current.prev
-			if prev and object > prev and object < current then
-				return prev, current
-			end
-			current = prev
-			self.current = prev
-		end
+	local key = a.key
+	if key == object then
+		return key, key
+	elseif object > key then
+		local _next = a:next()
+		return key, _next and _next.key
+	elseif object < key then
+		local _prev = a:prev()
+		return _prev and _prev.key, key
 	end
 end
 
 function RangeTracker:find(object)
-	if not self.head then
-		return
-	end
-
-	local current = self.head
-	while current and current <= self.tail do
-		if object == current then
-			return current
-		end
-		current = current.next
-	end
-
-	local current = self.first
-	while current and current <= self.last do
-		if object == current then
-			return current
-		end
-		current = current.next
-	end
-end
-
-local function assertTime(c)
-	return assert(c, "attempt to get an object out of range")
+	local node = self.tree:find(object)
+	return node and node.key
 end
 
 function RangeTracker:insert(object)
-	local change = self:addChange("insert", object)
-	self:fillChange(change.before)
-	cleanObject(object)
+	local node = self.tree:insert(object)
+	if not node then
+		return
+	end
 
-	local time = assert(self:getTime(object))
+	self:addChange("insert", object)
+
 	self.count = self.count + 1
+	local _prev, _next = node:prev(), node:next()
+	insert(node.key, _prev and _prev.key, _next and _next.key)
 
-	if not self.head then
-		self.head = object
-		self.first = object
-		self.tail = object
-		self.last = object
-		self.current = object
-		self:update()
-		self:fillChange(change.after)
-		return
-	end
-
-	if self.head ~= self.first then
-		assertTime(object > self.head)
-	end
-	if self.tail ~= self.last then
-		assertTime(object < self.tail)
-	end
-
-	if object < self.first then
-		assertTime(time >= self.startTime)
-		addBefore(object, self.first)
-		change.next = self.first
-		self.first = object
-		self:update()
-		self:fillChange(change.after)
-		return
-	end
-	if object > self.last then
-		assertTime(time <= self.endTime)
-		addAfter(self.last, object)
-		change.prev = self.last
-		self.last = object
-		self:update()
-		self:fillChange(change.after)
-		return
-	end
-
-	local current = self.head
-	while current and current <= self.tail do
-		if current == object then
-			-- error here?
-			return
-		end
-		current = current.next
-	end
-
-	local current = self.head
-	while current <= self.tail do
-		local next = current.next
-		if not next or object > current and object < next then
-			addAfter(current, object)
-			change.prev, change.next = object.prev, object.next
-			break
-		end
-		current = next
-	end
 	self:update()
-	self:fillChange(change.after)
 end
 
 function RangeTracker:remove(object)
-	if not self.first then
+	if self.count == 0 then
 		return
 	end
 	local change = self:addChange("remove", object)
-	self:fillChange(change.before)
 	change.prev = object.prev
 	change.next = object.next
 
 	self.count = self.count - 1
-
-	if self.first == self.last then
-		self.head = nil
-		self.first = nil
-		self.tail = nil
-		self.last = nil
-		remove(object)
-		self:fillChange(change.after)
-		return
-	end
-
-	if self.head ~= self.first then
-		assert(object > self.head)
-	end
-	if self.tail ~= self.last then
-		assert(object < self.tail)
-	end
-
-	if object == self.first then self.first = object.next end
-	if object == self.head then self.head = object.next end
-	if object == self.last then self.last = object.prev end
-	if object == self.tail then self.tail = object.prev end
-
+	assert(self.tree:remove(object))
 	remove(object)
 
 	self:update()
-	self:fillChange(change.after)
 end
 
 function RangeTracker:update()
-	local object = self.head
-	if not object then
-		return
+	local a, b = self.tree:findsub(self.startTime)
+	a = a or b
+	if a then
+		self.head = (a:prev() or a).key
+	else
+		self.head = nil
 	end
 
-	while self:getTime(object) >= self.startTime do
-		local prev = object.prev
-		self.head = prev or object
-		if not prev then break end
-		object = prev
-	end
-	while self:getTime(object) < self.startTime do
-		self.head = object
-		local next = object.next
-		if not next or self:getTime(next) >= self.startTime then break end
-		object = next
+	a, b = self.tree:findsub(self.endTime)
+	a = a or b
+	if a then
+		self.tail = (a:next() or a).key
+	else
+		self.tail = nil
 	end
 
-	object = self.tail
-	while self:getTime(object) <= self.endTime do
-		local next = object.next
-		self.tail = next or object
-		if not next then break end
-		object = next
-	end
-	while self:getTime(object) > self.endTime do
-		self.tail = object
-		local prev = object.prev
-		if not prev or self:getTime(prev) <= self.endTime then break end
-		object = prev
-	end
+	a = self.tree:min()
+	self.first = a and a.key
+
+	a = self.tree:max()
+	self.last = a and a.key
 end
 
 return RangeTracker
