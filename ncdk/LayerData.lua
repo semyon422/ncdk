@@ -326,9 +326,11 @@ function LayerData:computeTimePoints()
 					local duration = stopData.duration
 					if not stopData.isAbsolute then
 						duration = tempoData:getBeatDuration() * duration
+						fullBeatTime = fullBeatTime + stopData.duration
+					else
+						fullBeatTime = fullBeatTime + Fraction:new(stopData.duration / tempoData:getBeatDuration(), 192, true)
 					end
 					time = time + duration
-					fullBeatTime = fullBeatTime + stopData.duration
 					if primaryTempo ~= 0 then
 						tempoMultiplier = 0
 					end
