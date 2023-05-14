@@ -738,3 +738,26 @@ do
 	t = ld:getTimePoint(id3, F(2)):sub(ld:getTimePoint(id1, F(-1)))
 	assert(t == F(23))
 end
+
+do
+	local ld = DynamicLayerData:new()
+	ld:setRange(-10, 20)
+
+	local id1 = ld:getIntervalData(0, 10)
+	local id2 = ld:getIntervalData(10, 10)
+
+	local tps = {}
+	for t = -5, 15 do
+		tps[t] = ld:checkTimePoint(ld:getDynamicTimePointAbsolute(1, t))
+	end
+
+	ld:setRange(2, 8)
+
+	ld:uncompute()
+	ld:compute()
+
+	assert(ld.ranges.timePoint.head == tps[1])
+	assert(ld.ranges.timePoint.tail == tps[9])
+
+	assert(table.concat(ld.uncomputedSection, ", ") == "-5, 1, 9, 15")
+end

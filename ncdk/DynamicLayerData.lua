@@ -4,6 +4,7 @@ local IntervalData = require("ncdk.IntervalData")
 local MeasureData = require("ncdk.MeasureData")
 local NoteData = require("ncdk.NoteData")
 local RangeTracker = require("ncdk.RangeTracker")
+local LineSection = require("ncdk.LineSection")
 local IntervalTimePoint = require("ncdk.IntervalTimePoint")
 
 local DynamicLayerData = {}
@@ -48,6 +49,15 @@ function DynamicLayerData:init()
 	self.startTime, self.endTime = 0, 0
 	self.dynamicTimePoint = self:newTimePoint()
 	self.searchTimePoint = self:newTimePoint()
+
+	self.uncomputedSection = LineSection:new()
+end
+
+function DynamicLayerData:uncompute()
+	local a = self.ranges.timePoint.first
+	local b = self.ranges.timePoint.last
+	if not a then return end
+	self.uncomputedSection:add(a:tonumber(), b:tonumber())
 end
 
 function DynamicLayerData:isValid()
@@ -98,6 +108,8 @@ function DynamicLayerData:load(layerData)
 			range:fromList(noteDatas)
 		end
 	end
+
+	self:uncompute()
 end
 
 function DynamicLayerData:save(layerData)
@@ -125,6 +137,7 @@ end
 function DynamicLayerData:setPrimaryTempo(tempo)
 	assert(tempo >= 0, "Wrong primary tempo")
 	self.primaryTempo = tempo
+	self.uncomputedSection:add(self.ranges.timePoint.first:tonumber(), self.ranges.timePoint.last:tonumber())
 	self:compute()
 end
 
@@ -304,12 +317,39 @@ function DynamicLayerData:getTimePoint(...)
 	timePoint:setTime(...)
 
 	self.ranges.timePoint:insert(timePoint)
+	self:uncompute()
 	self:compute()
 
 	return timePoint
 end
 
 function DynamicLayerData:compute()
+	local ranges = self.ranges
+
+	local timePoint = ranges.timePoint.head
+	local endTimePoint = ranges.timePoint.tail
+
+	if not timePoint then
+		return
+	end
+
+	local a, b = timePoint:tonumber(), endTimePoint:tonumber()
+	if not self.uncomputedSection:over(a, b, true) then
+		return
+	end
+	local sections = self.uncomputedSection:intersect(a, b)
+	self.uncomputedSection:sub(a, b)
+
+	for i = 1, #sections, 2 do
+		self:computeByTime(sections[i], sections[i + 1])
+	end
+
+	self:_setRange(self.startTime, self.endTime)
+end
+
+function DynamicLayerData:computeByTime(startTime, endTime)
+	self:_setRange(startTime, endTime)
+
 	local ranges = self.ranges
 	local velocityData = ranges.velocity.head
 	local measureData = ranges.measure.head
@@ -386,6 +426,8 @@ function DynamicLayerData:getTimingObject(timePoint, name, class, ...)
 	object.timePoint = timePoint
 
 	self.ranges[name]:insert(object)
+
+	self:uncompute()
 	self:compute()
 
 	return object
@@ -400,6 +442,7 @@ function DynamicLayerData:removeTimingObject(timePoint, name)
 	timePoint[key] = nil
 	object.timePoint = nil
 
+	self:uncompute()
 	self:compute()
 end
 
@@ -477,6 +520,7 @@ function DynamicLayerData:splitInterval(timePoint)
 		tp = tp[dir]
 	end
 
+	self:uncompute()
 	self:compute()
 	return intervalData
 end
@@ -510,6 +554,9 @@ function DynamicLayerData:mergeInterval(timePoint)
 	end
 
 	self:_removeIntervalData(timePoint)
+
+	self:uncompute()
+	self:compute()
 end
 function DynamicLayerData:moveInterval(intervalData, absoluteTime)
 	if intervalData.timePoint.absoluteTime == absoluteTime then
@@ -526,6 +573,7 @@ function DynamicLayerData:moveInterval(intervalData, absoluteTime)
 		return
 	end
 	intervalData.timePoint.absoluteTime = math.min(math.max(absoluteTime, minTime), maxTime)
+	self:uncompute()
 	self:compute()
 end
 function DynamicLayerData:updateInterval(intervalData, beats)
@@ -551,6 +599,7 @@ function DynamicLayerData:updateInterval(intervalData, beats)
 		end
 	end
 	intervalData.beats = beats
+	self:uncompute()
 	self:compute()
 end
 
