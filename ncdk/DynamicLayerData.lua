@@ -29,7 +29,7 @@ function DynamicLayerData:init()
 		if object.timePoint then
 			object = object.timePoint
 		end
-		return object:tonumber()
+		return object.absoluteTime or object:tonumber()
 	end
 	self.getTime = getTime
 
