@@ -202,7 +202,7 @@ function DynamicLayerData:resetDynamicTimePoint()
 	timePoint.ptr = ptr
 end
 
-function DynamicLayerData:getDynamicTimePoint(intervalData, time, visualSide, startTimePoint)
+function DynamicLayerData:getDynamicTimePoint(intervalData, time, visualSide)
 	local timePoint = self.dynamicTimePoint
 
 	self:resetDynamicTimePoint()
@@ -210,7 +210,7 @@ function DynamicLayerData:getDynamicTimePoint(intervalData, time, visualSide, st
 
 	local t = timePoint:tonumber()
 
-	local a, b = self.ranges.timePoint:getInterp(timePoint, startTimePoint)
+	local a, b = self.ranges.timePoint:getInterp(timePoint)
 	if not a and not b then
 		return
 	elseif a == b then
@@ -246,7 +246,7 @@ function DynamicLayerData:getDynamicTimePoint(intervalData, time, visualSide, st
 	return timePoint
 end
 
-function DynamicLayerData:getDynamicTimePointAbsolute(limit, absoluteTime, visualSide, startTimePoint)
+function DynamicLayerData:getDynamicTimePointAbsolute(limit, absoluteTime, visualSide)
 	assert(limit)
 
 	local timePoint = self.dynamicTimePoint
@@ -256,7 +256,7 @@ function DynamicLayerData:getDynamicTimePointAbsolute(limit, absoluteTime, visua
 
 	local t = absoluteTime
 
-	local a, b = self.ranges.timePoint:getInterp(timePoint, startTimePoint)
+	local a, b = self.ranges.timePoint:getInterp(timePoint)
 	if not a and not b then
 		return
 	elseif a == b then
