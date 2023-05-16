@@ -85,7 +85,9 @@ function Fraction:new(n, d, round)
 	end
 	n, d = _n, _d
 
-	assert(d % 1 == 0 and d ~= 0, ("invalid denominator: %s"):format(d))
+	if d % 1 ~= 0 or d == 0 then
+		error(("invalid denominator: %s"):format(d))
+	end
 
 	if round == true then
 		n = floor(n * d + 0.5)
@@ -93,7 +95,9 @@ function Fraction:new(n, d, round)
 		n, d = closest(n, d)
 	end
 
-	assert(n % 1 == 0, ("invalid numerator: %s"):format(n))
+	if n % 1 ~= 0 then
+		error(("invalid numerator: %s"):format(n))
+	end
 
 	n, d = reduce(n, d)
 	local key = get_key(n, d)
@@ -117,6 +121,18 @@ local function fraction(n, d, decimal)
 		return Fraction:new(n[1], n[2])
 	end
 	return n
+end
+
+local temp_fraction = setmetatable({0, 1}, mt)
+local function _fraction(n)
+	if type(n) == "table" then
+		return n
+	end
+	if n and n % 1 ~= 0 then
+		error(("invalid numerator: %s"):format(n))
+	end
+	temp_fraction[1] = n or 1
+	return temp_fraction
 end
 
 function Fraction:floor()
@@ -162,16 +178,16 @@ local function div(a, b)
 end
 
 function mt.__add(a, b)
-	return type(a) == "number" and a + b:tonumber() or add(a, fraction(b))
+	return type(a) == "number" and a + b:tonumber() or add(a, _fraction(b))
 end
 function mt.__sub(a, b)
-	return type(a) == "number" and a - b:tonumber() or sub(a, fraction(b))
+	return type(a) == "number" and a - b:tonumber() or sub(a, _fraction(b))
 end
 function mt.__mul(a, b)
-	return type(a) == "number" and a * b:tonumber() or mul(a, fraction(b))
+	return type(a) == "number" and a * b:tonumber() or mul(a, _fraction(b))
 end
 function mt.__div(a, b)
-	return type(a) == "number" and a / b:tonumber() or div(a, fraction(b))
+	return type(a) == "number" and a / b:tonumber() or div(a, _fraction(b))
 end
 
 function mt.__eq(a, b)
