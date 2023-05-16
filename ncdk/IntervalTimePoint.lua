@@ -78,7 +78,7 @@ function IntervalTimePoint:tonumber()
 		return id.timePoint.absoluteTime
 	end
 	local ta = a.timePoint.absoluteTime
-	local time = self.time - a:start() + (offset and a.beats or 0)
+	local time = self.time:tonumber() - a:startn() + (offset and a.beats or 0)
 	return ta + a:getBeatDuration() * time
 end
 

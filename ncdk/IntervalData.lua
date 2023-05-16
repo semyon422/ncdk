@@ -21,13 +21,19 @@ function IntervalData:start()
 	return self.timePoint.time % 1
 end
 
+function IntervalData:startn()
+	return self.timePoint.time:tonumber() % 1
+end
+
 function IntervalData:_end()
 	return self.next:start() + self.beats
 end
 
 function IntervalData:getDuration()
-	local duration = self.next:start() - self:start() + self.beats
-	assert(duration[1] > 0, "zero interval duration found: " .. tostring(self) .. ", " .. tostring(self.next))
+	local duration = self.next:startn() - self:startn() + self.beats
+	if duration <= 0 then
+		error("zero interval duration found: " .. tostring(self) .. ", " .. tostring(self.next))
+	end
 	return duration
 end
 

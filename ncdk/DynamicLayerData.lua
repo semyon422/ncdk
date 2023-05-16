@@ -221,7 +221,7 @@ function DynamicLayerData:getDynamicTimePoint(intervalData, time, visualSide)
 	timePoint.next = b
 
 	if a and b then
-		local ta, tb = a:tonumber(), b:tonumber()
+		local ta, tb = a.absoluteTime, b.absoluteTime
 		timePoint.absoluteTime = map(t, ta, tb, a.absoluteTime, b.absoluteTime)
 		timePoint.visualTime = map(t, ta, tb, a.visualTime, b.visualTime)
 	else
@@ -231,7 +231,7 @@ function DynamicLayerData:getDynamicTimePoint(intervalData, time, visualSide)
 		local tempoMultiplier = self.primaryTempo == 0 and 1 or intervalData:getTempo() / self.primaryTempo
 
 		local _a, _b = intervalData.timePoint, nextIntervalData.timePoint
-		local ta, tb = _a:tonumber(), _b:tonumber()
+		local ta, tb = _a.absoluteTime, _b.absoluteTime
 		timePoint.absoluteTime = map(t, ta, tb, _a.absoluteTime, _b.absoluteTime)
 
 		local currentSpeed = a.velocityData and a.velocityData.currentSpeed or 1
