@@ -1,8 +1,13 @@
 local ffi = require("ffi")
+local abs = math.abs
+local floor = math.floor
+local ceil = math.ceil
+local min = math.min
+local max = math.max
 
 local function gcd(a, b)
-	a, b = math.abs(a), math.abs(b)
-	a, b = math.max(a, b), math.min(a, b)
+	a, b = abs(a), abs(b)
+	a, b = max(a, b), min(a, b)
 
 	if a == 1 or b == 1 or a == 0 or b == 0 then
 		return 1
@@ -31,7 +36,7 @@ end
 
 -- https://stackoverflow.com/questions/4385580/finding-the-closest-integer-fraction-to-a-given-random-real-between-0-1-given
 local function closest(R, limit)
-	local int, r = math.floor(R), R - math.floor(R)
+	local int, r = floor(R), R - floor(R)
 
 	local a_num, a_den = 0, 1
 	local b_num, b_den = 1, 1
@@ -83,7 +88,7 @@ function Fraction:new(n, d, round)
 	assert(d % 1 == 0 and d ~= 0, ("invalid denominator: %s"):format(d))
 
 	if round == true then
-		n = math.floor(n * d + 0.5)
+		n = floor(n * d + 0.5)
 	elseif round == false then
 		n, d = closest(n, d)
 	end
@@ -115,11 +120,11 @@ local function fraction(n, d, decimal)
 end
 
 function Fraction:floor()
-	return math.floor(self[1] / self[2])
+	return floor(self[1] / self[2])
 end
 
 function Fraction:ceil()
-	return math.ceil(self[1] / self[2])
+	return ceil(self[1] / self[2])
 end
 
 function Fraction:tonumber()
@@ -127,8 +132,8 @@ function Fraction:tonumber()
 end
 
 function mt.__tostring(a)
-	local n, d = math.abs(a[1]), a[2]
-	return ("%s%d.%d/%d"):format(a[1] < 0 and "-" or "", math.floor(n / d), n % d, d)
+	local n, d = abs(a[1]), a[2]
+	return ("%s%d.%d/%d"):format(a[1] < 0 and "-" or "", floor(n / d), n % d, d)
 end
 
 function mt.__concat(a, b)
