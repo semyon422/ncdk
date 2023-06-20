@@ -35,7 +35,6 @@ function RangeTracker:new()
 	local rt = {
 		changes = {},
 		changeCursor = 0,
-		changeOffset = 0,
 		tree = tree,
 	}
 
@@ -60,7 +59,7 @@ function RangeTracker:addChange(action, object)
 	if self.debugChanges then
 		print("add", action, object)
 	end
-	local offset = self.changeOffset
+	local offset = self:getChangeOffset()
 	local changes = self.changes
 
 	local change = {
@@ -116,8 +115,8 @@ function RangeTracker:redoChange(change)
 	self.changeCursor = self.changeCursor + 1
 end
 
-function RangeTracker:syncChanges(newOffset)
-	self.changeOffset = newOffset
+function RangeTracker:syncChanges()
+	local newOffset = self:getChangeOffset()
 	local changes = self.changes
 
 	local changePrev = changes[self.changeCursor]
@@ -163,6 +162,10 @@ function RangeTracker:setRange(startTime, endTime)
 end
 
 function RangeTracker:getTime(object)
+	error("not implemented")
+end
+
+function RangeTracker:getChangeOffset()
 	error("not implemented")
 end
 

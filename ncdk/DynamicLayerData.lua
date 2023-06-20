@@ -36,11 +36,18 @@ function DynamicLayerData:init()
 
 	local ranges = {}
 	self.ranges = ranges
+	self.changeOffset = 0  -- use global changeOffset because of sync bug when creating new ranges after some changes
+
+	local function getChangeOffset()
+		return self.changeOffset
+	end
+	self.getChangeOffset = getChangeOffset
 
 	for _, name in ipairs(rangeNames) do
 		local range = RangeTracker:new()
 		ranges[name] = range
 		range.getTime = getTime
+		range.getChangeOffset = getChangeOffset
 	end
 
 	ranges.note = {}
@@ -87,6 +94,7 @@ function DynamicLayerData:getNoteRange(inputType, inputIndex)
 		range = RangeTracker:new()
 		ranges[inputType][inputIndex] = range
 		range.getTime = self.getTime
+		range.getChangeOffset = self.getChangeOffset
 		range:setRange(self.startTime, self.endTime)
 	end
 	return range
@@ -164,12 +172,13 @@ function DynamicLayerData:setRange(startTime, endTime)
 end
 
 function DynamicLayerData:syncChanges(offset)
+	self.changeOffset = offset
 	for _, name in ipairs(rangeNames) do
-		self.ranges[name]:syncChanges(offset)
+		self.ranges[name]:syncChanges()
 	end
 	for _, r in pairs(self.ranges.note) do
 		for _, range in pairs(r) do
-			range:syncChanges(offset)
+			range:syncChanges()
 		end
 	end
 end
