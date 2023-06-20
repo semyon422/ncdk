@@ -214,7 +214,7 @@ function DynamicLayerData:getDynamicTimePoint(intervalData, time, visualSide)
 	if not a and not b then
 		return
 	elseif a == b then
-		return a
+		return a:clone(timePoint)
 	end
 
 	timePoint.prev = a
@@ -260,7 +260,9 @@ function DynamicLayerData:getDynamicTimePointAbsolute(limit, absoluteTime, visua
 	if not a and not b then
 		return
 	elseif a == b then
-		return a
+		a:clone(timePoint)
+		timePoint.absoluteTime = absoluteTime
+		return timePoint
 	end
 
 	timePoint.prev = a
@@ -282,10 +284,14 @@ function DynamicLayerData:getDynamicTimePointAbsolute(limit, absoluteTime, visua
 	end
 
 	if timePoint == a then
-		return a
+		a:clone(timePoint)
+		timePoint.absoluteTime = absoluteTime
+		return timePoint
 	end
 	if timePoint == b then
-		return b
+		b:clone(timePoint)
+		timePoint.absoluteTime = absoluteTime
+		return timePoint
 	end
 
 	timePoint.velocityData = a.velocityData
