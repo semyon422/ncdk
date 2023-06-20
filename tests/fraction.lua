@@ -2,6 +2,9 @@ local ncdk = require("ncdk")
 
 local Fraction = ncdk.Fraction
 
+assert(Fraction:new(nil) == Fraction:new(0))
+assert(Fraction:new() + nil == Fraction:new(0))
+
 assert(Fraction(0) == Fraction())
 assert(Fraction:new(0) == Fraction:new())
 assert(Fraction:new(0, 1) == Fraction:new(0, 2))

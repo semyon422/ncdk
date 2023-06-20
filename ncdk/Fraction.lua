@@ -131,7 +131,7 @@ local function _fraction(n)
 	if n and n % 1 ~= 0 then
 		error(("invalid numerator: %s"):format(n))
 	end
-	temp_fraction[1] = n or 1
+	temp_fraction[1] = n or 0
 	return temp_fraction
 end
 
