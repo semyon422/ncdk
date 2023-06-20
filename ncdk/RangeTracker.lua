@@ -4,7 +4,6 @@ local RangeTracker = {}
 
 local mt = {__index = RangeTracker}
 
-RangeTracker.count = 0
 RangeTracker.debugChanges = false
 
 local function cleanObject(a)
@@ -57,15 +56,6 @@ function RangeTracker:new()
 	return setmetatable(rt, mt)
 end
 
--- function RangeTracker:fillChange(t)
--- 	t.count = self.count
--- 	t.first = self.first
--- 	t.last = self.last
--- 	t.head = self.head
--- 	t.tail = self.tail
--- 	t.current = self.current
--- end
-
 function RangeTracker:addChange(action, object)
 	if self.debugChanges then
 		print("add", action, object)
@@ -96,11 +86,9 @@ function RangeTracker:undoChange(change)
 		print("undo", change.action, change.object)
 	end
 	if change.action == "insert" then
-		self.count = self.count - 1
 		assert(self.tree:remove(change.object))
 		remove(change.object)
 	elseif change.action == "remove" then
-		self.count = self.count + 1
 		self.tree:insert(change.object)
 		insert(change.object, change.prev, change.next)
 	end
@@ -115,12 +103,10 @@ function RangeTracker:redoChange(change)
 		print("redo", change.action, change.object)
 	end
 	if change.action == "insert" then
-		self.count = self.count + 1
 		local node = self.tree:insert(change.object)
 		local _prev, _next = node:prev(), node:next()
 		insert(node.key, _prev and _prev.key, _next and _next.key)
 	elseif change.action == "remove" then
-		self.count = self.count - 1
 		assert(self.tree:remove(change.object))
 		remove(change.object)
 	end
@@ -212,7 +198,6 @@ function RangeTracker:insert(object)
 
 	self:addChange("insert", object)
 
-	self.count = self.count + 1
 	local _prev, _next = node:prev(), node:next()
 	insert(node.key, _prev and _prev.key, _next and _next.key)
 
@@ -220,14 +205,10 @@ function RangeTracker:insert(object)
 end
 
 function RangeTracker:remove(object)
-	if self.count == 0 then
-		return
-	end
 	local change = self:addChange("remove", object)
 	change.prev = object.prev
 	change.next = object.next
 
-	self.count = self.count - 1
 	assert(self.tree:remove(object))
 	remove(object)
 
