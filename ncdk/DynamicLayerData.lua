@@ -110,6 +110,7 @@ function DynamicLayerData:load(layerData)
 	ranges.interval:fromList(layerData.intervalDatas)
 	ranges.measure:fromList(layerData.measureDatas)
 
+	ranges.note = {}
 	for inputType, r in pairs(layerData.noteDatas) do
 		for inputIndex, noteDatas in pairs(r) do
 			local range = self:getNoteRange(inputType, inputIndex)
@@ -132,6 +133,8 @@ function DynamicLayerData:save(layerData)
 	for _, timePoint in ipairs(layerData.timePointList) do
 		layerData.timePoints[tostring(timePoint)] = timePoint
 	end
+
+	layerData.noteDatas = {}
 	for inputType, r in pairs(ranges.note) do
 		layerData.noteDatas[inputType] = {}
 		for inputIndex, range in pairs(r) do
