@@ -207,11 +207,9 @@ end
 
 function DynamicLayerData:resetDynamicTimePoint()
 	local timePoint = self.dynamicTimePoint
-	local ptr = timePoint.ptr
 	for k in pairs(timePoint) do
 		timePoint[k] = nil
 	end
-	timePoint.ptr = ptr
 end
 
 function DynamicLayerData:getDynamicTimePoint(intervalData, time, visualSide)
@@ -316,7 +314,7 @@ end
 
 function DynamicLayerData:checkTimePoint(timePoint)
 	local dtp = self.dynamicTimePoint
-	if timePoint.ptr == dtp.ptr then
+	if rawequal(timePoint, dtp) then
 		timePoint = self:getTimePoint(dtp:getTime())
 	end
 	return timePoint
@@ -511,7 +509,7 @@ function DynamicLayerData:splitInterval(timePoint)
 	local tp, dir
 	if time[1] > 0 then
 		local beats = _intervalData.next and _intervalData.beats - _beats or 1
-		if timePoint.ptr == self.dynamicTimePoint.ptr then
+		if rawequal(timePoint, self.dynamicTimePoint) then
 			intervalData = self:getIntervalData(timePoint.absoluteTime, beats, time % 1)
 		else
 			timePoint.readonly = true
@@ -523,7 +521,7 @@ function DynamicLayerData:splitInterval(timePoint)
 		tp = timePoint.next
 		dir = "next"
 	else
-		if timePoint.ptr == self.dynamicTimePoint.ptr then
+		if rawequal(timePoint, self.dynamicTimePoint) then
 			intervalData = self:getIntervalData(timePoint.absoluteTime, -_beats, time % 1)
 		else
 			intervalData = self:_getIntervalData(timePoint, -_beats)

@@ -7,34 +7,24 @@ TimePoint.visualTime = 0
 TimePoint.visualSection = 0
 
 function TimePoint:new()
-	local timePoint = {}
-	timePoint.ptr = tonumber((("%p"):format(timePoint)):sub(3, -1), 16)
 	self.__index = self
-	return setmetatable(timePoint, self)
+	return setmetatable({}, self)
 end
 
-local ignoredKeys = {"ptr"}
-for _, k in ipairs(ignoredKeys) do
-	ignoredKeys[k] = true
-end
 function TimePoint:clone(timePoint)
 	assert(not rawequal(self, timePoint), "not allowed to clone to itself")
 	timePoint = timePoint or TimePoint:new()
 	setmetatable(timePoint, getmetatable(self))
 	for k, v in pairs(timePoint) do
-		if not ignoredKeys[k] then
-			timePoint[k] = nil
-		end
+		timePoint[k] = nil
 	end
 	for k, v in pairs(self) do
-		if not ignoredKeys[k] then
-			timePoint[k] = v
-		end
+		timePoint[k] = v
 	end
 	return timePoint
 end
 
-local uint64_ptr = ffi.new("uint64_t[1]")
+local uint64_ptr = ffi.new("int64_t[1]")
 local double_ptr = ffi.cast("double*", uint64_ptr)
 function TimePoint:getAbsoluteTimeKey()
 	local time = self.absoluteTime
