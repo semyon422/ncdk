@@ -587,10 +587,14 @@ function DynamicLayerData:moveInterval(intervalData, absoluteTime)
 end
 function DynamicLayerData:updateInterval(intervalData, beats)
 	local a, b = intervalData, intervalData.next
-	beats = math.max(beats, 0)
-	assert(math.floor(beats) == beats)
+	if not b then
+		return
+	end
 
-	if not b or beats == a.beats or beats == 0 and a:start() >= b:start() then
+	assert(math.floor(beats) == beats)
+	beats = math.max(beats, a:start() >= b:start() and 1 or 0)
+
+	if beats == a.beats then
 		return
 	end
 
