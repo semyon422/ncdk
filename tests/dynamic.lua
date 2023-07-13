@@ -67,13 +67,15 @@ do
 	assert(ld:getDynamicTimePointAbsolute(192, 22) == tp16_)
 	assert(ld:getDynamicTimePointAbsolute(192, 23))
 
-	assert(ld:getDynamicTimePoint(id1, F(-2)).visualTime == -3)
-	assert(ld:getDynamicTimePoint(id1, F(0)).visualTime == -1)
-	assert(ld:getDynamicTimePoint(id1, F(1)).visualTime == 0)
-	assert(ld:getDynamicTimePoint(id1, F(1.5)).visualTime == 0.5)
-	assert(ld:getDynamicTimePoint(id1, F(5)).visualTime == 4)
-	assert(ld:getDynamicTimePoint(id2, F(0)).visualTime == 10)
-	assert(ld:getDynamicTimePoint(id3, F(4)).visualTime == 28)
+	-- in interval time mode it is not guaranteed that absoluteTime = visualTime = 0
+	local dvt = ld:getDynamicTimePoint(id1, F(-2)).visualTime + 3
+	assert(ld:getDynamicTimePoint(id1, F(-2)).visualTime == -3 + dvt)
+	assert(ld:getDynamicTimePoint(id1, F(0)).visualTime == -1 + dvt)
+	assert(ld:getDynamicTimePoint(id1, F(1)).visualTime == 0 + dvt)
+	assert(ld:getDynamicTimePoint(id1, F(1.5)).visualTime == 0.5 + dvt)
+	assert(ld:getDynamicTimePoint(id1, F(5)).visualTime == 4 + dvt)
+	assert(ld:getDynamicTimePoint(id2, F(0)).visualTime == 10 + dvt)
+	assert(ld:getDynamicTimePoint(id3, F(4)).visualTime == 28 + dvt)
 end
 
 do

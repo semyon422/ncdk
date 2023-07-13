@@ -30,7 +30,7 @@ function DynamicLayerData:init()
 		if object.timePoint then
 			object = object.timePoint
 		end
-		return object.absoluteTime or object:tonumber()
+		return object.absoluteTime
 	end
 	self.getTime = getTime
 
@@ -331,6 +331,7 @@ function DynamicLayerData:getTimePoint(...)
 
 	timePoint = self:newTimePoint()
 	timePoint:setTime(...)
+	timePoint.absoluteTime = timePoint:tonumber()
 
 	self.ranges.timePoint:insert(timePoint)
 	self:uncompute()
@@ -381,15 +382,14 @@ function DynamicLayerData:computeByTime(startTime, endTime)
 
 	-- start with prev time point to be not affected by stops and expands
 	local prevTimePoint = timePoint.prev or timePoint
-	local time = prevTimePoint.absoluteTime or 0
 	local visualTime = prevTimePoint.visualTime or 0
 	local visualSection = prevTimePoint.visualSection or 0
-	local currentAbsoluteTime = time
+	local currentAbsoluteTime = prevTimePoint.absoluteTime or 0
 	while timePoint and timePoint <= endTimePoint do
 		if timePoint._measureData then
 			measureData = timePoint._measureData
 		end
-		time = timePoint:tonumber()
+		local time = timePoint:tonumber()
 
 		local tempoMultiplier = primaryTempo == 0 and 1 or timePoint.intervalData:getTempo() / primaryTempo
 
