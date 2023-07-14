@@ -5,6 +5,7 @@ local RangeTracker = {}
 local mt = {__index = RangeTracker}
 
 RangeTracker.debugChanges = false
+RangeTracker.noHistory = false
 
 local function cleanObject(a)
 	a.prev, a.next = nil, nil
@@ -56,6 +57,9 @@ function RangeTracker:new()
 end
 
 function RangeTracker:addChange(action, object)
+	if self.noHistory then
+		return
+	end
 	if self.debugChanges then
 		print("add", action, object)
 	end
@@ -73,6 +77,11 @@ function RangeTracker:addChange(action, object)
 	return change
 end
 
+function RangeTracker:resetChanges()
+	self.changes = {}
+	self.changeCursor = 0
+end
+
 function RangeTracker:resetRedos()
 	local changes = self.changes
 	for i = self.changeCursor + 1, #changes do
@@ -81,6 +90,9 @@ function RangeTracker:resetRedos()
 end
 
 function RangeTracker:undoChange(change)
+	if self.noHistory then
+		return
+	end
 	if self.debugChanges then
 		print("undo", change.action, change.object)
 	end
@@ -98,6 +110,9 @@ function RangeTracker:undoChange(change)
 end
 
 function RangeTracker:redoChange(change)
+	if self.noHistory then
+		return
+	end
 	if self.debugChanges then
 		print("redo", change.action, change.object)
 	end
@@ -116,6 +131,9 @@ function RangeTracker:redoChange(change)
 end
 
 function RangeTracker:syncChanges()
+	if self.noHistory then
+		return
+	end
 	local newOffset = self:getChangeOffset()
 	local changes = self.changes
 
@@ -205,17 +223,23 @@ function RangeTracker:insert(object)
 	insert(node.key, _prev and _prev.key, _next and _next.key)
 
 	self:update()
+
+	return object
 end
 
 function RangeTracker:remove(object)
 	local change = self:addChange("remove", object)
-	change.prev = object.prev
-	change.next = object.next
+	if change then
+		change.prev = object.prev
+		change.next = object.next
+	end
 
 	assert(self.tree:remove(object))
 	remove(object)
 
 	self:update()
+
+	return object
 end
 
 function RangeTracker:update()

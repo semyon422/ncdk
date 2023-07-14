@@ -48,6 +48,7 @@ function DynamicLayerData:init()
 		ranges[name] = range
 		range.getTime = getTime
 		range.getChangeOffset = getChangeOffset
+		range.noHistory = true
 	end
 
 	ranges.note = {}
@@ -193,6 +194,17 @@ function DynamicLayerData:resetRedos()
 	for _, r in pairs(self.ranges.note) do
 		for _, range in pairs(r) do
 			range:resetRedos()
+		end
+	end
+end
+
+function DynamicLayerData:resetChanges()
+	for _, name in ipairs(rangeNames) do
+		self.ranges[name]:resetChanges()
+	end
+	for _, r in pairs(self.ranges.note) do
+		for _, range in pairs(r) do
+			range:resetChanges()
 		end
 	end
 end
@@ -451,7 +463,10 @@ end
 
 function DynamicLayerData:removeTimingObject(timePoint, name)
 	local key = "_" .. name .. "Data"
-	local object = assert(timePoint[key], name .. " not found")
+	local object = timePoint[key]
+	if not object then
+		return
+	end
 
 	self.ranges[name]:remove(object)
 
@@ -607,13 +622,39 @@ function DynamicLayerData:updateInterval(intervalData, beats)
 		local rightTimePoint = b.timePoint
 		local tp = rightTimePoint.prev
 		while tp and tp ~= _a and tp.time >= b:start() + beats do
-			self.ranges.timePoint:remove(tp)
+			self:removeTimePoint(tp)
 			tp = rightTimePoint.prev
 		end
 	end
 	intervalData.beats = beats
 	self:uncompute()
 	self:compute()
+end
+
+function DynamicLayerData:removeTimePoint(timePoint)
+	self.ranges.timePoint:remove(timePoint)
+	self:removeTimingObject(timePoint, "measure")
+	self:removeTimingObject(timePoint, "interval")
+	self:removeTimingObject(timePoint, "expand")
+	self:removeTimingObject(timePoint, "velocity")
+
+	for _, r in pairs(self.ranges.note) do
+		for _, range in pairs(r) do
+			local node = range.tree:findsub(timePoint.absoluteTime)
+			if node then
+				local noteData = node.key
+				range:remove(noteData)
+				if noteData.startNoteData then
+					range:remove(noteData.startNoteData)
+				end
+				if noteData.endNoteData then
+					range:remove(noteData.endNoteData)
+				end
+			end
+		end
+	end
+
+	self:resetChanges()
 end
 
 function DynamicLayerData:getMeasureData(timePoint, ...)
@@ -632,8 +673,7 @@ end
 
 function DynamicLayerData:addNoteData(noteData, inputType, inputIndex)
 	local range = self:getNoteRange(inputType, inputIndex)
-	range:insert(noteData)
-	return noteData
+	return range:insert(noteData)
 end
 
 function DynamicLayerData:removeNoteData(noteData, inputType, inputIndex)

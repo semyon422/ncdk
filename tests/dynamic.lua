@@ -763,3 +763,19 @@ do
 
 	assert(table.concat(ld.uncomputedSection, ", ") == "-5, 1, 9, 15")
 end
+
+do
+	local ld = DynamicLayerData:new()
+	ld:setRange(-10, 20)
+
+	local id1 = ld:getIntervalData(0, 10)
+	local id2 = ld:getIntervalData(10, 10)
+
+	local tp = ld:getTimePoint(id1, F(8))
+
+	assert(ld.ranges.timePoint:find(tp))
+
+	ld:updateInterval(id1, 5)
+
+	assert(not ld.ranges.timePoint:find(tp))
+end
