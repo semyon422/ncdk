@@ -155,21 +155,21 @@ function RangeTracker:fromList(list)
 	for i = 1, #list do
 		tree:insert(list[i])
 	end
-	local prev_node
-	for node in tree:iter() do
-		if prev_node then
-			prev_node.key.next = node.key
-			node.key.prev = prev_node.key
+	local prev_key
+	for _, key in tree:iter() do
+		if prev_key then
+			prev_key.next = key
+			key.prev = prev_key
 		end
-		prev_node = node
+		prev_key = key
 	end
 	self:update()
 end
 
 function RangeTracker:toList()
 	local list, i = {}, 1
-	for node in self.tree:iter() do
-		list[i], i = node.key, i + 1
+	for _, key in self.tree:iter() do
+		list[i], i = key, i + 1
 	end
 	return list
 end
