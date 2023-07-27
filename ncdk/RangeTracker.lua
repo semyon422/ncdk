@@ -39,20 +39,6 @@ function RangeTracker:new()
 		tree = tree,
 	}
 
-	function tree:findsub(key)
-		local y
-		local x = self.root
-		while x and key ~= rt:getTime(x.key) do
-			y = x
-			if key < rt:getTime(x.key) then
-				x = x.left
-			else
-				x = x.right
-			end
-		end
-		return x, y
-	end
-
 	return setmetatable(rt, mt)
 end
 
@@ -179,11 +165,11 @@ function RangeTracker:setRange(startTime, endTime)
 	self:update()
 end
 
-function RangeTracker:getTime(object)
+function RangeTracker.getTime(object)
 	error("not implemented")
 end
 
-function RangeTracker:getChangeOffset()
+function RangeTracker.getChangeOffset()
 	error("not implemented")
 end
 
@@ -243,7 +229,7 @@ function RangeTracker:remove(object)
 end
 
 function RangeTracker:update()
-	local a, b = self.tree:findsub(self.startTime)
+	local a, b = self.tree:findex(self.startTime, self.getTime)
 	a = a or b
 	if a then
 		self.head = (a:prev() or a).key
@@ -251,7 +237,7 @@ function RangeTracker:update()
 		self.head = nil
 	end
 
-	a, b = self.tree:findsub(self.endTime)
+	a, b = self.tree:findex(self.endTime, self.getTime)
 	a = a or b
 	if a then
 		self.tail = (a:next() or a).key

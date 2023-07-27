@@ -26,7 +26,7 @@ end
 
 local rangeNames = {"timePoint", "velocity", "expand", "interval", "measure"}
 function DynamicLayerData:init()
-	local function getTime(_, object)
+	local function getTime(object)
 		if object.timePoint then
 			object = object.timePoint
 		end
@@ -638,9 +638,13 @@ function DynamicLayerData:removeTimePoint(timePoint)
 	self:removeTimingObject(timePoint, "expand")
 	self:removeTimingObject(timePoint, "velocity")
 
+	local function ex(key)
+		return key.timePoint
+	end
+
 	for _, r in pairs(self.ranges.note) do
 		for _, range in pairs(r) do
-			local node = range.tree:findsub(timePoint.absoluteTime)
+			local node = range.tree:findex(timePoint, ex)
 			if node then
 				local noteData = node.key
 				range:remove(noteData)

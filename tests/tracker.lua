@@ -34,12 +34,12 @@ do
 	local rt = RangeTracker:new()
 	rt:setRange(0, 10)
 
-	function rt:getTime(object)
+	function rt.getTime(object)
 		return object[1]
 	end
 
 	local changes = 0
-	function rt:getChangeOffset()
+	function rt.getChangeOffset()
 		return changes
 	end
 	local function sync(offset)
@@ -92,12 +92,12 @@ do
 	local rt = RangeTracker:new()
 	rt:setRange(0, 10)
 
-	function rt:getTime(object)
+	function rt.getTime(object)
 		return object[1]
 	end
 
 	local changes = 0
-	function rt:getChangeOffset()
+	function rt.getChangeOffset()
 		return changes
 	end
 	local function sync(offset)
@@ -136,10 +136,10 @@ do
 	local changes = 0
 	for i = 1, 4 do
 		local rt = RangeTracker:new()
-		function rt:getTime(object)
+		function rt.getTime(object)
 			return object[1]
 		end
-		function rt:getChangeOffset()
+		function rt.getChangeOffset()
 			return changes
 		end
 		rt:setRange(0, 10)
