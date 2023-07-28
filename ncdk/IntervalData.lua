@@ -43,7 +43,7 @@ function IntervalData:getBeatDuration()
 		return math.huge
 	end
 	local _a, _b = a.timePoint, b.timePoint
-	return (_b.absoluteTime - _a.absoluteTime) / self:getDuration()
+	return (_b.absoluteTime - _a.absoluteTime) / a:getDuration()
 end
 
 function IntervalData:getTempo()
