@@ -1,6 +1,6 @@
 local TimePoint = require("ncdk.TimePoint")
 
-local MeasureTimePoint = TimePoint:new()
+local MeasureTimePoint = TimePoint + {}
 
 MeasureTimePoint.side = 0
 MeasureTimePoint.visualSide = 0

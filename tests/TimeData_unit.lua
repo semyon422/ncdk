@@ -6,7 +6,7 @@ local function F(n)
 end
 
 do
-	local ld = LayerData:new()
+	local ld = LayerData()
 	ld:setTimeMode("measure")
 
 	ld:insertTempoData(F(0), 60)
@@ -32,7 +32,7 @@ do
 end
 
 do
-	local ld = LayerData:new()
+	local ld = LayerData()
 	ld:setTimeMode("measure")
 
 	ld:insertTempoData(F(0), 60)
@@ -61,7 +61,7 @@ do
 end
 
 do
-	local ld = LayerData:new()
+	local ld = LayerData()
 	ld:setTimeMode("measure")
 
 	ld:insertTempoData(F(0.5), 60)
@@ -100,7 +100,7 @@ do
 end
 
 do
-	local ld = LayerData:new()
+	local ld = LayerData()
 	ld:setTimeMode("measure")
 	ld:insertTempoData(F(0), 60)
 

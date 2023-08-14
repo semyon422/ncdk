@@ -1,9 +1,9 @@
 local TimePoint = require("ncdk.TimePoint")
 local Fraction = require("ncdk.Fraction")
 
-local IntervalTimePoint = TimePoint:new()
+local IntervalTimePoint = TimePoint + {}
 
-IntervalTimePoint.time = Fraction:new(0)
+IntervalTimePoint.time = Fraction(0)
 IntervalTimePoint.visualSide = 0
 
 function IntervalTimePoint:setTime(intervalData, time, visualSide)
@@ -90,7 +90,7 @@ function IntervalTimePoint:fromnumber(id, t, limit, measureData, round)
 		a = b
 	end
 	local measureOffset = measureData and measureData.timePoint.time - measureData.start or 0
-	time = Fraction:new(time - measureOffset, limit, not not round) + measureOffset
+	time = Fraction(time - measureOffset, limit, not not round) + measureOffset
 	if not offset and time == a:_end() then
 		time = b:start()
 		a = b

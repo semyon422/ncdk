@@ -1,13 +1,9 @@
-local SignatureData = {}
+local class = require("class")
 
-local mt = {__index = SignatureData}
+local SignatureData = class()
 
 function SignatureData:new(signature)
-	local expandData = {}
-
-	expandData.signature = signature
-
-	return setmetatable(expandData, mt)
+	self:set(signature)
 end
 
 function SignatureData:set(signature)
@@ -16,17 +12,17 @@ function SignatureData:set(signature)
 	return _signature ~= signature
 end
 
-function mt.__tostring(a)
+function SignatureData.__tostring(a)
 	return tostring(a.timePoint) .. "," .. a.signature
 end
 
-function mt.__eq(a, b)
+function SignatureData.__eq(a, b)
 	return a.timePoint == b.timePoint
 end
-function mt.__lt(a, b)
+function SignatureData.__lt(a, b)
 	return a.timePoint < b.timePoint
 end
-function mt.__le(a, b)
+function SignatureData.__le(a, b)
 	return a.timePoint <= b.timePoint
 end
 

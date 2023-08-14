@@ -1,19 +1,15 @@
 local ffi = require("ffi")
 local bit = require("bit")
+local class = require("class")
 
-local TimePoint = {}
+local TimePoint = class()
 
 TimePoint.visualTime = 0
 TimePoint.visualSection = 0
 
-function TimePoint:new()
-	self.__index = self
-	return setmetatable({}, self)
-end
-
 function TimePoint:clone(timePoint)
 	assert(not rawequal(self, timePoint), "not allowed to clone to itself")
-	timePoint = timePoint or TimePoint:new()
+	timePoint = timePoint or TimePoint()
 	setmetatable(timePoint, getmetatable(self))
 	for k, v in pairs(timePoint) do
 		timePoint[k] = nil

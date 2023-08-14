@@ -1,14 +1,10 @@
-local StopData = {}
+local class = require("class")
 
-local mt = {__index = StopData}
+local StopData = class()
 
 function StopData:new(duration, isAbsolute)
-	local stopData = {}
-
-	stopData.duration = duration
-	stopData.isAbsolute = isAbsolute
-
-	return setmetatable(stopData, mt)
+	self.duration = duration
+	self.isAbsolute = isAbsolute
 end
 
 function StopData:set(duration)
@@ -17,17 +13,17 @@ function StopData:set(duration)
 	return _duration ~= duration
 end
 
-function mt.__tostring(a)
+function StopData.__tostring(a)
 	return tostring(a.timePoint) .. "," .. a.duration
 end
 
-function mt.__eq(a, b)
+function StopData.__eq(a, b)
 	return a.timePoint == b.timePoint
 end
-function mt.__lt(a, b)
+function StopData.__lt(a, b)
 	return a.timePoint < b.timePoint
 end
-function mt.__le(a, b)
+function StopData.__le(a, b)
 	return a.timePoint <= b.timePoint
 end
 

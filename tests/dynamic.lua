@@ -7,7 +7,7 @@ local function F(n)
 end
 
 do
-	local ld = DynamicLayerData:new()
+	local ld = DynamicLayerData()
 	ld:setRange(-10, 20)
 
 	local id = ld:getIntervalData(0, 10)
@@ -25,7 +25,7 @@ do
 end
 
 do
-	local ld = DynamicLayerData:new()
+	local ld = DynamicLayerData()
 	ld:setRange(-10, 30)
 
 	local id1 = ld:getIntervalData(-1, 11)
@@ -79,7 +79,7 @@ do
 end
 
 do
-	local ld = DynamicLayerData:new()
+	local ld = DynamicLayerData()
 	ld:setRange(-10, 30)
 
 	local id1 = ld:getIntervalData(0, 10)
@@ -131,7 +131,7 @@ do
 end
 
 do
-	local ld = DynamicLayerData:new()
+	local ld = DynamicLayerData()
 	ld:setRange(-10, 30)
 
 	local id1 = ld:getIntervalData(0, 10)
@@ -231,7 +231,7 @@ do
 end
 
 do
-	local ld = DynamicLayerData:new()
+	local ld = DynamicLayerData()
 	ld:setRange(-10, 30)
 
 	local id1 = ld:getIntervalData(0, 10)
@@ -257,7 +257,7 @@ do
 end
 
 do
-	local ld = DynamicLayerData:new()
+	local ld = DynamicLayerData()
 	ld:setRange(-1, 2)
 
 	local id1 = ld:getIntervalData(0, 10)
@@ -274,7 +274,7 @@ do
 end
 
 do
-	local ld = DynamicLayerData:new()
+	local ld = DynamicLayerData()
 	ld:setRange(-1, 2)
 
 	local id1 = ld:getIntervalData(0, 10)
@@ -290,7 +290,7 @@ do
 end
 
 do
-	local ld = DynamicLayerData:new()
+	local ld = DynamicLayerData()
 	ld:setRange(-1, 2)
 
 	local id1 = ld:getIntervalData(0, 10)
@@ -305,7 +305,7 @@ do
 end
 
 do
-	local ld = DynamicLayerData:new()
+	local ld = DynamicLayerData()
 	ld:setRange(-1, 2)
 
 	local id1 = ld:getIntervalData(0, 10)
@@ -325,7 +325,7 @@ do
 end
 
 do
-	local ld = DynamicLayerData:new()
+	local ld = DynamicLayerData()
 	ld:setRange(-1, 1)
 
 	local id1 = ld:getIntervalData(0, 10)
@@ -336,7 +336,7 @@ do
 end
 
 do
-	local ld = DynamicLayerData:new()
+	local ld = DynamicLayerData()
 	ld:setRange(-10, 20)
 
 	local id1 = ld:getIntervalData(0, 10)
@@ -356,7 +356,7 @@ do
 end
 
 do
-	local ld = LayerData:new()
+	local ld = LayerData()
 	ld:setTimeMode("interval")
 
 	local id1 = ld:insertIntervalData(0, 10)
@@ -366,7 +366,7 @@ do
 	ld:compute()
 	assert(tp1.absoluteTime == 5)
 
-	local dld = DynamicLayerData:new(ld)
+	local dld = DynamicLayerData(ld)
 	dld:setRange(-10, 20)
 
 	local tp2 = dld:getTimePoint(id1, F(6))
@@ -374,7 +374,7 @@ do
 end
 
 do
-	local ld = DynamicLayerData:new()
+	local ld = DynamicLayerData()
 	ld:setRange(-10, 30)
 
 	local id1 = ld:getIntervalData(0.25, 9, F(0.25))
@@ -399,7 +399,7 @@ do
 end
 
 do
-	local ld = DynamicLayerData:new()
+	local ld = DynamicLayerData()
 	ld:setRange(-10, 30)
 
 	local id1 = ld:getIntervalData(0.25, 9, F(0.25))
@@ -461,7 +461,7 @@ do
 end
 
 do
-	local ld = DynamicLayerData:new()
+	local ld = DynamicLayerData()
 	ld:setRange(-10, 30)
 
 	local id1 = ld:getIntervalData(0.25, 9, F(0.25))
@@ -560,7 +560,7 @@ do
 end
 
 do
-	local ld = DynamicLayerData:new()
+	local ld = DynamicLayerData()
 	ld:setRange(-10, 30)
 
 	local id1 = ld:getIntervalData(0, 10)
@@ -573,7 +573,7 @@ do
 end
 
 do
-	local ld = DynamicLayerData:new()
+	local ld = DynamicLayerData()
 	ld:setRange(-10, 30)
 
 	local id1 = ld:getIntervalData(0, 10)
@@ -597,7 +597,7 @@ do
 end
 
 do
-	local ld = DynamicLayerData:new()
+	local ld = DynamicLayerData()
 	ld:setRange(-10, 30)
 
 	local id1 = ld:getIntervalData(0, 10)
@@ -615,7 +615,7 @@ do
 end
 
 do
-	local ld = DynamicLayerData:new()
+	local ld = DynamicLayerData()
 	ld:setRange(-10, 30)
 
 	local id1 = ld:getIntervalData(0, 10)
@@ -638,7 +638,7 @@ do
 end
 
 do
-	local ld = DynamicLayerData:new()
+	local ld = DynamicLayerData()
 	ld:setRange(-10, 30)
 
 	local id1 = ld:getIntervalData(0.5, 1, F(0.5))
@@ -649,7 +649,7 @@ do
 end
 
 do
-	local ld = DynamicLayerData:new()
+	local ld = DynamicLayerData()
 	ld:setRange(-10, 30)
 
 	local id1 = ld:getIntervalData(0.5, 1, F(0.5))
@@ -660,7 +660,7 @@ do
 end
 
 do
-	local ld = DynamicLayerData:new()
+	local ld = DynamicLayerData()
 	ld:setRange(-10, 30)
 
 	local id1 = ld:getIntervalData(0.5, 1, F(0.5))
@@ -671,7 +671,7 @@ do
 end
 
 do
-	local ld = DynamicLayerData:new()
+	local ld = DynamicLayerData()
 	ld:setRange(-10, 30)
 
 	local id1 = ld:getIntervalData(0.5, 1, F(0.5))
@@ -682,7 +682,7 @@ do
 end
 
 do
-	local ld = DynamicLayerData:new()
+	local ld = DynamicLayerData()
 	ld:setRange(-10, 30)
 
 	local id1 = ld:getIntervalData(0, 10)
@@ -718,7 +718,7 @@ do
 end
 
 do
-	local ld = DynamicLayerData:new()
+	local ld = DynamicLayerData()
 	ld:setRange(-10, 30)
 
 	local id1 = ld:getIntervalData(0, 10)
@@ -742,7 +742,7 @@ do
 end
 
 do
-	local ld = DynamicLayerData:new()
+	local ld = DynamicLayerData()
 	ld:setRange(-10, 20)
 
 	local id1 = ld:getIntervalData(0, 10)
@@ -765,7 +765,7 @@ do
 end
 
 do
-	local ld = DynamicLayerData:new()
+	local ld = DynamicLayerData()
 	ld:setRange(-10, 20)
 
 	local id1 = ld:getIntervalData(0, 10)

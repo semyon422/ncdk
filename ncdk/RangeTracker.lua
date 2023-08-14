@@ -1,8 +1,7 @@
 local rbtree = require("rbtree")
+local class = require("class")
 
-local RangeTracker = {}
-
-local mt = {__index = RangeTracker}
+local RangeTracker = class()
 
 RangeTracker.debugChanges = false
 RangeTracker.noHistory = false
@@ -31,15 +30,9 @@ local function insert(a, _prev, _next)
 end
 
 function RangeTracker:new()
-	local tree = rbtree.new()
-
-	local rt = {
-		changes = {},
-		changeCursor = 0,
-		tree = tree,
-	}
-
-	return setmetatable(rt, mt)
+	self.changes = {}
+	self.changeCursor = 0
+	self.tree = rbtree.new()
 end
 
 function RangeTracker:addChange(action, object)

@@ -1,6 +1,6 @@
 local TimePoint = require("ncdk.TimePoint")
 
-local AbsoluteTimePoint = TimePoint:new()
+local AbsoluteTimePoint = TimePoint + {}
 
 AbsoluteTimePoint.visualSide = 0
 

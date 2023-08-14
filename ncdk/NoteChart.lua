@@ -1,20 +1,14 @@
+local class = require("class")
 local InputMode = require("ncdk.InputMode")
 local ResourceList = require("ncdk.ResourceList")
 local LayerData = require("ncdk.LayerData")
 
-local NoteChart = {}
-
-local mt = {__index = NoteChart}
+local NoteChart = class()
 
 function NoteChart:new()
-	local noteChart = {}
-
-	noteChart.layerDatas = {}
-
-	noteChart.inputMode = InputMode:new()
-	noteChart.resourceList = ResourceList:new()
-
-	return setmetatable(noteChart, mt)
+	self.layerDatas = {}
+	self.inputMode = InputMode()
+	self.resourceList = ResourceList()
 end
 
 function NoteChart:getInputIterator()
@@ -36,7 +30,7 @@ function NoteChart:getLayerData(i)
 
 	if not layerDatas[i] then
 		assert(i == #layerDatas + 1)
-		layerDatas[i] = LayerData:new()
+		layerDatas[i] = LayerData()
 		layerDatas[i].noteChart = self
 	end
 

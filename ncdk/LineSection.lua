@@ -1,8 +1,9 @@
-local LineSection = {}
-local mt = {__index = LineSection}
+local class = require("class")
+
+local LineSection = class()
 
 function LineSection:new()
-	return setmetatable({data = {}}, mt)
+	self.data = {}
 end
 
 local function objs_sort(a, b)
@@ -79,7 +80,7 @@ function LineSection:over(a, b, exclusive)
 end
 
 function LineSection:intersect(c, d)
-	local ls = LineSection:new()
+	local ls = LineSection()
 	for i = 1, #self, 2 do
 		local a, b = self[i], self[i + 1]
 		local f, g = max(a, c), min(b, d)

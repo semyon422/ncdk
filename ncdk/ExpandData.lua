@@ -1,13 +1,9 @@
-local ExpandData = {}
+local class = require("class")
 
-local mt = {__index = ExpandData}
+local ExpandData = class()
 
 function ExpandData:new(duration)
-	local expandData = {}
-
-	expandData.duration = duration
-
-	return setmetatable(expandData, mt)
+	self:set(duration)
 end
 
 function ExpandData:set(duration)
@@ -16,17 +12,17 @@ function ExpandData:set(duration)
 	return _duration ~= duration
 end
 
-function mt.__tostring(a)
+function ExpandData.__tostring(a)
 	return tostring(a.timePoint) .. "," .. a.duration
 end
 
-function mt.__eq(a, b)
+function ExpandData.__eq(a, b)
 	return a.timePoint == b.timePoint
 end
-function mt.__lt(a, b)
+function ExpandData.__lt(a, b)
 	return a.timePoint < b.timePoint
 end
-function mt.__le(a, b)
+function ExpandData.__le(a, b)
 	return a.timePoint <= b.timePoint
 end
 

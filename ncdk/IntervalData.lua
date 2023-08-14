@@ -1,14 +1,10 @@
-local IntervalData = {}
+local class = require("class")
 
-local mt = {__index = IntervalData}
+local IntervalData = class()
 
 function IntervalData:new(beats)
-	local intervalData = {}
-
 	assert(type(beats) == "number" and beats >= 0 and beats % 1 == 0, "invalid beats: " .. beats)
-	intervalData.beats = beats
-
-	return setmetatable(intervalData, mt)
+	self.beats = beats
 end
 
 function IntervalData:set(beats)
@@ -63,19 +59,19 @@ function IntervalData:getPair()
 	return p, a, true
 end
 
-function mt.__tostring(a)
+function IntervalData.__tostring(a)
 	local time = a.timePoint:getAbsoluteTimeKey()
 	return time .. "," .. a:start() .. "+" .. a.beats
 end
 
 -- prevent stackoverflow
-function mt.__eq(a, b)
+function IntervalData.__eq(a, b)
 	return a.timePoint.absoluteTime == b.timePoint.absoluteTime
 end
-function mt.__lt(a, b)
+function IntervalData.__lt(a, b)
 	return a.timePoint.absoluteTime < b.timePoint.absoluteTime
 end
-function mt.__le(a, b)
+function IntervalData.__le(a, b)
 	return a.timePoint.absoluteTime <= b.timePoint.absoluteTime
 end
 

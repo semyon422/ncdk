@@ -1,13 +1,9 @@
-local TempoData = {}
+local class = require("class")
 
-local mt = {__index = TempoData}
+local TempoData = class()
 
 function TempoData:new(tempo)
-	local tempoData = {}
-
-	tempoData.tempo = tempo
-
-	return setmetatable(tempoData, mt)
+	self:set(tempo)
 end
 
 function TempoData:set(tempo)
@@ -20,17 +16,17 @@ function TempoData:getBeatDuration()
 	return 60 / self.tempo
 end
 
-function mt.__tostring(a)
+function TempoData.__tostring(a)
 	return tostring(a.timePoint) .. "," .. a.tempo
 end
 
-function mt.__eq(a, b)
+function TempoData.__eq(a, b)
 	return a.timePoint == b.timePoint
 end
-function mt.__lt(a, b)
+function TempoData.__lt(a, b)
 	return a.timePoint < b.timePoint
 end
-function mt.__le(a, b)
+function TempoData.__le(a, b)
 	return a.timePoint <= b.timePoint
 end
 

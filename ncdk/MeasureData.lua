@@ -1,13 +1,12 @@
+local class = require("class")
 local Fraction = require("ncdk.Fraction")
 
-local MeasureData = {}
+local MeasureData = class()
 
-local mt = {__index = MeasureData}
-
-MeasureData.start = Fraction:new(0)
+MeasureData.start = Fraction(0)
 
 function MeasureData:new(start)
-	return setmetatable({start = start}, mt)
+	self:set(start)
 end
 
 function MeasureData:set(start)
@@ -16,17 +15,17 @@ function MeasureData:set(start)
 	return _start ~= start
 end
 
-function mt.__tostring(a)
+function MeasureData.__tostring(a)
 	return tostring(a.timePoint) .. "," .. a.start
 end
 
-function mt.__eq(a, b)
+function MeasureData.__eq(a, b)
 	return a.timePoint == b.timePoint
 end
-function mt.__lt(a, b)
+function MeasureData.__lt(a, b)
 	return a.timePoint < b.timePoint
 end
-function mt.__le(a, b)
+function MeasureData.__le(a, b)
 	return a.timePoint <= b.timePoint
 end
 

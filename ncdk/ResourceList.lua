@@ -1,10 +1,6 @@
-local ResourceList = {}
+local class = require("class")
 
-local mt = {__index = ResourceList}
-
-function ResourceList:new()
-	return setmetatable({}, mt)
-end
+local ResourceList = class()
 
 function ResourceList:add(type, name, sequence)
 	self[type] = self[type] or {}

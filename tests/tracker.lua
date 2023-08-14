@@ -1,22 +1,21 @@
 local RangeTracker = require("ncdk.RangeTracker")
+local class = require("class")
 
-local TestObject = {}
-
-local mt = {__index = TestObject}
+local TestObject = class()
 
 function TestObject:new(t)
-	return setmetatable({t}, mt)
+	self[1] = t
 end
-function mt.__tostring(a)
+function TestObject.__tostring(a)
 	return tostring(a[1])
 end
-function mt.__eq(a, b)
+function TestObject.__eq(a, b)
 	return a[1] == b[1]
 end
-function mt.__lt(a, b)
+function TestObject.__lt(a, b)
 	return a[1] < b[1]
 end
-function mt.__le(a, b)
+function TestObject.__le(a, b)
 	return a[1] <= b[1]
 end
 
@@ -26,12 +25,12 @@ local function obj(t)
 	if _obj then
 		return _obj
 	end
-	objs[t] = TestObject:new(t)
+	objs[t] = TestObject(t)
 	return objs[t]
 end
 
 do
-	local rt = RangeTracker:new()
+	local rt = RangeTracker()
 	rt:setRange(0, 10)
 
 	function rt.getTime(object)
@@ -89,7 +88,7 @@ do
 end
 
 do
-	local rt = RangeTracker:new()
+	local rt = RangeTracker()
 	rt:setRange(0, 10)
 
 	function rt.getTime(object)
@@ -135,7 +134,7 @@ do
 	local rts = {}
 	local changes = 0
 	for i = 1, 4 do
-		local rt = RangeTracker:new()
+		local rt = RangeTracker()
 		function rt.getTime(object)
 			return object[1]
 		end

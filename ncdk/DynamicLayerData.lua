@@ -1,3 +1,4 @@
+local class = require("class")
 local VelocityData = require("ncdk.VelocityData")
 local ExpandData = require("ncdk.ExpandData")
 local IntervalData = require("ncdk.IntervalData")
@@ -7,21 +8,16 @@ local RangeTracker = require("ncdk.RangeTracker")
 local LineSection = require("ncdk.LineSection")
 local IntervalTimePoint = require("ncdk.IntervalTimePoint")
 
-local DynamicLayerData = {}
+local DynamicLayerData = class()
 
 DynamicLayerData.primaryTempo = 0
 DynamicLayerData.minBeatDuration = 60 / 1000
 
-local mt = {__index = DynamicLayerData}
 function DynamicLayerData:new(ld)
-	local layerData = setmetatable({}, mt)
-
-	layerData:init()
+	self:init()
 	if ld then
-		layerData:load(ld)
+		self:load(ld)
 	end
-
-	return layerData
 end
 
 local rangeNames = {"timePoint", "velocity", "expand", "interval", "measure"}
@@ -44,7 +40,7 @@ function DynamicLayerData:init()
 	self.getChangeOffset = getChangeOffset
 
 	for _, name in ipairs(rangeNames) do
-		local range = RangeTracker:new()
+		local range = RangeTracker()
 		ranges[name] = range
 		range.getTime = getTime
 		range.getChangeOffset = getChangeOffset
@@ -58,7 +54,7 @@ function DynamicLayerData:init()
 	self.dynamicTimePoint = self:newTimePoint()
 	self.searchTimePoint = self:newTimePoint()
 
-	self.uncomputedSection = LineSection:new()
+	self.uncomputedSection = LineSection()
 end
 
 function DynamicLayerData:uncompute()
@@ -92,7 +88,7 @@ function DynamicLayerData:getNoteRange(inputType, inputIndex)
 	ranges[inputType] = ranges[inputType] or {}
 	local range = ranges[inputType][inputIndex]
 	if not range then
-		range = RangeTracker:new()
+		range = RangeTracker()
 		ranges[inputType][inputIndex] = range
 		range.getTime = self.getTime
 		range.getChangeOffset = self.getChangeOffset
@@ -210,7 +206,7 @@ function DynamicLayerData:resetChanges()
 end
 
 function DynamicLayerData:newTimePoint()
-	return IntervalTimePoint:new()
+	return IntervalTimePoint()
 end
 
 local function map(x, a, b, c, d)
@@ -448,7 +444,7 @@ function DynamicLayerData:getTimingObject(timePoint, name, class, ...)
 		return object
 	end
 
-	object = class:new(...)
+	object = class(...)
 
 	timePoint[key] = object
 	object.timePoint = timePoint
@@ -671,7 +667,7 @@ end
 
 function DynamicLayerData:getNoteData(timePoint, inputType, inputIndex)
 	timePoint = self:checkTimePoint(timePoint)
-	local noteData = NoteData:new(timePoint)
+	local noteData = NoteData(timePoint)
 	return self:addNoteData(noteData, inputType, inputIndex)
 end
 

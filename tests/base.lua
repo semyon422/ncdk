@@ -7,7 +7,7 @@ local function F(n)
 end
 
 do
-	local nc = NoteChart:new()
+	local nc = NoteChart()
 	local ld = nc:getLayerData(1)
 	ld:setTimeMode("measure")
 
@@ -16,14 +16,14 @@ do
 	ld:insertTempoData(F(0), 60)
 	ld:insertVelocityData(tp, 1)
 
-	local nd = NoteData:new(tp)
+	local nd = NoteData(tp)
 	ld:addNoteData(nd, "key", 1)
 
 	nc:compute()
 end
 
 do
-	local nc = NoteChart:new()
+	local nc = NoteChart()
 	local ld = nc:getLayerData(1)
 	ld:setTimeMode("measure")
 
@@ -58,7 +58,7 @@ do
 end
 
 do
-	local nc = NoteChart:new()
+	local nc = NoteChart()
 	local ld = nc:getLayerData(1)
 	ld:setTimeMode("measure")
 
@@ -96,12 +96,12 @@ do
 end
 
 do
-	local nc = NoteChart:new()
+	local nc = NoteChart()
 	local ld = nc:getLayerData(1)
 	ld:setTimeMode("measure")
 	ld:setSignatureMode("short")
 
-	local mt = Fraction:new(0)
+	local mt = Fraction(0)
 
 	ld:insertTempoData(mt, 60)
 	ld:setSignature(1, Fraction:new(8))
@@ -122,12 +122,12 @@ do
 end
 
 do
-	local nc = NoteChart:new()
+	local nc = NoteChart()
 	local ld = nc:getLayerData(1)
 	ld:setTimeMode("measure")
 	ld:setSignatureMode("long")
 
-	local mt = Fraction:new(0)
+	local mt = Fraction(0)
 
 	ld:insertTempoData(mt, 60)
 	ld:setSignature(1, Fraction:new(8))
@@ -148,7 +148,7 @@ do
 end
 
 do
-	local nc = NoteChart:new()
+	local nc = NoteChart()
 	local ld = nc:getLayerData(1)
 	ld:setTimeMode("measure")
 	ld:setSignatureMode("long")
@@ -173,7 +173,7 @@ do
 end
 
 do
-	local nc = NoteChart:new()
+	local nc = NoteChart()
 	local ld = nc:getLayerData(1)
 	ld:setTimeMode("absolute")
 	ld:setSignatureMode("long")
@@ -198,7 +198,7 @@ do
 end
 
 do
-	local nc = NoteChart:new()
+	local nc = NoteChart()
 	local ld = nc:getLayerData(1)
 	ld:setTimeMode("absolute")
 	ld:setSignatureMode("long")
@@ -231,7 +231,7 @@ do
 end
 
 do
-	local nc = NoteChart:new()
+	local nc = NoteChart()
 	local ld = nc:getLayerData(1)
 	ld:setTimeMode("interval")
 
@@ -260,7 +260,7 @@ do
 end
 
 do
-	local nc = NoteChart:new()
+	local nc = NoteChart()
 	local ld = nc:getLayerData(1)
 	ld:setTimeMode("interval")
 
@@ -291,7 +291,7 @@ do
 end
 
 do
-	local nc = NoteChart:new()
+	local nc = NoteChart()
 	local ld = nc:getLayerData(1)
 	ld:setTimeMode("interval")
 
@@ -307,7 +307,7 @@ do
 end
 
 do
-	local nc = NoteChart:new()
+	local nc = NoteChart()
 	local ld = nc:getLayerData(1)
 	ld:setTimeMode("interval")
 
@@ -326,7 +326,7 @@ do
 end
 
 do
-	local nc = NoteChart:new()
+	local nc = NoteChart()
 	local ld = nc:getLayerData(1)
 	ld:setTimeMode("interval")
 
@@ -365,7 +365,7 @@ do
 end
 
 do
-	local nc = NoteChart:new()
+	local nc = NoteChart()
 	local ld = nc:getLayerData(1)
 	ld:setTimeMode("interval")
 
@@ -383,7 +383,7 @@ do
 end
 
 do
-	local nc = NoteChart:new()
+	local nc = NoteChart()
 	local ld = nc:getLayerData(1)
 	ld:setTimeMode("interval")
 

@@ -1,11 +1,11 @@
-local NoteChart		= require("ncdk.NoteChart")
-local VelocityData	= require("ncdk.VelocityData")
-local StopData		= require("ncdk.StopData")
-local TempoData		= require("ncdk.TempoData")
-local NoteData		= require("ncdk.NoteData")
-local Fraction		= require("ncdk.Fraction")
+local NoteChart = require("ncdk.NoteChart")
+local VelocityData = require("ncdk.VelocityData")
+local StopData = require("ncdk.StopData")
+local TempoData = require("ncdk.TempoData")
+local NoteData = require("ncdk.NoteData")
+local Fraction = require("ncdk.Fraction")
 
-local noteChart = NoteChart:new()
+local noteChart = NoteChart()
 
 local layerData1 = noteChart:getLayerData(1)
 layerData1:setTimeMode("measure")
@@ -33,7 +33,7 @@ local timePoint1 = layerData1:getTimePoint(
 
 layerData1:insertVelocityData(layerData1:getTimePoint(Fraction:new(0)), 1)
 
-local noteData1 = NoteData:new(timePoint1)
+local noteData1 = NoteData(timePoint1)
 layerData1:addNoteData(noteData1, "key", 1)
 
 -- not related to ncdk

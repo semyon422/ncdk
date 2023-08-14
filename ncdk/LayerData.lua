@@ -1,3 +1,4 @@
+local class = require("class")
 local Fraction = require("ncdk.Fraction")
 local TimePoint = require("ncdk.TimePoint")
 local TempoData = require("ncdk.TempoData")
@@ -12,11 +13,9 @@ local IntervalTimePoint = require("ncdk.IntervalTimePoint")
 local MeasureTimePoint = require("ncdk.MeasureTimePoint")
 local NoteData = require("ncdk.NoteData")
 
-local LayerData = {}
+local LayerData = class()
 
 LayerData.primaryTempo = 0
-
-local mt = {__index = LayerData}
 
 local listNames = {
 	"signatureDatas",
@@ -28,17 +27,13 @@ local listNames = {
 	"measureDatas",
 }
 function LayerData:new()
-	local layerData = {}
-
-	layerData.defaultSignature = Fraction:new(4)
-	layerData.signatures = {}
-	layerData.timePoints = {}
-	layerData.noteDatas = {}
+	self.defaultSignature = Fraction(4)
+	self.signatures = {}
+	self.timePoints = {}
+	self.noteDatas = {}
 	for _, name in ipairs(listNames) do
-		layerData[name] = {}
+		self[name] = {}
 	end
-
-	return setmetatable(layerData, mt)
 end
 
 function LayerData:compute()
@@ -93,7 +88,7 @@ function LayerData:setTimeMode(mode)
 	if mode == "absolute" then
 		time = 0
 	elseif mode == "measure" then
-		time = Fraction:new(0)
+		time = Fraction(0)
 	elseif mode == "interval" then
 		return
 	else
@@ -115,11 +110,11 @@ end
 function LayerData:newTimePoint()
 	local mode = assert(self.mode, "Mode should be set")
 	if mode == "absolute" then
-		return AbsoluteTimePoint:new()
+		return AbsoluteTimePoint()
 	elseif mode == "measure" then
-		return MeasureTimePoint:new()
+		return MeasureTimePoint()
 	elseif mode == "interval" then
-		return IntervalTimePoint:new()
+		return IntervalTimePoint()
 	end
 end
 
@@ -268,8 +263,8 @@ function LayerData:computeTimePoints()
 	local primaryTempo = self.primaryTempo
 
 	local time = 0
-	local beatTime = Fraction:new(0)
-	local fullBeatTime = Fraction:new(0)
+	local beatTime = Fraction(0)
+	local fullBeatTime = Fraction(0)
 	local visualTime = 0
 	local visualSection = 0
 	local currentTime = timePoint.measureTime
@@ -279,7 +274,7 @@ function LayerData:computeTimePoints()
 		if isMeasure then
 			local measureOffset = currentTime:floor()
 
-			local targetTime = Fraction:new(measureOffset + 1)
+			local targetTime = Fraction(measureOffset + 1)
 			if timePoint.measureTime < targetTime then
 				targetTime = timePoint.measureTime
 			end
@@ -385,8 +380,8 @@ function LayerData:computeTimePoints()
 	if not zeroTimePoint then
 		zeroTimePoint = self:newTimePoint()
 		zeroTimePoint.absoluteTime = 0
-		zeroTimePoint.beatTime = Fraction:new(0)
-		zeroTimePoint.fullBeatTime = Fraction:new(0)
+		zeroTimePoint.beatTime = Fraction(0)
+		zeroTimePoint.fullBeatTime = Fraction(0)
 		zeroTimePoint.visualTime = 0
 		zeroTimePoint.visualSection = 0
 		self:interpolateTimePointAbsolute(1, zeroTimePoint)
@@ -407,7 +402,7 @@ function LayerData:computeTimePoints()
 end
 
 function LayerData:insertTimingObject(timePoint, name, class, ...)
-	local object = class:new(...)
+	local object = class(...)
 	table.insert(self[name .. "s"], object)
 
 	assert(not timePoint["_" .. name])

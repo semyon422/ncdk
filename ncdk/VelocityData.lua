@@ -1,19 +1,13 @@
-local VelocityData = {}
+local class = require("class")
 
-local mt = {__index = VelocityData}
+local VelocityData = class()
 
 VelocityData.currentSpeed = 1
 VelocityData.localSpeed = 1
 VelocityData.globalSpeed = 1
 
 function VelocityData:new(currentSpeed, localSpeed, globalSpeed)
-	local velocityData = {}
-
-	velocityData.currentSpeed = currentSpeed
-	velocityData.localSpeed = localSpeed
-	velocityData.globalSpeed = globalSpeed
-
-	return setmetatable(velocityData, mt)
+	self:set(currentSpeed, localSpeed, globalSpeed)
 end
 
 function VelocityData:set(currentSpeed, localSpeed, globalSpeed)
@@ -24,17 +18,17 @@ function VelocityData:set(currentSpeed, localSpeed, globalSpeed)
 	return _currentSpeed ~= currentSpeed
 end
 
-function mt.__tostring(a)
+function VelocityData.__tostring(a)
 	return ("%s,%s,%s,%s"):format(a.timePoint, a.currentSpeed, a.localSpeed, a.globalSpeed)
 end
 
-function mt.__eq(a, b)
+function VelocityData.__eq(a, b)
 	return a.timePoint == b.timePoint
 end
-function mt.__lt(a, b)
+function VelocityData.__lt(a, b)
 	return a.timePoint < b.timePoint
 end
-function mt.__le(a, b)
+function VelocityData.__le(a, b)
 	return a.timePoint <= b.timePoint
 end
 

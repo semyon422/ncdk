@@ -1,12 +1,10 @@
-local InputMode = {}
+local class = require("class")
 
-local mt = {__index = InputMode}
+local InputMode = class()
 
 function InputMode:new(s)
-	return setmetatable({}, mt):set(s)
+	self:set(s)
 end
-
-setmetatable(InputMode, {__call = InputMode.new})
 
 function InputMode:set(s)
 	if type(s) == "string" then
@@ -60,7 +58,7 @@ function InputMode:getInputMap()
 	return map
 end
 
-function mt.__tostring(a)
+function InputMode.__tostring(a)
 	local inputs = a:getList()
 
 	for i = #inputs * 2, 1, -2 do
@@ -72,15 +70,15 @@ function mt.__tostring(a)
 	return table.concat(inputs)
 end
 
-function mt.__concat(a, b)
+function InputMode.__concat(a, b)
 	return tostring(a) .. tostring(b)
 end
 
-function mt.__eq(a, b)
+function InputMode.__eq(a, b)
 	return tostring(a) == tostring(b)
 end
 
-function mt.__le(a, b)
+function InputMode.__le(a, b)
 	for inputType, inputCount in pairs(a) do
 		if b[inputType] ~= inputCount then
 			return
