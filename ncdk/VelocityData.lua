@@ -8,16 +8,16 @@ VelocityData.currentSpeed = 1
 VelocityData.localSpeed = 1
 VelocityData.globalSpeed = 1
 
----@param currentSpeed number
----@param localSpeed number
----@param globalSpeed number
+---@param currentSpeed number?
+---@param localSpeed number?
+---@param globalSpeed number?
 function VelocityData:new(currentSpeed, localSpeed, globalSpeed)
 	self:set(currentSpeed, localSpeed, globalSpeed)
 end
 
----@param currentSpeed number
----@param localSpeed number
----@param globalSpeed number
+---@param currentSpeed number?
+---@param localSpeed number?
+---@param globalSpeed number?
 ---@return boolean
 function VelocityData:set(currentSpeed, localSpeed, globalSpeed)
 	local _currentSpeed = self.currentSpeed
