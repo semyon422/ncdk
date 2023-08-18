@@ -114,7 +114,7 @@ function IntervalTimePoint:tonumber()
 end
 
 ---@param id ncdk.IntervalData
----@param t ncdk.Fraction
+---@param t number
 ---@param limit number
 ---@param measureData ncdk.MeasureData?
 ---@param round boolean?

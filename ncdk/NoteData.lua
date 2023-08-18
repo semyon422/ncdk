@@ -13,7 +13,7 @@ end
 
 ---@return ncdk.NoteData
 function NoteData:clone()
-	local noteData = NoteData()
+	local noteData = setmetatable({}, NoteData)
 	for k, v in pairs(self) do
 		noteData[k] = v
 	end

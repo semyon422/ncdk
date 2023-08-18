@@ -91,7 +91,7 @@ end
 ---@operator call: ncdk.Fraction
 local Fraction = class()
 
----@param n number?
+---@param n number|table?
 ---@param d number?
 ---@param round boolean?
 ---@return ncdk.Fraction
@@ -193,8 +193,9 @@ function Fraction.__concat(a, b)
 end
 
 ---@param a ncdk.Fraction
+---@param _ ncdk.Fraction
 ---@return ncdk.Fraction
-function Fraction.__unm(a)
+function Fraction.__unm(a, _)
 	return fraction(-a[1], a[2])
 end
 

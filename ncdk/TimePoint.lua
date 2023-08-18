@@ -9,7 +9,7 @@ local TimePoint = class()
 TimePoint.visualTime = 0
 TimePoint.visualSection = 0
 
----@param timePoint ncdk.TimePoint
+---@param timePoint ncdk.TimePoint?
 ---@return ncdk.TimePoint
 function TimePoint:clone(timePoint)
 	assert(not rawequal(self, timePoint), "not allowed to clone to itself")

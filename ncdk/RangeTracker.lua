@@ -22,8 +22,8 @@ local function remove(a)
 end
 
 ---@param a table
----@param _prev table
----@param _next table
+---@param _prev table?
+---@param _next table?
 local function insert(a, _prev, _next)
 	cleanObject(a)
 	if _prev then

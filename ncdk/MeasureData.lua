@@ -7,9 +7,9 @@ local MeasureData = class()
 
 MeasureData.start = Fraction(0)
 
----@param start ncdk.Fraction
+---@param start ncdk.Fraction?
 function MeasureData:new(start)
-	self:set(start)
+	self.start = start
 end
 
 ---@param start ncdk.Fraction
