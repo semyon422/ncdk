@@ -51,7 +51,14 @@ function NoteChart:compute()
 	end
 end
 
-function NoteChart:getResourceIterator(...) return self.resourceList:getIterator(...) end
-function NoteChart:addResource(...) return self.resourceList:add(...) end
+---@return function
+function NoteChart:getResourceIterator()
+	return self.resourceList:getIterator()
+end
+
+---@param type string
+---@param name string
+---@param sequence table
+function NoteChart:addResource(type, name, sequence) self.resourceList:add(type, name, sequence) end
 
 return NoteChart

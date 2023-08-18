@@ -150,7 +150,7 @@ end
 
 local temp_fraction = setmetatable({0, 1}, Fraction)
 
----@param n number|table
+---@param n number|table?
 ---@return ncdk.Fraction
 local function _fraction(n)
 	if type(n) == "table" then
@@ -233,29 +233,29 @@ local function div(a, b)
 	return fraction(a[1] * b[2], a[2] * b[1])
 end
 
----@param a number|ncdk.Fraction
----@param b number|ncdk.Fraction
+---@param a number|ncdk.Fraction?
+---@param b number|ncdk.Fraction?
 ---@return number|ncdk.Fraction
 function Fraction.__add(a, b)
 	return type(a) == "number" and a + b:tonumber() or add(a, _fraction(b))
 end
 
----@param a number|ncdk.Fraction
----@param b number|ncdk.Fraction
+---@param a number|ncdk.Fraction?
+---@param b number|ncdk.Fraction?
 ---@return number|ncdk.Fraction
 function Fraction.__sub(a, b)
 	return type(a) == "number" and a - b:tonumber() or sub(a, _fraction(b))
 end
 
----@param a number|ncdk.Fraction
----@param b number|ncdk.Fraction
+---@param a number|ncdk.Fraction?
+---@param b number|ncdk.Fraction?
 ---@return number|ncdk.Fraction
 function Fraction.__mul(a, b)
 	return type(a) == "number" and a * b:tonumber() or mul(a, _fraction(b))
 end
 
----@param a number|ncdk.Fraction
----@param b number|ncdk.Fraction
+---@param a number|ncdk.Fraction?
+---@param b number|ncdk.Fraction?
 ---@return number|ncdk.Fraction
 function Fraction.__div(a, b)
 	return type(a) == "number" and a / b:tonumber() or div(a, _fraction(b))
