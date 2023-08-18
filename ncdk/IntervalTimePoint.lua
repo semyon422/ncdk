@@ -1,11 +1,17 @@
 local TimePoint = require("ncdk.TimePoint")
 local Fraction = require("ncdk.Fraction")
 
+---@class ncdk.IntervalTimePoint
+---@operator call: ncdk.IntervalTimePoint
 local IntervalTimePoint = TimePoint + {}
 
 IntervalTimePoint.time = Fraction(0)
 IntervalTimePoint.visualSide = 0
 
+---@param intervalData number|ncdk.IntervalData
+---@param time ncdk.Fraction?
+---@param visualSide number?
+---@return ncdk.IntervalTimePoint
 function IntervalTimePoint:setTime(intervalData, time, visualSide)
 	self.intervalData = intervalData
 	self.time = time
@@ -13,6 +19,9 @@ function IntervalTimePoint:setTime(intervalData, time, visualSide)
 	return self
 end
 
+---@param time number
+---@param visualSide number?
+---@return ncdk.IntervalTimePoint
 function IntervalTimePoint:setTimeAbsolute(time, visualSide)
 	assert(type(time) == "number")
 	self.absoluteTime = time
@@ -22,14 +31,21 @@ function IntervalTimePoint:setTimeAbsolute(time, visualSide)
 	return self
 end
 
+---@return number|ncdk.IntervalData
+---@return ncdk.Fraction
+---@return number
 function IntervalTimePoint:getTime()
 	return self.intervalData, self.time, self.visualSide
 end
 
+---@return number|ncdk.IntervalData
+---@return ncdk.Fraction
+---@return number
 function IntervalTimePoint:getPrevVisualTime()
 	return self.intervalData, self.time, self.visualSide - 1
 end
 
+---@return ncdk.Fraction
 function IntervalTimePoint:getBeatModulo()
 	local measureData = self.measureData
 	if not measureData then
@@ -38,6 +54,10 @@ function IntervalTimePoint:getBeatModulo()
 	return (self.time - measureData.timePoint.time + measureData.start) % 1
 end
 
+---@param intervalData ncdk.IntervalData
+---@param time ncdk.Fraction
+---@return ncdk.IntervalData
+---@return ncdk.Fraction
 local function add(intervalData, time)
 	if intervalData.next and time >= intervalData:_end() then
 		time = time - intervalData.beats
@@ -51,10 +71,18 @@ local function add(intervalData, time)
 	return intervalData, time
 end
 
+---@param duration ncdk.Fraction
+---@return ncdk.IntervalData
+---@return ncdk.Fraction
 function IntervalTimePoint:add(duration)
 	return add(self.intervalData, self.time + duration)
 end
 
+---@param id1 ncdk.IntervalData
+---@param t1 ncdk.Fraction
+---@param id2 ncdk.IntervalData
+---@param t2 ncdk.Fraction
+---@return ncdk.Fraction
 local function sub(id1, t1, id2, t2)
 	if id1 > id2 then
 		return sub(id1.prev, t1 + id1.prev.beats, id2, t2)
@@ -64,10 +92,13 @@ local function sub(id1, t1, id2, t2)
 	return t1 - t2
 end
 
+---@param timePoint ncdk.TimePoint
+---@return ncdk.Fraction
 function IntervalTimePoint:sub(timePoint)
 	return sub(self.intervalData, self.time, timePoint.intervalData, timePoint.time)
 end
 
+---@return number
 function IntervalTimePoint:tonumber()
 	local id = self.intervalData
 	if type(id) == "number" then
@@ -82,6 +113,11 @@ function IntervalTimePoint:tonumber()
 	return ta + a:getBeatDuration() * time
 end
 
+---@param id ncdk.IntervalData
+---@param t ncdk.Fraction
+---@param limit number
+---@param measureData ncdk.MeasureData?
+---@param round boolean?
 function IntervalTimePoint:fromnumber(id, t, limit, measureData, round)
 	local a, b, offset = id:getPair()
 	local time = (t - a.timePoint.absoluteTime) / a:getBeatDuration() + a:start()
@@ -98,10 +134,16 @@ function IntervalTimePoint:fromnumber(id, t, limit, measureData, round)
 	self:setTime(a, time)
 end
 
+---@param a ncdk.IntervalTimePoint
+---@return string
 function IntervalTimePoint.__tostring(a)
 	return ("(%s,%s,%s)"):format(a.intervalData, a.time, a.visualSide)
 end
 
+---@param a ncdk.IntervalTimePoint
+---@param b ncdk.IntervalTimePoint
+---@return number?
+---@return number?
 local function isNumbers(a, b)
 	local ia, ib = a.intervalData, b.intervalData
 	local ta, tb = type(ia) == "table", type(ib) == "table"
@@ -117,6 +159,9 @@ local function isNumbers(a, b)
 	return ia, ib
 end
 
+---@param a ncdk.IntervalTimePoint
+---@param b ncdk.IntervalTimePoint
+---@return boolean
 function IntervalTimePoint.__eq(a, b)
 	local na, nb = isNumbers(a, b)
 	if na then
@@ -125,6 +170,10 @@ function IntervalTimePoint.__eq(a, b)
 	na, nb = a.intervalData, b.intervalData
 	return na == nb and a.time == b.time and a.visualSide == b.visualSide
 end
+
+---@param a ncdk.IntervalTimePoint
+---@param b ncdk.IntervalTimePoint
+---@return boolean
 function IntervalTimePoint.__lt(a, b)
 	local na, nb = isNumbers(a, b)
 	if na then
@@ -133,6 +182,10 @@ function IntervalTimePoint.__lt(a, b)
 	na, nb = a.intervalData, b.intervalData
 	return na < nb or na == nb and a.time < b.time or na == nb and a.time == b.time and a.visualSide < b.visualSide
 end
+
+---@param a ncdk.IntervalTimePoint
+---@param b ncdk.IntervalTimePoint
+---@return boolean
 function IntervalTimePoint.__le(a, b)
 	local na, nb = isNumbers(a, b)
 	if na then

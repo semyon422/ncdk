@@ -8,11 +8,14 @@ local RangeTracker = require("ncdk.RangeTracker")
 local LineSection = require("ncdk.LineSection")
 local IntervalTimePoint = require("ncdk.IntervalTimePoint")
 
+---@class ncdk.DynamicLayerData
+---@operator call: ncdk.DynamicLayerData
 local DynamicLayerData = class()
 
 DynamicLayerData.primaryTempo = 0
 DynamicLayerData.minBeatDuration = 60 / 1000
 
+---@param ld ncdk.LayerData
 function DynamicLayerData:new(ld)
 	self:init()
 	if ld then
@@ -64,6 +67,8 @@ function DynamicLayerData:uncompute()
 	self.uncomputedSection:add(a:tonumber(), b:tonumber())
 end
 
+---@return boolean
+---@return string?
 function DynamicLayerData:isValid()
 	local ranges = self.ranges
 	for _, name in ipairs(rangeNames) do
@@ -83,6 +88,9 @@ function DynamicLayerData:isValid()
 	return true
 end
 
+---@param inputType string
+---@param inputIndex number
+---@return ncdk.RangeTracker
 function DynamicLayerData:getNoteRange(inputType, inputIndex)
 	local ranges = self.ranges.note
 	ranges[inputType] = ranges[inputType] or {}
@@ -97,6 +105,7 @@ function DynamicLayerData:getNoteRange(inputType, inputIndex)
 	return range
 end
 
+---@param layerData ncdk.LayerData
 function DynamicLayerData:load(layerData)
 	assert(layerData.mode == "interval", "only interval mode supported")
 
@@ -118,6 +127,7 @@ function DynamicLayerData:load(layerData)
 	self:uncompute()
 end
 
+---@param layerData ncdk.LayerData
 function DynamicLayerData:save(layerData)
 	local ranges = self.ranges
 	layerData.timePointList = ranges.timePoint:toList()
@@ -142,6 +152,7 @@ function DynamicLayerData:save(layerData)
 	layerData.mode = "interval"
 end
 
+---@param tempo number
 function DynamicLayerData:setPrimaryTempo(tempo)
 	assert(tempo >= 0, "Wrong primary tempo")
 	self.primaryTempo = tempo
@@ -149,6 +160,8 @@ function DynamicLayerData:setPrimaryTempo(tempo)
 	self:compute()
 end
 
+---@param startTime number
+---@param endTime number
 function DynamicLayerData:_setRange(startTime, endTime)
 	for _, name in ipairs(rangeNames) do
 		self.ranges[name]:setRange(startTime, endTime)
@@ -160,6 +173,8 @@ function DynamicLayerData:_setRange(startTime, endTime)
 	end
 end
 
+---@param startTime number
+---@param endTime number
 function DynamicLayerData:setRange(startTime, endTime)
 	if self.endTime and startTime > self.endTime then
 		self.startTime, self.endTime = self.endTime, endTime
@@ -171,6 +186,7 @@ function DynamicLayerData:setRange(startTime, endTime)
 	self:compute()
 end
 
+---@param offset number
 function DynamicLayerData:syncChanges(offset)
 	self.changeOffset = offset
 	for _, name in ipairs(rangeNames) do
@@ -205,10 +221,17 @@ function DynamicLayerData:resetChanges()
 	end
 end
 
+---@return ncdk.IntervalTimePoint
 function DynamicLayerData:newTimePoint()
 	return IntervalTimePoint()
 end
 
+---@param x number
+---@param a number
+---@param b number
+---@param c number
+---@param d number
+---@return number
 local function map(x, a, b, c, d)
 	return (x - a) * (d - c) / (b - a) + c
 end
@@ -220,6 +243,10 @@ function DynamicLayerData:resetDynamicTimePoint()
 	end
 end
 
+---@param intervalData ncdk.IntervalData
+---@param time ncdk.Fraction
+---@param visualSide number?
+---@return ncdk.IntervalTimePoint?
 function DynamicLayerData:getDynamicTimePoint(intervalData, time, visualSide)
 	local timePoint = self.dynamicTimePoint
 
@@ -264,6 +291,10 @@ function DynamicLayerData:getDynamicTimePoint(intervalData, time, visualSide)
 	return timePoint
 end
 
+---@param limit number
+---@param absoluteTime number
+---@param visualSide number?
+---@return ncdk.IntervalTimePoint?
 function DynamicLayerData:getDynamicTimePointAbsolute(limit, absoluteTime, visualSide)
 	assert(limit)
 
@@ -320,6 +351,8 @@ function DynamicLayerData:getDynamicTimePointAbsolute(limit, absoluteTime, visua
 	return timePoint
 end
 
+---@param timePoint ncdk.IntervalTimePoint
+---@return ncdk.IntervalTimePoint
 function DynamicLayerData:checkTimePoint(timePoint)
 	local dtp = self.dynamicTimePoint
 	if rawequal(timePoint, dtp) then
@@ -328,6 +361,8 @@ function DynamicLayerData:checkTimePoint(timePoint)
 	return timePoint
 end
 
+---@param ... any?
+---@return ncdk.IntervalTimePoint
 function DynamicLayerData:getTimePoint(...)
 	local timePoint = self.searchTimePoint
 	timePoint:setTime(...)
@@ -372,6 +407,8 @@ function DynamicLayerData:compute()
 	self:_setRange(self.startTime, self.endTime)
 end
 
+---@param startTime number
+---@param endTime number
 function DynamicLayerData:computeByTime(startTime, endTime)
 	self:_setRange(startTime, endTime)
 
@@ -434,6 +471,11 @@ function DynamicLayerData:computeByTime(startTime, endTime)
 	end
 end
 
+---@param timePoint ncdk.IntervalTimePoint
+---@param name string
+---@param class table
+---@param ... any?
+---@return table
 function DynamicLayerData:getTimingObject(timePoint, name, class, ...)
 	local key = "_" .. name .. "Data"
 	local object = timePoint[key]
@@ -457,6 +499,8 @@ function DynamicLayerData:getTimingObject(timePoint, name, class, ...)
 	return object
 end
 
+---@param timePoint ncdk.IntervalTimePoint
+---@param name string
 function DynamicLayerData:removeTimingObject(timePoint, name)
 	local key = "_" .. name .. "Data"
 	local object = timePoint[key]
@@ -473,27 +517,45 @@ function DynamicLayerData:removeTimingObject(timePoint, name)
 	self:compute()
 end
 
+---@param timePoint ncdk.IntervalTimePoint
+---@param ... any?
+---@return ncdk.VelocityData
 function DynamicLayerData:getVelocityData(timePoint, ...)
 	timePoint = self:checkTimePoint(timePoint)
 	return self:getTimingObject(timePoint, "velocity", VelocityData, ...)
 end
+
+---@param timePoint ncdk.IntervalTimePoint
 function DynamicLayerData:removeVelocityData(timePoint)
-	return self:removeTimingObject(timePoint, "velocity")
+	self:removeTimingObject(timePoint, "velocity")
 end
 
+---@param timePoint ncdk.IntervalTimePoint
+---@param ... any?
+---@return ncdk.ExpandData
 function DynamicLayerData:getExpandData(timePoint, ...)
 	timePoint = self:checkTimePoint(timePoint)
 	local expandData = self:getTimingObject(timePoint, "expand", ExpandData, ...)
 	expandData.leftTimePoint = self:getTimePoint(timePoint:getPrevVisualTime())  -- for time point interpolation
 	return expandData
 end
+
+---@param timePoint ncdk.IntervalTimePoint
 function DynamicLayerData:removeExpandData(timePoint)
-	return self:removeTimingObject(timePoint, "expand")
+	self:removeTimingObject(timePoint, "expand")
 end
 
+---@param timePoint ncdk.IntervalTimePoint
+---@param ... any?
+---@return ncdk.IntervalData
 function DynamicLayerData:_getIntervalData(timePoint, ...)
 	return self:getTimingObject(timePoint, "interval", IntervalData, ...)
 end
+
+---@param absoluteTime number
+---@param beats number
+---@param start ncdk.Fraction?
+---@return ncdk.IntervalData
 function DynamicLayerData:getIntervalData(absoluteTime, beats, start)
 	local timePoint = self:getTimePoint(absoluteTime)
 	timePoint.absoluteTime = absoluteTime
@@ -503,13 +565,20 @@ function DynamicLayerData:getIntervalData(absoluteTime, beats, start)
 	timePoint.time = start
 	return intervalData
 end
+
+---@param timePoint ncdk.IntervalTimePoint
 function DynamicLayerData:_removeIntervalData(timePoint)
-	return self:removeTimingObject(timePoint, "interval")
+	self:removeTimingObject(timePoint, "interval")
 end
+
+---@param absoluteTime number
 function DynamicLayerData:removeIntervalData(absoluteTime)
 	local timePoint = self:getTimePoint(absoluteTime)
-	return self:_removeIntervalData(timePoint)
+	self:_removeIntervalData(timePoint)
 end
+
+---@param timePoint ncdk.IntervalTimePoint
+---@return ncdk.IntervalData
 function DynamicLayerData:splitInterval(timePoint)
 	timePoint = self:checkTimePoint(timePoint)
 	local _intervalData = timePoint.intervalData
@@ -544,6 +613,8 @@ function DynamicLayerData:splitInterval(timePoint)
 	self:compute()
 	return intervalData
 end
+
+---@param timePoint ncdk.IntervalTimePoint
 function DynamicLayerData:mergeInterval(timePoint)
 	local _intervalData = timePoint._intervalData
 	if not _intervalData or self.ranges.interval.tree.size == 2 then
@@ -578,6 +649,9 @@ function DynamicLayerData:mergeInterval(timePoint)
 	self:uncompute()
 	self:compute()
 end
+
+---@param intervalData ncdk.IntervalData
+---@param absoluteTime number
 function DynamicLayerData:moveInterval(intervalData, absoluteTime)
 	if intervalData.timePoint.absoluteTime == absoluteTime then
 		return
@@ -596,6 +670,9 @@ function DynamicLayerData:moveInterval(intervalData, absoluteTime)
 	self:uncompute()
 	self:compute()
 end
+
+---@param intervalData ncdk.IntervalData
+---@param beats number
 function DynamicLayerData:updateInterval(intervalData, beats)
 	local a, b = intervalData, intervalData.next
 	if not b then
@@ -627,6 +704,7 @@ function DynamicLayerData:updateInterval(intervalData, beats)
 	self:compute()
 end
 
+---@param timePoint ncdk.IntervalTimePoint
 function DynamicLayerData:removeTimePoint(timePoint)
 	self.ranges.timePoint:remove(timePoint)
 	self:removeTimingObject(timePoint, "measure")
@@ -657,25 +735,41 @@ function DynamicLayerData:removeTimePoint(timePoint)
 	self:resetChanges()
 end
 
+---@param timePoint ncdk.IntervalTimePoint
+---@param ... any?
+---@return ncdk.MeasureData
 function DynamicLayerData:getMeasureData(timePoint, ...)
 	timePoint = self:checkTimePoint(timePoint)
 	return self:getTimingObject(timePoint, "measure", MeasureData, ...)
 end
+
+---@param timePoint ncdk.IntervalTimePoint
 function DynamicLayerData:removeMeasureData(timePoint)
-	return self:removeTimingObject(timePoint, "measure")
+	self:removeTimingObject(timePoint, "measure")
 end
 
+---@param timePoint ncdk.IntervalTimePoint
+---@param inputType string
+---@param inputIndex number
+---@return ncdk.NoteData
 function DynamicLayerData:getNoteData(timePoint, inputType, inputIndex)
 	timePoint = self:checkTimePoint(timePoint)
 	local noteData = NoteData(timePoint)
 	return self:addNoteData(noteData, inputType, inputIndex)
 end
 
+---@param noteData ncdk.NoteData
+---@param inputType string
+---@param inputIndex number
+---@return ncdk.NoteData
 function DynamicLayerData:addNoteData(noteData, inputType, inputIndex)
 	local range = self:getNoteRange(inputType, inputIndex)
 	return range:insert(noteData)
 end
 
+---@param noteData ncdk.NoteData
+---@param inputType string
+---@param inputIndex number
 function DynamicLayerData:removeNoteData(noteData, inputType, inputIndex)
 	local range = self:getNoteRange(inputType, inputIndex)
 	range:remove(noteData)

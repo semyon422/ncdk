@@ -3,6 +3,8 @@ local InputMode = require("ncdk.InputMode")
 local ResourceList = require("ncdk.ResourceList")
 local LayerData = require("ncdk.LayerData")
 
+---@class ncdk.NoteChart
+---@operator call: ncdk.NoteChart
 local NoteChart = class()
 
 function NoteChart:new()
@@ -11,6 +13,7 @@ function NoteChart:new()
 	self.resourceList = ResourceList()
 end
 
+---@return function
 function NoteChart:getInputIterator()
 	return coroutine.wrap(function()
 		for layerDataIndex, layerData in ipairs(self.layerDatas) do
@@ -23,8 +26,13 @@ function NoteChart:getInputIterator()
 	end)
 end
 
+---@return function
+---@return table
+---@return number
 function NoteChart:getLayerDataIterator() return ipairs(self.layerDatas) end
 
+---@param i number
+---@return ncdk.LayerData
 function NoteChart:getLayerData(i)
 	local layerDatas = self.layerDatas
 

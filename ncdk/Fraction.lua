@@ -1,10 +1,14 @@
 local ffi = require("ffi")
+local class = require("class")
 local abs = math.abs
 local floor = math.floor
 local ceil = math.ceil
 local min = math.min
 local max = math.max
 
+---@param a number
+---@param b number
+---@return number
 local function gcd(a, b)
 	a, b = abs(a), abs(b)
 	a, b = max(a, b), min(a, b)
@@ -22,6 +26,10 @@ local function gcd(a, b)
 	return gcd(b, a % b)
 end
 
+---@param n number
+---@param d number
+---@return number
+---@return number
 local function reduce(n, d)
 	if n == 0 then
 		return 0, 1
@@ -35,6 +43,11 @@ local function reduce(n, d)
 end
 
 -- https://stackoverflow.com/questions/4385580/finding-the-closest-integer-fraction-to-a-given-random-real-between-0-1-given
+
+---@param R number
+---@param limit number
+---@return number
+---@return number
 local function closest(R, limit)
 	local int, r = floor(R), R - floor(R)
 
@@ -64,16 +77,24 @@ local fractions = setmetatable({}, {__mode = "v"})
 
 local ck = ffi.new("uint8_t[16]")
 local cn, cd = ffi.cast("double*", ck), ffi.cast("double*", ck + 8)
+
+---@param n number
+---@param d number
+---@return string
 local function get_key(n, d)
 	cn[0] = n
 	cd[0] = d
 	return ffi.string(ck, 16)
 end
 
-local Fraction = {}
+---@class ncdk.Fraction
+---@operator call: ncdk.Fraction
+local Fraction = class()
 
-local mt = {__index = Fraction}
-
+---@param n number?
+---@param d number?
+---@param round boolean?
+---@return ncdk.Fraction
 function Fraction:new(n, d, round)
 	local _n = type(n) == "number" and n or 0
 	local _d = type(d) == "number" and d or 1
@@ -106,24 +127,31 @@ function Fraction:new(n, d, round)
 		return f
 	end
 
-	f = setmetatable({n, d}, mt)
+	f = setmetatable({n, d}, Fraction)
 	fractions[key] = f
 
 	return f
 end
 
-setmetatable(Fraction, {__call = Fraction.new})
+getmetatable(Fraction).__call = Fraction.new
 
-local function fraction(n, d, decimal)
+---@param n number|table
+---@param d number?
+---@param round boolean?
+---@return ncdk.Fraction
+local function fraction(n, d, round)
 	if type(n) ~= "table" then
-		return Fraction:new(n, d, decimal)
-	elseif getmetatable(n) ~= mt then
+		return Fraction:new(n, d, round)
+	elseif getmetatable(n) ~= Fraction then
 		return Fraction:new(n[1], n[2])
 	end
 	return n
 end
 
-local temp_fraction = setmetatable({0, 1}, mt)
+local temp_fraction = setmetatable({0, 1}, Fraction)
+
+---@param n number|table
+---@return ncdk.Fraction
 local function _fraction(n)
 	if type(n) == "table" then
 		return n
@@ -135,68 +163,122 @@ local function _fraction(n)
 	return temp_fraction
 end
 
+---@return number
 function Fraction:floor()
 	return floor(self[1] / self[2])
 end
 
+---@return number
 function Fraction:ceil()
 	return ceil(self[1] / self[2])
 end
 
+---@return number
 function Fraction:tonumber()
 	return self[1] / self[2]
 end
 
-function mt.__tostring(a)
+---@param a ncdk.Fraction
+---@return string
+function Fraction.__tostring(a)
 	local n, d = abs(a[1]), a[2]
 	return ("%s%d.%d/%d"):format(a[1] < 0 and "-" or "", floor(n / d), n % d, d)
 end
 
-function mt.__concat(a, b)
+---@param a any
+---@param b any
+---@return string
+function Fraction.__concat(a, b)
 	return tostring(a) .. tostring(b)
 end
 
-function mt.__unm(a)
+---@param a ncdk.Fraction
+---@return ncdk.Fraction
+function Fraction.__unm(a)
 	return fraction(-a[1], a[2])
 end
 
-function mt.__mod(a, b)
+---@param a number|ncdk.Fraction
+---@param b number|ncdk.Fraction
+---@return number|ncdk.Fraction
+function Fraction.__mod(a, b)
 	return type(a) == "number" and a % b:tonumber() or a - b * (a / b):floor()
 end
 
+---@param a ncdk.Fraction
+---@param b ncdk.Fraction
+---@return ncdk.Fraction
 local function add(a, b)
 	return fraction(a[1] * b[2] + a[2] * b[1], a[2] * b[2])
 end
+
+---@param a ncdk.Fraction
+---@param b ncdk.Fraction
+---@return ncdk.Fraction
 local function sub(a, b)
 	return fraction(a[1] * b[2] - a[2] * b[1], a[2] * b[2])
 end
+
+---@param a ncdk.Fraction
+---@param b ncdk.Fraction
+---@return ncdk.Fraction
 local function mul(a, b)
 	return fraction(a[1] * b[1], a[2] * b[2])
 end
+
+---@param a ncdk.Fraction
+---@param b ncdk.Fraction
+---@return ncdk.Fraction
 local function div(a, b)
 	return fraction(a[1] * b[2], a[2] * b[1])
 end
 
-function mt.__add(a, b)
+---@param a number|ncdk.Fraction
+---@param b number|ncdk.Fraction
+---@return number|ncdk.Fraction
+function Fraction.__add(a, b)
 	return type(a) == "number" and a + b:tonumber() or add(a, _fraction(b))
 end
-function mt.__sub(a, b)
+
+---@param a number|ncdk.Fraction
+---@param b number|ncdk.Fraction
+---@return number|ncdk.Fraction
+function Fraction.__sub(a, b)
 	return type(a) == "number" and a - b:tonumber() or sub(a, _fraction(b))
 end
-function mt.__mul(a, b)
+
+---@param a number|ncdk.Fraction
+---@param b number|ncdk.Fraction
+---@return number|ncdk.Fraction
+function Fraction.__mul(a, b)
 	return type(a) == "number" and a * b:tonumber() or mul(a, _fraction(b))
 end
-function mt.__div(a, b)
+
+---@param a number|ncdk.Fraction
+---@param b number|ncdk.Fraction
+---@return number|ncdk.Fraction
+function Fraction.__div(a, b)
 	return type(a) == "number" and a / b:tonumber() or div(a, _fraction(b))
 end
 
-function mt.__eq(a, b)
+---@param a ncdk.Fraction
+---@param b ncdk.Fraction
+---@return boolean
+function Fraction.__eq(a, b)
 	return a[1] * b[2] == a[2] * b[1]
 end
-function mt.__lt(a, b)
+
+---@param a ncdk.Fraction
+---@param b ncdk.Fraction
+---@return boolean
+function Fraction.__lt(a, b)
 	return a[1] * b[2] < a[2] * b[1]
 end
-function mt.__le(a, b)
+
+---@param a ncdk.Fraction
+---@param b ncdk.Fraction
+---@return boolean
+function Fraction.__le(a, b)
 	return a[1] * b[2] <= a[2] * b[1]
 end
 

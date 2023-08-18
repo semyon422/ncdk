@@ -1,12 +1,18 @@
 local class = require("class")
 
+---@class ncdk.ResourceList
+---@operator call: ncdk.ResourceList
 local ResourceList = class()
 
+---@param type string
+---@param name string
+---@param sequence table
 function ResourceList:add(type, name, sequence)
 	self[type] = self[type] or {}
 	self[type][name] = sequence
 end
 
+---@return function
 function ResourceList:getIterator()
 	local list = {}
 	for type, data in pairs(self) do

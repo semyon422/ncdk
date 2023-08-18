@@ -2,11 +2,15 @@ local ffi = require("ffi")
 local bit = require("bit")
 local class = require("class")
 
+---@class ncdk.TimePoint
+---@operator call: ncdk.TimePoint
 local TimePoint = class()
 
 TimePoint.visualTime = 0
 TimePoint.visualSection = 0
 
+---@param timePoint ncdk.TimePoint
+---@return ncdk.TimePoint
 function TimePoint:clone(timePoint)
 	assert(not rawequal(self, timePoint), "not allowed to clone to itself")
 	timePoint = timePoint or TimePoint()
@@ -22,12 +26,16 @@ end
 
 local uint64_ptr = ffi.new("int64_t[1]")
 local double_ptr = ffi.cast("double*", uint64_ptr)
+
+---@return string
 function TimePoint:getAbsoluteTimeKey()
 	local time = self.absoluteTime
 	double_ptr[0] = time
 	return ("%s[%s]"):format(bit.tohex(uint64_ptr[0]), time)
 end
 
+---@param timePoint ncdk.TimePoint
+---@return number
 function TimePoint:getVisualTime(timePoint)
 	if self.visualSection ~= timePoint.visualSection then
 		return (self.visualSection - timePoint.visualSection) / 0
@@ -37,6 +45,9 @@ function TimePoint:getVisualTime(timePoint)
 	return (self.visualTime - timePoint.visualTime) * globalSpeed * localSpeed + timePoint.absoluteTime
 end
 
+---@param timePoint ncdk.TimePoint
+---@param mode string
+---@return boolean
 function TimePoint:compare(timePoint, mode)
 	assert(mode, "missing mode")
 	if mode == "visual" then
@@ -47,6 +58,7 @@ function TimePoint:compare(timePoint, mode)
 	elseif mode == "absolute" then
 		return self.absoluteTime < timePoint.absoluteTime
 	end
+	error("Invalid mode")
 end
 
 return TimePoint

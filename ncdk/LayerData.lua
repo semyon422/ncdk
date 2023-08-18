@@ -1,6 +1,5 @@
 local class = require("class")
 local Fraction = require("ncdk.Fraction")
-local TimePoint = require("ncdk.TimePoint")
 local TempoData = require("ncdk.TempoData")
 local SignatureData = require("ncdk.SignatureData")
 local StopData = require("ncdk.StopData")
@@ -11,8 +10,9 @@ local MeasureData = require("ncdk.MeasureData")
 local AbsoluteTimePoint = require("ncdk.AbsoluteTimePoint")
 local IntervalTimePoint = require("ncdk.IntervalTimePoint")
 local MeasureTimePoint = require("ncdk.MeasureTimePoint")
-local NoteData = require("ncdk.NoteData")
 
+---@class ncdk.LayerData
+---@operator call: ncdk.LayerData
 local LayerData = class()
 
 LayerData.primaryTempo = 0
@@ -56,6 +56,8 @@ function LayerData:compute()
 	self:computeTimePoints()
 end
 
+---@param list table
+---@return boolean
 local function isListValid(list)
 	for i = 1, #list - 1 do
 		if list[i] >= list[i + 1] then
@@ -64,6 +66,9 @@ local function isListValid(list)
 	end
 	return true
 end
+
+---@return boolean
+---@return string?
 function LayerData:isValid()
 	for _, name in ipairs(listNames) do
 		if not isListValid(self[name]) then
@@ -82,6 +87,7 @@ function LayerData:isValid()
 	return true
 end
 
+---@param mode string
 function LayerData:setTimeMode(mode)
 	self.mode = mode
 	local time
@@ -97,16 +103,19 @@ function LayerData:setTimeMode(mode)
 	self.zeroTimePoint = self:getTimePoint(time)
 end
 
+---@param mode string
 function LayerData:setSignatureMode(mode)
 	assert(mode == "long" or mode == "short", "Wrong signature mode")
 	self.signatureMode = mode
 end
 
+---@param tempo number
 function LayerData:setPrimaryTempo(tempo)
 	assert(tempo >= 0, "Wrong primary tempo")
 	self.primaryTempo = tempo
 end
 
+---@return ncdk.TimePoint
 function LayerData:newTimePoint()
 	local mode = assert(self.mode, "Mode should be set")
 	if mode == "absolute" then
@@ -116,8 +125,11 @@ function LayerData:newTimePoint()
 	elseif mode == "interval" then
 		return IntervalTimePoint()
 	end
+	error("Invalid time mode")
 end
 
+---@param ... any
+---@return ncdk.TimePoint
 function LayerData:getTimePoint(...)
 	self.testTimePoint = self.testTimePoint or self:newTimePoint()
 	self.testTimePoint:setTime(...)
@@ -136,6 +148,10 @@ function LayerData:getTimePoint(...)
 	return timePoint
 end
 
+---@param index number
+---@param t ncdk.TimePoint
+---@param mode string
+---@return number
 function LayerData:getBaseTimePoint(index, t, mode)
 	local list = self.timePointList
 	index = math.min(math.max(index, 1), #list)
@@ -169,6 +185,9 @@ function LayerData:getBaseTimePoint(index, t, mode)
 	return math.max(index, 1)
 end
 
+---@param index number
+---@param timePoint ncdk.TimePoint
+---@return number
 function LayerData:interpolateTimePointAbsolute(index, timePoint)
 	index = self:getBaseTimePoint(index, timePoint, "absolute")
 
@@ -197,6 +216,9 @@ function LayerData:interpolateTimePointAbsolute(index, timePoint)
 	return index
 end
 
+---@param index number
+---@param timePoint ncdk.TimePoint
+---@return number
 function LayerData:interpolateTimePointVisual(index, timePoint)
 	index = self:getBaseTimePoint(index, timePoint, "visual")
 
@@ -401,8 +423,13 @@ function LayerData:computeTimePoints()
 	end
 end
 
-function LayerData:insertTimingObject(timePoint, name, class, ...)
-	local object = class(...)
+---@param timePoint ncdk.TimePoint
+---@param name string
+---@param T table
+---@param ... any?
+---@return table
+function LayerData:insertTimingObject(timePoint, name, T, ...)
+	local object = T(...)
 	table.insert(self[name .. "s"], object)
 
 	assert(not timePoint["_" .. name])
@@ -412,6 +439,8 @@ function LayerData:insertTimingObject(timePoint, name, class, ...)
 	return object
 end
 
+---@param name string
+---@return table
 function LayerData:removeTimingObject(name)
 	local object = table.remove(self[name .. "s"])
 	local timePoint = object.timePoint
@@ -423,39 +452,62 @@ function LayerData:removeTimingObject(name)
 	return object
 end
 
+---@param time number|ncdk.Fraction
+---@param ... any?
+---@return ncdk.TempoData
 function LayerData:insertTempoData(time, ...)
 	return self:insertTimingObject(self:getTimePoint(time), "tempoData", TempoData, ...)
 end
+
+---@return ncdk.TempoData
 function LayerData:removeTempoData()
 	return self:removeTimingObject("tempoData")
 end
 
+---@param time ncdk.Fraction
+---@param ... any?
+---@return ncdk.StopData
 function LayerData:insertStopData(time, ...)
 	local timePoint = self:getTimePoint(time, 1)
 	local stopData = self:insertTimingObject(timePoint, "stopData", StopData, ...)
 	stopData.leftTimePoint = self:getTimePoint(timePoint:getPrevTime())  -- for time point interpolation
 	return stopData
 end
+
+---@return ncdk.StopData
 function LayerData:removeStopData()
 	return self:removeTimingObject("stopData")
 end
 
+---@param timePoint ncdk.TimePoint
+---@param ... any?
+---@return ncdk.VelocityData
 function LayerData:insertVelocityData(timePoint, ...)
 	return self:insertTimingObject(timePoint, "velocityData", VelocityData, ...)
 end
+
+---@return ncdk.VelocityData
 function LayerData:removeVelocityData()
 	return self:removeTimingObject("velocityData")
 end
 
+---@param timePoint ncdk.TimePoint
+---@param ... any?
+---@return ncdk.ExpandData
 function LayerData:insertExpandData(timePoint, ...)
 	local expandData = self:insertTimingObject(timePoint, "expandData", ExpandData, ...)
 	expandData.leftTimePoint = self:getTimePoint(timePoint:getPrevVisualTime())  -- for time point interpolation
 	return expandData
 end
+
+---@return ncdk.ExpandData
 function LayerData:removeExpandData()
 	return self:removeTimingObject("expandData")
 end
 
+---@param measureOffset number
+---@param signature ncdk.Fraction
+---@return ncdk.SignatureData
 function LayerData:setSignature(measureOffset, signature)
 	assert(self.signatureMode, "Signature mode should be set")
 	self.signatures[measureOffset] = signature
@@ -463,10 +515,17 @@ function LayerData:setSignature(measureOffset, signature)
 	self:getTimePoint(Fraction:new(measureOffset + 1))  -- for time point interpolation
 	return self:insertTimingObject(timePoint, "signatureData", SignatureData, signature)
 end
+
+---@param measureOffset number
+---@return ncdk.Fraction?
 function LayerData:getSignature(measureOffset)
 	return self.signatures[measureOffset]
 end
 
+---@param absoluteTime number
+---@param beats number
+---@param start ncdk.Fraction?
+---@return ncdk.IntervalData
 function LayerData:insertIntervalData(absoluteTime, beats, start)
 	local timePoint = self:getTimePoint(absoluteTime)
 	timePoint.readonly = true
@@ -481,35 +540,63 @@ function LayerData:insertIntervalData(absoluteTime, beats, start)
 	self.timePoints[newKey] = timePoint
 	return intervalData
 end
+
+---@return ncdk.IntervalData
 function LayerData:removeIntervalData()
 	return self:removeTimingObject("intervalData")
 end
 
+---@param timePoint ncdk.TimePoint
+---@param ... any?
+---@return ncdk.MeasureData
 function LayerData:insertMeasureData(timePoint, ...)
 	return self:insertTimingObject(timePoint, "measureData", MeasureData, ...)
 end
+
+---@return ncdk.MeasureData
 function LayerData:removeMeasureData()
 	return self:removeTimingObject("measureData")
 end
 
+---@param i number
+---@return ncdk.TempoData?
 function LayerData:getTempoData(i) return self.tempoDatas[i] end
+---@return number
 function LayerData:getTempoDataCount() return #self.tempoDatas end
 
+---@param i number
+---@return ncdk.StopData?
 function LayerData:getStopData(i) return self.stopDatas[i] end
+---@return number
 function LayerData:getStopDataCount() return #self.stopDatas end
 
+---@param i number
+---@return ncdk.VelocityData?
 function LayerData:getVelocityData(i) return self.velocityDatas[i] end
+---@return number
 function LayerData:getVelocityDataCount() return #self.velocityDatas end
 
+---@param i number
+---@return ncdk.ExpandData?
 function LayerData:getExpandData(i) return self.expandDatas[i] end
+---@return number
 function LayerData:getExpandDataCount() return #self.expandDatas end
 
+---@param i number
+---@return ncdk.IntervalData?
 function LayerData:getIntervalData(i) return self.intervalDatas[i] end
+---@return number
 function LayerData:getIntervalDataCount() return #self.intervalDatas end
 
+---@param i number
+---@return ncdk.MeasureData?
 function LayerData:getMeasureData(i) return self.measureDatas[i] end
+---@return number
 function LayerData:getMeasureDataCount() return #self.measureDatas end
 
+---@param noteData ncdk.NoteData
+---@param inputType string
+---@param inputIndex number
 function LayerData:addNoteData(noteData, inputType, inputIndex)
 	local noteDatas = self:getNoteDatasList(inputType, inputIndex)
 
@@ -517,6 +604,9 @@ function LayerData:addNoteData(noteData, inputType, inputIndex)
 	noteData.id = #noteDatas
 end
 
+---@param inputType string
+---@param inputIndex number
+---@return table
 function LayerData:getNoteDatasList(inputType, inputIndex)
 	local noteDatas = self.noteDatas
 	noteDatas[inputType] = noteDatas[inputType] or {}

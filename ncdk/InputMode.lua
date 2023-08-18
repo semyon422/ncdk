@@ -1,11 +1,16 @@
 local class = require("class")
 
+---@class ncdk.InputMode
+---@operator call: ncdk.InputMode
 local InputMode = class()
 
+---@param s string|table?
 function InputMode:new(s)
 	self:set(s)
 end
 
+---@param s string|table?
+---@return ncdk.InputMode
 function InputMode:set(s)
 	if type(s) == "string" then
 		for inputCount, inputType in s:gmatch("([0-9]+)([a-z]+)") do
@@ -20,6 +25,7 @@ function InputMode:set(s)
 	return self
 end
 
+---@return number
 function InputMode:getColumns()
 	local columns = 0
 	for _, inputCount in pairs(self) do
@@ -28,6 +34,9 @@ function InputMode:getColumns()
 	return columns
 end
 
+---@param a table
+---@param b table
+---@return boolean
 local function sort(a, b)
 	if a[2] ~= b[2] then
 		return a[2] > b[2]
@@ -35,6 +44,7 @@ local function sort(a, b)
 	return a[1] < b[1]
 end
 
+---@return table
 function InputMode:getList()
 	local inputs = {}
 	for inputType, inputCount in pairs(self) do
@@ -44,6 +54,7 @@ function InputMode:getList()
 	return inputs
 end
 
+---@return table
 function InputMode:getInputMap()
 	local inputs = self:getList()
 
@@ -58,6 +69,8 @@ function InputMode:getInputMap()
 	return map
 end
 
+---@param a ncdk.InputMode
+---@return string
 function InputMode.__tostring(a)
 	local inputs = a:getList()
 
@@ -70,18 +83,27 @@ function InputMode.__tostring(a)
 	return table.concat(inputs)
 end
 
+---@param a any
+---@param b any
+---@return string
 function InputMode.__concat(a, b)
 	return tostring(a) .. tostring(b)
 end
 
+---@param a ncdk.InputMode
+---@param b ncdk.InputMode
+---@return boolean
 function InputMode.__eq(a, b)
 	return tostring(a) == tostring(b)
 end
 
+---@param a ncdk.InputMode
+---@param b ncdk.InputMode
+---@return boolean
 function InputMode.__le(a, b)
 	for inputType, inputCount in pairs(a) do
 		if b[inputType] ~= inputCount then
-			return
+			return false
 		end
 	end
 	return true
