@@ -1,7 +1,7 @@
 local TimePoint = require("ncdk.TimePoint")
 local Fraction = require("ncdk.Fraction")
 
----@class ncdk.IntervalTimePoint
+---@class ncdk.IntervalTimePoint: ncdk.TimePoint
 ---@operator call: ncdk.IntervalTimePoint
 local IntervalTimePoint = TimePoint + {}
 

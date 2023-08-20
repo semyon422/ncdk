@@ -1,6 +1,6 @@
 local TimePoint = require("ncdk.TimePoint")
 
----@class ncdk.MeasureTimePoint
+---@class ncdk.MeasureTimePoint: ncdk.TimePoint
 ---@operator call: ncdk.MeasureTimePoint
 local MeasureTimePoint = TimePoint + {}
 
