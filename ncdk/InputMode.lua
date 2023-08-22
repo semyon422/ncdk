@@ -16,7 +16,9 @@ function InputMode:set(s)
 		for inputCount, inputType in s:gmatch("([0-9]+)([a-z]+)") do
 			self[inputType] = tonumber(inputCount)
 		end
-		assert(s == tostring(self))
+		if s ~= tostring(self) then
+			error(("invalid InputMode string (%s expected, got %s)"):format(tostring(self), s))
+		end
 	elseif type(s) == "table" then
 		for inputType, inputCount in pairs(s) do
 			self[inputType] = inputCount
