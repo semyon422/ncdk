@@ -45,9 +45,6 @@ end
 ---@return number
 function IntervalData:getBeatDuration()
 	local a, b = self:getPair()
-	if not a then
-		return math.huge
-	end
 	local _a, _b = a.timePoint, b.timePoint
 	return (_b.absoluteTime - _a.absoluteTime) / a:getDuration()
 end
@@ -57,20 +54,16 @@ function IntervalData:getTempo()
 	return 60 / self:getBeatDuration()
 end
 
----@return ncdk.IntervalData?
----@return ncdk.IntervalData?
----@return boolean?
+---@return ncdk.IntervalData
+---@return ncdk.IntervalData
+---@return boolean
 function IntervalData:getPair()
 	local a = self
 	local n = a.next
 	if n then
-		return a, n
+		return a, n, false
 	end
-	local p = a.prev
-	if not p then
-		return
-	end
-	return p, a, true
+	return a.prev, a, true
 end
 
 ---@param a ncdk.IntervalData
