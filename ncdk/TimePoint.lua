@@ -4,6 +4,10 @@ local class = require("class")
 
 ---@class ncdk.TimePoint
 ---@operator call: ncdk.TimePoint
+---@field expandData ncdk.ExpandData?
+---@field tempoData ncdk.TempoData?
+---@field velocityData ncdk.VelocityData?
+---@field absoluteTime number
 local TimePoint = class()
 
 TimePoint.visualTime = 0

@@ -3,6 +3,7 @@ local Fraction = require("ncdk.Fraction")
 
 ---@class ncdk.IntervalTimePoint: ncdk.TimePoint
 ---@operator call: ncdk.IntervalTimePoint
+---@field readonly boolean?
 local IntervalTimePoint = TimePoint + {}
 
 IntervalTimePoint.time = Fraction(0)
@@ -75,7 +76,7 @@ end
 ---@return ncdk.IntervalData
 ---@return ncdk.Fraction
 function IntervalTimePoint:add(duration)
-	return add(self.intervalData, self.time + duration)
+	return add(self.intervalData --[[@as ncdk.IntervalData]], self.time + duration)
 end
 
 ---@param id1 ncdk.IntervalData
@@ -95,7 +96,12 @@ end
 ---@param timePoint ncdk.TimePoint
 ---@return ncdk.Fraction
 function IntervalTimePoint:sub(timePoint)
-	return sub(self.intervalData, self.time, timePoint.intervalData, timePoint.time)
+	return sub(
+		self.intervalData --[[@as ncdk.IntervalData]],
+		self.time,
+		timePoint.intervalData,
+		timePoint.time
+	)
 end
 
 ---@return number
@@ -156,6 +162,7 @@ local function isNumbers(a, b)
 	if tb then
 		ib = b.absoluteTime
 	end
+	---@diagnostic disable-next-line: return-type-mismatch
 	return ia, ib
 end
 

@@ -2,6 +2,8 @@ local TimePoint = require("ncdk.TimePoint")
 
 ---@class ncdk.MeasureTimePoint: ncdk.TimePoint
 ---@operator call: ncdk.MeasureTimePoint
+---@field beatTime ncdk.Fraction
+---@field fullBeatTime ncdk.Fraction
 local MeasureTimePoint = TimePoint + {}
 
 MeasureTimePoint.side = 0

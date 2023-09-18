@@ -115,7 +115,7 @@ function LayerData:setPrimaryTempo(tempo)
 	self.primaryTempo = tempo
 end
 
----@return ncdk.TimePoint
+---@return ncdk.AbsoluteTimePoint|ncdk.MeasureTimePoint|ncdk.IntervalTimePoint
 function LayerData:newTimePoint()
 	local mode = assert(self.mode, "Mode should be set")
 	if mode == "absolute" then
@@ -328,7 +328,7 @@ function LayerData:computeTimePoints()
 			time = timePoint.absoluteTime
 		end
 
-		local tempoMultiplier = (primaryTempo == 0 or not tempoData) and 1 or tempoData.tempo / primaryTempo
+		local tempoMultiplier = primaryTempo ~= 0 and tempoData and tempoData.tempo / primaryTempo or 1
 
 		if isAtTimePoint then
 			local nextTempoData = timePoint._tempoData
@@ -339,7 +339,7 @@ function LayerData:computeTimePoints()
 			local stopData = timePoint._stopData
 			if stopData then
 				stopData.tempoData = tempoData
-				if isMeasure then
+				if isMeasure and tempoData then
 					local duration = stopData.duration
 					if not stopData.isAbsolute then
 						duration = tempoData:getBeatDuration() * duration
@@ -369,9 +369,9 @@ function LayerData:computeTimePoints()
 			local expandData = timePoint._expandData
 			if expandData then
 				local duration = expandData.duration
-				if isMeasure then
+				if isMeasure and tempoData then
 					duration = tempoData:getBeatDuration() * duration * currentSpeed
-				elseif isInterval then
+				elseif isInterval and intervalData then
 					duration = intervalData:getBeatDuration() * duration * currentSpeed
 				end
 				if math.abs(duration) == math.huge then
@@ -468,7 +468,7 @@ end
 ---@param ... any?
 ---@return ncdk.StopData
 function LayerData:insertStopData(time, ...)
-	local timePoint = self:getTimePoint(time, 1)
+	local timePoint = self:getTimePoint(time, 1)  --[[@as ncdk.MeasureTimePoint]]
 	local stopData = self:insertTimingObject(timePoint, "stopData", StopData, ...)
 	stopData.leftTimePoint = self:getTimePoint(timePoint:getPrevTime())  -- for time point interpolation
 	return stopData
@@ -527,7 +527,7 @@ end
 ---@param start ncdk.Fraction?
 ---@return ncdk.IntervalData
 function LayerData:insertIntervalData(absoluteTime, beats, start)
-	local timePoint = self:getTimePoint(absoluteTime)
+	local timePoint = self:getTimePoint(absoluteTime)  --[[@as ncdk.IntervalTimePoint]]
 	timePoint.readonly = true
 	local key = tostring(timePoint)
 	local intervalData = self:insertTimingObject(timePoint, "intervalData", IntervalData, beats)

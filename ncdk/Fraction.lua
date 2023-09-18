@@ -89,6 +89,13 @@ end
 
 ---@class ncdk.Fraction
 ---@operator call: ncdk.Fraction
+---@operator add: ncdk.Fraction
+---@operator sub: ncdk.Fraction
+---@operator mul: ncdk.Fraction
+---@operator div: ncdk.Fraction
+---@operator mod: ncdk.Fraction
+---@operator unm: ncdk.Fraction
+---@operator concat: string
 local Fraction = class()
 
 ---@param n number|table?
@@ -203,6 +210,7 @@ end
 ---@param b number|ncdk.Fraction
 ---@return number|ncdk.Fraction
 function Fraction.__mod(a, b)
+	---@diagnostic disable-next-line: param-type-mismatch
 	return type(a) == "number" and a % b:tonumber() or a - b * (a / b):floor()
 end
 
@@ -238,6 +246,7 @@ end
 ---@param b number|ncdk.Fraction?
 ---@return number|ncdk.Fraction
 function Fraction.__add(a, b)
+	---@diagnostic disable-next-line: param-type-mismatch, need-check-nil
 	return type(a) == "number" and a + b:tonumber() or add(a, _fraction(b))
 end
 
@@ -245,6 +254,7 @@ end
 ---@param b number|ncdk.Fraction?
 ---@return number|ncdk.Fraction
 function Fraction.__sub(a, b)
+	---@diagnostic disable-next-line: param-type-mismatch, need-check-nil
 	return type(a) == "number" and a - b:tonumber() or sub(a, _fraction(b))
 end
 
@@ -252,6 +262,7 @@ end
 ---@param b number|ncdk.Fraction?
 ---@return number|ncdk.Fraction
 function Fraction.__mul(a, b)
+	---@diagnostic disable-next-line: param-type-mismatch, need-check-nil
 	return type(a) == "number" and a * b:tonumber() or mul(a, _fraction(b))
 end
 
@@ -259,6 +270,7 @@ end
 ---@param b number|ncdk.Fraction?
 ---@return number|ncdk.Fraction
 function Fraction.__div(a, b)
+	---@diagnostic disable-next-line: param-type-mismatch, need-check-nil
 	return type(a) == "number" and a / b:tonumber() or div(a, _fraction(b))
 end
 
