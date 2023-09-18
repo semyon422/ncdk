@@ -201,7 +201,7 @@ function LayerData:interpolateTimePointAbsolute(index, timePoint)
 	if self.primaryTempo ~= 0 and a.tempoData then
 		tempoMultiplier = a.tempoData.tempo / self.primaryTempo
 	end
-	if b and b._stopData then
+	if self.primaryTempo ~= 0 and b and b._stopData then
 		tempoMultiplier = 0
 	end
 
