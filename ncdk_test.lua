@@ -1,6 +1,3 @@
-package.path = package.path .. ";./?.lua;./?/init.lua"
-package.loaded.rbtree = dofile("../aqua/rbtree.lua")
-
 io.write("fraction: ")
 require("tests.fraction")
 print("OK!")
