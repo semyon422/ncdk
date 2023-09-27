@@ -11,6 +11,7 @@ AbsoluteTimePoint.visualSide = 0
 ---@return ncdk.AbsoluteTimePoint
 function AbsoluteTimePoint:setTime(time, visualSide)
 	assert(type(time) == "number")
+	assert(time == time)
 	self.absoluteTime = time
 	self.visualSide = visualSide
 	return self
