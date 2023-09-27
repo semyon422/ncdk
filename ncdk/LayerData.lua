@@ -356,7 +356,9 @@ function LayerData:computeTimePoints()
 		end
 
 		local currentSpeed = velocityData and velocityData.currentSpeed or 1
-		visualTime = visualTime + (time - currentAbsoluteTime) * currentSpeed * tempoMultiplier
+		local visualSpeed = currentSpeed * tempoMultiplier
+
+		visualTime = visualTime + (time - currentAbsoluteTime) * visualSpeed
 		currentAbsoluteTime = time
 
 		if isAtTimePoint then
@@ -392,6 +394,7 @@ function LayerData:computeTimePoints()
 			timePoint.fullBeatTime = fullBeatTime
 			timePoint.visualTime = visualTime
 			timePoint.visualSection = visualSection
+			timePoint.visualSpeed = visualSpeed
 
 			timePointIndex = timePointIndex + 1
 			timePoint = timePointList[timePointIndex]

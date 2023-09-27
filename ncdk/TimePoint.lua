@@ -12,6 +12,7 @@ local TimePoint = class()
 
 TimePoint.visualTime = 0
 TimePoint.visualSection = 0
+TimePoint.visualSpeed = 0
 
 ---@param timePoint ncdk.TimePoint?
 ---@return ncdk.TimePoint
