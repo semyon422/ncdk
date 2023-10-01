@@ -82,7 +82,9 @@ assert(Fraction:new(-1.234, 1, false) == Fraction(-1, 1))
 assert(Fraction:new(1.234, 10, false) == Fraction(11, 9))
 assert(Fraction:new(1.234, 100, false) == Fraction(58, 47))
 
+collectgarbage("stop")
 assert(("%p"):format(Fraction:new(99, 101)) == ("%p"):format(Fraction:new(100, 101) - Fraction:new(1, 101)))
+collectgarbage("restart")
 
 local p = ("%p"):format(Fraction:new(99, 101))
 collectgarbage("collect")
