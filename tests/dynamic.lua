@@ -2,6 +2,8 @@ local DynamicLayerData = require("ncdk.DynamicLayerData")
 local LayerData = require("ncdk.LayerData")
 local Fraction = require("ncdk.Fraction")
 
+---@param n number
+---@return ncdk.Fraction
 local function F(n)
 	return Fraction:new(n, 1000, true)
 end
@@ -14,7 +16,7 @@ do
 	ld:getIntervalData(10, 1)
 	ld:getTimePoint(id, F(5), 1)
 
-	ld:getExpandData(ld:getTimePoint(id, F(5), 1), F(1))
+	ld:getExpandData(ld:getTimePoint(id, F(5), 1), 1)
 
 	assert(tostring(ld:getDynamicTimePoint(id, F(5))) == "(0000000000000000[0],0.0/1+10,5.0/1,0)")
 	assert(tostring(ld:getDynamicTimePoint(id, F(5), 0)) == "(0000000000000000[0],0.0/1+10,5.0/1,0)")

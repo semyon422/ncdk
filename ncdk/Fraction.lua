@@ -98,8 +98,8 @@ end
 ---@operator concat: string
 local Fraction = class()
 
----@param n number|table?
----@param d number?
+---@param n number|table|ncdk.Fraction?
+---@param d number|ncdk.Fraction?
 ---@param round boolean?
 ---@return ncdk.Fraction
 function Fraction:new(n, d, round)

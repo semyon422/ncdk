@@ -1,25 +1,45 @@
 local RangeTracker = require("ncdk.RangeTracker")
 local class = require("class")
 
+---@class ncdk.TestObject
 local TestObject = class()
 
+---@param t number
 function TestObject:new(t)
 	self[1] = t
 end
+
+---@param a ncdk.TestObject
+---@return string
 function TestObject.__tostring(a)
 	return tostring(a[1])
 end
+
+---@param a ncdk.TestObject
+---@param b ncdk.TestObject
+---@return boolean
 function TestObject.__eq(a, b)
 	return a[1] == b[1]
 end
+
+---@param a ncdk.TestObject
+---@param b ncdk.TestObject
+---@return boolean
 function TestObject.__lt(a, b)
 	return a[1] < b[1]
 end
+
+---@param a ncdk.TestObject
+---@param b ncdk.TestObject
+---@return boolean
 function TestObject.__le(a, b)
 	return a[1] <= b[1]
 end
 
 local objs = {}
+
+---@param t number
+---@return ncdk.TestObject
 local function obj(t)
 	local _obj = objs[t]
 	if _obj then

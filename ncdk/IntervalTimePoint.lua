@@ -110,10 +110,10 @@ function IntervalTimePoint:tonumber()
 	if type(id) == "number" then
 		return id
 	end
-	local a, b, offset = id:getPair()
-	if not a then
+	if id:isSingle() then
 		return id.timePoint.absoluteTime
 	end
+	local a, b, offset = id:getPair()
 	local ta = a.timePoint.absoluteTime
 	local time = self.time:tonumber() - a:startn() + (offset and a.beats or 0)
 	return ta + a:getBeatDuration() * time

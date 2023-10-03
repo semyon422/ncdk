@@ -2,6 +2,8 @@ local NoteChart = require("ncdk.NoteChart")
 local NoteData = require("ncdk.NoteData")
 local Fraction = require("ncdk.Fraction")
 
+---@param n number
+---@return ncdk.Fraction
 local function F(n)
 	return Fraction:new(n, 1000, true)
 end
@@ -284,9 +286,9 @@ do
 
 	local tp = ld:newTimePoint()
 	tp.absoluteTime = 5
-	ld:interpolateTimePointAbsolute(1, tp, "absolute")
+	ld:interpolateTimePointAbsolute(1, tp)
 	assert(tp.visualTime == tp3.visualTime and tp.visualSection == tp3.visualSection)
-	ld:interpolateTimePointAbsolute(100, tp, "absolute")
+	ld:interpolateTimePointAbsolute(100, tp)
 	assert(tp.visualTime == tp3.visualTime and tp.visualSection == tp3.visualSection)
 end
 

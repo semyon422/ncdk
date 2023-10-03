@@ -1,6 +1,8 @@
 local LayerData = require("ncdk.LayerData")
 local Fraction = require("ncdk.Fraction")
 
+---@param n number
+---@return ncdk.Fraction
 local function F(n)
 	return Fraction:new(n, 1000, true)
 end

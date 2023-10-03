@@ -4,12 +4,12 @@ local class = require("class")
 ---@operator call: ncdk.ExpandData
 local ExpandData = class()
 
----@param duration ncdk.Fraction
+---@param duration number
 function ExpandData:new(duration)
 	self.duration = duration
 end
 
----@param duration ncdk.Fraction
+---@param duration number
 ---@return boolean
 function ExpandData:set(duration)
 	local _duration = self.duration

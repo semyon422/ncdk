@@ -66,6 +66,11 @@ function IntervalData:getPair()
 	return a.prev, a, true
 end
 
+---@return boolean
+function IntervalData:isSingle()
+	return not self.prev and not self.next
+end
+
 ---@param a ncdk.IntervalData
 ---@return string
 function IntervalData.__tostring(a)

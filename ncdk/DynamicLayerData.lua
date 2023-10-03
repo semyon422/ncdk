@@ -15,7 +15,7 @@ local DynamicLayerData = class()
 DynamicLayerData.primaryTempo = 0
 DynamicLayerData.minBeatDuration = 60 / 1000
 
----@param ld ncdk.LayerData
+---@param ld ncdk.LayerData?
 function DynamicLayerData:new(ld)
 	self:init()
 	if ld then
