@@ -88,4 +88,6 @@ collectgarbage("restart")
 
 local p = ("%p"):format(Fraction:new(99, 101))
 collectgarbage("collect")
+collectgarbage("collect")
+collectgarbage("collect")
 assert(p ~= ("%p"):format(Fraction:new(99, 101)))
