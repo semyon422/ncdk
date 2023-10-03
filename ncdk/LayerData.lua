@@ -252,7 +252,12 @@ function LayerData:assignNoteDatas()
 	for inputType, r in pairs(self.noteDatas) do
 		for inputIndex, noteDatas in pairs(r) do
 			for _, noteData in ipairs(noteDatas) do
-				noteData.timePoint.noteDatas[inputType .. inputIndex] = noteData
+				local key = inputType .. inputIndex
+				local nds = noteData.timePoint.noteDatas
+				if nds[key] then
+					error("can not assign NoteData, input already used: " .. key)
+				end
+				nds[key] = noteData
 			end
 		end
 	end
