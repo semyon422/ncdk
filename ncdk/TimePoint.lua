@@ -12,7 +12,9 @@ local TimePoint = class()
 
 TimePoint.visualTime = 0
 TimePoint.visualSection = 0
-TimePoint.visualSpeed = 0
+TimePoint.currentSpeed = 1
+TimePoint.localSpeed = 1
+TimePoint.globalSpeed = 1
 
 ---@param timePoint ncdk.TimePoint?
 ---@return ncdk.TimePoint
@@ -45,8 +47,8 @@ function TimePoint:getVisualTime(timePoint)
 	if self.visualSection ~= timePoint.visualSection then
 		return (self.visualSection - timePoint.visualSection) / 0
 	end
-	local globalSpeed = timePoint.velocityData and timePoint.velocityData.globalSpeed or 1
-	local localSpeed = self.velocityData and self.velocityData.localSpeed or 1
+	local globalSpeed = timePoint.globalSpeed
+	local localSpeed = self.localSpeed
 	return (self.visualTime - timePoint.visualTime) * globalSpeed * localSpeed + timePoint.absoluteTime
 end
 

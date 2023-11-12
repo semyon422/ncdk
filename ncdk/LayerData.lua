@@ -16,6 +16,7 @@ local MeasureTimePoint = require("ncdk.MeasureTimePoint")
 local LayerData = class()
 
 LayerData.primaryTempo = 0
+LayerData.tempoMultiplyTarget = "current"  -- "current" | "local" | "global"
 
 local listNames = {
 	"signatureDatas",
@@ -185,6 +186,30 @@ function LayerData:getBaseTimePoint(index, t, mode)
 	return math.max(index, 1)
 end
 
+---@param velocityData ncdk.VelocityData?
+---@param tempoMultiplier number
+---@return number
+---@return number
+---@return number
+function LayerData:getMultipliedSpeeds(velocityData, tempoMultiplier)
+	local currentSpeed, localSpeed, globalSpeed = 1, 1, 1
+	if velocityData then
+		currentSpeed = velocityData.currentSpeed
+		localSpeed = velocityData.localSpeed
+		globalSpeed = velocityData.globalSpeed
+	end
+
+	if self.tempoMultiplyTarget == "current" then
+		currentSpeed = currentSpeed * tempoMultiplier
+	elseif self.tempoMultiplyTarget == "local" then
+		localSpeed = localSpeed * tempoMultiplier
+	elseif self.tempoMultiplyTarget == "global" then
+		globalSpeed = globalSpeed * tempoMultiplier
+	end
+
+	return currentSpeed, localSpeed, globalSpeed
+end
+
 ---@param index number
 ---@param timePoint ncdk.TimePoint
 ---@return number
@@ -205,13 +230,20 @@ function LayerData:interpolateTimePointAbsolute(index, timePoint)
 		tempoMultiplier = 0
 	end
 
+	local velocityData = a.velocityData
+	local currentSpeed, localSpeed, globalSpeed =
+		self:getMultipliedSpeeds(velocityData, tempoMultiplier)
+
 	local t = timePoint.absoluteTime
-	local currentSpeed = a.velocityData and a.velocityData.currentSpeed or 1
-	timePoint.visualTime = a.visualTime + (t - a.absoluteTime) * currentSpeed * tempoMultiplier
+	timePoint.visualTime = a.visualTime + (t - a.absoluteTime) * currentSpeed
 	timePoint.visualSection = a.visualSection
 
 	timePoint.tempoData = a.tempoData
-	timePoint.velocityData = a.velocityData
+	timePoint.velocityData = velocityData
+
+	timePoint.currentSpeed = currentSpeed
+	timePoint.localSpeed = localSpeed
+	timePoint.globalSpeed = globalSpeed
 
 	return index
 end
@@ -233,13 +265,20 @@ function LayerData:interpolateTimePointVisual(index, timePoint)
 		tempoMultiplier = a.tempoData.tempo / self.primaryTempo
 	end
 
+	local velocityData = a.velocityData
+	local currentSpeed, localSpeed, globalSpeed =
+		self:getMultipliedSpeeds(velocityData, tempoMultiplier)
+
 	local t = timePoint.visualTime
-	local currentSpeed = a.velocityData and a.velocityData.currentSpeed or 1
-	timePoint.absoluteTime = a.absoluteTime + (t - a.visualTime) / currentSpeed / tempoMultiplier
+	timePoint.absoluteTime = a.absoluteTime + (t - a.visualTime) / currentSpeed
 	timePoint.visualSection = a.visualSection
 
 	timePoint.tempoData = a.tempoData
-	timePoint.velocityData = a.velocityData
+	timePoint.velocityData = velocityData
+
+	timePoint.currentSpeed = currentSpeed
+	timePoint.localSpeed = localSpeed
+	timePoint.globalSpeed = globalSpeed
 
 	return index
 end
@@ -360,10 +399,10 @@ function LayerData:computeTimePoints()
 			end
 		end
 
-		local currentSpeed = velocityData and velocityData.currentSpeed or 1
-		local visualSpeed = currentSpeed * tempoMultiplier
+		local currentSpeed, localSpeed, globalSpeed =
+			self:getMultipliedSpeeds(velocityData, tempoMultiplier)
 
-		visualTime = visualTime + (time - currentAbsoluteTime) * visualSpeed
+		visualTime = visualTime + (time - currentAbsoluteTime) * currentSpeed
 		currentAbsoluteTime = time
 
 		if isAtTimePoint then
@@ -371,7 +410,7 @@ function LayerData:computeTimePoints()
 			if nextVelocityData then
 				velocityData = nextVelocityData
 			end
-			currentSpeed = velocityData and velocityData.currentSpeed or 1
+			currentSpeed = self:getMultipliedSpeeds(velocityData, tempoMultiplier)
 
 			local expandData = timePoint._expandData
 			if expandData then
@@ -399,7 +438,9 @@ function LayerData:computeTimePoints()
 			timePoint.fullBeatTime = fullBeatTime
 			timePoint.visualTime = visualTime
 			timePoint.visualSection = visualSection
-			timePoint.visualSpeed = visualSpeed
+			timePoint.currentSpeed = currentSpeed
+			timePoint.localSpeed = localSpeed
+			timePoint.globalSpeed = globalSpeed
 
 			timePointIndex = timePointIndex + 1
 			timePoint = timePointList[timePointIndex]
