@@ -57,6 +57,18 @@ function InputMode:getList()
 end
 
 ---@return table
+function InputMode:getInputs()
+	local list = self:getList()
+	local inputs = {}
+	for _, input in ipairs(list) do
+		for i = 1, input[2] do
+			table.insert(inputs, input[1] .. i)
+		end
+	end
+	return inputs
+end
+
+---@return table
 function InputMode:getInputMap()
 	local inputs = self:getList()
 
