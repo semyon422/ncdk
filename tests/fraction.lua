@@ -88,3 +88,12 @@ collectgarbage("restart")
 
 -- local p = ("%p"):format(Fraction:new(99, 101))
 -- assert(p ~= ("%p"):format(Fraction:new(99, 101)))
+
+assert(Fraction(1.5, 16, false) == Fraction(3, 2))
+assert(Fraction(0.5000001, 16, false) == Fraction(1, 2))
+assert(Fraction(0.5000001, 16, "closest_gte") == Fraction(8, 15))
+assert(Fraction(0.4999999, 16, "closest_lte") == Fraction(7, 15))
+assert(Fraction(0.5, 16, "closest_gte") == Fraction(1, 2))
+assert(Fraction(0.5, 16, "closest_lte") == Fraction(1, 2))
+assert(Fraction(0, 16, "closest_gte") == Fraction(0, 1))
+assert(Fraction(0, 16, "closest_lte") == Fraction(0, 1))

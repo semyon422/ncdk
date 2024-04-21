@@ -46,9 +46,14 @@ end
 
 ---@param R number
 ---@param limit number
+---@param side "a"|"b"?
 ---@return number
 ---@return number
-local function closest(R, limit)
+local function closest(R, limit, side)
+	if R % 1 == 0 then
+		return R, 1
+	end
+
 	local int, r = floor(R), R - floor(R)
 
 	local a_num, a_den = 0, 1
@@ -58,11 +63,20 @@ local function closest(R, limit)
 		local n, d = a_num + b_num, a_den + b_den
 
 		if d > limit then
+			if side == "a" then
+				return a_num + int * a_den, a_den
+			elseif side == "b" then
+				return b_num + int * b_den, b_den
+			end
 			if r - a_num / a_den < b_num / b_den - r then
 				return a_num + int * a_den, a_den
 			else
 				return b_num + int * b_den, b_den
 			end
+		end
+
+		if n / d == r then
+			return n + int * d, d
 		end
 
 		if n / d < r then
@@ -100,7 +114,7 @@ local Fraction = class()
 
 ---@param n number|table|ncdk.Fraction?
 ---@param d number|ncdk.Fraction?
----@param round boolean?
+---@param round any?
 ---@return ncdk.Fraction
 function Fraction:new(n, d, round)
 	local _n = type(n) == "number" and n or 0
@@ -117,10 +131,18 @@ function Fraction:new(n, d, round)
 		error(("invalid denominator: %s"):format(d))
 	end
 
-	if round == true then
-		n = floor(n * d + 0.5)
-	elseif round == false then
-		n, d = closest(n, d)
+	if round ~= nil then
+		if round == true then
+			n = floor(n * d + 0.5)
+		elseif round == false then
+			n, d = closest(n, d)
+		elseif round == "closest_gte" then
+			n, d = closest(n, d, "b")
+		elseif round == "closest_lte" then
+			n, d = closest(n, d, "a")
+		else
+			error("invalid mode " .. tostring(round))
+		end
 	end
 
 	if n % 1 ~= 0 then
