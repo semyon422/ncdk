@@ -19,4 +19,10 @@ function TimePoint:getAbsoluteTimeKey()
 	return ("%s[%s]"):format(bit.tohex(uint64_ptr[0]), time)
 end
 
+---@param timePoint ncdk2.TimePoint
+---@return boolean
+function TimePoint:compare(timePoint)
+	return self.absoluteTime < timePoint.absoluteTime
+end
+
 return TimePoint
