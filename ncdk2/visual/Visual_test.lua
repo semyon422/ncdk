@@ -16,7 +16,7 @@ function test.basic(t)
 	local vtp1 = VisualTimePoint(timePoints[1])
 	local vtp2 = VisualTimePoint(timePoints[2])
 
-	vtp1._velocityData = VelocityData(vtp1)
+	vtp1._velocityData = VelocityData()
 
 	local visualTimePoints = {
 		vtp1,

@@ -38,4 +38,10 @@ function VisualTimePoint:compare(vtp)
 	return self.visualSection < vtp.visualSection
 end
 
+---@param a ncdk2.VisualTimePoint
+---@return string
+function VisualTimePoint.__tostring(a)
+	return ("VisualTimePoint(%s)"):format(a.timePoint)
+end
+
 return VisualTimePoint
