@@ -6,9 +6,6 @@ local TimePoint = require("ncdk2.tp.TimePoint")
 ---@field _tempoData ncdk2.TempoData?
 ---@field tempoData ncdk2.TempoData?
 ---@field _stopData ncdk2.StopData?
----@field measureTime ncdk.Fraction
----@field beatTime ncdk.Fraction?
----@field fullBeatTime ncdk.Fraction?
 local MeasureTimePoint = TimePoint + {}
 
 ---@param measureTime ncdk.Fraction
