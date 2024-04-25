@@ -9,8 +9,8 @@ function test.basic(t)
 	local vis = Visual()
 
 	local timePoints = {
-		TimePoint({absoluteTime = 0}),
-		TimePoint({absoluteTime = 1}),
+		TimePoint(0),
+		TimePoint(1),
 	}
 
 	local vtp1 = VisualTimePoint(timePoints[1])

@@ -13,11 +13,9 @@ IntervalTimePoint.time = Fraction(0)
 
 ---@param intervalData ncdk2.IntervalData
 ---@param time ncdk.Fraction?
----@return ncdk2.IntervalTimePoint
-function IntervalTimePoint:setTime(intervalData, time)
+function IntervalTimePoint:new(intervalData, time)
 	self.intervalData = intervalData
 	self.time = time
-	return self
 end
 
 ---@return ncdk2.IntervalData

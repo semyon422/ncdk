@@ -8,8 +8,8 @@ function test.absolute(t)
 	local itp = Interpolator()
 
 	local timePoints = {
-		TimePoint({absoluteTime = 0}),
-		TimePoint({absoluteTime = 1}),
+		TimePoint(0),
+		TimePoint(1),
 	}
 
 	local visualTimePoints = {
@@ -20,7 +20,7 @@ function test.absolute(t)
 	visualTimePoints[2].visualTime = 4
 	visualTimePoints[1].currentSpeed = 2
 
-	local vtp = VisualTimePoint(TimePoint({absoluteTime = 0.5}))
+	local vtp = VisualTimePoint(TimePoint(0.5))
 
 	local index = itp:interpolate(visualTimePoints, 1, vtp, "absolute")
 	t:eq(index, 1)
@@ -31,8 +31,8 @@ function test.visual(t)
 	local itp = Interpolator()
 
 	local timePoints = {
-		TimePoint({absoluteTime = 0}),
-		TimePoint({absoluteTime = 1}),
+		TimePoint(0),
+		TimePoint(1),
 	}
 
 	local visualTimePoints = {

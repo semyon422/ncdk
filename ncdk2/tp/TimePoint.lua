@@ -9,6 +9,11 @@ local TimePoint = class()
 
 TimePoint.absoluteTime = 0
 
+---@param absoluteTime number
+function TimePoint:new(absoluteTime)
+	self.absoluteTime = absoluteTime
+end
+
 local uint64_ptr = ffi.new("int64_t[1]")
 local double_ptr = ffi.cast("double*", uint64_ptr)
 
