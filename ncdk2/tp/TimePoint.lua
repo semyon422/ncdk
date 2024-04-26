@@ -15,6 +15,8 @@ function TimePoint:new(absoluteTime)
 end
 
 local uint64_ptr = ffi.new("int64_t[1]")
+
+---@type {[0]: number}
 local double_ptr = ffi.cast("double*", uint64_ptr)
 
 ---@return string

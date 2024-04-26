@@ -13,19 +13,17 @@ function IntervalLayer:new()
 	self.visual = Visual()
 end
 
----@param intervalData ncdk2.IntervalData
 ---@param time ncdk.Fraction
 ---@return ncdk2.IntervalTimePoint
-function IntervalLayer:newTimePoint(intervalData, time)
-	return IntervalTimePoint(intervalData, time)
+function IntervalLayer:newTimePoint(time)
+	return IntervalTimePoint(time)
 end
 
----@param intervalData ncdk2.IntervalData
 ---@param time ncdk.Fraction
 ---@return ncdk2.IntervalTimePoint
-function IntervalLayer:getTimePoint(intervalData, time)
+function IntervalLayer:getTimePoint(time)
 	---@type ncdk2.IntervalTimePoint
-	return Layer.getTimePoint(self, intervalData, time)
+	return Layer.getTimePoint(self, time)
 end
 
 function IntervalLayer:computeTimePoints()

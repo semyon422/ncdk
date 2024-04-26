@@ -7,30 +7,19 @@ local class = require("class")
 ---@field prev ncdk2.IntervalData?
 local IntervalData = class()
 
----@param beats number
-function IntervalData:new(beats)
-	assert(type(beats) == "number" and beats >= 0 and beats % 1 == 0, "invalid beats: " .. beats)
-	self.beats = beats
+---@param offset number
+function IntervalData:new(offset)
+	self.offset = offset
 end
 
 ---@return ncdk.Fraction
-function IntervalData:start()
-	return self.timePoint.time % 1
-end
-
----@return number
-function IntervalData:startn()
-	return self.timePoint.time:tonumber() % 1
-end
-
----@return ncdk.Fraction
-function IntervalData:_end()
-	return self.next:start() + self.beats
+function IntervalData:time()
+	return self.timePoint.time
 end
 
 ---@return number
 function IntervalData:getDuration()
-	local duration = self.next:startn() - self:startn() + self.beats
+	local duration = (self.next:time() - self:time()):tonumber()
 	if duration <= 0 then
 		error("zero interval duration found: " .. tostring(self) .. ", " .. tostring(self.next))
 	end
@@ -40,8 +29,7 @@ end
 ---@return number
 function IntervalData:getBeatDuration()
 	local a, b = self:getPair()
-	local _a, _b = a.timePoint, b.timePoint
-	return (_b.absoluteTime - _a.absoluteTime) / a:getDuration()
+	return (b.offset - a.offset) / a:getDuration()
 end
 
 ---@return number
@@ -69,31 +57,7 @@ end
 ---@param a ncdk2.IntervalData
 ---@return string
 function IntervalData.__tostring(a)
-	local time = a.timePoint:getAbsoluteTimeKey()
-	return time .. "," .. a:start() .. "+" .. a.beats
-end
-
--- use absoluteTime to prevent stackoverflow
-
----@param a ncdk2.IntervalData
----@param b ncdk2.IntervalData
----@return boolean
-function IntervalData.__eq(a, b)
-	return a.timePoint.absoluteTime == b.timePoint.absoluteTime
-end
-
----@param a ncdk2.IntervalData
----@param b ncdk2.IntervalData
----@return boolean
-function IntervalData.__lt(a, b)
-	return a.timePoint.absoluteTime < b.timePoint.absoluteTime
-end
-
----@param a ncdk2.IntervalData
----@param b ncdk2.IntervalData
----@return boolean
-function IntervalData.__le(a, b)
-	return a.timePoint.absoluteTime <= b.timePoint.absoluteTime
+	return ("IntervalData(%s)"):format(a.offset)
 end
 
 return IntervalData
