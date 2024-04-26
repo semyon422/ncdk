@@ -11,9 +11,10 @@ function AbsoluteLayer:setPrimaryTempo(tempo)
 	self.primaryTempo = tempo
 end
 
+---@param time number
 ---@return ncdk2.AbsoluteTimePoint
-function AbsoluteLayer:newTimePoint()
-	return AbsoluteTimePoint()
+function AbsoluteLayer:newTimePoint(time)
+	return AbsoluteTimePoint(time)
 end
 
 ---@param time number
@@ -21,6 +22,11 @@ end
 function AbsoluteLayer:getTimePoint(time)
 	---@type ncdk2.AbsoluteTimePoint
 	return Layer.getTimePoint(self, time)
+end
+
+function AbsoluteLayer:compute()
+	local timePointList = self:getTimePointList()
+	Layer.compute(self)
 end
 
 return AbsoluteLayer

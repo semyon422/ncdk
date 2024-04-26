@@ -32,4 +32,10 @@ function TimePoint:compare(timePoint)
 	return self.absoluteTime < timePoint.absoluteTime
 end
 
+---@param a ncdk2.TimePoint
+---@return string
+function TimePoint.__tostring(a)
+	return ("TimePoint(%s)"):format(a.absoluteTime)
+end
+
 return TimePoint

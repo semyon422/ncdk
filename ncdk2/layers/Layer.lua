@@ -2,6 +2,7 @@ local class = require("class")
 local TimePoint = require("ncdk2.tp.TimePoint")
 local NoteDatas = require("ncdk2.notes.NoteDatas")
 local VisualTimePoint = require("ncdk2.visual.VisualTimePoint")
+local Visual = require("ncdk2.visual.Visual")
 
 ---@class ncdk2.Layer
 ---@operator call: ncdk2.Layer
@@ -14,6 +15,7 @@ function Layer:new()
 	self.timePoints = {}
 	self.visualTimePoints = {}
 	self.testTimePoint = self:newTimePoint()
+	self.visual = Visual()
 end
 
 ---@param ... any
@@ -23,24 +25,13 @@ function Layer:newTimePoint(...)
 end
 
 function Layer:compute()
-	-- for _, name in ipairs(listNames) do
-	-- 	table.sort(self[name])
-	-- end
-
-	self.noteDatas:sort()
-
-	-- local intervalDatas = self.intervalDatas
-	-- for i = 1, #intervalDatas do
-	-- 	intervalDatas[i].next = intervalDatas[i + 1]
-	-- 	intervalDatas[i].prev = intervalDatas[i - 1]
-	-- end
-
-	self:computeTimePoints()
+	self.visual:compute(self.visualTimePoints)
 end
 
 ---@param ... any
 ---@return ncdk2.TimePoint
 function Layer:getTimePoint(...)
+	print("get time point", ...)
 	self.testTimePoint:new(...)
 
 	local timePoints = self.timePoints
