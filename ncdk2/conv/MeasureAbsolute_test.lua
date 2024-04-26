@@ -19,7 +19,7 @@ function test.basic(t)
 		newtp(1),
 	}
 
-	timePoints[1]._tempoData = TempoData(timePoints[1], 60)
+	timePoints[1]._tempoData = TempoData(60)
 
 	conv:convert(timePoints)
 

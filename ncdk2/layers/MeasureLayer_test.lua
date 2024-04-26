@@ -10,7 +10,7 @@ function test.basic(t)
 	local layer = MeasureLayer()
 
 	local tp_0 = layer:getTimePoint(Fraction(0))
-	tp_0._tempoData = TempoData(tp_0, 120)
+	tp_0._tempoData = TempoData(120)
 	local vtp_0 = layer:newVisualTimePoint(tp_0)
 	vtp_0._velocityData = VelocityData(2)
 

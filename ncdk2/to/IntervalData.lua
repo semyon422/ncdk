@@ -1,24 +1,16 @@
-local TimedObject = require("ncdk2.to.TimedObject")
+local class = require("class")
 
----@class ncdk2.IntervalData: ncdk2.TimedObject
+---@class ncdk2.IntervalData
 ---@operator call: ncdk2.IntervalData
 ---@field timePoint ncdk2.IntervalTimePoint
 ---@field next ncdk2.IntervalData?
 ---@field prev ncdk2.IntervalData?
-local IntervalData = TimedObject + {}
+local IntervalData = class()
 
 ---@param beats number
 function IntervalData:new(beats)
 	assert(type(beats) == "number" and beats >= 0 and beats % 1 == 0, "invalid beats: " .. beats)
 	self.beats = beats
-end
-
----@param beats number
----@return boolean
-function IntervalData:set(beats)
-	local _beats = self.beats
-	self.beats = beats
-	return _beats ~= beats
 end
 
 ---@return ncdk.Fraction
