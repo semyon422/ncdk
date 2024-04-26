@@ -37,8 +37,8 @@ function MeasureLayer:getPoint(time)
 end
 
 function MeasureLayer:compute()
-	local timePointList = self:getPointList()
-	self.measureAbsolute:convert(timePointList)
+	local pointList = self:getPointList()
+	self.measureAbsolute:convert(pointList)
 	Layer.compute(self)
 end
 

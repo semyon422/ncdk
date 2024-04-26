@@ -36,31 +36,31 @@ function Layer:getPoint(...)
 
 	local points = self.points
 	local key = tostring(self.testPoint)
-	local timePoint = points[key]
-	if timePoint then
-		return timePoint
+	local point = points[key]
+	if point then
+		return point
 	end
 
-	timePoint = self:newPoint(...)
-	points[key] = timePoint
+	point = self:newPoint(...)
+	points[key] = point
 
-	return timePoint
+	return point
 end
 
 ---@return ncdk2.Point[]
 function Layer:getPointList()
-	local timePointList = {}
-	for _, timePoint in pairs(self.points) do
-		table.insert(timePointList, timePoint)
+	local pointList = {}
+	for _, point in pairs(self.points) do
+		table.insert(pointList, point)
 	end
-	table.sort(timePointList)
-	return timePointList
+	table.sort(pointList)
+	return pointList
 end
 
----@param timePoint ncdk2.Point
+---@param point ncdk2.Point
 ---@return ncdk2.VisualPoint
-function Layer:newVisualPoint(timePoint)
-	local visualPoint = VisualPoint(timePoint)
+function Layer:newVisualPoint(point)
+	local visualPoint = VisualPoint(point)
 	table.insert(self.visualPoints, visualPoint)
 	return visualPoint
 end

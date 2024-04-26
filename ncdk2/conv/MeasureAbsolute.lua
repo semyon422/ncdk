@@ -44,7 +44,7 @@ function MeasureAbsolute:convert(points)
 		if point.measureTime < targetTime then
 			targetTime = point.measureTime
 		end
-		local isAtTimePoint = point.measureTime == targetTime
+		local isAtPoint = point.measureTime == targetTime
 
 		local defaultSignature = self.defaultSignature
 		if isLong then
@@ -68,7 +68,7 @@ function MeasureAbsolute:convert(points)
 			zeroTime = time  -- ??? stops
 		end
 
-		if isAtTimePoint then
+		if isAtPoint then
 			local nextTempo = point._tempo
 			if nextTempo then
 				tempo = nextTempo

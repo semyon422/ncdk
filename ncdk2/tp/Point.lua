@@ -26,10 +26,10 @@ function Point:getAbsoluteTimeKey()
 	return ("%s[%s]"):format(bit.tohex(uint64_ptr[0]), time)
 end
 
----@param timePoint ncdk2.Point
+---@param point ncdk2.Point
 ---@return boolean
-function Point:compare(timePoint)
-	return self.absoluteTime < timePoint.absoluteTime
+function Point:compare(point)
+	return self.absoluteTime < point.absoluteTime
 end
 
 ---@param a ncdk2.Point

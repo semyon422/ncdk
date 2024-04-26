@@ -4,7 +4,7 @@ local class = require("class")
 ---@operator call: ncdk2.Converter
 local Converter = class()
 
----@param timePoints ncdk2.Point[]
-function Converter:convert(timePoints) end
+---@param points ncdk2.Point[]
+function Converter:convert(points) end
 
 return Converter

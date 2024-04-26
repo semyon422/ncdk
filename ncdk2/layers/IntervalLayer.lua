@@ -25,8 +25,8 @@ function IntervalLayer:getPoint(time)
 end
 
 function IntervalLayer:compute()
-	local timePointList = self:getPointList()
-	self.intervalAbsolute:convert(timePointList)
+	local pointList = self:getPointList()
+	self.intervalAbsolute:convert(pointList)
 	Layer.compute(self)
 end
 

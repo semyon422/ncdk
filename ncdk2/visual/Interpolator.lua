@@ -6,29 +6,29 @@ local Interpolator = class()
 
 ---@param list ncdk2.VisualPoint[]
 ---@param index number
----@param t ncdk2.VisualPoint
+---@param vp ncdk2.VisualPoint
 ---@return number
-function Interpolator:getBaseIndex(list, index, t)
+function Interpolator:getBaseIndex(list, index, vp)
 	index = math.min(math.max(index, 1), #list)
 
-	local _t = list[index]
-	if t == _t or t:compare(_t) and index == 1 then
+	local _vp = list[index]
+	if vp == _vp or vp:compare(_vp) and index == 1 then
 		-- skip
-	elseif _t:compare(t) then  -- t > point
-		local next_t = list[index + 1]
-		while next_t do
-			if not t:compare(next_t) then  -- t >= nextTimePoint
+	elseif _vp:compare(vp) then  -- vp > _vp
+		local next_vp = list[index + 1]
+		while next_vp do
+			if not vp:compare(next_vp) then  -- vp >= next_vp
 				index = index + 1
-				next_t = list[index + 1]
+				next_vp = list[index + 1]
 			else
 				break
 			end
 		end
-	elseif t:compare(_t) then
+	elseif vp:compare(_vp) then
 		index = index - 1
 		local prev_t = list[index]
 		while prev_t do
-			if t:compare(prev_t) then
+			if vp:compare(prev_t) then
 				index = index - 1
 				prev_t = list[index]
 			else
