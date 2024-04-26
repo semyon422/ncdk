@@ -4,9 +4,9 @@ local class = require("class")
 ---@operator call: ncdk2.Interpolator
 local Interpolator = class()
 
----@param list ncdk2.VisualTimePoint[]
+---@param list ncdk2.VisualPoint[]
 ---@param index number
----@param t ncdk2.VisualTimePoint
+---@param t ncdk2.VisualPoint
 ---@return number
 function Interpolator:getBaseIndex(list, index, t)
 	index = math.min(math.max(index, 1), #list)
@@ -14,7 +14,7 @@ function Interpolator:getBaseIndex(list, index, t)
 	local _t = list[index]
 	if t == _t or t:compare(_t) and index == 1 then
 		-- skip
-	elseif _t:compare(t) then  -- t > timePoint
+	elseif _t:compare(t) then  -- t > point
 		local next_t = list[index + 1]
 		while next_t do
 			if not t:compare(next_t) then  -- t >= nextTimePoint
@@ -40,30 +40,29 @@ function Interpolator:getBaseIndex(list, index, t)
 	return math.max(index, 1)
 end
 
----@param list ncdk2.VisualTimePoint[]
+---@param list ncdk2.VisualPoint[]
 ---@param index number
----@param vtp ncdk2.VisualTimePoint
+---@param vp ncdk2.VisualPoint
 ---@param mode "absolute"|"visual"
 ---@return number
-function Interpolator:interpolate(list, index, vtp, mode)
-	index = self:getBaseIndex(list, index, vtp)
+function Interpolator:interpolate(list, index, vp, mode)
+	index = self:getBaseIndex(list, index, vp)
 
 	local a = list[index]
-	local a_tp = a.timePoint
-
-	local vtp_tp = vtp.timePoint
+	local a_p = a.point
+	local vp_p = vp.point
 
 	if mode == "absolute" then
-		vtp.visualTime = a.visualTime + (vtp_tp.absoluteTime - a_tp.absoluteTime) * a.currentSpeed
+		vp.visualTime = a.visualTime + (vp_p.absoluteTime - a_p.absoluteTime) * a.currentSpeed
 	elseif mode == "visual" then
-		vtp_tp.absoluteTime = a_tp.absoluteTime + (vtp.visualTime - a.visualTime) / a.currentSpeed
+		vp_p.absoluteTime = a_p.absoluteTime + (vp.visualTime - a.visualTime) / a.currentSpeed
 	end
 
-	vtp.visualSection = a.visualSection
+	vp.section = a.section
 
-	vtp.currentSpeed = a.currentSpeed
-	vtp.localSpeed = a.localSpeed
-	vtp.globalSpeed = a.globalSpeed
+	vp.currentSpeed = a.currentSpeed
+	vp.localSpeed = a.localSpeed
+	vp.globalSpeed = a.globalSpeed
 
 	return index
 end

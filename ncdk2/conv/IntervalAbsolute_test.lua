@@ -1,39 +1,37 @@
 local IntervalAbsolute = require("ncdk2.conv.IntervalAbsolute")
-local IntervalTimePoint = require("ncdk2.tp.IntervalTimePoint")
-local IntervalData = require("ncdk2.to.IntervalData")
+local IntervalPoint = require("ncdk2.tp.IntervalPoint")
+local Interval = require("ncdk2.to.Interval")
 local Fraction = require("ncdk.Fraction")
 
 local test = {}
 
 ---@param n number
----@return ncdk2.IntervalTimePoint
-local function newtp(n)
-	local tp = IntervalTimePoint()
-	tp.time = Fraction(n, 1000, true)
-	return tp
+---@return ncdk2.IntervalPoint
+local function newp(n)
+	return IntervalPoint(Fraction(n, 1000, true))
 end
 
 function test.basic2(t)
 	local conv = IntervalAbsolute()
 
-	local timePoints = {
-		newtp(0),
-		newtp(1),
-		newtp(2),
-		newtp(3),
-		newtp(4),
-		newtp(5),
+	local points = {
+		newp(0),
+		newp(1),
+		newp(2),
+		newp(3),
+		newp(4),
+		newp(5),
 	}
 
-	timePoints[1]._intervalData = IntervalData(0)
-	timePoints[5]._intervalData = IntervalData(4)
+	points[1]._interval = Interval(0)
+	points[5]._interval = Interval(4)
 
-	conv:convert(timePoints)
+	conv:convert(points)
 
-	t:eq(timePoints[1].absoluteTime, 0)
-	t:eq(timePoints[2].absoluteTime, 1)
-	t:eq(timePoints[5].absoluteTime, 4)
-	t:eq(timePoints[6].absoluteTime, 5)
+	t:eq(points[1].absoluteTime, 0)
+	t:eq(points[2].absoluteTime, 1)
+	t:eq(points[5].absoluteTime, 4)
+	t:eq(points[6].absoluteTime, 5)
 end
 
 return test

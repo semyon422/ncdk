@@ -1,24 +1,24 @@
 local class = require("class")
 
----@class ncdk2.IntervalData
----@operator call: ncdk2.IntervalData
----@field timePoint ncdk2.IntervalTimePoint
----@field next ncdk2.IntervalData?
----@field prev ncdk2.IntervalData?
-local IntervalData = class()
+---@class ncdk2.Interval
+---@operator call: ncdk2.Interval
+---@field point ncdk2.IntervalPoint
+---@field next ncdk2.Interval?
+---@field prev ncdk2.Interval?
+local Interval = class()
 
 ---@param offset number
-function IntervalData:new(offset)
+function Interval:new(offset)
 	self.offset = offset
 end
 
 ---@return ncdk.Fraction
-function IntervalData:time()
-	return self.timePoint.time
+function Interval:time()
+	return self.point.time
 end
 
 ---@return number
-function IntervalData:getDuration()
+function Interval:getDuration()
 	local duration = (self.next:time() - self:time()):tonumber()
 	if duration <= 0 then
 		error("zero interval duration found: " .. tostring(self) .. ", " .. tostring(self.next))
@@ -27,20 +27,20 @@ function IntervalData:getDuration()
 end
 
 ---@return number
-function IntervalData:getBeatDuration()
+function Interval:getBeatDuration()
 	local a, b = self:getPair()
 	return (b.offset - a.offset) / a:getDuration()
 end
 
 ---@return number
-function IntervalData:getTempo()
+function Interval:getTempo()
 	return 60 / self:getBeatDuration()
 end
 
----@return ncdk2.IntervalData
----@return ncdk2.IntervalData
+---@return ncdk2.Interval
+---@return ncdk2.Interval
 ---@return boolean
-function IntervalData:getPair()
+function Interval:getPair()
 	local a = self
 	local n = a.next
 	if n then
@@ -50,14 +50,14 @@ function IntervalData:getPair()
 end
 
 ---@return boolean
-function IntervalData:isSingle()
+function Interval:isSingle()
 	return not self.prev and not self.next
 end
 
----@param a ncdk2.IntervalData
+---@param a ncdk2.Interval
 ---@return string
-function IntervalData.__tostring(a)
-	return ("IntervalData(%s)"):format(a.offset)
+function Interval.__tostring(a)
+	return ("Interval(%s)"):format(a.offset)
 end
 
-return IntervalData
+return Interval

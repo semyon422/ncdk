@@ -1,32 +1,32 @@
-local VisualTimePoint = require("ncdk2.visual.VisualTimePoint")
-local VelocityData = require("ncdk2.visual.VelocityData")
+local VisualPoint = require("ncdk2.visual.VisualPoint")
+local Velocity = require("ncdk2.visual.Velocity")
 local Visual = require("ncdk2.visual.Visual")
-local TimePoint = require("ncdk2.tp.TimePoint")
+local Point = require("ncdk2.tp.Point")
 
 local test = {}
 
 function test.basic(t)
 	local vis = Visual()
 
-	local timePoints = {
-		TimePoint(0),
-		TimePoint(1),
+	local points = {
+		Point(0),
+		Point(1),
 	}
 
-	local vtp1 = VisualTimePoint(timePoints[1])
-	local vtp2 = VisualTimePoint(timePoints[2])
+	local vp1 = VisualPoint(points[1])
+	local vp2 = VisualPoint(points[2])
 
-	vtp1._velocityData = VelocityData()
+	vp1._velocity = Velocity()
 
-	local visualTimePoints = {
-		vtp1,
-		vtp2,
+	local visualPoints = {
+		vp1,
+		vp2,
 	}
 
-	vis:compute(visualTimePoints)
+	vis:compute(visualPoints)
 
-	t:eq(vtp1.visualTime, 0)
-	t:eq(vtp2.visualTime, 1)
+	t:eq(vp1.visualTime, 0)
+	t:eq(vp2.visualTime, 1)
 end
 
 return test

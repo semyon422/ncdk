@@ -1,54 +1,54 @@
 local Interpolator = require("ncdk2.visual.Interpolator")
-local VisualTimePoint = require("ncdk2.visual.VisualTimePoint")
-local TimePoint = require("ncdk2.tp.TimePoint")
+local VisualPoint = require("ncdk2.visual.VisualPoint")
+local Point = require("ncdk2.tp.Point")
 
 local test = {}
 
 function test.absolute(t)
 	local itp = Interpolator()
 
-	local timePoints = {
-		TimePoint(0),
-		TimePoint(1),
+	local points = {
+		Point(0),
+		Point(1),
 	}
 
-	local visualTimePoints = {
-		VisualTimePoint(timePoints[1]),
-		VisualTimePoint(timePoints[2]),
+	local visualPoints = {
+		VisualPoint(points[1]),
+		VisualPoint(points[2]),
 	}
-	visualTimePoints[1].visualTime = 2
-	visualTimePoints[2].visualTime = 4
-	visualTimePoints[1].currentSpeed = 2
+	visualPoints[1].visualTime = 2
+	visualPoints[2].visualTime = 4
+	visualPoints[1].currentSpeed = 2
 
-	local vtp = VisualTimePoint(TimePoint(0.5))
+	local vp = VisualPoint(Point(0.5))
 
-	local index = itp:interpolate(visualTimePoints, 1, vtp, "absolute")
+	local index = itp:interpolate(visualPoints, 1, vp, "absolute")
 	t:eq(index, 1)
-	t:eq(vtp.visualTime, 3)
+	t:eq(vp.visualTime, 3)
 end
 
 function test.visual(t)
 	local itp = Interpolator()
 
-	local timePoints = {
-		TimePoint(0),
-		TimePoint(1),
+	local points = {
+		Point(0),
+		Point(1),
 	}
 
-	local visualTimePoints = {
-		VisualTimePoint(timePoints[1]),
-		VisualTimePoint(timePoints[2]),
+	local visualPoints = {
+		VisualPoint(points[1]),
+		VisualPoint(points[2]),
 	}
-	visualTimePoints[1].visualTime = 2
-	visualTimePoints[2].visualTime = 4
-	visualTimePoints[1].currentSpeed = 2
+	visualPoints[1].visualTime = 2
+	visualPoints[2].visualTime = 4
+	visualPoints[1].currentSpeed = 2
 
-	local vtp = VisualTimePoint(TimePoint())
-	vtp.visualTime = 3
+	local vp = VisualPoint(Point())
+	vp.visualTime = 3
 
-	local index = itp:interpolate(visualTimePoints, 1, vtp, "visual")
+	local index = itp:interpolate(visualPoints, 1, vp, "visual")
 	t:eq(index, 1)
-	t:eq(vtp.timePoint.absoluteTime, 0.5)
+	t:eq(vp.point.absoluteTime, 0.5)
 end
 
 return test

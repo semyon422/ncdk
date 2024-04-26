@@ -1,68 +1,68 @@
 local class = require("class")
-local TimePoint = require("ncdk2.tp.TimePoint")
-local NoteDatas = require("ncdk2.notes.NoteDatas")
-local VisualTimePoint = require("ncdk2.visual.VisualTimePoint")
+local Point = require("ncdk2.tp.Point")
+local Notes = require("ncdk2.notes.Notes")
+local VisualPoint = require("ncdk2.visual.VisualPoint")
 local Visual = require("ncdk2.visual.Visual")
 
 ---@class ncdk2.Layer
 ---@operator call: ncdk2.Layer
----@field timePoints {[string]: ncdk2.TimePoint}
----@field visualTimePoints ncdk2.VisualTimePoint[]
+---@field points {[string]: ncdk2.Point}
+---@field visualPoints ncdk2.VisualPoint[]
 local Layer = class()
 
 function Layer:new()
-	self.noteDatas = NoteDatas()
-	self.timePoints = {}
-	self.visualTimePoints = {}
-	self.testTimePoint = self:newTimePoint()
+	self.notes = Notes()
+	self.points = {}
+	self.visualPoints = {}
+	self.testPoint = self:newPoint()
 	self.visual = Visual()
 end
 
 ---@param ... any
----@return ncdk2.TimePoint
-function Layer:newTimePoint(...)
-	return TimePoint(...)
+---@return ncdk2.Point
+function Layer:newPoint(...)
+	return Point(...)
 end
 
 function Layer:compute()
-	self.visual:compute(self.visualTimePoints)
+	self.visual:compute(self.visualPoints)
 end
 
 ---@param ... any
----@return ncdk2.TimePoint
-function Layer:getTimePoint(...)
+---@return ncdk2.Point
+function Layer:getPoint(...)
 	print("get time point", ...)
-	self.testTimePoint:new(...)
+	self.testPoint:new(...)
 
-	local timePoints = self.timePoints
-	local key = tostring(self.testTimePoint)
-	local timePoint = timePoints[key]
+	local points = self.points
+	local key = tostring(self.testPoint)
+	local timePoint = points[key]
 	if timePoint then
 		return timePoint
 	end
 
-	timePoint = self:newTimePoint(...)
-	timePoints[key] = timePoint
+	timePoint = self:newPoint(...)
+	points[key] = timePoint
 
 	return timePoint
 end
 
----@return ncdk2.TimePoint[]
-function Layer:getTimePointList()
+---@return ncdk2.Point[]
+function Layer:getPointList()
 	local timePointList = {}
-	for _, timePoint in pairs(self.timePoints) do
+	for _, timePoint in pairs(self.points) do
 		table.insert(timePointList, timePoint)
 	end
 	table.sort(timePointList)
 	return timePointList
 end
 
----@param timePoint ncdk2.TimePoint
----@return ncdk2.VisualTimePoint
-function Layer:newVisualTimePoint(timePoint)
-	local visualTimePoint = VisualTimePoint(timePoint)
-	table.insert(self.visualTimePoints, visualTimePoint)
-	return visualTimePoint
+---@param timePoint ncdk2.Point
+---@return ncdk2.VisualPoint
+function Layer:newVisualPoint(timePoint)
+	local visualPoint = VisualPoint(timePoint)
+	table.insert(self.visualPoints, visualPoint)
+	return visualPoint
 end
 
 return Layer

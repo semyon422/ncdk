@@ -4,49 +4,49 @@ local Converter = require("ncdk2.conv.Converter")
 ---@operator call: ncdk2.IntervalAbsolute
 local IntervalAbsolute = Converter + {}
 
----@param timePoints ncdk2.IntervalTimePoint[]
----@return ncdk2.MeasureData?
-function IntervalAbsolute:getFirstMeasureData(timePoints)
-	for _, tp in ipairs(timePoints) do
-		if tp._measureData then
-			return tp._measureData
+---@param points ncdk2.IntervalPoint[]
+---@return ncdk2.Measure?
+function IntervalAbsolute:getFirstMeasure(points)
+	for _, p in ipairs(points) do
+		if p._measure then
+			return p._measure
 		end
 	end
 end
 
----@param timePoints ncdk2.IntervalTimePoint[]
----@return ncdk2.IntervalData?
-function IntervalAbsolute:getFirstIntervalData(timePoints)
-	for _, tp in ipairs(timePoints) do
-		if tp._intervalData then
-			return tp._intervalData
+---@param points ncdk2.IntervalPoint[]
+---@return ncdk2.Interval?
+function IntervalAbsolute:getFirstInterval(points)
+	for _, p in ipairs(points) do
+		if p._interval then
+			return p._interval
 		end
 	end
 end
 
----@param timePoints ncdk2.IntervalTimePoint[]
-function IntervalAbsolute:convert(timePoints)
-	local measureData = self:getFirstMeasureData(timePoints)
-	local intervalData = self:getFirstIntervalData(timePoints)
+---@param points ncdk2.IntervalPoint[]
+function IntervalAbsolute:convert(points)
+	local measure = self:getFirstMeasure(points)
+	local interval = self:getFirstInterval(points)
 
-	for _, timePoint in ipairs(timePoints) do
-		if timePoint._measureData then
-			measureData = timePoint._measureData
+	for _, point in ipairs(points) do
+		if point._measure then
+			measure = point._measure
 		end
 
-		local _intervalData = timePoint._intervalData
-		if _intervalData then
-			intervalData.next, _intervalData.prev = _intervalData, intervalData
-			intervalData = _intervalData
-			intervalData.timePoint = timePoint
+		local _interval = point._interval
+		if _interval then
+			interval.next, _interval.prev = _interval, interval
+			interval = _interval
+			interval.point = point
 		end
 
-		timePoint.intervalData = intervalData
-		timePoint.measureData = measureData
+		point.interval = interval
+		point.measure = measure
 	end
 
-	for _, timePoint in ipairs(timePoints) do
-		timePoint.absoluteTime = timePoint:tonumber()
+	for _, point in ipairs(points) do
+		point.absoluteTime = point:tonumber()
 	end
 end
 

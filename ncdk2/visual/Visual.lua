@@ -7,92 +7,92 @@ local Visual = class()
 Visual.primaryTempo = 0
 Visual.tempoMultiplyTarget = "current"  -- "current" | "local" | "global"
 
----@param visualTimePoints ncdk2.VisualTimePoint[]
----@return ncdk2.VelocityData?
-function Visual:getFirstVelocityData(visualTimePoints)
-	for _, tp in ipairs(visualTimePoints) do
-		if tp._velocityData then
-			return tp._velocityData
+---@param visualPoints ncdk2.VisualPoint[]
+---@return ncdk2.Velocity?
+function Visual:getFirstVelocity(visualPoints)
+	for _, vp in ipairs(visualPoints) do
+		if vp._velocity then
+			return vp._velocity
 		end
 	end
 end
 
----@param visualTimePoints ncdk2.VisualTimePoint[]
-function Visual:compute(visualTimePoints)
-	local velocityData = self:getFirstVelocityData(visualTimePoints)
+---@param visualPoints ncdk2.VisualPoint[]
+function Visual:compute(visualPoints)
+	local velocity = self:getFirstVelocity(visualPoints)
 	local primaryTempo = self.primaryTempo
 
 	local visualTime = 0
-	local visualSection = 0
+	local section = 0
 	local currentAbsoluteTime = 0
-	for _, visualTimePoint in ipairs(visualTimePoints) do
-		local timePoint = visualTimePoint.timePoint
-		local time = timePoint.absoluteTime
+	for _, visualPoint in ipairs(visualPoints) do
+		local point = visualPoint.point
+		local time = point.absoluteTime
 
-		---@type ncdk2.TempoData?
-		local tempoData = timePoint.tempoData
-		---@type ncdk2.StopData?
-		local stopData = timePoint._stopData
-		---@type ncdk2.IntervalData?
-		local intervalData = timePoint.intervalData
+		---@type ncdk2.Tempo?
+		local tempo = point.tempo
+		---@type ncdk2.Stop?
+		local stop = point._stop
+		---@type ncdk2.Interval?
+		local interval = point.interval
 
 		local tempoMultiplier = 1
 		if primaryTempo ~= 0 then
-			if stopData then
+			if stop then
 				tempoMultiplier = 0
-			elseif tempoData then
-				tempoMultiplier = tempoData.tempo / primaryTempo
+			elseif tempo then
+				tempoMultiplier = tempo.tempo / primaryTempo
 			end
 		end
 
 		local currentSpeed, localSpeed, globalSpeed =
-			self:multiply(velocityData, tempoMultiplier)
+			self:multiply(velocity, tempoMultiplier)
 
 		visualTime = visualTime + (time - currentAbsoluteTime) * currentSpeed
 		currentAbsoluteTime = time
 
-		local _velocityData = visualTimePoint._velocityData
-		if _velocityData then
-			velocityData = _velocityData
+		local _velocity = visualPoint._velocity
+		if _velocity then
+			velocity = _velocity
 		end
-		currentSpeed = self:multiply(velocityData, tempoMultiplier)
+		currentSpeed = self:multiply(velocity, tempoMultiplier)
 
-		local expandData = visualTimePoint._expandData
-		if expandData then
-			local duration = expandData.duration * currentSpeed
-			if tempoData then
-				duration = duration * tempoData:getBeatDuration()
-			elseif intervalData then
-				duration = duration * intervalData:getBeatDuration()
+		local expand = visualPoint._expand
+		if expand then
+			local duration = expand.duration * currentSpeed
+			if tempo then
+				duration = duration * tempo:getBeatDuration()
+			elseif interval then
+				duration = duration * interval:getBeatDuration()
 			end
 			if math.abs(duration) == math.huge then
-				visualSection = visualSection + 1
+				section = section + 1
 			else
 				visualTime = visualTime + duration
 			end
 		end
 
-		visualTimePoint.velocityData = velocityData
+		visualPoint.velocity = velocity
 
-		visualTimePoint.visualTime = visualTime
-		visualTimePoint.visualSection = visualSection
-		visualTimePoint.currentSpeed = currentSpeed
-		visualTimePoint.localSpeed = localSpeed
-		visualTimePoint.globalSpeed = globalSpeed
+		visualPoint.visualTime = visualTime
+		visualPoint.section = section
+		visualPoint.currentSpeed = currentSpeed
+		visualPoint.localSpeed = localSpeed
+		visualPoint.globalSpeed = globalSpeed
 	end
 end
 
----@param velocityData ncdk2.VelocityData?
+---@param velocity ncdk2.Velocity?
 ---@param tempoMultiplier number
 ---@return number
 ---@return number
 ---@return number
-function Visual:multiply(velocityData, tempoMultiplier)
+function Visual:multiply(velocity, tempoMultiplier)
 	local currentSpeed, localSpeed, globalSpeed = 1, 1, 1
-	if velocityData then
-		currentSpeed = velocityData.currentSpeed
-		localSpeed = velocityData.localSpeed
-		globalSpeed = velocityData.globalSpeed
+	if velocity then
+		currentSpeed = velocity.currentSpeed
+		localSpeed = velocity.localSpeed
+		globalSpeed = velocity.globalSpeed
 	end
 
 	local target = self.tempoMultiplyTarget

@@ -1,5 +1,5 @@
 local Layer = require("ncdk2.layers.Layer")
-local IntervalTimePoint = require("ncdk2.tp.IntervalTimePoint")
+local IntervalPoint = require("ncdk2.tp.IntervalPoint")
 local IntervalAbsolute = require("ncdk2.conv.IntervalAbsolute")
 
 ---@class ncdk2.IntervalLayer: ncdk2.Layer
@@ -12,20 +12,20 @@ function IntervalLayer:new()
 end
 
 ---@param time ncdk.Fraction
----@return ncdk2.IntervalTimePoint
-function IntervalLayer:newTimePoint(time)
-	return IntervalTimePoint(time)
+---@return ncdk2.IntervalPoint
+function IntervalLayer:newPoint(time)
+	return IntervalPoint(time)
 end
 
 ---@param time ncdk.Fraction
----@return ncdk2.IntervalTimePoint
-function IntervalLayer:getTimePoint(time)
-	---@type ncdk2.IntervalTimePoint
-	return Layer.getTimePoint(self, time)
+---@return ncdk2.IntervalPoint
+function IntervalLayer:getPoint(time)
+	---@type ncdk2.IntervalPoint
+	return Layer.getPoint(self, time)
 end
 
 function IntervalLayer:compute()
-	local timePointList = self:getTimePointList()
+	local timePointList = self:getPointList()
 	self.intervalAbsolute:convert(timePointList)
 	Layer.compute(self)
 end

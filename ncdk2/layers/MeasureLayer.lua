@@ -1,5 +1,5 @@
 local Layer = require("ncdk2.layers.Layer")
-local MeasureTimePoint = require("ncdk2.tp.MeasureTimePoint")
+local MeasurePoint = require("ncdk2.tp.MeasurePoint")
 local MeasureAbsolute = require("ncdk2.conv.MeasureAbsolute")
 
 ---@class ncdk2.MeasureLayer: ncdk2.Layer
@@ -24,20 +24,20 @@ function MeasureLayer:setPrimaryTempo(tempo)
 end
 
 ---@param time ncdk.Fraction
----@return ncdk2.MeasureTimePoint
-function MeasureLayer:newTimePoint(time)
-	return MeasureTimePoint(time)
+---@return ncdk2.MeasurePoint
+function MeasureLayer:newPoint(time)
+	return MeasurePoint(time)
 end
 
 ---@param time ncdk.Fraction
----@return ncdk2.MeasureTimePoint
-function MeasureLayer:getTimePoint(time)
-	---@type ncdk2.MeasureTimePoint
-	return Layer.getTimePoint(self, time)
+---@return ncdk2.MeasurePoint
+function MeasureLayer:getPoint(time)
+	---@type ncdk2.MeasurePoint
+	return Layer.getPoint(self, time)
 end
 
 function MeasureLayer:compute()
-	local timePointList = self:getTimePointList()
+	local timePointList = self:getPointList()
 	self.measureAbsolute:convert(timePointList)
 	Layer.compute(self)
 end

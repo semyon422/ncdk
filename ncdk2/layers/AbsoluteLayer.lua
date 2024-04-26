@@ -1,5 +1,5 @@
 local Layer = require("ncdk2.layers.Layer")
-local AbsoluteTimePoint = require("ncdk2.tp.AbsoluteTimePoint")
+local AbsolutePoint = require("ncdk2.tp.AbsolutePoint")
 
 ---@class ncdk2.AbsoluteLayer: ncdk2.Layer
 ---@operator call: ncdk2.AbsoluteLayer
@@ -12,20 +12,20 @@ function AbsoluteLayer:setPrimaryTempo(tempo)
 end
 
 ---@param time number
----@return ncdk2.AbsoluteTimePoint
-function AbsoluteLayer:newTimePoint(time)
-	return AbsoluteTimePoint(time)
+---@return ncdk2.AbsolutePoint
+function AbsoluteLayer:newPoint(time)
+	return AbsolutePoint(time)
 end
 
 ---@param time number
----@return ncdk2.AbsoluteTimePoint
-function AbsoluteLayer:getTimePoint(time)
-	---@type ncdk2.AbsoluteTimePoint
-	return Layer.getTimePoint(self, time)
+---@return ncdk2.AbsolutePoint
+function AbsoluteLayer:getPoint(time)
+	---@type ncdk2.AbsolutePoint
+	return Layer.getPoint(self, time)
 end
 
 function AbsoluteLayer:compute()
-	local timePointList = self:getTimePointList()
+	local pointList = self:getPointList()
 	Layer.compute(self)
 end
 

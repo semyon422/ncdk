@@ -10,55 +10,55 @@ MeasureAbsolute.signatureMode = "long"
 
 MeasureAbsolute.defaultSignature = Fraction(4)
 
----@param timePoints ncdk2.MeasureTimePoint[]
----@return ncdk2.TempoData?
-function MeasureAbsolute:getFirstTempoData(timePoints)
-	for _, tp in ipairs(timePoints) do
-		if tp._tempoData then
-			return tp._tempoData
+---@param points ncdk2.MeasurePoint[]
+---@return ncdk2.Tempo?
+function MeasureAbsolute:getFirstTempo(points)
+	for _, p in ipairs(points) do
+		if p._tempo then
+			return p._tempo
 		end
 	end
 end
 
----@param timePoints ncdk2.MeasureTimePoint[]
-function MeasureAbsolute:convert(timePoints)
+---@param points ncdk2.MeasurePoint[]
+function MeasureAbsolute:convert(points)
 	local isLong = self.signatureMode == "long"
 
-	local tempoData = self:getFirstTempoData(timePoints)
-	if not tempoData then
+	local tempo = self:getFirstTempo(points)
+	if not tempo then
 		return
 	end
 
-	local timePointIndex = 1
-	local timePoint = timePoints[timePointIndex]
+	local pointIndex = 1
+	local point = points[pointIndex]
 
 	local signature = self.defaultSignature
 
 	local zeroTime = 0
 	local time = 0
-	local currentTime = timePoint.measureTime
-	while timePoint do
+	local currentTime = point.measureTime
+	while point do
 		local measureOffset = currentTime:floor()
 
 		local targetTime = Fraction(measureOffset + 1)
-		if timePoint.measureTime < targetTime then
-			targetTime = timePoint.measureTime
+		if point.measureTime < targetTime then
+			targetTime = point.measureTime
 		end
-		local isAtTimePoint = timePoint.measureTime == targetTime
+		local isAtTimePoint = point.measureTime == targetTime
 
 		local defaultSignature = self.defaultSignature
 		if isLong then
 			defaultSignature = signature
 		end
 
-		if timePoint._signatureData then
-			signature = timePoint._signatureData.signature or defaultSignature
+		if point._signature then
+			signature = point._signature.signature or defaultSignature
 		else
 			signature = defaultSignature
 		end
 
 		---@type number
-		local duration = tempoData:getBeatDuration() * signature
+		local duration = tempo:getBeatDuration() * signature
 
 		---@type number
 		time = time + duration * (targetTime - currentTime)
@@ -69,29 +69,29 @@ function MeasureAbsolute:convert(timePoints)
 		end
 
 		if isAtTimePoint then
-			local nextTempoData = timePoint._tempoData
-			if nextTempoData then
-				tempoData = nextTempoData
+			local nextTempo = point._tempo
+			if nextTempo then
+				tempo = nextTempo
 			end
 
-			local stopData = timePoint._stopData
-			if stopData then
-				local stop_duration = stopData.duration
-				if not stopData.isAbsolute then
-					stop_duration = tempoData:getBeatDuration() * stop_duration
+			local stop = point._stop
+			if stop then
+				local stop_duration = stop.duration
+				if not stop.isAbsolute then
+					stop_duration = tempo:getBeatDuration() * stop_duration
 				end
 				time = time + stop_duration
 			end
 
-			timePoint.tempoData = tempoData
-			timePoint.absoluteTime = time
+			point.tempo = tempo
+			point.absoluteTime = time
 
-			timePointIndex = timePointIndex + 1
-			timePoint = timePoints[timePointIndex]
+			pointIndex = pointIndex + 1
+			point = points[pointIndex]
 		end
 	end
 
-	for i, t in ipairs(timePoints) do
+	for i, t in ipairs(points) do
 		t.absoluteTime = t.absoluteTime - zeroTime
 	end
 end
