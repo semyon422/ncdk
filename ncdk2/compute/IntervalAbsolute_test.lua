@@ -1,4 +1,4 @@
-local IntervalAbsolute = require("ncdk2.conv.IntervalAbsolute")
+local IntervalAbsolute = require("ncdk2.compute.IntervalAbsolute")
 local IntervalPoint = require("ncdk2.tp.IntervalPoint")
 local Interval = require("ncdk2.to.Interval")
 local Fraction = require("ncdk.Fraction")

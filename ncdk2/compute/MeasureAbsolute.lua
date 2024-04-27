@@ -1,9 +1,9 @@
-local Converter = require("ncdk2.conv.Converter")
+local class = require("class")
 local Fraction = require("ncdk.Fraction")
 
----@class ncdk2.MeasureAbsolute: ncdk2.Converter
+---@class ncdk2.MeasureAbsolute
 ---@operator call: ncdk2.MeasureAbsolute
-local MeasureAbsolute = Converter + {}
+local MeasureAbsolute = class()
 
 ---@type "long"|"short"
 MeasureAbsolute.signatureMode = "long"
@@ -34,6 +34,7 @@ function MeasureAbsolute:convert(points)
 
 	local signature = self.defaultSignature
 
+	local beatTime = Fraction(0)
 	local zeroTime = 0
 	local time = 0
 	local currentTime = point.measureTime
@@ -56,6 +57,9 @@ function MeasureAbsolute:convert(points)
 		else
 			signature = defaultSignature
 		end
+
+		---@type ncdk.Fraction
+		beatTime = beatTime + signature * (targetTime - currentTime)
 
 		---@type number
 		local duration = tempo:getBeatDuration() * signature
@@ -85,6 +89,7 @@ function MeasureAbsolute:convert(points)
 
 			point.tempo = tempo
 			point.absoluteTime = time
+			point.beatTime = beatTime
 
 			pointIndex = pointIndex + 1
 			point = points[pointIndex]

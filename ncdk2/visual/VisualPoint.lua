@@ -26,7 +26,7 @@ function VisualPoint:getVisualTime(vp)
 	end
 	local globalSpeed = vp.globalSpeed
 	local localSpeed = self.localSpeed
-	return (self.visualTime - vp.visualTime) * globalSpeed * localSpeed + vp.absoluteTime
+	return (self.visualTime - vp.visualTime) * globalSpeed * localSpeed + self.point.absoluteTime
 end
 
 ---@param vp ncdk2.VisualPoint

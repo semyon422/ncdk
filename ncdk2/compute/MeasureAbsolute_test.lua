@@ -1,4 +1,4 @@
-local MeasureAbsolute = require("ncdk2.conv.MeasureAbsolute")
+local MeasureAbsolute = require("ncdk2.compute.MeasureAbsolute")
 local MeasurePoint = require("ncdk2.tp.MeasurePoint")
 local Tempo = require("ncdk2.to.Tempo")
 local Fraction = require("ncdk.Fraction")

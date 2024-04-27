@@ -1,6 +1,6 @@
 local Layer = require("ncdk2.layers.Layer")
 local MeasurePoint = require("ncdk2.tp.MeasurePoint")
-local MeasureAbsolute = require("ncdk2.conv.MeasureAbsolute")
+local MeasureAbsolute = require("ncdk2.compute.MeasureAbsolute")
 
 ---@class ncdk2.MeasureLayer: ncdk2.Layer
 ---@operator call: ncdk2.MeasureLayer

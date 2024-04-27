@@ -6,6 +6,7 @@ local Point = require("ncdk2.tp.Point")
 ---@field _tempo ncdk2.Tempo?
 ---@field tempo ncdk2.Tempo?
 ---@field _stop ncdk2.Stop?
+---@field beatTime ncdk.Fraction?
 local MeasurePoint = Point + {}
 
 -- Stop should be placed on isRightSide = true

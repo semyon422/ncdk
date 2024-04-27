@@ -1,6 +1,6 @@
 local Layer = require("ncdk2.layers.Layer")
 local IntervalPoint = require("ncdk2.tp.IntervalPoint")
-local IntervalAbsolute = require("ncdk2.conv.IntervalAbsolute")
+local IntervalAbsolute = require("ncdk2.compute.IntervalAbsolute")
 
 ---@class ncdk2.IntervalLayer: ncdk2.Layer
 ---@operator call: ncdk2.IntervalLayer

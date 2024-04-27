@@ -1,8 +1,8 @@
-local Converter = require("ncdk2.conv.Converter")
+local class = require("class")
 
----@class ncdk2.IntervalAbsolute: ncdk2.Converter
+---@class ncdk2.IntervalAbsolute
 ---@operator call: ncdk2.IntervalAbsolute
-local IntervalAbsolute = Converter + {}
+local IntervalAbsolute = class()
 
 ---@param points ncdk2.IntervalPoint[]
 ---@return ncdk2.Measure?
