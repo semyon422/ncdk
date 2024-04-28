@@ -2,6 +2,7 @@ local Point = require("ncdk2.tp.Point")
 
 ---@class ncdk2.AbsolutePoint: ncdk2.Point
 ---@operator call: ncdk2.AbsolutePoint
+---@field _tempo ncdk2.Tempo?
 ---@field tempo ncdk2.Tempo?
 local AbsolutePoint = Point + {}
 
