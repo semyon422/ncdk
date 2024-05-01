@@ -132,9 +132,13 @@ function Fraction:new(n, d, round)
 	end
 
 	if round ~= nil then
-		if round == true then
+		if round == "round" or round == true then
 			n = floor(n * d + 0.5)
-		elseif round == false then
+		elseif round == "floor" then
+			n = floor(n * d)
+		elseif round == "ceil" then
+			n = ceil(n * d)
+		elseif round == "closest" or round == false then
 			n, d = closest(n, d)
 		elseif round == "closest_gte" then
 			n, d = closest(n, d, "b")

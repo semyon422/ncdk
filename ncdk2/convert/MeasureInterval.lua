@@ -9,7 +9,10 @@ local IntervalLayer = require("ncdk2.layers.IntervalLayer")
 local MeasureInterval = class()
 
 ---@param points ncdk2.MeasurePoint[]
+---@return {[string]: ncdk2.IntervalPoint}
 function MeasureInterval:convertPoints(points)
+	---@type {[string]: ncdk2.IntervalPoint}
+	local points_map = {}
 	local lastPoint = points[1]
 	local absoluteTime = 0
 	for _, p in ipairs(points) do
@@ -22,6 +25,7 @@ function MeasureInterval:convertPoints(points)
 		table_util.clear(p)
 
 		p:new(beatTime)
+		points_map[tostring(p)] = p
 		if _tempo then
 			p._interval = Interval(absoluteTime)
 		end
@@ -30,12 +34,13 @@ function MeasureInterval:convertPoints(points)
 	if not lastPoint._tempo then
 		lastPoint._interval = Interval(absoluteTime)
 	end
+	return points_map
 end
 
 ---@param layer ncdk2.MeasureLayer
 function MeasureInterval:convert(layer)
 	local points = layer:getPointList()
-	self:convertPoints(points)
+	local points_map = self:convertPoints(points)
 
 	local notes, visualPoints = layer.notes, layer.visualPoints
 
@@ -45,7 +50,7 @@ function MeasureInterval:convert(layer)
 
 	layer:new()
 	layer.notes = notes
-	layer.points = points
+	layer.points = points_map
 	layer.visualPoints = visualPoints
 
 	layer:compute()

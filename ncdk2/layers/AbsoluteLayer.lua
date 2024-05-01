@@ -1,9 +1,15 @@
 local Layer = require("ncdk2.layers.Layer")
 local AbsolutePoint = require("ncdk2.tp.AbsolutePoint")
+local AbsoluteAbsolute = require("ncdk2.compute.AbsoluteAbsolute")
 
 ---@class ncdk2.AbsoluteLayer: ncdk2.Layer
 ---@operator call: ncdk2.AbsoluteLayer
 local AbsoluteLayer = Layer + {}
+
+function AbsoluteLayer:new()
+	Layer.new(self)
+	self.absoluteAbsolute = AbsoluteAbsolute()
+end
 
 ---@param tempo number
 function AbsoluteLayer:setPrimaryTempo(tempo)
@@ -26,6 +32,7 @@ end
 
 function AbsoluteLayer:compute()
 	local pointList = self:getPointList()
+	self.absoluteAbsolute:convert(pointList)
 	Layer.compute(self)
 end
 
