@@ -32,10 +32,16 @@ end
 ---@param vp ncdk2.VisualPoint
 ---@return boolean
 function VisualPoint:compare(vp)
-	if self.section == vp.section then
+	if self.section ~= vp.section then
+		return self.section < vp.section
+	end
+	if self.visualTime ~= vp.visualTime then
 		return self.visualTime < vp.visualTime
 	end
-	return self.section < vp.section
+	if self.point.absoluteTime ~= vp.point.absoluteTime then
+		return self.point.absoluteTime < vp.point.absoluteTime
+	end
+	return false
 end
 
 ---@param a ncdk2.VisualPoint

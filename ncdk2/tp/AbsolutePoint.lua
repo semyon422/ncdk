@@ -12,25 +12,8 @@ function AbsolutePoint.__tostring(a)
 	return ("AbsolutePoint(%s)"):format(a.absoluteTime)
 end
 
----@param a ncdk2.AbsolutePoint
----@param b ncdk2.AbsolutePoint
----@return boolean
-function AbsolutePoint.__eq(a, b)
-	return a.absoluteTime == b.absoluteTime
-end
-
----@param a ncdk2.AbsolutePoint
----@param b ncdk2.AbsolutePoint
----@return boolean
-function AbsolutePoint.__lt(a, b)
-	return a.absoluteTime < b.absoluteTime
-end
-
----@param a ncdk2.AbsolutePoint
----@param b ncdk2.AbsolutePoint
----@return boolean
-function AbsolutePoint.__le(a, b)
-	return a.absoluteTime <= b.absoluteTime
-end
+AbsolutePoint.__eq = Point.__eq
+AbsolutePoint.__lt = Point.__lt
+AbsolutePoint.__le = Point.__le
 
 return AbsolutePoint

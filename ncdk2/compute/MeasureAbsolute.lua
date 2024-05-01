@@ -1,9 +1,15 @@
 local class = require("class")
 local Fraction = require("ncdk.Fraction")
+local Interpolator = require("ncdk2.Interpolator")
+local MeasurePoint = require("ncdk2.tp.MeasurePoint")
 
 ---@class ncdk2.MeasureAbsolute
 ---@operator call: ncdk2.MeasureAbsolute
 local MeasureAbsolute = class()
+
+function MeasureAbsolute:new()
+	self.interpolator = Interpolator()
+end
 
 MeasureAbsolute.defaultSignature = Fraction(4)
 
@@ -21,73 +27,63 @@ end
 function MeasureAbsolute:convert(points)
 	local tempo = assert(self:getFirstTempo(points), "missing tempo")
 
-	local pointIndex = 1
-	local point = points[pointIndex]
-
 	local defaultSignature = self.defaultSignature
 	local signature = defaultSignature
 
 	local beatTime = Fraction(0)
-	local zeroTime = 0
 	local time = 0
-	local currentTime = point.measureTime
-	if currentTime[1] > 0 then
-		currentTime = Fraction(0)  -- what if all points are before 0?
-	end
 
-	while point do
-		local measureOffset = currentTime:floor()
-
-		local targetTime = Fraction(measureOffset + 1)
-		if point.measureTime < targetTime then
-			targetTime = point.measureTime
-		end
-		local isAtPoint = point.measureTime == targetTime
+	local currentTime = points[1].measureTime
+	for _, point in ipairs(points) do
+		local measureTime = point.measureTime
 
 		---@type ncdk.Fraction
-		beatTime = beatTime + signature * (targetTime - currentTime)
+		beatTime = beatTime + signature * (measureTime - currentTime)
 
 		---@type number
-		local duration = tempo:getBeatDuration() * signature
+		local measure_duration = tempo:getBeatDuration() * signature
 
 		---@type number
-		time = time + duration * (targetTime - currentTime)
-		currentTime = targetTime
+		time = time + measure_duration * (measureTime - currentTime)
+		currentTime = measureTime
 
 		if point._signature then
 			signature = point._signature.signature or defaultSignature
 		end
 
-		if targetTime[1] == 0 then
-			zeroTime = time  -- ??? stops
+		local _tempo = point._tempo
+		if _tempo then
+			tempo = _tempo
 		end
 
-		if isAtPoint then
-			local nextTempo = point._tempo
-			if nextTempo then
-				tempo = nextTempo
+		local stop = point._stop
+		if stop then
+			local stop_duration = stop.duration
+			if not stop.isAbsolute then
+				stop_duration = stop_duration * tempo:getBeatDuration()
 			end
-
-			local stop = point._stop
-			if stop then
-				local stop_duration = stop.duration
-				if not stop.isAbsolute then
-					stop_duration = tempo:getBeatDuration() * stop_duration
-				end
-				time = time + stop_duration
-			end
-
-			point.tempo = tempo
-			point.absoluteTime = time
-			point.beatTime = beatTime
-
-			pointIndex = pointIndex + 1
-			point = points[pointIndex]
+			time = time + stop_duration
 		end
+
+		point.tempo = tempo
+		point.signature = signature
+		point.absoluteTime = time
+		point.beatTime = beatTime
 	end
 
-	for i, t in ipairs(points) do
-		t.absoluteTime = t.absoluteTime - zeroTime
+	local zero_p = MeasurePoint()
+	zero_p.measureTime = Fraction(0)
+
+	local index = self.interpolator:getBaseIndex(points, 1, zero_p)
+	local a = points[index]
+
+	---@type number
+	local zero_absoluteTime = a.absoluteTime - a.tempo:getBeatDuration() * a.measureTime * a.signature
+	local zero_beatTime = a.beatTime - a.measureTime * a.signature
+
+	for _, p in ipairs(points) do
+		p.absoluteTime = p.absoluteTime - zero_absoluteTime
+		p.beatTime = p.beatTime - zero_beatTime
 	end
 end
 

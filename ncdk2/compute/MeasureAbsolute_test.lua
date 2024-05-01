@@ -19,6 +19,7 @@ function test.basic(t)
 	local points = {
 		newp(0),
 		newp(1),
+		newp(10),
 	}
 
 	points[1]._tempo = Tempo(60)
@@ -27,6 +28,7 @@ function test.basic(t)
 
 	t:eq(points[1].absoluteTime, 0)
 	t:eq(points[2].absoluteTime, 4)
+	t:eq(points[3].absoluteTime, 40)
 end
 
 function test.no_zero_point(t)

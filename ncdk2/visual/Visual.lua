@@ -1,5 +1,5 @@
 local class = require("class")
-local Interpolator = require("ncdk2.visual.Interpolator")
+local VisualInterpolator = require("ncdk2.visual.VisualInterpolator")
 local Point = require("ncdk2.tp.Point")
 local VisualPoint = require("ncdk2.visual.VisualPoint")
 
@@ -8,7 +8,7 @@ local VisualPoint = require("ncdk2.visual.VisualPoint")
 local Visual = class()
 
 function Visual:new()
-	self.interpolator = Interpolator()
+	self.interpolator = VisualInterpolator()
 end
 
 Visual.primaryTempo = 0

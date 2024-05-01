@@ -3,6 +3,7 @@ local Point = require("ncdk2.tp.Point")
 ---@class ncdk2.MeasurePoint: ncdk2.Point
 ---@operator call: ncdk2.MeasurePoint
 ---@field _signature ncdk2.Signature?
+---@field signature ncdk.Fraction?
 ---@field _tempo ncdk2.Tempo?
 ---@field tempo ncdk2.Tempo?
 ---@field _stop ncdk2.Stop?

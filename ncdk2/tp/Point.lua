@@ -38,4 +38,25 @@ function Point.__tostring(a)
 	return ("Point(%s)"):format(a.absoluteTime)
 end
 
+---@param a ncdk2.Point
+---@param b ncdk2.Point
+---@return boolean
+function Point.__eq(a, b)
+	return a.absoluteTime == b.absoluteTime
+end
+
+---@param a ncdk2.Point
+---@param b ncdk2.Point
+---@return boolean
+function Point.__lt(a, b)
+	return a.absoluteTime < b.absoluteTime
+end
+
+---@param a ncdk2.Point
+---@param b ncdk2.Point
+---@return boolean
+function Point.__le(a, b)
+	return a.absoluteTime <= b.absoluteTime
+end
+
 return Point
