@@ -1,8 +1,15 @@
 local class = require("class")
+local Interpolator = require("ncdk2.visual.Interpolator")
+local Point = require("ncdk2.tp.Point")
+local VisualPoint = require("ncdk2.visual.VisualPoint")
 
 ---@class ncdk2.Visual
 ---@operator call: ncdk2.Visual
 local Visual = class()
+
+function Visual:new()
+	self.interpolator = Interpolator()
+end
 
 Visual.primaryTempo = 0
 Visual.tempoMultiplyTarget = "current"  -- "current" | "local" | "global"
@@ -19,12 +26,16 @@ end
 
 ---@param visualPoints ncdk2.VisualPoint[]
 function Visual:compute(visualPoints)
+	if #visualPoints == 0 then
+		return
+	end
+
 	local velocity = self:getFirstVelocity(visualPoints)
 	local primaryTempo = self.primaryTempo
 
 	local visualTime = 0
 	local section = 0
-	local currentAbsoluteTime = 0
+	local currentAbsoluteTime = visualPoints[1].point.absoluteTime
 	for _, visualPoint in ipairs(visualPoints) do
 		local point = visualPoint.point
 		local time = point.absoluteTime
@@ -38,6 +49,7 @@ function Visual:compute(visualPoints)
 
 		local tempoMultiplier = 1
 		if primaryTempo ~= 0 then
+			assert(not (tempo and stop), "both tempo and stop are not allowed")
 			if stop then
 				tempoMultiplier = 0
 			elseif tempo then
@@ -45,8 +57,7 @@ function Visual:compute(visualPoints)
 			end
 		end
 
-		local currentSpeed, localSpeed, globalSpeed =
-			self:multiply(velocity, tempoMultiplier)
+		local currentSpeed, localSpeed, globalSpeed = self:multiply(velocity, tempoMultiplier)
 
 		visualTime = visualTime + (time - currentAbsoluteTime) * currentSpeed
 		currentAbsoluteTime = time
@@ -55,11 +66,12 @@ function Visual:compute(visualPoints)
 		if _velocity then
 			velocity = _velocity
 		end
-		currentSpeed = self:multiply(velocity, tempoMultiplier)
+		currentSpeed, localSpeed, globalSpeed = self:multiply(velocity, tempoMultiplier)
 
 		local expand = visualPoint._expand
 		if expand then
-			local duration = expand.duration * currentSpeed
+			local clearCurrentSpeed = velocity and velocity.currentSpeed or 1
+			local duration = expand.duration * clearCurrentSpeed
 			if tempo then
 				duration = duration * tempo:getBeatDuration()
 			elseif interval then
@@ -79,6 +91,13 @@ function Visual:compute(visualPoints)
 		visualPoint.currentSpeed = currentSpeed
 		visualPoint.localSpeed = localSpeed
 		visualPoint.globalSpeed = globalSpeed
+	end
+
+	local zero_vp = VisualPoint(Point(0))
+	self.interpolator:interpolate(visualPoints, 1, zero_vp, "absolute")
+
+	for _, vp in ipairs(visualPoints) do
+		vp.visualTime = vp.visualTime - zero_vp.visualTime
 	end
 end
 

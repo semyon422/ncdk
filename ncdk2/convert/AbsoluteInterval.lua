@@ -123,7 +123,6 @@ function AbsoluteInterval:convert(layer, fraction_mode)
 		local relBeatTime = (p.absoluteTime - tempo_offset) / tempo:getBeatDuration()
 		local relBeatTimef = self:bestFraction(relBeatTime)
 		local beatTime = relBeatTimef + tempo_beat_offsets[tempo]
-		print("beatTime", beatTime, relBeatTimef, tempo_beat_offsets[tempo])
 
 		---@cast p -ncdk2.AbsolutePoint, +ncdk2.IntervalPoint
 		setmetatable(p, IntervalPoint)

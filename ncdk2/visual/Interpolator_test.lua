@@ -51,4 +51,28 @@ function test.visual(t)
 	t:eq(vp.point.absoluteTime, 0.5)
 end
 
+function test.sections(t)
+	local itp = Interpolator()
+
+	local visualPoints = {
+		VisualPoint(Point(0)),
+		VisualPoint(Point(0)),
+	}
+	visualPoints[2].section = 1
+
+	local vp = VisualPoint(Point(0))
+	itp:interpolate(visualPoints, 1, vp, "absolute")
+	t:eq(vp.visualTime, 0)
+	t:eq(vp.section, 0)
+
+	vp.section = 1
+	itp:interpolate(visualPoints, 1, vp, "absolute")
+	t:eq(vp.visualTime, 0)
+	t:eq(vp.section, 1)
+end
+
+function test.negative(t)
+
+end
+
 return test

@@ -31,7 +31,6 @@ end
 ---@param ... any
 ---@return ncdk2.Point
 function Layer:getPoint(...)
-	print("get time point", ...)
 	self.testPoint:new(...)
 
 	local points = self.points
