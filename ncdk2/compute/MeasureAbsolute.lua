@@ -5,9 +5,6 @@ local Fraction = require("ncdk.Fraction")
 ---@operator call: ncdk2.MeasureAbsolute
 local MeasureAbsolute = class()
 
----@type "long"|"short"
-MeasureAbsolute.signatureMode = "long"
-
 MeasureAbsolute.defaultSignature = Fraction(4)
 
 ---@param points ncdk2.MeasurePoint[]
@@ -22,14 +19,13 @@ end
 
 ---@param points ncdk2.MeasurePoint[]
 function MeasureAbsolute:convert(points)
-	local isLong = self.signatureMode == "long"
-
 	local tempo = assert(self:getFirstTempo(points), "missing tempo")
 
 	local pointIndex = 1
 	local point = points[pointIndex]
 
-	local signature = self.defaultSignature
+	local defaultSignature = self.defaultSignature
+	local signature = defaultSignature
 
 	local beatTime = Fraction(0)
 	local zeroTime = 0
@@ -48,26 +44,19 @@ function MeasureAbsolute:convert(points)
 		end
 		local isAtPoint = point.measureTime == targetTime
 
-		local defaultSignature = self.defaultSignature
-		if isLong then
-			defaultSignature = signature
-		end
-
 		---@type ncdk.Fraction
 		beatTime = beatTime + signature * (targetTime - currentTime)
 
 		---@type number
 		local duration = tempo:getBeatDuration() * signature
 
-		if point._signature then
-			signature = point._signature.signature or defaultSignature
-		else
-			signature = defaultSignature
-		end
-
 		---@type number
 		time = time + duration * (targetTime - currentTime)
 		currentTime = targetTime
+
+		if point._signature then
+			signature = point._signature.signature or defaultSignature
+		end
 
 		if targetTime[1] == 0 then
 			zeroTime = time  -- ??? stops

@@ -91,19 +91,11 @@ function test.signature(t)
 	}
 
 	points[1]._tempo = Tempo(60)
+
+	-- long mode
 	points[2]._signature = Signature(Fraction(8))
 	points[4]._signature = Signature(Fraction(2))
 
-	conv.signatureMode = "short"
-	conv:convert(points)
-
-	t:eq(points[1].absoluteTime, 0)
-	t:eq(points[2].absoluteTime, 4)
-	t:eq(points[3].absoluteTime, 12)
-	t:eq(points[4].absoluteTime, 16)
-	t:eq(points[5].absoluteTime, 18)
-
-	conv.signatureMode = "long"
 	conv:convert(points)
 
 	t:eq(points[1].absoluteTime, 0)
@@ -111,6 +103,18 @@ function test.signature(t)
 	t:eq(points[3].absoluteTime, 12)
 	t:eq(points[4].absoluteTime, 20)
 	t:eq(points[5].absoluteTime, 22)
+
+	-- short mode
+	points[3]._signature = Signature()
+	points[5]._signature = Signature()
+
+	conv:convert(points)
+
+	t:eq(points[1].absoluteTime, 0)
+	t:eq(points[2].absoluteTime, 4)
+	t:eq(points[3].absoluteTime, 12)
+	t:eq(points[4].absoluteTime, 16)
+	t:eq(points[5].absoluteTime, 18)
 end
 
 return test

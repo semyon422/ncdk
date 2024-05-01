@@ -4,15 +4,15 @@ local class = require("class")
 ---@operator call: ncdk2.Signature
 local Signature = class()
 
----@param signature ncdk.Fraction
-function Signature:new(signature)
+---@param signature ncdk.Fraction?
+function Signature:new(signature)  -- nil = use default signature
 	self.signature = signature
 end
 
 ---@param a ncdk2.Signature
 ---@return string
 function Signature.__tostring(a)
-	return ("Signature(%s)"):format(a.signature)
+	return ("Signature(%s)"):format(a.signature or "default")
 end
 
 return Signature
