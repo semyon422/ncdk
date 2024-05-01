@@ -24,10 +24,7 @@ end
 function MeasureAbsolute:convert(points)
 	local isLong = self.signatureMode == "long"
 
-	local tempo = self:getFirstTempo(points)
-	if not tempo then
-		return
-	end
+	local tempo = assert(self:getFirstTempo(points), "missing tempo")
 
 	local pointIndex = 1
 	local point = points[pointIndex]
@@ -38,6 +35,10 @@ function MeasureAbsolute:convert(points)
 	local zeroTime = 0
 	local time = 0
 	local currentTime = point.measureTime
+	if currentTime[1] > 0 then
+		currentTime = Fraction(0)  -- what if all points are before 0?
+	end
+
 	while point do
 		local measureOffset = currentTime:floor()
 
@@ -52,17 +53,17 @@ function MeasureAbsolute:convert(points)
 			defaultSignature = signature
 		end
 
-		if point._signature then
-			signature = point._signature.signature or defaultSignature
-		else
-			signature = defaultSignature
-		end
-
 		---@type ncdk.Fraction
 		beatTime = beatTime + signature * (targetTime - currentTime)
 
 		---@type number
 		local duration = tempo:getBeatDuration() * signature
+
+		if point._signature then
+			signature = point._signature.signature or defaultSignature
+		else
+			signature = defaultSignature
+		end
 
 		---@type number
 		time = time + duration * (targetTime - currentTime)
