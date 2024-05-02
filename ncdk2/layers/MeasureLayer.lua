@@ -24,16 +24,18 @@ function MeasureLayer:setPrimaryTempo(tempo)
 end
 
 ---@param time ncdk.Fraction
+---@param isRightSide boolean?
 ---@return ncdk2.MeasurePoint
-function MeasureLayer:newPoint(time)
-	return MeasurePoint(time)
+function MeasureLayer:newPoint(time, isRightSide)
+	return MeasurePoint(time, isRightSide)
 end
 
 ---@param time ncdk.Fraction
+---@param isRightSide boolean?
 ---@return ncdk2.MeasurePoint
-function MeasureLayer:getPoint(time)
+function MeasureLayer:getPoint(time, isRightSide)
 	---@type ncdk2.MeasurePoint
-	return Layer.getPoint(self, time)
+	return Layer.getPoint(self, time, isRightSide)
 end
 
 function MeasureLayer:compute()

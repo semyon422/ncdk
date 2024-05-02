@@ -13,11 +13,22 @@ local MeasureInterval = class()
 function MeasureInterval:convertPoints(points)
 	---@type {[string]: ncdk2.IntervalPoint}
 	local points_map = {}
-	local lastPoint = points[1]
 	local absoluteTime = 0
+
+	---@type ncdk2.IntervalPoint
+	local last_point
+
+	local stop_beats = 0
 	for _, p in ipairs(points) do
 		local _tempo = p._tempo
-		local beatTime = assert(p.beatTime)
+		local _stop = p._stop
+
+		if _stop then
+			stop_beats = stop_beats + 1
+			last_point._interval = Interval(absoluteTime)
+		end
+
+		local beatTime = assert(p.beatTime) + stop_beats
 		absoluteTime = assert(p.absoluteTime)
 
 		---@cast p -ncdk2.MeasurePoint, +ncdk2.IntervalPoint
@@ -26,13 +37,13 @@ function MeasureInterval:convertPoints(points)
 
 		p:new(beatTime)
 		points_map[tostring(p)] = p
-		if _tempo then
+		if _tempo or _stop then
 			p._interval = Interval(absoluteTime)
 		end
-		lastPoint = p
+		last_point = p
 	end
-	if not lastPoint._tempo then
-		lastPoint._interval = Interval(absoluteTime)
+	if not last_point._interval then
+		last_point._interval = Interval(absoluteTime)
 	end
 	return points_map
 end
