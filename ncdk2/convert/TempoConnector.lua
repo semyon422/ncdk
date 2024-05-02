@@ -17,6 +17,7 @@ end
 ---@param l_1 number
 ---@param o_2 number
 ---@return ncdk.Fraction
+---@return boolean
 function TempoConnector:connect(o_1, l_1, o_2)
 	local duration = o_2 - o_1
 	local beats = duration / l_1
@@ -25,10 +26,10 @@ function TempoConnector:connect(o_1, l_1, o_2)
 
 	local _beats = math_util.round(beats)
 	if math.abs(_beats * l_1 - duration) <= merge_time then
-		return Fraction(_beats)
+		return Fraction(_beats), false
 	end
 
-	return Fraction(beats, self.denom, "floor")
+	return Fraction(beats, self.denom, "floor"), true
 end
 
 return TempoConnector

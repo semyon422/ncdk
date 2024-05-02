@@ -24,7 +24,7 @@ function AbsoluteInterval:bestFraction(n)
 	local _delta = math.huge
 	local _denom = 1
 	for _, denom in ipairs(self.denoms) do
-		local delta = Fraction(n, denom, "round"):tonumber()
+		local delta = math.abs(Fraction(n, denom, "round"):tonumber() - n)
 		if delta < _delta then
 			_denom = denom
 			_delta = delta
@@ -58,6 +58,7 @@ end
 ---@return {[ncdk.Fraction]: ncdk2.Interval}
 ---@return {[ncdk2.Tempo]: number}
 ---@return {[ncdk2.Tempo]: number}
+---@return {[ncdk2.Tempo]: ncdk.Fraction}
 function AbsoluteInterval:computeTempos(points)
 	local tempos, tempo_offsets = self:loadTempos(points)
 
@@ -71,21 +72,28 @@ function AbsoluteInterval:computeTempos(points)
 	local tempo_beat_offsets = {}
 	tempo_beat_offsets[tempos[1]] = total_beats
 
+	---@type {[ncdk2.Tempo]: ncdk.Fraction}
+	local tempo_beats = {}
+
 	for i = 2, #tempos  do
 		local prev_tempo, tempo = tempos[i - 1], tempos[i]
 		local offset = tempo_offsets[prev_tempo]
 		local beat_duration = prev_tempo:getBeatDuration()
 
-		local beats = self.tempoConnector:connect(
+		local beats, aux_interval = self.tempoConnector:connect(
 			offset,
 			beat_duration,
 			tempo_offsets[tempo]
 		)
 
-		local beatsn = beats:tonumber()
-		if beatsn % 1 ~= 0 then
-			local aux_offset = beatsn * beat_duration + offset
+		tempo_beats[prev_tempo] = beats
+
+		if aux_interval then
+			local aux_offset = beats:tonumber() * beat_duration + offset
 			intervals[beats + total_beats] = Interval(aux_offset)
+			if beats[2] == 1 then
+				total_beats = total_beats + 1
+			end
 		end
 
 		total_beats = total_beats + beats:ceil()
@@ -94,7 +102,7 @@ function AbsoluteInterval:computeTempos(points)
 		tempo_beat_offsets[tempo] = total_beats
 	end
 
-	return intervals, tempo_beat_offsets, tempo_offsets
+	return intervals, tempo_beat_offsets, tempo_offsets, tempo_beats
 end
 
 ---@param layer ncdk2.AbsoluteLayer
@@ -107,28 +115,33 @@ function AbsoluteInterval:convert(layer, fraction_mode)
 	---@type ncdk2.AbsolutePoint[]
 	local points = layer:getPointList()
 
-	local last_point = points[#points]
-	if not last_point._tempo then
-		last_point._tempo = Tempo(1)
-	end
-
-	local intervals, tempo_beat_offsets, tempo_offsets = self:computeTempos(points)
+	local intervals, tempo_beat_offsets, tempo_offsets, tempo_beats = self:computeTempos(points)
 
 	---@type {[string]: ncdk2.IntervalPoint}
 	local points_map = {}
 
-	for _, p in ipairs(points) do
+	for i, p in ipairs(points) do
 		local tempo = assert(p.tempo)
 		local tempo_offset = tempo_offsets[tempo]
-		local relBeatTime = (p.absoluteTime - tempo_offset) / tempo:getBeatDuration()
-		local relBeatTimef = self:bestFraction(relBeatTime)
-		local beatTime = relBeatTimef + tempo_beat_offsets[tempo]
+		local rel_time_n = (p.absoluteTime - tempo_offset) / tempo:getBeatDuration()
+		local rel_time = self:bestFraction(rel_time_n)
+		if tempo_beats[tempo] and rel_time > tempo_beats[tempo] then
+			rel_time = Fraction(rel_time:ceil())
+		end
+
+		local time = rel_time + tempo_beat_offsets[tempo]
+
+		if i == #points and not p._tempo then
+			local time_ceil_n = time:ceil()
+			local beats = time_ceil_n - tempo_beat_offsets[tempo]
+			intervals[Fraction(time_ceil_n)] = Interval(tempo_offset + tempo:getBeatDuration() * beats)
+		end
 
 		---@cast p -ncdk2.AbsolutePoint, +ncdk2.IntervalPoint
 		setmetatable(p, IntervalPoint)
 		table_util.clear(p)
 
-		p:new(beatTime)
+		p:new(time)
 		points_map[tostring(p)] = p  -- more than one point can use same key, fix this below
 	end
 
