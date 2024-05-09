@@ -6,32 +6,44 @@ local VisualPoint = require("ncdk2.visual.VisualPoint")
 
 ---@class ncdk2.Visual
 ---@operator call: ncdk2.Visual
+---@field points ncdk2.VisualPoint[]
 local Visual = class()
 
 function Visual:new()
 	self.interpolator = VisualInterpolator()
+	self.points = {}
 end
 
+---@type number
 Visual.primaryTempo = 0
-Visual.tempoMultiplyTarget = "current"  -- "current" | "local" | "global"
 
----@param visualPoints ncdk2.VisualPoint[]
+---@type "current"|"local"|"global"
+Visual.tempoMultiplyTarget = "current"
+
+---@param point ncdk2.Point
+---@return ncdk2.VisualPoint
+function Visual:newPoint(point)
+	local vp = VisualPoint(point)
+	table.insert(self.points, vp)
+	return vp
+end
+
 ---@return ncdk2.Velocity?
-function Visual:getFirstVelocity(visualPoints)
-	for _, vp in ipairs(visualPoints) do
+function Visual:getFirstVelocity()
+	for _, vp in ipairs(self.points) do
 		if vp._velocity then
 			return vp._velocity
 		end
 	end
 end
 
----@param visualPoints ncdk2.VisualPoint[]
-function Visual:compute(visualPoints)
-	if #visualPoints == 0 then
+function Visual:compute()
+	local points = self.points
+	if #points == 0 then
 		return
 	end
 
-	local velocity = self:getFirstVelocity(visualPoints)
+	local velocity = self:getFirstVelocity()
 	local primaryTempo = self.primaryTempo
 
 	local section = 0
@@ -39,8 +51,8 @@ function Visual:compute(visualPoints)
 	local section_time = {}
 
 	local visualTime = 0
-	local currentAbsoluteTime = visualPoints[1].point.absoluteTime
-	for _, visualPoint in ipairs(visualPoints) do
+	local currentAbsoluteTime = points[1].point.absoluteTime
+	for _, visualPoint in ipairs(points) do
 		local point = visualPoint.point
 		local time = point.absoluteTime
 
@@ -100,9 +112,9 @@ function Visual:compute(visualPoints)
 	end
 
 	local zero_vp = VisualPoint(Point(0))
-	self.interpolator:interpolate(visualPoints, 1, zero_vp, "absolute")
+	self.interpolator:interpolate(points, 1, zero_vp, "absolute")
 
-	for _, vp in ipairs(visualPoints) do
+	for _, vp in ipairs(points) do
 		vp.visualTime = vp.visualTime - zero_vp.visualTime
 	end
 end

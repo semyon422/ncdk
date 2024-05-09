@@ -11,11 +11,11 @@ function test.basic(t)
 
 	local p_0 = layer:getPoint(Fraction(0))
 	p_0._tempo = Tempo(120)
-	local vp_0 = layer:newVisualPoint(p_0)
+	local vp_0 = layer.visual:newPoint(p_0)
 	vp_0._velocity = Velocity(2)
 
 	local p_1 = layer:getPoint(Fraction(1))
-	local vp_1 = layer:newVisualPoint(p_1)
+	local vp_1 = layer.visual:newPoint(p_1)
 
 	local note = Note(vp_1)
 	layer.notes:insert(note, 1)

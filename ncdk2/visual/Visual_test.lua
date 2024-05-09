@@ -4,22 +4,21 @@ local Expand = require("ncdk2.visual.Expand")
 local Visual = require("ncdk2.visual.Visual")
 local Point = require("ncdk2.tp.Point")
 local Tempo = require("ncdk2.to.Tempo")
-local Interval = require("ncdk2.to.Interval")
 
 local test = {}
 
 function test.basic(t)
 	local vis = Visual()
 
-	local vp0 = VisualPoint(Point(-1))
-	local vp1 = VisualPoint(Point(1))
-	local vp2 = VisualPoint(Point(2))
-	local vp3 = VisualPoint(Point(3))
+	local vp0 = vis:newPoint(Point(-1))
+	local vp1 = vis:newPoint(Point(1))
+	local vp2 = vis:newPoint(Point(2))
+	local vp3 = vis:newPoint(Point(3))
 
 	vp1._velocity = Velocity(2)
 	vp2._velocity = Velocity(3)
 
-	vis:compute({vp0, vp1, vp2, vp3})
+	vis:compute()
 
 	t:eq(vp0.visualTime, -2)
 	t:eq(vp1.visualTime, 2)
@@ -30,17 +29,12 @@ end
 function test.no_zero_point(t)
 	local vis = Visual()
 
-	local points = {
-		Point(-1),
-		Point(1),
-	}
-
-	local vp1 = VisualPoint(points[1])
-	local vp2 = VisualPoint(points[2])
+	local vp1 = vis:newPoint(Point(-1))
+	local vp2 = vis:newPoint(Point(1))
 
 	vp1._velocity = Velocity()
 
-	vis:compute({vp1, vp2})
+	vis:compute()
 
 	t:eq(vp1.visualTime, -1)
 	t:eq(vp2.visualTime, 1)
@@ -49,18 +43,18 @@ end
 function test.inf_expand(t)
 	local vis = Visual()
 
-	local vp0 = VisualPoint(Point(0))
-	local vp10 = VisualPoint(Point(10))
+	local vp0 = vis:newPoint(Point(0))
 
 	local point = Point(5)
-	local vp1 = VisualPoint(point)
-	local vp2 = VisualPoint(point)
-	local vp3 = VisualPoint(point)
+	local vp1 = vis:newPoint(point)
+	local vp2 = vis:newPoint(point)
+	local vp3 = vis:newPoint(point)
+
+	local vp10 = vis:newPoint(Point(10))
 
 	vp2._expand = Expand(math.huge)
 
-	local visualPoints = {vp0, vp1, vp2, vp3, vp10}
-	vis:compute(visualPoints)
+	vis:compute()
 
 	t:eq(vp1:getVisualTime(vp0), 5)
 	t:eq(vp2:getVisualTime(vp0), math.huge)
@@ -74,22 +68,22 @@ end
 function test.inf_expand_back(t)
 	local vis = Visual()
 
-	local vp0 = VisualPoint(Point(0))
-	local vp10 = VisualPoint(Point(10))
+	local vp0 = vis:newPoint(Point(0))
 
 	local point = Point(5)
-	local vp1 = VisualPoint(point)
-	local vp2 = VisualPoint(point)
-	local vp3 = VisualPoint(point)
-	local vp4 = VisualPoint(point)
-	local vp5 = VisualPoint(point)
+	local vp1 = vis:newPoint(point)
+	local vp2 = vis:newPoint(point)
+	local vp3 = vis:newPoint(point)
+	local vp4 = vis:newPoint(point)
+	local vp5 = vis:newPoint(point)
+
+	local vp10 = vis:newPoint(Point(10))
 
 	vp2._expand = Expand(math.huge)
 	vp3._expand = Expand(1)
 	vp4._expand = Expand(-math.huge)
 
-	local visualPoints = {vp0, vp1, vp2, vp3, vp4, vp5, vp10}
-	vis:compute(visualPoints)
+	vis:compute()
 
 	t:eq(vp1:getVisualTime(vp0), 5)
 	t:eq(vp2:getVisualTime(vp0), math.huge)
@@ -116,11 +110,10 @@ function test.tempo(t)
 	p0.tempo = Tempo(120)
 	p1.tempo = Tempo(120)
 
-	local vp0 = VisualPoint(p0)
-	local vp1 = VisualPoint(p1)
+	local vp0 = vis:newPoint(p0)
+	local vp1 = vis:newPoint(p1)
 
-	local visualPoints = {vp0, vp1}
-	vis:compute(visualPoints)
+	vis:compute()
 
 	t:eq(vp0.visualTime, 0)
 	t:eq(vp1.visualTime, 2)  -- 1 * 120 / 60
@@ -134,11 +127,10 @@ function test.stop(t)
 	local p1 = Point(1)
 	p1._stop = {}
 
-	local vp0 = VisualPoint(p0)
-	local vp1 = VisualPoint(p1)
+	local vp0 = vis:newPoint(p0)
+	local vp1 = vis:newPoint(p1)
 
-	local visualPoints = {vp0, vp1}
-	vis:compute(visualPoints)
+	vis:compute()
 
 	t:eq(vp0.visualTime, 0)
 	t:eq(vp1.visualTime, 0)  -- 0
@@ -151,13 +143,12 @@ function test.tempo_expand(t)
 	local point = Point(0)
 	point.tempo = Tempo(120)
 
-	local vp0 = VisualPoint(point)
-	local vp1 = VisualPoint(point)
+	local vp0 = vis:newPoint(point)
+	local vp1 = vis:newPoint(point)
 
 	vp1._expand = Expand(1)  -- 1 beat
 
-	local visualPoints = {vp0, vp1}
-	vis:compute(visualPoints)
+	vis:compute()
 
 	t:eq(vp1.visualTime, 0.5)  -- 1 beat in 120 bpm is 0.5 seconds
 end
@@ -168,13 +159,12 @@ function test.interval_expand(t)
 	local point = Point(0)
 	point.interval = {getBeatDuration = function() return 60 / 120 end}
 
-	local vp0 = VisualPoint(point)
-	local vp1 = VisualPoint(point)
+	local vp0 = vis:newPoint(point)
+	local vp1 = vis:newPoint(point)
 
 	vp1._expand = Expand(1)  -- 1 beat
 
-	local visualPoints = {vp0, vp1}
-	vis:compute(visualPoints)
+	vis:compute()
 
 	t:eq(vp1.visualTime, 0.5)  -- 1 beat in 120 bpm is 0.5 seconds
 end

@@ -145,12 +145,12 @@ function AbsoluteInterval:convert(layer, fraction_mode)
 		points_map[tostring(p)] = p  -- more than one point can use same key, fix this below
 	end
 
-	for _, visualPoint in ipairs(layer.visualPoints) do
+	for _, visualPoint in ipairs(layer.visual.points) do
 		visualPoint.point = points_map[tostring(visualPoint.point)]
 		-- possibly need to add expands here recovering 1ms SVs
 	end
 
-	local notes, visualPoints = layer.notes, layer.visualPoints
+	local notes, visual = layer.notes, layer.visual
 
 	---@cast layer -ncdk2.AbsoluteLayer, +ncdk2.IntervalLayer
 	setmetatable(layer, IntervalLayer)
@@ -159,7 +159,7 @@ function AbsoluteInterval:convert(layer, fraction_mode)
 	layer:new()
 	layer.notes = notes
 	layer.points = points_map
-	layer.visualPoints = visualPoints
+	layer.visual = visual
 
 	for time, interval in pairs(intervals) do
 		local p = layer:getPoint(time)

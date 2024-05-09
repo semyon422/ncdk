@@ -47,10 +47,10 @@ function test.point_merge(t)
 	p_0._tempo = Tempo(120)
 
 	local p_1 = layer:getPoint(1)
-	local vp_1 = layer:newVisualPoint(p_1)
+	local vp_1 = layer.visual:newPoint(p_1)
 
 	local p_2 = layer:getPoint(1.001)
-	local vp_2 = layer:newVisualPoint(p_2)
+	local vp_2 = layer.visual:newPoint(p_2)
 
 	local p_3 = layer:getPoint(2)
 
@@ -71,9 +71,9 @@ function test.point_merge(t)
 	t:eq(points[2].absoluteTime, 1)
 	t:eq(points[3].absoluteTime, 2)
 
-	t:eq(#layer.visualPoints, 2)
-	t:eq(layer.visualPoints[1].point, points[2])
-	t:eq(layer.visualPoints[2].point, points[2])
+	t:eq(#layer.visual.points, 2)
+	t:eq(layer.visual.points[1].point, points[2])
+	t:eq(layer.visual.points[2].point, points[2])
 end
 
 function test.single_tempo_wrong_snap(t)
@@ -218,7 +218,7 @@ function test.auxiliary_interval_frac_right_point(t)
 	local p_2 = layer:getPoint(2.02)
 	p_2._tempo = Tempo(1)
 
-	local vp_1 = layer:newVisualPoint(p_1)
+	local vp_1 = layer.visual:newPoint(p_1)
 
 	layer:compute()
 
