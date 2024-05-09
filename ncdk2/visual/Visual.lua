@@ -1,4 +1,5 @@
 local class = require("class")
+local math_util = require("math_util")
 local VisualInterpolator = require("ncdk2.visual.VisualInterpolator")
 local Point = require("ncdk2.tp.Point")
 local VisualPoint = require("ncdk2.visual.VisualPoint")
@@ -33,8 +34,11 @@ function Visual:compute(visualPoints)
 	local velocity = self:getFirstVelocity(visualPoints)
 	local primaryTempo = self.primaryTempo
 
-	local visualTime = 0
 	local section = 0
+	---@type {[number]: number}
+	local section_time = {}
+
+	local visualTime = 0
 	local currentAbsoluteTime = visualPoints[1].point.absoluteTime
 	for _, visualPoint in ipairs(visualPoints) do
 		local point = visualPoint.point
@@ -78,7 +82,9 @@ function Visual:compute(visualPoints)
 				duration = duration * interval:getBeatDuration()
 			end
 			if math.abs(duration) == math.huge then
-				section = section + 1
+				section_time[section] = visualTime
+				section = section + math_util.sign(duration)
+				visualTime = section_time[section] or visualTime
 			else
 				visualTime = visualTime + duration
 			end

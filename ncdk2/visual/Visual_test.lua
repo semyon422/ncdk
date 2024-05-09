@@ -71,6 +71,41 @@ function test.inf_expand(t)
 	t:eq(vp3:getVisualTime(vp10), 5)
 end
 
+function test.inf_expand_back(t)
+	local vis = Visual()
+
+	local vp0 = VisualPoint(Point(0))
+	local vp10 = VisualPoint(Point(10))
+
+	local point = Point(5)
+	local vp1 = VisualPoint(point)
+	local vp2 = VisualPoint(point)
+	local vp3 = VisualPoint(point)
+	local vp4 = VisualPoint(point)
+	local vp5 = VisualPoint(point)
+
+	vp2._expand = Expand(math.huge)
+	vp3._expand = Expand(1)
+	vp4._expand = Expand(-math.huge)
+
+	local visualPoints = {vp0, vp1, vp2, vp3, vp4, vp5, vp10}
+	vis:compute(visualPoints)
+
+	t:eq(vp1:getVisualTime(vp0), 5)
+	t:eq(vp2:getVisualTime(vp0), math.huge)
+	t:eq(vp3:getVisualTime(vp0), math.huge)
+	t:eq(vp4:getVisualTime(vp0), 5)
+	t:eq(vp5:getVisualTime(vp0), 5)
+
+	t:eq(vp1:getVisualTime(vp10), 5)
+	t:eq(vp2:getVisualTime(vp10), math.huge)
+	t:eq(vp3:getVisualTime(vp10), math.huge)
+	t:eq(vp4:getVisualTime(vp10), 5)
+	t:eq(vp5:getVisualTime(vp10), 5)
+
+	t:eq(vp3:getVisualTime(vp2), 6)
+end
+
 function test.tempo(t)
 	local vis = Visual()
 	vis.primaryTempo = 60  -- tempo requires primaryTempo to affect visual time
@@ -88,7 +123,7 @@ function test.tempo(t)
 	vis:compute(visualPoints)
 
 	t:eq(vp0.visualTime, 0)
-	t:eq(vp1.visualTime, 2)  -- 1 * 120 / 60 
+	t:eq(vp1.visualTime, 2)  -- 1 * 120 / 60
 end
 
 function test.stop(t)
