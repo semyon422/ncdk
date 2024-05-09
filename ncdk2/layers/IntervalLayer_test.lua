@@ -19,7 +19,7 @@ function test.basic(t)
 	local vp_1 = layer:newVisualPoint(p_1)
 
 	local note = Note(vp_1)
-	layer.notes:addNote(note, "key", 1)
+	layer.notes:insert(note, 1)
 
 	layer:compute()
 

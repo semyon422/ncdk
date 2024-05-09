@@ -4,9 +4,6 @@ local class = require("class")
 ---@operator call: ncdk2.Note
 local Note = class()
 
--- !!! delete this, there should be only one inputType-inputIndex note per time point
-Note.id = 0  -- for consistent sorting purposes only
-
 ---@param visualPoint ncdk2.VisualPoint
 function Note:new(visualPoint)
 	self.visualPoint = visualPoint

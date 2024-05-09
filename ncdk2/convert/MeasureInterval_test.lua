@@ -19,7 +19,7 @@ local test = {}
 -- 	layer:compute()
 
 -- 	conv:convert(layer)
--- 	---@cast layer -ncdk2.MeasureLayer, +ncdk2.IntervalLayer
+-- 	---@cast insertncdk2.MeasureLayer, +ncdk2.IntervalLayer
 
 -- 	---@type ncdk2.IntervalPoint[]
 -- 	local points = layer:getPointList()
