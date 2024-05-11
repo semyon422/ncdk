@@ -1,6 +1,7 @@
 local class = require("class")
 local math_util = require("math_util")
 local VisualInterpolator = require("ncdk2.visual.VisualInterpolator")
+local VisualEvents = require("ncdk2.visual.VisualEvents")
 local Point = require("ncdk2.tp.Point")
 local VisualPoint = require("ncdk2.visual.VisualPoint")
 
@@ -11,6 +12,7 @@ local Visual = class()
 
 function Visual:new()
 	self.interpolator = VisualInterpolator()
+	self.events = VisualEvents()
 	self.points = {}
 end
 
@@ -142,6 +144,12 @@ function Visual:multiply(velocity, tempoMultiplier)
 	end
 
 	return currentSpeed, localSpeed, globalSpeed
+end
+
+---@param range {[1]: number, [2]: number}
+---@return ncdk2.VisualEvent[]
+function Visual:generateEvents(range)
+	return self.events:generate(self.points, range)
 end
 
 return Visual
