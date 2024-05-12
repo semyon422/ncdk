@@ -2,7 +2,7 @@ local class = require("class")
 
 ---@class ncdk2.VisualEvent
 ---@field time number
----@field action "hide"|"show"
+---@field action -1|1
 ---@field point ncdk2.VisualPoint
 
 ---@class ncdk2.VisualEvents
@@ -10,59 +10,69 @@ local class = require("class")
 local VisualEvents = class()
 
 ---@param vps ncdk2.VisualPoint[]
+---@param gc_vps ncdk2.VisualPoint[]
 ---@param j number
 ---@param i number
 ---@param dt number
 ---@return number|false?
-local function intersect(vps, j, i, dt)
+local function intersect(vps, gc_vps, j, i, dt)
 	local vp = vps[j]
-	local _vp = vps[i]
-	local next_vp = vps[i + 1]
+	local _vp = gc_vps[i]
 
-	local targetVisualTime = vp.visualTime - _vp.visualTime - dt / _vp.globalSpeed / vp.localSpeed
-	local targetTime = targetVisualTime / _vp.currentSpeed + _vp.point.absoluteTime
-	if #vps == 1 then
-		return targetTime
+	local targetVisualTime = vp.visualTime - dt / _vp.globalSpeed / vp.localSpeed
+	if #gc_vps == 1 then
+		return targetVisualTime
 	end
 
-	local gte = targetTime >= _vp.point.absoluteTime
-	if i == #vps then
-		return gte and targetTime
+	local gte = targetVisualTime >= _vp.visualTime
+	if i == #gc_vps then
+		return gte and targetVisualTime
 	end
 
-	local lt = targetTime < next_vp.point.absoluteTime
+	local next_vp = gc_vps[i + 1]
+	local lt = targetVisualTime < next_vp.visualTime
 	if i == 1 then
-		return lt and targetTime
+		return lt and targetVisualTime
 	end
 
-	return gte and lt and targetTime
+	return gte and lt and targetVisualTime
 end
 
 ---@param vps ncdk2.VisualPoint[]
 ---@param range {[1]: number, [2]: number}
 ---@return ncdk2.VisualEvent[]
 function VisualEvents:generate(vps, range)
+	---@type ncdk2.VisualPoint[]
+	local gc_vps = {}
+
+	---@type number
+	local globalSpeed
+	for _, vp in ipairs(vps) do
+		if globalSpeed ~= vp.globalSpeed then
+			globalSpeed = vp.globalSpeed
+			table.insert(gc_vps, vp)
+		end
+	end
+
 	---@type ncdk2.VisualEvent[]
 	local events = {}
-
-	for j = 1, #vps do
-		local vp = vps[j]
-		for i = 1, #vps do
-			local _vp = vps[i]  -- current time is from i to i+1
-			local rightTime = intersect(vps, j, i, range[2])
-			local leftTime = intersect(vps, j, i, range[1])
-			local speed = _vp.globalSpeed * vp.localSpeed * _vp.currentSpeed
+	for i = 1, #gc_vps do
+		local _vp = gc_vps[i]
+		for j = 1, #vps do
+			local vp = vps[j]
+			local rightTime = intersect(vps, gc_vps, j, i, range[2])
+			local leftTime = intersect(vps, gc_vps, j, i, range[1])
 			if rightTime then
 				table.insert(events, {
 					time = rightTime,
-					action = speed >= 0 and "show" or "hide",
+					action = 1,
 					point = vp,
 				})
 			end
 			if leftTime then
 				table.insert(events, {
 					time = leftTime,
-					action = speed >= 0 and "hide" or "show",
+					action = -1,
 					point = vp,
 				})
 			end
@@ -70,10 +80,45 @@ function VisualEvents:generate(vps, range)
 	end
 
 	table.sort(events, function(a, b)
-		return a.time < b.time
+		if a.time ~= b.time then
+			return a.time < b.time
+		end
+		return a.point.point < b.point.point
 	end)
 
+	self.events = events
+
+	self.startOffset = vps[1].currentSpeed >= 0 and 0 or #events  -- todo: handle zero speed
+	self.endOffset = vps[#vps].currentSpeed < 0 and 0 or #events  -- todo: handle zero speed
+
 	return events
+end
+
+-- nil instead of false to clear values in tables
+---@param action number
+---@return true?
+local function get_action_value(action)
+	if action > 0 then
+		return true
+	end
+end
+
+---@param index number
+---@param time number
+---@return number?
+---@return ncdk2.VisualPoint?
+---@return true?
+function VisualEvents:next(index, time)
+	local event = self.events[index]
+	local next_event = self.events[index + 1]
+
+	if event and next_event and time >= event.time and time < next_event.time then
+		return
+	elseif next_event and time >= next_event.time then
+		return index + 1, next_event.point, get_action_value(1 * next_event.action)
+	elseif event and time < event.time then
+		return index - 1, event.point, get_action_value(-1 * event.action)
+	end
 end
 
 return VisualEvents
