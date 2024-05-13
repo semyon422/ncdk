@@ -9,17 +9,15 @@ local class = require("class")
 ---@operator call: ncdk2.VisualEvents
 local VisualEvents = class()
 
----@param vps ncdk2.VisualPoint[]
+---@param vp ncdk2.VisualPoint
 ---@param gc_vps ncdk2.VisualPoint[]
----@param j number
 ---@param i number
 ---@param dt number
 ---@return number|false?
-local function intersect(vps, gc_vps, j, i, dt)
-	local vp = vps[j]
+local function intersect(vp, gc_vps, i, dt)
 	local _vp = gc_vps[i]
 
-	local targetVisualTime = vp.visualTime - dt / _vp.globalSpeed / vp.localSpeed
+	local targetVisualTime = vp.visualTime - dt / (_vp.globalSpeed * vp.localSpeed)
 	if #gc_vps == 1 then
 		return targetVisualTime
 	end
@@ -54,14 +52,15 @@ function VisualEvents:generate(vps, range)
 		end
 	end
 
+	-- table.sort(gc_vps, )
+
 	---@type ncdk2.VisualEvent[]
 	local events = {}
 	for i = 1, #gc_vps do
-		local _vp = gc_vps[i]
 		for j = 1, #vps do
 			local vp = vps[j]
-			local rightTime = intersect(vps, gc_vps, j, i, range[2])
-			local leftTime = intersect(vps, gc_vps, j, i, range[1])
+			local rightTime = intersect(vp, gc_vps, i, range[2])
+			local leftTime = intersect(vp, gc_vps, i, range[1])
 			if rightTime then
 				table.insert(events, {
 					time = rightTime,

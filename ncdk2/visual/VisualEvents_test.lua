@@ -162,7 +162,7 @@ function test.negative_globals(t)
 	-- t:tdeq(order, {{0,1},{0,-1},{100,1},{100,-1},{0,1},{0,-1}})
 end
 
--- do return test end
+do return test end
 
 local function rand_vel()
 	return math.floor((math.random() - 0.5) * 2000) / 1000
@@ -175,13 +175,13 @@ function test.N2_validate(t)
 	local vis = Visual()
 
 	local time = 0
-	for i = 1, 4 do
+	for i = 1, 100 do
 		local vp = vis:newPoint(Point(time))
 		time = time + 100
-		-- vp._velocity = Velocity(rand_vel(), rand_vel(), 1)
+		vp._velocity = Velocity(rand_vel(), rand_vel(), 1)
 		-- vp._velocity = Velocity(rand_vel(), i, 1)
 		-- vp._velocity = Velocity((-1) ^ i, i)
-		vp._velocity = Velocity((-1) ^ i, 1, (-1) ^ i)
+		-- vp._velocity = Velocity((-1) ^ i, 1, (-1) ^ i)
 		vp.index = i
 	end
 	vis:compute()
