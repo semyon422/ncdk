@@ -44,23 +44,19 @@ function test.expand(t)
 
 	t:eq(#events, 8)
 
-	local zero_vp = VisualPoint(Point(0))
-	local base_index = vis.interpolator:getBaseIndex(vps, 1, zero_vp, function(p)
-		return p.point
-	end)
-	t:eq(base_index, 2)
+	t:tdeq(events, {
+		{action=1,point_at=-100,point_vt=-100,time=-101},
+		{action=-1,point_at=-100,point_vt=-100,time=-99},
+		{action=1,point_at=0,point_vt=0,time=-1},
+		{action=-1,point_at=0,point_vt=0,time=0},
+		{action=1,point_at=0,point_vt=50,time=0},
+		{action=-1,point_at=0,point_vt=50,time=1},
+		{action=1,point_at=100,point_vt=150,time=99},
+		{action=-1,point_at=100,point_vt=150,time=101}
+	})
 
-	-- t:tdeq(events, {
-	-- 	{action=1,point_at=-100,point_vt=-150,time=-101},
-	-- 	{action=-1,point_at=-100,point_vt=-150,time=-99},
-	-- 	{action=1,point_at=0,point_vt=-50,time=-1},
-	-- 	{action=-1,point_at=0,point_vt=0,time=1},
-	-- 	{action=1,point_at=100,point_vt=100,time=99},
-	-- 	{action=-1,point_at=100,point_vt=100,time=101}
-	-- })
-
-	-- events = ve:generate(vps, {-1000, 1000})
-	-- t:eq(#events, #vps * 2)
+	events = ve:generate(vps, {-1000, 1000})
+	t:eq(#events, #vps * 2)
 end
 
 function test.zero(t)
