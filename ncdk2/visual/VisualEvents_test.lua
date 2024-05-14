@@ -118,51 +118,7 @@ function test.negative(t)
 	t:tdeq(order, {{0,1},{0,-1},{100,1},{100,-1},{0,1},{0,-1}})
 end
 
-function test.negative_globals(t)
-	local vis = Visual()
-
-	local vp_1 = vis:newPoint(Point(0))
-	local vp_2 = vis:newPoint(Point(100))
-	local vp_3 = vis:newPoint(Point(200))
-	local vp_4 = vis:newPoint(Point(300))
-
-	vp_1._velocity = Velocity(-1, 1, -1)
-	vp_2._velocity = Velocity(1, 1, 1)
-	vp_3._velocity = Velocity(-1, 1, -1)
-	vp_4._velocity = Velocity(1, 1, 1)
-
-	vis:compute()
-
-	local ve = VisualEvents()
-	local events = ve:generate(vis.points, {-1, 1})
-
-	t:eq(#events, 8)
-
-	-- local order = {}
-
-	-- local _offset = ve.startOffset
-	-- local offset, vp, show
-
-	-- for _, cvp in ipairs(vis.points) do
-	-- 	offset, vp, show = ve:next(_offset, cvp.visualTime)
-	-- 	while offset do
-	-- 		_offset = offset
-	-- 		table.insert(order, {vp.point.absoluteTime, show and 1 or -1})
-	-- 		offset, vp, show = ve:next(offset, cvp.visualTime)
-	-- 	end
-	-- end
-
-	-- offset, vp, show = ve:next(_offset, math.huge)
-	-- while offset do
-	-- 	_offset = offset
-	-- 	table.insert(order, {vp.point.absoluteTime, show and 1 or -1})
-	-- 	offset, vp, show = ve:next(offset, math.huge)
-	-- end
-
-	-- t:tdeq(order, {{0,1},{0,-1},{100,1},{100,-1},{0,1},{0,-1}})
-end
-
-do return test end
+-- do return test end
 
 local function rand_vel()
 	return math.floor((math.random() - 0.5) * 2000) / 1000
@@ -179,9 +135,6 @@ function test.N2_validate(t)
 		local vp = vis:newPoint(Point(time))
 		time = time + 100
 		vp._velocity = Velocity(rand_vel(), rand_vel(), 1)
-		-- vp._velocity = Velocity(rand_vel(), i, 1)
-		-- vp._velocity = Velocity((-1) ^ i, i)
-		-- vp._velocity = Velocity((-1) ^ i, 1, (-1) ^ i)
 		vp.index = i
 	end
 	vis:compute()

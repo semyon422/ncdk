@@ -153,4 +153,204 @@ function test.negative(t)
 	t:eq(#events, #vps * 2)
 end
 
+function test.zero_start(t)
+	local vis = Visual()
+	local vps = {
+		vis:newPoint(Point(-100)),
+		vis:newPoint(Point(0)),
+		vis:newPoint(Point(100)),
+	}
+	vps[1]._velocity = Velocity(0)
+	vps[2]._velocity = Velocity(-1)
+
+	vis:compute()
+
+	local ve = VisualEventsN2()
+	local events = ve:generate(vps, {-1, 1})
+
+	for _, e in ipairs(events) do
+		e.point_vt = e.point.visualTime
+		e.point_at = e.point.point.absoluteTime
+		e.point = nil
+	end
+
+	t:eq(#events, 6)
+
+	t:tdeq(events, {
+		{action=1,point_at=-100,point_vt=0,time=-1/0},
+		{action=1,point_at=0,point_vt=0,time=-1/0},
+		{action=-1,point_at=-100,point_vt=0,time=1},
+		{action=-1,point_at=0,point_vt=0,time=1},
+		{action=1,point_at=100,point_vt=-100,time=99},
+		{action=-1,point_at=100,point_vt=-100,time=101}
+	})
+
+	events = ve:generate(vps, {-1000, 1000})
+	t:eq(#events, #vps * 2)
+end
+
+function test.zero_end(t)
+	local vis = Visual()
+	local vps = {
+		vis:newPoint(Point(-100)),
+		vis:newPoint(Point(0)),
+		vis:newPoint(Point(100)),
+	}
+	vps[1]._velocity = Velocity(-1)
+	vps[2]._velocity = Velocity(0)
+
+	vis:compute()
+
+	local ve = VisualEventsN2()
+	local events = ve:generate(vps, {-1, 1})
+
+	for _, e in ipairs(events) do
+		e.point_vt = e.point.visualTime
+		e.point_at = e.point.point.absoluteTime
+		e.point = nil
+	end
+
+	t:eq(#events, 6)
+
+	t:tdeq(events, {
+		{action=1,point_at=-100,point_vt=100,time=-101},
+		{action=-1,point_at=-100,point_vt=100,time=-99},
+		{action=1,point_at=0,point_vt=0,time=-1},
+		{action=1,point_at=100,point_vt=0,time=-1},
+		{action=-1,point_at=0,point_vt=0,time=1/0},
+		{action=-1,point_at=100,point_vt=0,time=1/0}
+	})
+
+	events = ve:generate(vps, {-1000, 1000})
+	t:eq(#events, #vps * 2)
+end
+
+function test.zero_both(t)
+	local vis = Visual()
+	local vps = {
+		vis:newPoint(Point(-100)),
+		vis:newPoint(Point(0)),
+		vis:newPoint(Point(100)),
+		vis:newPoint(Point(200)),
+		vis:newPoint(Point(300)),
+		vis:newPoint(Point(400)),
+	}
+	vps[1]._velocity = Velocity(0)
+	vps[2]._velocity = Velocity(-1)
+	vps[3]._velocity = Velocity(2)
+	vps[4]._velocity = Velocity(-1)
+	vps[5]._velocity = Velocity(0)
+
+	vis:compute()
+
+	local ve = VisualEventsN2()
+	local events = ve:generate(vps, {-1, 1})
+
+	for _, e in ipairs(events) do
+		e.point_vt = e.point.visualTime
+		e.point_at = e.point.point.absoluteTime
+		e.point = nil
+	end
+
+	t:eq(#events, 28)
+
+	t:tdeq(events, {
+		{action=1,point_at=-100,point_vt=0,time=-1/0},
+		{action=1,point_at=0,point_vt=0,time=-1/0},
+		{action=1,point_at=300,point_vt=0,time=-1/0},
+		{action=1,point_at=400,point_vt=0,time=-1/0},
+
+		{action=-1,point_at=-100,point_vt=0,time=1},
+		{action=-1,point_at=0,point_vt=0,time=1},
+		{action=-1,point_at=300,point_vt=0,time=1},
+		{action=-1,point_at=400,point_vt=0,time=1},
+
+		{action=1,point_at=100,point_vt=-100,time=99},
+		{action=-1,point_at=100,point_vt=-100,time=100.5},
+
+		{action=1,point_at=-100,point_vt=0,time=149.5},
+		{action=1,point_at=0,point_vt=0,time=149.5},
+		{action=1,point_at=300,point_vt=0,time=149.5},
+		{action=1,point_at=400,point_vt=0,time=149.5},
+		{action=-1,point_at=-100,point_vt=0,time=150.5},
+		{action=-1,point_at=0,point_vt=0,time=150.5},
+		{action=-1,point_at=300,point_vt=0,time=150.5},
+		{action=-1,point_at=400,point_vt=0,time=150.5},
+
+		{action=1,point_at=200,point_vt=100,time=199.5},
+		{action=-1,point_at=200,point_vt=100,time=201},
+
+		{action=1,point_at=-100,point_vt=0,time=299},
+		{action=1,point_at=0,point_vt=0,time=299},
+		{action=1,point_at=300,point_vt=0,time=299},
+		{action=1,point_at=400,point_vt=0,time=299},
+
+		{action=-1,point_at=-100,point_vt=0,time=1/0},
+		{action=-1,point_at=0,point_vt=0,time=1/0},
+		{action=-1,point_at=300,point_vt=0,time=1/0},
+		{action=-1,point_at=400,point_vt=0,time=1/0}
+	})
+
+	events = ve:generate(vps, {-1000, 1000})
+	t:eq(#events, #vps * 2)
+	for _, e in ipairs(events) do
+		e.point_vt = e.point.visualTime
+		e.point_at = e.point.point.absoluteTime
+		e.point = nil
+	end
+	t:tdeq(events, {
+		{action=1,point_at=-100,point_vt=0,time=-1/0},
+		{action=1,point_at=0,point_vt=0,time=-1/0},
+		{action=1,point_at=100,point_vt=-100,time=-1/0},
+		{action=1,point_at=200,point_vt=100,time=-1/0},
+		{action=1,point_at=300,point_vt=0,time=-1/0},
+		{action=1,point_at=400,point_vt=0,time=-1/0},
+		{action=-1,point_at=-100,point_vt=0,time=1/0},
+		{action=-1,point_at=0,point_vt=0,time=1/0},
+		{action=-1,point_at=100,point_vt=-100,time=1/0},
+		{action=-1,point_at=200,point_vt=100,time=1/0},
+		{action=-1,point_at=300,point_vt=0,time=1/0},
+		{action=-1,point_at=400,point_vt=0,time=1/0}
+	})
+end
+
+function test._local(t)
+	local vis = Visual()
+	local vps = {
+		vis:newPoint(Point(-100)),
+		vis:newPoint(Point(0)),
+		vis:newPoint(Point(100)),
+		vis:newPoint(Point(200)),
+	}
+	vps[2]._velocity = Velocity(1, 1)
+	vps[3]._velocity = Velocity(1, 2)
+
+	vis:compute()
+
+	local ve = VisualEventsN2()
+	local events = ve:generate(vps, {-1, 1})
+
+	for _, e in ipairs(events) do
+		e.point_vt = e.point.visualTime
+		e.point_at = e.point.point.absoluteTime
+		e.point = nil
+	end
+
+	t:eq(#events, 8)
+
+	t:tdeq(events, {
+		{action=1,point_at=-100,point_vt=-100,time=-101},
+		{action=-1,point_at=-100,point_vt=-100,time=-99},
+		{action=1,point_at=0,point_vt=0,time=-1},
+		{action=-1,point_at=0,point_vt=0,time=1},
+		{action=1,point_at=100,point_vt=100,time=99.5},
+		{action=-1,point_at=100,point_vt=100,time=100.5},
+		{action=1,point_at=200,point_vt=200,time=199.5},
+		{action=-1,point_at=200,point_vt=200,time=200.5}
+	})
+
+	events = ve:generate(vps, {-1000, 1000})
+	t:eq(#events, #vps * 2)
+end
+
 return test
