@@ -2,10 +2,39 @@ local Velocity = require("ncdk2.visual.Velocity")
 local Expand = require("ncdk2.visual.Expand")
 local Point = require("ncdk2.tp.Point")
 local VisualPoint = require("ncdk2.visual.VisualPoint")
+local VisualEvents = require("ncdk2.visual.VisualEvents")
 local VisualEventsN2 = require("ncdk2.visual.VisualEventsN2")
 local Visual = require("ncdk2.visual.Visual")
 
 local test = {}
+
+---@param events ncdk2.VisualEvent[]
+local function clear_events(events)
+	for _, e in ipairs(events) do
+		e.point_vt = e.point.visualTime
+		e.point_at = e.point.point.absoluteTime
+		e.point = nil
+	end
+end
+
+---@param t any
+---@param es1 ncdk2.VisualEvent[]
+---@param es2 ncdk2.VisualEvent[]
+local function eq_events(t, es1, es2)
+	if not t:eq(#es1, #es2) then
+		return
+	end
+	local err = 0
+	for i = 1, #es1 do
+		if math.abs(es1[i].time) == math.huge then
+			t:eq(es1[i].time, es2[i].time)
+		else
+			err = err + math.abs(es1[i].time - es2[i].time)
+		end
+		t:eq(es1[i].action, es2[i].action)
+	end
+	t:lt(err / #es1, 1e-6)
+end
 
 function test.basic(t)
 	local vp = VisualPoint(Point(0))
@@ -35,12 +64,7 @@ function test.expand(t)
 
 	local ve = VisualEventsN2()
 	local events = ve:generate(vps, {-1, 1})
-
-	for _, e in ipairs(events) do
-		e.point_vt = e.point.visualTime
-		e.point_at = e.point.point.absoluteTime
-		e.point = nil
-	end
+	clear_events(events)
 
 	t:eq(#events, 8)
 
@@ -54,6 +78,14 @@ function test.expand(t)
 		{action=1,point_at=100,point_vt=150,time=99},
 		{action=-1,point_at=100,point_vt=150,time=101}
 	})
+
+	----
+	local ve1 = VisualEvents()
+	ve1:generate(vps, {-1, 1})
+	local abs_events = ve1:toAbsEvents(vps)
+	clear_events(abs_events)
+	eq_events(t, abs_events, events)
+	----
 
 	events = ve:generate(vps, {-1000, 1000})
 	t:eq(#events, #vps * 2)
@@ -75,12 +107,7 @@ function test.zero(t)
 
 	local ve = VisualEventsN2()
 	local events = ve:generate(vps, {-1, 1})
-
-	for _, e in ipairs(events) do
-		e.point_vt = e.point.visualTime
-		e.point_at = e.point.point.absoluteTime
-		e.point = nil
-	end
+	clear_events(events)
 
 	t:eq(#events, 8)
 
@@ -94,6 +121,14 @@ function test.zero(t)
 		{action=1,point_at=200,point_vt=100,time=199},
 		{action=-1,point_at=200,point_vt=100,time=201}
 	})
+
+	----
+	local ve1 = VisualEvents()
+	ve1:generate(vps, {-1, 1})
+	local abs_events = ve1:toAbsEvents(vps)
+	clear_events(abs_events)
+	eq_events(t, abs_events, events)
+	----
 
 	events = ve:generate(vps, {-1000, 1000})
 	t:eq(#events, #vps * 2)
@@ -117,12 +152,7 @@ function test.negative(t)
 
 	local ve = VisualEventsN2()
 	local events = ve:generate(vps, {-1, 1})
-
-	for _, e in ipairs(events) do
-		e.point_vt = e.point.visualTime
-		e.point_at = e.point.point.absoluteTime
-		e.point = nil
-	end
+	clear_events(events)
 
 	t:eq(#events, 20)
 
@@ -149,6 +179,14 @@ function test.negative(t)
 		{action=-1,point_at=400,point_vt=200,time=401}
 	})
 
+	----
+	local ve1 = VisualEvents()
+	ve1:generate(vps, {-1, 1})
+	local abs_events = ve1:toAbsEvents(vps)
+	clear_events(abs_events)
+	eq_events(t, abs_events, events)
+	----
+
 	events = ve:generate(vps, {-1000, 1000})
 	t:eq(#events, #vps * 2)
 end
@@ -167,12 +205,7 @@ function test.zero_start(t)
 
 	local ve = VisualEventsN2()
 	local events = ve:generate(vps, {-1, 1})
-
-	for _, e in ipairs(events) do
-		e.point_vt = e.point.visualTime
-		e.point_at = e.point.point.absoluteTime
-		e.point = nil
-	end
+	clear_events(events)
 
 	t:eq(#events, 6)
 
@@ -184,6 +217,14 @@ function test.zero_start(t)
 		{action=1,point_at=100,point_vt=-100,time=99},
 		{action=-1,point_at=100,point_vt=-100,time=101}
 	})
+
+	----
+	local ve1 = VisualEvents()
+	ve1:generate(vps, {-1, 1})
+	local abs_events = ve1:toAbsEvents(vps)
+	clear_events(abs_events)
+	eq_events(t, abs_events, events)
+	----
 
 	events = ve:generate(vps, {-1000, 1000})
 	t:eq(#events, #vps * 2)
@@ -203,12 +244,7 @@ function test.zero_end(t)
 
 	local ve = VisualEventsN2()
 	local events = ve:generate(vps, {-1, 1})
-
-	for _, e in ipairs(events) do
-		e.point_vt = e.point.visualTime
-		e.point_at = e.point.point.absoluteTime
-		e.point = nil
-	end
+	clear_events(events)
 
 	t:eq(#events, 6)
 
@@ -220,6 +256,15 @@ function test.zero_end(t)
 		{action=-1,point_at=0,point_vt=0,time=1/0},
 		{action=-1,point_at=100,point_vt=0,time=1/0}
 	})
+
+	----
+	local ve1 = VisualEvents()
+	ve1:generate(vps, {-1, 1})
+	local abs_events = ve1:toAbsEvents(vps)
+	clear_events(abs_events)
+	eq_events(t, abs_events, events)
+	t:tdeq(abs_events, events)
+	----
 
 	events = ve:generate(vps, {-1000, 1000})
 	t:eq(#events, #vps * 2)
@@ -245,12 +290,7 @@ function test.zero_both(t)
 
 	local ve = VisualEventsN2()
 	local events = ve:generate(vps, {-1, 1})
-
-	for _, e in ipairs(events) do
-		e.point_vt = e.point.visualTime
-		e.point_at = e.point.point.absoluteTime
-		e.point = nil
-	end
+	clear_events(events)
 
 	t:eq(#events, 28)
 
@@ -291,13 +331,18 @@ function test.zero_both(t)
 		{action=-1,point_at=400,point_vt=0,time=1/0}
 	})
 
+	----
+	local ve1 = VisualEvents()
+	ve1:generate(vps, {-1, 1})
+	local abs_events = ve1:toAbsEvents(vps)
+	clear_events(abs_events)
+	eq_events(t, abs_events, events)
+	t:tdeq(abs_events, events)
+	----
+
 	events = ve:generate(vps, {-1000, 1000})
 	t:eq(#events, #vps * 2)
-	for _, e in ipairs(events) do
-		e.point_vt = e.point.visualTime
-		e.point_at = e.point.point.absoluteTime
-		e.point = nil
-	end
+	clear_events(events)
 	t:tdeq(events, {
 		{action=1,point_at=-100,point_vt=0,time=-1/0},
 		{action=1,point_at=0,point_vt=0,time=-1/0},
@@ -329,12 +374,7 @@ function test._local(t)
 
 	local ve = VisualEventsN2()
 	local events = ve:generate(vps, {-1, 1})
-
-	for _, e in ipairs(events) do
-		e.point_vt = e.point.visualTime
-		e.point_at = e.point.point.absoluteTime
-		e.point = nil
-	end
+	clear_events(events)
 
 	t:eq(#events, 8)
 
@@ -348,6 +388,15 @@ function test._local(t)
 		{action=1,point_at=200,point_vt=200,time=199.5},
 		{action=-1,point_at=200,point_vt=200,time=200.5}
 	})
+
+	----
+	local ve1 = VisualEvents()
+	ve1:generate(vps, {-1, 1})
+	local abs_events = ve1:toAbsEvents(vps)
+	clear_events(abs_events)
+	eq_events(t, abs_events, events)
+	t:tdeq(abs_events, events)
+	----
 
 	events = ve:generate(vps, {-1000, 1000})
 	t:eq(#events, #vps * 2)

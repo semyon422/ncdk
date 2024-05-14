@@ -7,6 +7,25 @@ local Visual = require("ncdk2.visual.Visual")
 
 local test = {}
 
+---@param t any
+---@param es1 ncdk2.VisualEvent[]
+---@param es2 ncdk2.VisualEvent[]
+local function eq_events(t, es1, es2)
+	if not t:eq(#es1, #es2) then
+		return
+	end
+	local err = 0
+	for i = 1, #es1 do
+		if math.abs(es1[i].time) == math.huge then
+			t:eq(es1[i].time, es2[i].time)
+		else
+			err = err + math.abs(es1[i].time - es2[i].time)
+		end
+		t:eq(es1[i].action, es2[i].action)
+	end
+	t:lt(err / #es1, 1e-6)
+end
+
 local function new_vp(time)
 	local vp = VisualPoint(Point(time))
 	vp.visualTime = time
@@ -78,7 +97,24 @@ function test.next(t)
 	t:assert(visiblePoints[vp_4])
 end
 
-function test.negative(t)
+function test.to_abs_basic(t)
+	local vps = {
+		new_vp(0),
+		new_vp(1),
+		new_vp(2),
+	}
+
+	local veN2 = VisualEventsN2()
+	local es2 = veN2:generate(vps, {-1, 1})
+
+	local ve = VisualEvents()
+	local es1 = ve:generate(vps, {-1, 1})
+	es1 = ve:toAbsEvents(vps)
+
+	t:tdeq(es1, es2)
+end
+
+function test.to_abs_negative(t)
 	local vis = Visual()
 
 	local vp_1 = vis:newPoint(Point(0))
@@ -91,104 +127,54 @@ function test.negative(t)
 
 	local ve = VisualEvents()
 	local events = ve:generate(vis.points, {-1, 1})
-
 	t:eq(#events, 4)
 
-	local order = {}
+	events = ve:toAbsEvents(vis.points)
+	t:eq(#events, 6)
 
-	local _offset = ve.startOffset
-	local offset, vp, show
+	local veN2 = VisualEventsN2()
+	local es2 = veN2:generate(vis.points, {-1, 1})
 
-	for _, cvp in ipairs(vis.points) do
-		offset, vp, show = ve:next(_offset, cvp.visualTime)
-		while offset do
-			_offset = offset
-			table.insert(order, {vp.point.absoluteTime, show and 1 or -1})
-			offset, vp, show = ve:next(offset, cvp.visualTime)
-		end
-	end
-
-	offset, vp, show = ve:next(_offset, math.huge)
-	while offset do
-		_offset = offset
-		table.insert(order, {vp.point.absoluteTime, show and 1 or -1})
-		offset, vp, show = ve:next(offset, math.huge)
-	end
-
-	t:tdeq(order, {{0,1},{0,-1},{100,1},{100,-1},{0,1},{0,-1}})
+	t:tdeq(events, es2)
 end
-
--- do return test end
 
 local function rand_vel()
 	return math.floor((math.random() - 0.5) * 2000) / 1000
-end
-local function rand_vel_mono()
-	return math.floor(math.random() * 1000) / 1000
 end
 
 function test.N2_validate(t)
 	local vis = Visual()
 
 	local time = 0
-	for i = 1, 100 do
+	for i = 1, 200 do
 		local vp = vis:newPoint(Point(time))
 		time = time + 100
 		vp._velocity = Velocity(rand_vel(), rand_vel(), 1)
-		vp.index = i
 	end
 	vis:compute()
 
 	local veN2 = VisualEventsN2()
-	print()
-	print("---------------------------------------------------")
 	local eventsN2 = veN2:generate(vis.points, {-1, 1})
-
-	local orderN2 = {}
-	for i, e in ipairs(eventsN2) do
-		table.insert(orderN2, {e.point.index, e.action})
-	end
 
 	local ve = VisualEvents()
 	local events = ve:generate(vis.points, {-1, 1})
+	local abs_events = ve:toAbsEvents(vis.points)
 
-	local order = {}
-
-	local _offset = ve.startOffset  -- !!!
-	for _, cvp in ipairs(vis.points) do
-		local offset, vp, show = ve:next(_offset, cvp.visualTime)
-		while offset do
-			_offset = offset
-			table.insert(order, {vp.index, show and 1 or -1})
-			offset, vp, show = ve:next(offset, cvp.visualTime)
-		end
+	for _, e in ipairs(abs_events) do
+		e.point_vt = e.point.visualTime
+		e.point_at = e.point.point.absoluteTime
+		e.point = nil
+	end
+	for _, e in ipairs(eventsN2) do
+		e.point_vt = e.point.visualTime
+		e.point_at = e.point.point.absoluteTime
+		e.point = nil
 	end
 
-	local last_currentSpeed = vis.points[#vis.points].currentSpeed  -- !!!
-	local offset, vp, show = ve:next(_offset, last_currentSpeed / 0)
-	while offset do
-		_offset = offset
-		table.insert(order, {vp.index, show and 1 or -1})
-		offset, vp, show = ve:next(offset, last_currentSpeed / 0)
-	end
+	t:eq(#abs_events, #eventsN2)
+	-- t:tdeq(abs_events, eventsN2)
 
-	t:eq(#orderN2, #order)
-
-	-- print("----------------")
-	-- print(#events)
-	-- print(require("stbl").encode(orderN2))
-	-- print(require("stbl").encode(order))
-	-- -- assert(#events == #eventsN2, #eventsN2 .. " " .. #events)
-
-	-- local err = 0
-	-- for i = 1, #events do
-	-- 	if math.abs(eventsN2[i].time) ~= math.huge then
-	-- 		err = math.abs(eventsN2[i].time - events[i].time)
-	-- 	end
-	-- end
-	-- t:lt(err / #events, 1e-6)
-
-	-- t:tdeq(events, eventsN2)
+	eq_events(t, abs_events, eventsN2)
 end
 
 return test
