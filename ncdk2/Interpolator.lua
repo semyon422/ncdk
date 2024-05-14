@@ -61,7 +61,9 @@ function Interpolator:getBaseIndex(list, index, p, ext)
 	local dir = lte(p, list[index], ext) and -1 or 1
 	while not self:isOk(list, index, p, ext) do
 		index = index + dir
-		assert(index > 0, require("stbl").encode(list))
+		if index == 0 or index == #list + 1 then
+			error("invalid index")
+		end
 	end
 
 	return index
