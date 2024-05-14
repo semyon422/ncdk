@@ -23,8 +23,10 @@ function test.basic2(t)
 		newp(5),
 	}
 
-	points[1]._interval = Interval(0)
-	points[5]._interval = Interval(4)
+	local int_0 = Interval(0)
+	local int_4 = Interval(4)
+	points[1]._interval = int_0
+	points[5]._interval = int_4
 
 	conv:convert(points)
 
@@ -32,6 +34,11 @@ function test.basic2(t)
 	t:eq(points[2].absoluteTime, 1)
 	t:eq(points[5].absoluteTime, 4)
 	t:eq(points[6].absoluteTime, 5)
+
+	t:assert(not int_0.prev)
+	t:assert(not int_4.next)
+	t:eq(int_0.next, int_4)
+	t:eq(int_0, int_4.prev)
 end
 
 return test

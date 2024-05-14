@@ -15,20 +15,25 @@ function IntervalAbsolute:getFirstMeasure(points)
 end
 
 ---@param points ncdk2.IntervalPoint[]
----@return ncdk2.Interval?
-function IntervalAbsolute:getFirstInterval(points)
-	for _, p in ipairs(points) do
-		if p._interval then
-			return p._interval
-		end
-	end
-end
-
----@param points ncdk2.IntervalPoint[]
 function IntervalAbsolute:convert(points)
 	local measure = self:getFirstMeasure(points)
-	local interval = self:getFirstInterval(points)
 
+	---@type ncdk2.Interval[]
+	local intervals = {}
+	for _, p in ipairs(points) do
+		if p._interval then
+			table.insert(intervals, p._interval)
+			p._interval.point = p
+		end
+	end
+
+	for i = 1, #intervals - 1 do
+		local interval = intervals[i]
+		local next_interval = intervals[i + 1]
+		interval.next, next_interval.prev = next_interval, interval
+	end
+
+	local interval = intervals[1]
 	for _, point in ipairs(points) do
 		if point._measure then
 			measure = point._measure
@@ -36,9 +41,7 @@ function IntervalAbsolute:convert(points)
 
 		local _interval = point._interval
 		if _interval then
-			interval.next, _interval.prev = _interval, interval
 			interval = _interval
-			interval.point = point
 		end
 
 		point.interval = interval
