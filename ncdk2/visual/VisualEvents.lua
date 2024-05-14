@@ -14,6 +14,16 @@ local VisualEvents = class()
 ---@param range {[1]: number, [2]: number}
 ---@return ncdk2.VisualEvent[]
 function VisualEvents:generate(vps, range)
+	local visual_events = self:generateVisual(vps, range)
+	local events = self:toAbsolute(vps, visual_events)
+	self.events = events
+	return events
+end
+
+---@param vps ncdk2.VisualPoint[]
+---@param range {[1]: number, [2]: number}
+---@return ncdk2.VisualEvent[]
+function VisualEvents:generateVisual(vps, range)
 	---@type ncdk2.VisualEvent[]
 	local events = {}
 
@@ -38,15 +48,13 @@ function VisualEvents:generate(vps, range)
 		return a.point.point < b.point.point
 	end)
 
-	self.events = events
-
 	return events
 end
 
 ---@param vps ncdk2.VisualPoint[]
 ---@return ncdk2.VisualEvent[]
-function VisualEvents:toAbsEvents(vps)
-	local _offset = vps[1].currentSpeed >= 0 and 0 or #self.events
+function VisualEvents:toAbsolute(vps, events)
+	local _offset = vps[1].currentSpeed >= 0 and 0 or #events
 
 	---@type ncdk2.VisualEvent[]
 	local abs_events = {}
@@ -57,11 +65,11 @@ function VisualEvents:toAbsEvents(vps)
 		local startTime = first_vp.visualTime
 		---@type {[ncdk2.VisualPoint]: true}
 		local visiblePoints = {}
-		local offset, vp, show = self:next(_offset, startTime)
+		local offset, vp, show = self:next(events, _offset, startTime)
 		while offset do
 			_offset = offset
 			visiblePoints[vp] = show
-			offset, vp, show = self:next(offset, startTime)
+			offset, vp, show = self:next(events, offset, startTime)
 		end
 
 		for vp in pairs(visiblePoints) do
@@ -88,7 +96,7 @@ function VisualEvents:toAbsEvents(vps)
 			break
 		end
 
-		local offset, vp, show, event = self:next(_offset, sctollTo)
+		local offset, vp, show, event = self:next(events, _offset, sctollTo)
 		while offset do
 			_offset = offset
 			visiblePoints[vp] = show
@@ -103,7 +111,7 @@ function VisualEvents:toAbsEvents(vps)
 				action = show and 1 or -1,
 				point = vp,
 			})
-			offset, vp, show, event = self:next(offset, sctollTo)
+			offset, vp, show, event = self:next(events, offset, sctollTo)
 		end
 	end
 
@@ -139,15 +147,16 @@ local function get_action_value(action)
 	end
 end
 
+---@param events ncdk2.VisualEvent[]
 ---@param index number
 ---@param time number
 ---@return number?
 ---@return ncdk2.VisualPoint?
 ---@return true?
 ---@return ncdk2.VisualEvent?
-function VisualEvents:next(index, time)
-	local event = self.events[index]
-	local next_event = self.events[index + 1]
+function VisualEvents:next(events, index, time)
+	local event = events[index]
+	local next_event = events[index + 1]
 
 	if event and next_event and time >= event.time and time < next_event.time then
 		return

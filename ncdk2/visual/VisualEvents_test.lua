@@ -59,44 +59,6 @@ function test.local_1(t)
 	t:eq(#events, 4)
 end
 
-
-function test.next(t)
-	local vp_1 = new_vp(0)
-	local vp_2 = new_vp(1)
-	local vp_3 = new_vp(2)
-	local vp_4 = new_vp(3)
-
-	local ve = VisualEvents()
-
-	ve:generate({vp_1, vp_2, vp_3, vp_4}, {-1, 1})
-
-	t:eq(#ve.events, 8)
-	t:tdeq(ve.events, {
-		{action=1,point={point={absoluteTime=0},visualTime=0},time=-1},
-		{action=1,point={point={absoluteTime=1},visualTime=1},time=0},
-		{action=-1,point={point={absoluteTime=0},visualTime=0},time=1},
-		{action=1,point={point={absoluteTime=2},visualTime=2},time=1},
-		{action=-1,point={point={absoluteTime=1},visualTime=1},time=2},
-		{action=1,point={point={absoluteTime=3},visualTime=3},time=2},
-		{action=-1,point={point={absoluteTime=2},visualTime=2},time=3},
-		{action=-1,point={point={absoluteTime=3},visualTime=3},time=4}
-	})
-
-	local ctime = 2.5
-	---@type {[ncdk2.VisualPoint]: true}
-	local visiblePoints = {}
-	local offset, vp, show = ve:next(0, ctime)
-	while offset do
-		visiblePoints[vp] = show
-		offset, vp, show = ve:next(offset, ctime)
-	end
-
-	t:assert(not visiblePoints[vp_1])
-	t:assert(not visiblePoints[vp_2])
-	t:assert(visiblePoints[vp_3])
-	t:assert(visiblePoints[vp_4])
-end
-
 function test.to_abs_basic(t)
 	local vps = {
 		new_vp(0),
@@ -109,7 +71,6 @@ function test.to_abs_basic(t)
 
 	local ve = VisualEvents()
 	local es1 = ve:generate(vps, {-1, 1})
-	es1 = ve:toAbsEvents(vps)
 
 	t:tdeq(es1, es2)
 end
@@ -127,9 +88,6 @@ function test.to_abs_negative(t)
 
 	local ve = VisualEvents()
 	local events = ve:generate(vis.points, {-1, 1})
-	t:eq(#events, 4)
-
-	events = ve:toAbsEvents(vis.points)
 	t:eq(#events, 6)
 
 	local veN2 = VisualEventsN2()
@@ -157,8 +115,7 @@ function test.N2_validate(t)
 	local eventsN2 = veN2:generate(vis.points, {-1, 1})
 
 	local ve = VisualEvents()
-	local events = ve:generate(vis.points, {-1, 1})
-	local abs_events = ve:toAbsEvents(vis.points)
+	local abs_events = ve:generate(vis.points, {-1, 1})
 
 	for _, e in ipairs(abs_events) do
 		e.point_vt = e.point.visualTime

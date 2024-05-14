@@ -81,8 +81,7 @@ function test.expand(t)
 
 	----
 	local ve1 = VisualEvents()
-	ve1:generate(vps, {-1, 1})
-	local abs_events = ve1:toAbsEvents(vps)
+	local abs_events = ve1:generate(vps, {-1, 1})
 	clear_events(abs_events)
 	eq_events(t, abs_events, events)
 	----
@@ -124,8 +123,7 @@ function test.zero(t)
 
 	----
 	local ve1 = VisualEvents()
-	ve1:generate(vps, {-1, 1})
-	local abs_events = ve1:toAbsEvents(vps)
+	local abs_events = ve1:generate(vps, {-1, 1})
 	clear_events(abs_events)
 	eq_events(t, abs_events, events)
 	----
@@ -181,8 +179,7 @@ function test.negative(t)
 
 	----
 	local ve1 = VisualEvents()
-	ve1:generate(vps, {-1, 1})
-	local abs_events = ve1:toAbsEvents(vps)
+	local abs_events = ve1:generate(vps, {-1, 1})
 	clear_events(abs_events)
 	eq_events(t, abs_events, events)
 	----
@@ -220,8 +217,7 @@ function test.zero_start(t)
 
 	----
 	local ve1 = VisualEvents()
-	ve1:generate(vps, {-1, 1})
-	local abs_events = ve1:toAbsEvents(vps)
+	local abs_events = ve1:generate(vps, {-1, 1})
 	clear_events(abs_events)
 	eq_events(t, abs_events, events)
 	----
@@ -259,8 +255,7 @@ function test.zero_end(t)
 
 	----
 	local ve1 = VisualEvents()
-	ve1:generate(vps, {-1, 1})
-	local abs_events = ve1:toAbsEvents(vps)
+	local abs_events = ve1:generate(vps, {-1, 1})
 	clear_events(abs_events)
 	eq_events(t, abs_events, events)
 	t:tdeq(abs_events, events)
@@ -333,8 +328,7 @@ function test.zero_both(t)
 
 	----
 	local ve1 = VisualEvents()
-	ve1:generate(vps, {-1, 1})
-	local abs_events = ve1:toAbsEvents(vps)
+	local abs_events = ve1:generate(vps, {-1, 1})
 	clear_events(abs_events)
 	eq_events(t, abs_events, events)
 	t:tdeq(abs_events, events)
@@ -391,8 +385,7 @@ function test._local(t)
 
 	----
 	local ve1 = VisualEvents()
-	ve1:generate(vps, {-1, 1})
-	local abs_events = ve1:toAbsEvents(vps)
+	local abs_events = ve1:generate(vps, {-1, 1})
 	clear_events(abs_events)
 	eq_events(t, abs_events, events)
 	t:tdeq(abs_events, events)
