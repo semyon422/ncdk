@@ -102,21 +102,35 @@ end
 
 function test.tempo(t)
 	local vis = Visual()
-	vis.primaryTempo = 60  -- tempo requires primaryTempo to affect visual time
+	vis.primaryTempo = 100  -- tempo requires primaryTempo to affect visual time
 
 	local p0 = Point(0)
 	local p1 = Point(1)
+	local p2 = Point(2)
+	local p3 = Point(3)
 
-	p0.tempo = Tempo(120)
-	p1.tempo = Tempo(120)
+	p0.tempo = Tempo(100)
+	p1.tempo = Tempo(200)
+	p2.tempo = Tempo(300)
 
 	local vp0 = vis:newPoint(p0)
 	local vp1 = vis:newPoint(p1)
+	local vp2 = vis:newPoint(p2)
+	local vp3 = vis:newPoint(p3)
 
 	vis:compute()
 
 	t:eq(vp0.visualTime, 0)
-	t:eq(vp1.visualTime, 2)  -- 1 * 120 / 60
+	t:eq(vp0.currentSpeed, 1)
+
+	t:eq(vp1.visualTime, 1)
+	t:eq(vp1.currentSpeed, 2)
+
+	t:eq(vp2.visualTime, 3)
+	t:eq(vp2.currentSpeed, 3)
+
+	t:eq(vp3.visualTime, 6)
+	t:eq(vp3.currentSpeed, 3)
 end
 
 function test.stop(t)
@@ -125,15 +139,24 @@ function test.stop(t)
 
 	local p0 = Point(0)
 	local p1 = Point(1)
+	local p2 = Point(2)
+
 	p1._stop = {}
 
 	local vp0 = vis:newPoint(p0)
 	local vp1 = vis:newPoint(p1)
+	local vp2 = vis:newPoint(p2)
 
 	vis:compute()
 
 	t:eq(vp0.visualTime, 0)
-	t:eq(vp1.visualTime, 0)  -- 0
+	t:eq(vp0.currentSpeed, 1)
+
+	t:eq(vp1.visualTime, 0)
+	t:eq(vp1.currentSpeed, 0)
+
+	t:eq(vp2.visualTime, 1)
+	t:eq(vp2.currentSpeed, 1)
 end
 
 function test.tempo_expand(t)

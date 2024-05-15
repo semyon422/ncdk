@@ -45,12 +45,17 @@ function Visual:compute()
 		return
 	end
 
+	table.sort(points)
+
 	local velocity = self:getFirstVelocity()
 	local primaryTempo = self.primaryTempo
 
 	local section = 0
 	---@type {[number]: number}
 	local section_time = {}
+
+	---@type ncdk2.Tempo
+	local currentTempo = points[1].point.tempo
 
 	local visualTime = 0
 	local currentAbsoluteTime = points[1].point.absoluteTime
@@ -66,19 +71,21 @@ function Visual:compute()
 		local interval = point.interval
 
 		local tempoMultiplier = 1
-		if primaryTempo ~= 0 then
-			assert(not (tempo and stop), "both tempo and stop are not allowed")
-			if stop then
-				tempoMultiplier = 0
-			elseif tempo then
-				tempoMultiplier = tempo.tempo / primaryTempo
-			end
+		if stop then
+			tempoMultiplier = 0
+		elseif currentTempo then
+			tempoMultiplier = currentTempo.tempo / primaryTempo
 		end
+		currentTempo = tempo
 
 		local currentSpeed, localSpeed, globalSpeed = self:multiply(velocity, tempoMultiplier)
 
 		visualTime = visualTime + (time - currentAbsoluteTime) * currentSpeed
 		currentAbsoluteTime = time
+
+		if currentTempo then
+			tempoMultiplier = currentTempo.tempo / primaryTempo
+		end
 
 		local _velocity = visualPoint._velocity
 		if _velocity then
@@ -103,8 +110,6 @@ function Visual:compute()
 				visualTime = visualTime + duration
 			end
 		end
-
-		visualPoint.velocity = velocity
 
 		visualPoint.visualTime = visualTime
 		visualPoint.section = section
@@ -132,6 +137,10 @@ function Visual:multiply(velocity, tempoMultiplier)
 		currentSpeed = velocity.currentSpeed
 		localSpeed = velocity.localSpeed
 		globalSpeed = velocity.globalSpeed
+	end
+
+	if self.primaryTempo == 0 then
+		return currentSpeed, localSpeed, globalSpeed
 	end
 
 	local target = self.tempoMultiplyTarget

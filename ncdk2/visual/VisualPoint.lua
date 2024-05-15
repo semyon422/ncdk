@@ -4,7 +4,6 @@ local class = require("class")
 ---@operator call: ncdk2.VisualPoint
 ---@field _expand ncdk2.Expand?
 ---@field _velocity ncdk2.Velocity?
----@field velocity ncdk2.Velocity?
 local VisualPoint = class()
 
 VisualPoint.visualTime = 0
@@ -13,9 +12,13 @@ VisualPoint.currentSpeed = 1
 VisualPoint.localSpeed = 1
 VisualPoint.globalSpeed = 1
 
+local order_index = 0
+
 ---@param point ncdk2.Point
 function VisualPoint:new(point)
 	self.point = point
+	order_index = order_index + 1
+	self.order_index = order_index
 end
 
 ---@param vp ncdk2.VisualPoint
@@ -48,6 +51,16 @@ end
 ---@return string
 function VisualPoint.__tostring(a)
 	return ("VisualPoint(%s)"):format(a.point)
+end
+
+---@param a ncdk2.VisualPoint
+---@param b ncdk2.VisualPoint
+---@return boolean
+function VisualPoint.__lt(a, b)
+	if a.point.absoluteTime ~= b.point.absoluteTime then
+		return a.point.absoluteTime < b.point.absoluteTime
+	end
+	return a.order_index < b.order_index
 end
 
 return VisualPoint
