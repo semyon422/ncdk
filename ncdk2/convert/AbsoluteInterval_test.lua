@@ -71,9 +71,11 @@ function test.point_merge(t)
 	t:eq(points[2].absoluteTime, 1)
 	t:eq(points[3].absoluteTime, 2)
 
-	t:eq(#layer.visual.points, 2)
-	t:eq(layer.visual.points[1].point, points[2])
+	t:eq(#layer.visual.points, 4)
+	t:eq(layer.visual.points[1].point, points[1])
 	t:eq(layer.visual.points[2].point, points[2])
+	t:eq(layer.visual.points[3].point, points[2])
+	t:eq(layer.visual.points[4].point, points[3])
 end
 
 function test.single_tempo_wrong_snap(t)
