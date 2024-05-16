@@ -1,16 +1,18 @@
 local class = require("class")
 
+---@alias ncdk2.Column any
+
 ---@class ncdk2.Notes
 ---@operator call: ncdk2.Notes
----@field column_notes {[number]: ncdk2.Note[]}
+---@field column_notes {[ncdk2.Column]: ncdk2.Note[]}
 local Notes = class()
 
 function Notes:new()
 	self.column_notes = {}
 end
 
----@return fun(table: {[number]: ncdk2.Note[]}, index?: number):number, ncdk2.Note[]
----@return {[number]: ncdk2.Note[]}
+---@return fun(t: {[ncdk2.Column]: ncdk2.Note[]}, k?: ncdk2.Column): ncdk2.Column, ncdk2.Note[]
+---@return {[ncdk2.Column]: ncdk2.Note[]}
 function Notes:iter()
 	return next, self.column_notes
 end
@@ -22,7 +24,7 @@ function Notes:sort()
 end
 
 ---@param note ncdk2.Note
----@param column number
+---@param column ncdk2.Column
 function Notes:insert(note, column)
 	local notes = self.column_notes
 	notes[column] = notes[column] or {}

@@ -13,7 +13,7 @@ function Chart:new()
 	self.resourceList = ResourceList()
 end
 
----@return fun(): ncdk2.Note[], number, string, ncdk2.Layer
+---@return fun(): ncdk2.Note[], ncdk2.Column, string, ncdk2.Layer
 function Chart:getNotesIterator()
 	return coroutine.wrap(function()
 		for layerName, layer in pairs(self.layers) do
