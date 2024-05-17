@@ -11,12 +11,6 @@ function AbsoluteLayer:new()
 	self.absoluteAbsolute = AbsoluteAbsolute()
 end
 
----@param tempo number
-function AbsoluteLayer:setPrimaryTempo(tempo)
-	assert(tempo >= 0, "Wrong primary tempo")
-	self.primaryTempo = tempo
-end
-
 ---@param time number
 ---@return ncdk2.AbsolutePoint
 function AbsoluteLayer:newPoint(time)

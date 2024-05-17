@@ -17,12 +17,6 @@ function MeasureLayer:setSignatureMode(mode)
 	self.signatureMode = mode
 end
 
----@param tempo number
-function MeasureLayer:setPrimaryTempo(tempo)
-	assert(tempo >= 0, "Wrong primary tempo")
-	self.primaryTempo = tempo
-end
-
 ---@param time ncdk.Fraction
 ---@param isRightSide boolean?
 ---@return ncdk2.MeasurePoint
