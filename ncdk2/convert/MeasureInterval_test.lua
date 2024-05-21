@@ -41,7 +41,7 @@ function test.stop(t)
 
 	local p_1 = layer:getPoint(Fraction(1, 8))  -- 1/2
 	local p_2 = layer:getPoint(Fraction(1, 8), true)
-	p_2._stop = Stop(Fraction(1, 4))
+	p_1._stop = Stop(Fraction(1, 4))
 
 	local p_3 = layer:getPoint(Fraction(1))
 

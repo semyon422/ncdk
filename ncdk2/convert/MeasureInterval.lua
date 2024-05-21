@@ -18,14 +18,15 @@ function MeasureInterval:convertPoints(points)
 	---@type ncdk2.IntervalPoint
 	local last_point
 
+	local prev_stop = false
+
 	local stop_beats = 0
 	for _, p in ipairs(points) do
 		local _tempo = p._tempo
 		local _stop = p._stop
 
-		if _stop then
+		if prev_stop then
 			stop_beats = stop_beats + 1
-			last_point._interval = Interval(absoluteTime)
 		end
 
 		local beatTime = assert(p.beatTime) + stop_beats
@@ -37,8 +38,9 @@ function MeasureInterval:convertPoints(points)
 
 		p:new(beatTime)
 		points_map[tostring(p)] = p
-		if _tempo or _stop then
+		if _tempo or _stop or prev_stop then
 			p._interval = Interval(absoluteTime)
+			prev_stop = _stop ~= nil
 		end
 		last_point = p
 	end

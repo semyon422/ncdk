@@ -145,7 +145,7 @@ function test.stop(t)
 	p1.tempo = Tempo(60)
 	p2.tempo = Tempo(60)
 
-	p1._stop = {}
+	p0._stop = {}
 
 	local vp0 = vis:newPoint(p0)
 	local vp1 = vis:newPoint(p1)

@@ -71,8 +71,7 @@ function test.stop(t)
 	}
 
 	points[1]._tempo = Tempo(120)  -- use fraction beat time here to test stops
-	points[2].isRightSide = true
-	points[2]._stop = Stop(Fraction(1), false)  -- 1 beat
+	points[1]._stop = Stop(Fraction(1), false)  -- 1 beat
 
 	conv:convert(points)
 

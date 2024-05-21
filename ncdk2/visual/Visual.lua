@@ -57,7 +57,11 @@ function Visual:compute()
 	---@type ncdk2.Tempo
 	local currentTempo = points[1].point.tempo
 
-	local prev_vp = points[1]
+	---@type number?
+	local _tempo
+	if currentTempo then
+		_tempo = currentTempo.tempo
+	end
 
 	local visualTime = 0
 	local currentAbsoluteTime = points[1].point.absoluteTime
@@ -73,21 +77,23 @@ function Visual:compute()
 		local interval = point.interval
 
 		local tempoMultiplier = 1
-		if stop then
-			tempoMultiplier = 0
-			prev_vp:setSpeeds(self:multiply(velocity, 0))
-		elseif currentTempo then
-			tempoMultiplier = currentTempo.tempo / primaryTempo
+		if _tempo then
+			tempoMultiplier = _tempo / primaryTempo
 		end
-		currentTempo = tempo
+		if tempo then
+			_tempo = tempo.tempo
+		end
+		if stop then
+			_tempo = 0
+		end
 
 		local _currentSpeed = self:multiply(velocity, tempoMultiplier)
 
 		visualTime = visualTime + (time - currentAbsoluteTime) * _currentSpeed
 		currentAbsoluteTime = time
 
-		if currentTempo then
-			tempoMultiplier = currentTempo.tempo / primaryTempo
+		if _tempo then
+			tempoMultiplier = _tempo / primaryTempo
 		end
 
 		local _velocity = visualPoint._velocity
@@ -116,7 +122,6 @@ function Visual:compute()
 
 		visualPoint.visualTime = visualTime
 		visualPoint.section = section
-		prev_vp = visualPoint
 	end
 
 	local zero_vp = VisualPoint(Point(0))

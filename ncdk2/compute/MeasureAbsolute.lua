@@ -56,6 +56,11 @@ function MeasureAbsolute:convert(points)
 			tempo = _tempo
 		end
 
+		point.tempo = tempo
+		point.signature = signature
+		point.absoluteTime = time
+		point.beatTime = beatTime
+
 		local stop = point._stop
 		if stop then
 			local stop_duration = stop.duration
@@ -64,11 +69,6 @@ function MeasureAbsolute:convert(points)
 			end
 			time = time + stop_duration
 		end
-
-		point.tempo = tempo
-		point.signature = signature
-		point.absoluteTime = time
-		point.beatTime = beatTime
 	end
 
 	local zero_p = MeasurePoint()
