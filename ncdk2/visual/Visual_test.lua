@@ -141,6 +141,10 @@ function test.stop(t)
 	local p1 = Point(1)
 	local p2 = Point(2)
 
+	p0.tempo = Tempo(60)
+	p1.tempo = Tempo(60)
+	p2.tempo = Tempo(60)
+
 	p1._stop = {}
 
 	local vp0 = vis:newPoint(p0)
@@ -149,11 +153,13 @@ function test.stop(t)
 
 	vis:compute()
 
+	-- the point before Stop is starting and should have speed == 0
 	t:eq(vp0.visualTime, 0)
-	t:eq(vp0.currentSpeed, 1)
+	t:eq(vp0.currentSpeed, 0)
 
+	-- the point that have Stop is ending and should have speed ~= 0
 	t:eq(vp1.visualTime, 0)
-	t:eq(vp1.currentSpeed, 0)
+	t:eq(vp1.currentSpeed, 1)
 
 	t:eq(vp2.visualTime, 1)
 	t:eq(vp2.currentSpeed, 1)
