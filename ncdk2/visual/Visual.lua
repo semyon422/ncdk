@@ -48,59 +48,39 @@ function Visual:compute()
 	table.sort(points)
 
 	local velocity = self:getFirstVelocity()
-	local primaryTempo = self.primaryTempo
 
-	local section = 0
 	---@type {[number]: number}
 	local section_time = {}
+	local section = 0
 
-	---@type ncdk2.Tempo
-	local currentTempo = points[1].point.tempo
-
-	---@type number?
-	local _tempo
-	if currentTempo then
-		_tempo = currentTempo.tempo
-	end
+	local _tempo = 0  -- ok for first point
 
 	local visualTime = 0
-	local currentAbsoluteTime = points[1].point.absoluteTime
+	local absoluteTime = points[1].point.absoluteTime
 	for _, visualPoint in ipairs(points) do
+		---@type ncdk2.Point|ncdk2.AbsolutePoint|ncdk2.MeasurePoint|ncdk2.IntervalPoint
 		local point = visualPoint.point
-		local time = point.absoluteTime
 
-		---@type ncdk2.Tempo?
-		local tempo = point.tempo
-		---@type ncdk2.Stop?
-		local stop = point._stop
-		---@type ncdk2.Interval?
+		local _currentSpeed = self:multiply(velocity, _tempo)
+
 		local interval = point.interval
-
-		local tempoMultiplier = 1
-		if _tempo then
-			tempoMultiplier = _tempo / primaryTempo
-		end
+		local tempo = point.tempo
 		if tempo then
 			_tempo = tempo.tempo
 		end
-		if stop then
+		if point._stop then
 			_tempo = 0
 		end
 
-		local _currentSpeed = self:multiply(velocity, tempoMultiplier)
-
-		visualTime = visualTime + (time - currentAbsoluteTime) * _currentSpeed
-		currentAbsoluteTime = time
-
-		if _tempo then
-			tempoMultiplier = _tempo / primaryTempo
-		end
+		local _absoluteTime = point.absoluteTime
+		visualTime = visualTime + (_absoluteTime - absoluteTime) * _currentSpeed
+		absoluteTime = _absoluteTime
 
 		local _velocity = visualPoint._velocity
 		if _velocity then
 			velocity = _velocity
 		end
-		visualPoint:setSpeeds(self:multiply(velocity, tempoMultiplier))
+		visualPoint:setSpeeds(self:multiply(velocity, _tempo))
 
 		local expand = visualPoint._expand
 		if expand then
@@ -133,11 +113,11 @@ function Visual:compute()
 end
 
 ---@param velocity ncdk2.Velocity?
----@param tempoMultiplier number
+---@param tempo number
 ---@return number
 ---@return number
 ---@return number
-function Visual:multiply(velocity, tempoMultiplier)
+function Visual:multiply(velocity, tempo)
 	local currentSpeed, localSpeed, globalSpeed = 1, 1, 1
 	if velocity then
 		currentSpeed = velocity.currentSpeed
@@ -148,6 +128,8 @@ function Visual:multiply(velocity, tempoMultiplier)
 	if self.primaryTempo == 0 then
 		return currentSpeed, localSpeed, globalSpeed
 	end
+
+	local tempoMultiplier = tempo / self.primaryTempo
 
 	local target = self.tempoMultiplyTarget
 	if target == "current" then
