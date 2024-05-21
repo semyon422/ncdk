@@ -70,15 +70,15 @@ function test.stop(t)
 		newp(1),
 	}
 
-	points[1]._tempo = Tempo(60)
+	points[1]._tempo = Tempo(120)  -- use fraction beat time here to test stops
 	points[2].isRightSide = true
 	points[2]._stop = Stop(Fraction(1), false)  -- 1 beat
 
 	conv:convert(points)
 
 	t:eq(points[1].absoluteTime, 0)
-	t:eq(points[2].absoluteTime, 1)
-	t:eq(points[3].absoluteTime, 5)  -- default signature is 4
+	t:eq(points[2].absoluteTime, 0.5)
+	t:eq(points[3].absoluteTime, 2.5)  -- default signature is 4
 end
 
 function test.signature(t)

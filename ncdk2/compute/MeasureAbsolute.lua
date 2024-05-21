@@ -60,7 +60,7 @@ function MeasureAbsolute:convert(points)
 		if stop then
 			local stop_duration = stop.duration
 			if not stop.isAbsolute then
-				stop_duration = stop_duration * tempo:getBeatDuration()
+				stop_duration = tempo:getBeatDuration() * stop_duration
 			end
 			time = time + stop_duration
 		end
