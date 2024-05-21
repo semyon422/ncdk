@@ -32,6 +32,15 @@ function VisualPoint:getVisualTime(vp)
 	return (self.visualTime - vp.visualTime) * globalSpeed * localSpeed + vp.point.absoluteTime
 end
 
+---@param currentSpeed number
+---@param localSpeed number
+---@param globalSpeed number
+function VisualPoint:setSpeeds(currentSpeed, localSpeed, globalSpeed)
+	self.currentSpeed = currentSpeed
+	self.localSpeed = localSpeed
+	self.globalSpeed = globalSpeed
+end
+
 ---@param vp ncdk2.VisualPoint
 ---@return boolean
 function VisualPoint:compare(vp)

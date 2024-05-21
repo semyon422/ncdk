@@ -75,18 +75,15 @@ function Visual:compute()
 		local tempoMultiplier = 1
 		if stop then
 			tempoMultiplier = 0
-			local currentSpeed, localSpeed, globalSpeed = self:multiply(velocity, tempoMultiplier)
-			prev_vp.currentSpeed = currentSpeed
-			prev_vp.localSpeed = localSpeed
-			prev_vp.globalSpeed = globalSpeed
+			prev_vp:setSpeeds(self:multiply(velocity, 0))
 		elseif currentTempo then
 			tempoMultiplier = currentTempo.tempo / primaryTempo
 		end
 		currentTempo = tempo
 
-		local currentSpeed, localSpeed, globalSpeed = self:multiply(velocity, tempoMultiplier)
+		local _currentSpeed = self:multiply(velocity, tempoMultiplier)
 
-		visualTime = visualTime + (time - currentAbsoluteTime) * currentSpeed
+		visualTime = visualTime + (time - currentAbsoluteTime) * _currentSpeed
 		currentAbsoluteTime = time
 
 		if currentTempo then
@@ -97,7 +94,7 @@ function Visual:compute()
 		if _velocity then
 			velocity = _velocity
 		end
-		currentSpeed, localSpeed, globalSpeed = self:multiply(velocity, tempoMultiplier)
+		visualPoint:setSpeeds(self:multiply(velocity, tempoMultiplier))
 
 		local expand = visualPoint._expand
 		if expand then
@@ -119,9 +116,6 @@ function Visual:compute()
 
 		visualPoint.visualTime = visualTime
 		visualPoint.section = section
-		visualPoint.currentSpeed = currentSpeed
-		visualPoint.localSpeed = localSpeed
-		visualPoint.globalSpeed = globalSpeed
 		prev_vp = visualPoint
 	end
 
