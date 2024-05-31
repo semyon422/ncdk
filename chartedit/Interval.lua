@@ -67,6 +67,12 @@ function Interval:isSingle()
 end
 
 ---@param a chartedit.Interval
+---@return string
+function Interval.__tostring(a)
+	return ("Interval(%s, %s)"):format(a.offset, a.beats)
+end
+
+---@param a chartedit.Interval
 ---@param b chartedit.Interval
 ---@return boolean
 function Interval.__eq(a, b)

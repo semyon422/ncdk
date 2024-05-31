@@ -1,4 +1,5 @@
 local class = require("class")
+local table_util = require("table_util")
 local Fraction = require("ncdk.Fraction")
 
 ---@class chartedit.Point
@@ -8,6 +9,8 @@ local Fraction = require("ncdk.Fraction")
 ---@field _interval chartedit.Interval?
 ---@field interval chartedit.Interval?
 ---@field absoluteTime number
+---@field prev chartedit.Point?
+---@field next chartedit.Point?
 local Point = class()
 
 ---@param interval chartedit.Interval
@@ -15,6 +18,22 @@ local Point = class()
 function Point:new(interval, time)
 	self.interval = interval
 	self.time = time
+end
+
+---@return chartedit.Interval
+---@return ncdk.Fraction
+function Point:unpack()
+	return self.interval, self.time
+end
+
+---@param point chartedit.Point?
+---@return chartedit.Point
+function Point:clone(point)
+	assert(not rawequal(self, point), "not allowed to clone to itself")
+	point = point or Point()
+	table_util.clear(point)
+	table_util.copy(self, point)
+	return point
 end
 
 ---@return ncdk.Fraction
@@ -110,6 +129,11 @@ function Point:fromnumber(ivl, t, limit, measure, round)
 	self:new(a, time)
 end
 
+---@param a chartedit.Point
+---@return string
+function Point.__tostring(a)
+	return ("Point(%s, %s)"):format(a.interval, a.time)
+end
 
 ---@param a chartedit.Point
 ---@param b chartedit.Point
