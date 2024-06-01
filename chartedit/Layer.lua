@@ -11,6 +11,8 @@ local fraction_0 = Fraction(0)
 ---@operator call: chartedit.Layer
 local Layer = class()
 
+Layer.minBeatDuration = 60 / 1000
+
 function Layer:new()
 	self.points_tree = rbtree.new()
 	self.search_point = Point()
@@ -226,6 +228,26 @@ function Layer:mergeInterval(point)
 		point.time = point.time + _beats
 		point = point.next
 	end
+end
+
+---@param interval chartedit.Interval
+---@param offset number
+function Layer:moveInterval(interval, offset)
+	if interval.offset == offset then
+		return
+	end
+	local minTime, maxTime = -math.huge, math.huge
+	if interval.prev then
+		minTime = interval.prev.offset + self.minBeatDuration * interval.prev:getDuration()
+	end
+	if interval.next then
+		maxTime = interval.next.offset - self.minBeatDuration * interval:getDuration()
+	end
+	if minTime >= maxTime then
+		return
+	end
+	interval.offset = math.min(math.max(offset, minTime), maxTime)
+	self:compute()
 end
 
 return Layer
