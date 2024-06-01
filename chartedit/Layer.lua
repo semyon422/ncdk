@@ -26,6 +26,12 @@ function Layer:init()
 	self:compute()
 end
 
+---@return chartedit.Point?
+function Layer:getFirstPoint()
+	local node = self.points_tree:min()
+	return node and node.key
+end
+
 ---@param a table
 ---@param _prev table?
 ---@param _next table?
@@ -39,6 +45,18 @@ local function insert(a, _prev, _next)
 		_next.prev = a
 		a.next = _next
 	end
+end
+
+---@generic T
+---@param a T
+---@return T?
+---@return T?
+local function remove(a)
+	local prev, next = a.prev, a.next
+	if prev then prev.next = next end
+	if next then next.prev = prev end
+	a.prev, a.next = nil, nil
+	return prev, next
 end
 
 ---@param interval chartedit.Interval
@@ -139,7 +157,7 @@ end
 function Layer:saveSearchPoint()
 	local sp = self.search_point
 	local p = self:getPoint(sp:unpack())
-	table_util.copy(sp, p)
+	p.absoluteTime = sp.absoluteTime
 	return p
 end
 
@@ -163,23 +181,50 @@ function Layer:splitInterval(point)
 
 	---@type chartedit.Interval
 	local interval
-	---@type "next"|"prev"
-	local dir
 	if time[1] > 0 then
 		local beats = _interval.next and _interval.beats - _beats or 1
 		interval = self:_setInterval(point, beats)
 		insert(interval, _interval, _interval.next)
 		_interval.beats = _beats
-		dir = "next"
 	else
 		interval = self:_setInterval(point, -_beats)
 		insert(interval, nil, _interval)
-		dir = "prev"
+		point = self:getFirstPoint()
 	end
 	while point and point.interval == _interval do
 		point.interval = interval
 		point.time = point.time - _beats
-		point = point[dir]
+		point = point.next
+	end
+end
+
+---@param point chartedit.Point
+function Layer:mergeInterval(point)
+	assert(not rawequal(point, self.search_point), "can't merge search point")
+	local _interval = point._interval
+	if not _interval then
+	-- if not _interval or self.ranges.interval.tree.size == 2 then
+		return
+	end
+
+	point._interval = nil
+	local _prev, _next = remove(_interval)
+
+	local _beats, interval
+	if _prev then
+		_beats = _prev.beats
+		_prev.beats = _next and _prev.beats + _interval.beats or 1
+		interval = _prev
+	elseif _next then
+		_beats = -_interval.beats
+		point = self:getFirstPoint()
+		interval = _next
+	end
+
+	while point and point.interval == _interval do
+		point.interval = interval
+		point.time = point.time + _beats
+		point = point.next
 	end
 end
 
