@@ -43,6 +43,22 @@ function Visual:getPoint(point)
 end
 
 ---@param vp chartedit.VisualPoint
+function Visual:remove(vp)
+	local p2vp = self.p2vp
+	local p = vp.point
+	if p2vp[p] ~= vp then
+	elseif vp.next ~= p2vp[p.next] then
+		p2vp[p] = vp.next
+	else
+		p2vp[p] = nil
+	end
+	local prev, _next = table_util.remove_linked(vp)
+	if not prev then
+		self.head = _next
+	end
+end
+
+---@param vp chartedit.VisualPoint
 ---@return chartedit.VisualPoint
 function Visual:createAfter(vp)
 	local _vp = VisualPoint(vp.point)
