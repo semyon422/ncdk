@@ -1,5 +1,6 @@
 local class = require("class")
 local math_util = require("math_util")
+local mergesort = require("mergesort")
 local VisualInterpolator = require("ncdk2.visual.VisualInterpolator")
 local VisualEvents = require("ncdk2.visual.VisualEvents")
 local Point = require("ncdk2.tp.Point")
@@ -45,7 +46,7 @@ function Visual:compute()
 		return
 	end
 
-	table.sort(points)
+	mergesort.sort(points)
 
 	local velocity = self:getFirstVelocity()
 

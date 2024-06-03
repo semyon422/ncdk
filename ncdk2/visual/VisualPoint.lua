@@ -12,13 +12,9 @@ VisualPoint.currentSpeed = 1
 VisualPoint.localSpeed = 1
 VisualPoint.globalSpeed = 1
 
-local order_index = 0
-
 ---@param point ncdk2.Point
 function VisualPoint:new(point)
 	self.point = point
-	order_index = order_index + 1
-	self.order_index = order_index
 end
 
 ---@param vp ncdk2.VisualPoint
@@ -66,10 +62,7 @@ end
 ---@param b ncdk2.VisualPoint
 ---@return boolean
 function VisualPoint.__lt(a, b)
-	if a.point.absoluteTime ~= b.point.absoluteTime then
-		return a.point.absoluteTime < b.point.absoluteTime
-	end
-	return a.order_index < b.order_index
+	return a.point.absoluteTime < b.point.absoluteTime
 end
 
 return VisualPoint
