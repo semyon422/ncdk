@@ -3,7 +3,6 @@ local Converter = require("chartedit.Converter")
 local Layer = require("chartedit.Layer")
 local IntervalLayer = require("ncdk2.layers.IntervalLayer")
 local ChartDecoder = require("sph.ChartDecoder")
-local ChartEncoder = require("sph.ChartEncoder")
 
 local test = {}
 
@@ -21,12 +20,14 @@ function test.empty_save_load(t)
 	t:eq(stbl.encode(_layer), stbl.encode(layer))
 end
 
-function test.sph_1(t)
+function test.sph_early_frac(t)
 	local s = [[
 # metadata
 input 4key
 
 # notes
+1000 +1/2
+-
 - =0
 - =1
 ]]
@@ -37,12 +38,74 @@ input 4key
 	local nlayer = chart.layers.main
 	local layer = Converter:load(nlayer)
 	local _nlayer = Converter:save(layer)
-	-- t:tdeq(_nlayer, nlayer)
-	-- t:eq(stbl.encode(_nlayer), stbl.encode(nlayer))
+	t:tdeq(_nlayer, nlayer)
+end
 
-	-- local enc = ChartEncoder()
+function test.sph_early_int(t)
+	local s = [[
+# metadata
+input 4key
 
-	-- t:eq(enc:encode(dec:decode(s)), s)
+# notes
+1000
+-
+- =0
+- =1
+]]
+
+	local dec = ChartDecoder()
+	local chart = dec:decode(s)[1]
+
+	local nlayer = chart.layers.main
+	local layer = Converter:load(nlayer)
+	local _nlayer = Converter:save(layer)
+	t:tdeq(_nlayer, nlayer)
+end
+
+function test.sph_frac_offset(t)
+	local s = [[
+# metadata
+input 4key
+
+# notes
+1000
+- +1/2 =0
+1000
+- +1/4 =1
+1000
+- +1/8 =1
+1000
+]]
+
+	local dec = ChartDecoder()
+	local chart = dec:decode(s)[1]
+
+	local nlayer = chart.layers.main
+	local layer = Converter:load(nlayer)
+	local _nlayer = Converter:save(layer)
+	t:tdeq(_nlayer, nlayer)
+end
+
+function test.sph_sv(t)
+	local s = [[
+# metadata
+input 4key
+
+# notes
+1000 =0 x1
+0100 v x2
+0010 v e3
+-
+- =1
+]]
+
+	local dec = ChartDecoder()
+	local chart = dec:decode(s)[1]
+
+	local nlayer = chart.layers.main
+	local layer = Converter:load(nlayer)
+	local _nlayer = Converter:save(layer)
+	t:tdeq(_nlayer, nlayer)
 end
 
 

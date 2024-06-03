@@ -10,6 +10,8 @@ local IntervalLayer = require("ncdk2.layers.IntervalLayer")
 local NcdkInterval = require("ncdk2.to.Interval")
 local NcdkVisualPoint = require("ncdk2.visual.VisualPoint")
 local IntervalPoint = require("ncdk2.tp.IntervalPoint")
+local Velocity = require("ncdk2.visual.Velocity")
+local Expand = require("ncdk2.visual.Expand")
 
 ---@class chartedit.Converter
 ---@operator call: chartedit.Converter
@@ -64,6 +66,8 @@ function Converter:load(_layer)
 		local _vp = _vps[i]
 		local p = p_map[_vp.point]
 		local vp = VisualPoint(p)
+		vp._velocity = _vp._velocity
+		vp._expand = _vp._expand
 		layer.visual.p2vp[p] = vp
 		vp_map[_vp] = vp
 		vps[i] = vp
@@ -96,7 +100,7 @@ function Converter:save(_layer)
 	local ivl_map = {}
 	---@type {[chartedit.Interval]: number}
 	local ivl_beats = {}
-	local ivl_total_beats = 0
+	local ivl_total_beats = -vp_head.point.time:ceil() + 1
 	local ivls = table_util.to_array(vp_head.point.interval)
 	for _, _ivl in ipairs(ivls) do
 		ivl_map[_ivl] = NcdkInterval(_ivl.offset)
@@ -123,17 +127,19 @@ function Converter:save(_layer)
 	local _vps = table_util.to_array(vp_head)
 	for i, _vp in ipairs(_vps) do
 		local vp = NcdkVisualPoint(p_map[_vp.point])
+		vp._velocity = _vp._velocity
+		vp._expand = _vp._expand
 		vp_map[_vp] = vp
 		vps[i] = vp
-	end
-	layer.visual.points = vps
-
-	for _vp, notes in pairs(_layer.point_notes) do
-		for column, note in pairs(notes) do
-			note.visualPoint = vp_map[_vp]
-			layer.notes:insert(note, column)
+		local notes = _layer.point_notes[_vp]
+		if notes then
+			for column, note in pairs(notes) do
+				note.visualPoint = vp_map[_vp]
+				layer.notes:insert(note, column)
+			end
 		end
 	end
+	layer.visual.points = vps
 
 	layer:compute()
 

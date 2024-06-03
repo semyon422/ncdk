@@ -4,6 +4,8 @@ local class = require("class")
 ---@operator call: chartedit.VisualPoint
 ---@field prev chartedit.VisualPoint?
 ---@field next chartedit.VisualPoint?
+---@field _expand ncdk2.Expand?
+---@field _velocity ncdk2.Velocity?
 local VisualPoint = class()
 
 ---@param point chartedit.Point
