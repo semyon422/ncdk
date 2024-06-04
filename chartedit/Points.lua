@@ -18,7 +18,7 @@ function Points:new(on_create, on_remove)
 	self.on_remove = on_remove
 	self.points_tree = rbtree.new()
 	self.search_point = Point()
-	self.search_interval = Interval()
+	self.search_interval = Interval(0)
 	self:initDefault()
 end
 
@@ -36,6 +36,12 @@ end
 ---@return chartedit.Point?
 function Points:getFirstPoint()
 	local node = self.points_tree:min()
+	return node and node.key
+end
+
+---@return chartedit.Point?
+function Points:getLastPoint()
+	local node = self.points_tree:max()
 	return node and node.key
 end
 
@@ -144,7 +150,7 @@ function Points:interpolateAbsolute(limit, absoluteTime)
 
 	table_util.clear(search_point)
 
-	local t = absoluteTime
+	local t = assert(absoluteTime)
 	search_interval:new(t, 1)
 	search_point:new(search_interval, fraction_0)
 
@@ -172,6 +178,7 @@ function Points:interpolateAbsolute(limit, absoluteTime)
 
 	search_point:fromnumber(a.interval, t, limit, a.measure, true)
 	search_point.absoluteTime = search_point:tonumber()
+	search_point.interval = a.interval
 	search_point.measure = a.measure
 
 	return search_point

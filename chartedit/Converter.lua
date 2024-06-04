@@ -50,6 +50,7 @@ function Converter:load(_layer)
 		local p = Point(ivl, _p.time - _p.interval.point.time:floor())
 		if _p._interval then
 			p._interval = ivl_map[_p._interval]
+			p._interval.point = p
 		end
 		p_map[_p] = p
 		tree:insert(p)
@@ -78,7 +79,7 @@ function Converter:load(_layer)
 	for column, notes in _layer.notes:iter() do
 		for _, note in ipairs(notes) do
 			local vp = vp_map[note.visualPoint]
-			note.visualPoint = nil
+			note.visualPoint = vp
 			point_notes[vp] = point_notes[vp] or {}
 			point_notes[vp][column] = note
 		end
