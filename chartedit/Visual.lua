@@ -42,6 +42,15 @@ function Visual:getPoint(point)
 	return vp
 end
 
+---@param point chartedit.Point
+function Visual:removeAll(point)
+	local p2vp = self.p2vp
+	local vp = assert(p2vp[point])
+	while vp and vp.point == point do
+		self:remove(vp)
+	end
+end
+
 ---@param vp chartedit.VisualPoint
 function Visual:remove(vp)
 	local p2vp = self.p2vp

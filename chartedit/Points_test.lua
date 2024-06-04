@@ -66,4 +66,19 @@ function test.remove_point(t)
 	t:eq(p10.prev, p0)
 end
 
+function test.int_frac(t)
+	local points = Points()
+
+	local ivl = points:getFirstPoint().interval
+
+	local p = points:interpolateFraction(ivl, Fraction(1, 2))
+	t:eq(p.absoluteTime, 0.5)
+
+	p = points:interpolateFraction(ivl, Fraction(-1, 2))
+	t:eq(p.absoluteTime, -0.5)
+
+	p = points:interpolateFraction(ivl.next, Fraction(1, 2))
+	t:eq(p.absoluteTime, 1.5)
+end
+
 return test

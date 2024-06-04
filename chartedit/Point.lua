@@ -7,7 +7,7 @@ local Fraction = require("ncdk.Fraction")
 ---@field _measure ncdk2.Measure?
 ---@field measure ncdk2.Measure?
 ---@field _interval chartedit.Interval?
----@field interval chartedit.Interval?
+---@field interval chartedit.Interval
 ---@field absoluteTime number
 ---@field prev chartedit.Point?
 ---@field next chartedit.Point?

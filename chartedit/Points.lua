@@ -11,15 +11,25 @@ local fraction_0 = Fraction(0)
 ---@operator call: chartedit.Points
 local Points = class()
 
-function Points:new()
+---@param on_create function?
+---@param on_remove function?
+function Points:new(on_create, on_remove)
+	self.on_create = on_create
+	self.on_remove = on_remove
 	self.points_tree = rbtree.new()
 	self.search_point = Point()
 	self.search_interval = Interval()
+	self:initDefault()
+end
+
+function Points:initDefault()
 	local ivl_1 = Interval(0, 1)
 	local ivl_2 = Interval(1, 1)
 	ivl_1.next, ivl_2.prev = ivl_2, ivl_1
 	ivl_1.point = self:getPoint(ivl_1, Fraction(0))
 	ivl_2.point = self:getPoint(ivl_2, Fraction(0))
+	ivl_1.point._interval = ivl_1
+	ivl_2.point._interval = ivl_2
 	self:compute()
 end
 
@@ -47,6 +57,9 @@ function Points:getPoint(interval, time)
 	local prev_point = prev_node and prev_node.key
 	local next_point = next_node and next_node.key
 	table_util.insert_linked(point, prev_point, next_point)
+	if self.on_create then
+		self.on_create(point)
+	end
 
 	return point
 end
@@ -55,6 +68,9 @@ end
 function Points:removePoint(point)
 	assert(not rawequal(point, self.search_point), "can't remove search point")
 
+	if self.on_remove then
+		self.on_remove(point)
+	end
 	local node = self.points_tree:remove(point)
 	table_util.remove_linked(point)
 
@@ -82,6 +98,41 @@ function Points:getInterp(object)
 		local _prev = a:prev()
 		return _prev and _prev.key, key
 	end
+end
+
+---@param interval chartedit.Interval
+---@param time ncdk.Fraction
+---@return chartedit.Point?
+function Points:interpolateFraction(interval, time)
+	local search_point = self.search_point
+
+	search_point:new(interval, time)
+
+	local a, b = self:getInterp(search_point)
+	if not a and not b then
+		return
+	elseif a == b then
+		return a:clone(search_point)
+	end
+
+	if search_point == a then
+		a:clone(search_point)
+		return search_point
+	end
+	if search_point == b then
+		b:clone(search_point)
+		return search_point
+	end
+
+	search_point.prev = a
+	search_point.next = b
+
+	a = a or b
+
+	search_point.absoluteTime = search_point:tonumber()
+	search_point.measure = a.measure
+
+	return search_point
 end
 
 ---@param limit number
