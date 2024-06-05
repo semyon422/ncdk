@@ -5,6 +5,7 @@ local test = {}
 
 function test.int_abs(t)
 	local points = Points()
+	points:initDefault()
 
 	local p = points:interpolateAbsolute(16, 0.5)
 	t:eq(p.interval.offset, 0)
@@ -30,6 +31,7 @@ end
 
 function test.new_points(t)
 	local points = Points()
+	points:initDefault()
 
 	local p0 = points:getFirstPoint()
 	local p10 = p0.next
@@ -53,6 +55,7 @@ end
 
 function test.remove_point(t)
 	local points = Points()
+	points:initDefault()
 
 	local p0 = points:getFirstPoint()
 	local p10 = p0.next
@@ -68,6 +71,7 @@ end
 
 function test.int_frac(t)
 	local points = Points()
+	points:initDefault()
 
 	local ivl = points:getFirstPoint().interval
 

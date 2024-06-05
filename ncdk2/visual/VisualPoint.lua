@@ -17,9 +17,12 @@ function VisualPoint:new(point)
 	self.point = point
 end
 
----@param vp ncdk2.VisualPoint
+---@param vp ncdk2.VisualPoint?
 ---@return number
 function VisualPoint:getVisualTime(vp)
+	if not vp then
+		return self.point.absoluteTime
+	end
 	if self.section ~= vp.section then
 		return (self.section - vp.section) / 0
 	end

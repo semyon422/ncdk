@@ -135,10 +135,32 @@ function Point.__tostring(a)
 	return ("Point(%s, %s)"):format(a.interval, a.time)
 end
 
+
+---@param a chartedit.Point
+---@param b chartedit.Point
+---@return number?
+---@return number?
+local function number_intervals(a, b)
+	local ia, ib = a.interval, b.interval
+	local ta, tb = type(ia) == "table", type(ib) == "table"
+	if ta and tb then
+		return
+	end
+	if ta then
+		ia = a.absoluteTime
+	end
+	if tb then
+		ib = b.absoluteTime
+	end
+	return ia, ib
+end
+
 ---@param a chartedit.Point
 ---@param b chartedit.Point
 ---@return boolean
 function Point.__eq(a, b)
+	local na, nb = number_intervals(a, b)
+	if na then return na == nb end
 	local ai, bi = a.interval, b.interval
 	return ai == bi and a.time == b.time
 end
@@ -147,6 +169,8 @@ end
 ---@param b chartedit.Point
 ---@return boolean
 function Point.__lt(a, b)
+	local na, nb = number_intervals(a, b)
+	if na then return na < nb end
 	local ai, bi = a.interval, b.interval
 	return ai < bi or ai == bi and a.time < b.time
 end
@@ -155,6 +179,8 @@ end
 ---@param b chartedit.Point
 ---@return boolean
 function Point.__le(a, b)
+	local na, nb = number_intervals(a, b)
+	if na then return na <= nb end
 	local ai, bi = a.interval, b.interval
 	return ai < bi or ai == bi and a.time < b.time or ai == bi and a.time == b.time
 end

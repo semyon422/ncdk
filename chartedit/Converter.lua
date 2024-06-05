@@ -85,6 +85,8 @@ function Converter:load(_layer)
 		end
 	end
 
+	layer.points:compute()
+
 	return layer
 end
 

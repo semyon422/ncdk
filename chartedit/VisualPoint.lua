@@ -19,4 +19,10 @@ function VisualPoint.__tostring(a)
 	return ("VisualPoint(%s)"):format(a.point)
 end
 
+---@param vp chartedit.VisualPoint?
+---@return number
+function VisualPoint:getVisualTime(vp)
+	return self.point.absoluteTime
+end
+
 return VisualPoint

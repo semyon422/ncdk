@@ -4,6 +4,7 @@ local test = {}
 
 function test.iter(t)
 	local layer = Layer()
+	layer.points:initDefault()
 
 	local count = 0
 	for p, vp, notes in layer:iter(-1, 2) do

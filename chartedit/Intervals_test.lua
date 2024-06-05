@@ -6,6 +6,7 @@ local test = {}
 
 function test.split_middle(t)
 	local points = Points()
+	points:initDefault()
 	local intervals = Intervals(points)
 
 	points:interpolateAbsolute(16, 0.25)
@@ -36,6 +37,7 @@ end
 
 function test.split_before(t)
 	local points = Points()
+	points:initDefault()
 	local intervals = Intervals(points)
 
 	points:interpolateAbsolute(16, -0.75)
@@ -68,6 +70,7 @@ end
 
 function test.split_after(t)
 	local points = Points()
+	points:initDefault()
 	local intervals = Intervals(points)
 
 	points:interpolateAbsolute(16, 1.25)

@@ -18,8 +18,6 @@ function Points:new(on_create, on_remove)
 	self.on_remove = on_remove
 	self.points_tree = rbtree.new()
 	self.search_point = Point()
-	self.search_interval = Interval(0)
-	self:initDefault()
 end
 
 function Points:initDefault()
@@ -142,17 +140,15 @@ function Points:interpolateFraction(interval, time)
 end
 
 ---@param limit number
----@param absoluteTime number
+---@param time number
 ---@return chartedit.Point
-function Points:interpolateAbsolute(limit, absoluteTime)
+function Points:interpolateAbsolute(limit, time)
 	local search_point = self.search_point
-	local search_interval = self.search_interval
 
 	table_util.clear(search_point)
 
-	local t = assert(absoluteTime)
-	search_interval:new(t, 1)
-	search_point:new(search_interval, fraction_0)
+	assert(time, "missing time")
+	search_point:new(time, fraction_0)
 
 	local a, b = self:getInterp(search_point)
 	if not a and not b then
@@ -176,7 +172,7 @@ function Points:interpolateAbsolute(limit, absoluteTime)
 
 	a = a or b
 
-	search_point:fromnumber(a.interval, t, limit, a.measure, true)
+	search_point:fromnumber(a.interval, time, limit, a.measure, true)
 	search_point.absoluteTime = search_point:tonumber()
 	search_point.interval = a.interval
 	search_point.measure = a.measure
