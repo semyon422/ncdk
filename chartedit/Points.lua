@@ -191,7 +191,7 @@ end
 function Points:saveSearchPoint()
 	local sp = self.search_point
 	local p = self:getPoint(sp:unpack())
-	p.absoluteTime = sp.absoluteTime
+	p.absoluteTime = p:tonumber()
 	return p
 end
 
