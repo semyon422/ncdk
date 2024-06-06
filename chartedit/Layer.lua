@@ -42,4 +42,23 @@ function Layer:iter(start_time, end_time)
 	end)
 end
 
+---@param note ncdk2.Note
+---@param column ncdk2.Column
+function Layer:addNote(note, column)
+	local point_notes = self.point_notes
+	local vp = note.visualPoint
+	point_notes[vp] = point_notes[vp] or {}
+	point_notes[vp][column] = note
+end
+
+---@param note ncdk2.Note
+---@param column ncdk2.Column
+function Layer:removeNote(note, column)
+	local point_notes = self.point_notes
+	local vp = note.visualPoint
+	if point_notes[vp] then
+		point_notes[vp][column] = nil
+	end
+end
+
 return Layer
