@@ -1,4 +1,5 @@
 local class = require("class")
+local table_util = require("table_util")
 
 ---@class ncdk2.Note
 ---@operator call: ncdk2.Note
@@ -7,6 +8,13 @@ local Note = class()
 ---@param visualPoint ncdk2.VisualPoint
 function Note:new(visualPoint)
 	self.visualPoint = visualPoint
+end
+
+---@return ncdk2.Note
+function Note:clone()
+	local note = Note()
+	table_util.copy(self, note)
+	return note
 end
 
 ---@param a ncdk2.Note
