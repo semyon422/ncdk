@@ -13,6 +13,16 @@ local Fraction = require("ncdk.Fraction")
 ---@field next chartedit.Point?
 local Point = class()
 
+---@param p chartedit.Point
+---@param k any
+---@param v any
+function Point.__index(p, k, v)
+	if k == "absoluteTime" then
+		return p:tonumber()
+	end
+	return Point[k]
+end
+
 ---@param interval chartedit.Interval
 ---@param time ncdk.Fraction
 function Point:new(interval, time)
@@ -134,7 +144,6 @@ end
 function Point.__tostring(a)
 	return ("Point(%s, %s)"):format(a.interval, a.time)
 end
-
 
 ---@param a chartedit.Point
 ---@param b chartedit.Point

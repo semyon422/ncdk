@@ -28,7 +28,6 @@ function Points:initDefault()
 	ivl_2.point = self:getPoint(ivl_2, Fraction(0))
 	ivl_1.point._interval = ivl_1
 	ivl_2.point._interval = ivl_2
-	self:compute()
 end
 
 ---@return chartedit.Point?
@@ -133,7 +132,6 @@ function Points:interpolateFraction(interval, time)
 
 	a = a or b
 
-	search_point.absoluteTime = search_point:tonumber()
 	search_point.measure = a.measure
 
 	return search_point
@@ -173,25 +171,16 @@ function Points:interpolateAbsolute(limit, time)
 	a = a or b
 
 	search_point:fromnumber(a.interval, time, limit, a.measure, true)
-	search_point.absoluteTime = search_point:tonumber()
 	search_point.interval = a.interval
 	search_point.measure = a.measure
 
 	return search_point
 end
 
-function Points:compute()
-	for _, p in self.points_tree:iter() do
-		---@cast p chartedit.Point
-		p.absoluteTime = p:tonumber()
-	end
-end
-
 ---@return chartedit.Point
 function Points:saveSearchPoint()
 	local sp = self.search_point
 	local p = self:getPoint(sp:unpack())
-	p.absoluteTime = p:tonumber()
 	return p
 end
 
