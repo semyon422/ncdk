@@ -10,8 +10,6 @@ local IntervalLayer = require("ncdk2.layers.IntervalLayer")
 local NcdkInterval = require("ncdk2.to.Interval")
 local NcdkVisualPoint = require("ncdk2.visual.VisualPoint")
 local IntervalPoint = require("ncdk2.tp.IntervalPoint")
-local Velocity = require("ncdk2.visual.Velocity")
-local Expand = require("ncdk2.visual.Expand")
 
 ---@class chartedit.Converter
 ---@operator call: chartedit.Converter
@@ -65,7 +63,7 @@ function Converter:load(_layer)
 	local _vps = _layer.visual.points
 	for i = #_vps, 1, -1 do
 		local _vp = _vps[i]
-		local p = p_map[_vp.point]
+		local p = p_map[_vp.point --[[@as ncdk2.IntervalPoint]]]
 		local vp = VisualPoint(p)
 		vp._velocity = _vp._velocity
 		vp._expand = _vp._expand
@@ -78,7 +76,7 @@ function Converter:load(_layer)
 	local point_notes = layer.point_notes
 	for column, notes in _layer.notes:iter() do
 		for _, note in ipairs(notes) do
-			local vp = vp_map[note.visualPoint]
+			local vp = vp_map[note.visualPoint  --[[@as ncdk2.VisualPoint]]]
 			note.visualPoint = vp
 			point_notes[vp] = point_notes[vp] or {}
 			point_notes[vp][column] = note

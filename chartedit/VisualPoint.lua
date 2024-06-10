@@ -1,12 +1,12 @@
-local class = require("class")
+local IVisualPoint = require("ncdk2.visual.IVisualPoint")
 
----@class chartedit.VisualPoint
+---@class chartedit.VisualPoint: ncdk2.IVisualPoint
 ---@operator call: chartedit.VisualPoint
 ---@field prev chartedit.VisualPoint?
 ---@field next chartedit.VisualPoint?
 ---@field _expand ncdk2.Expand?
 ---@field _velocity ncdk2.Velocity?
-local VisualPoint = class()
+local VisualPoint = IVisualPoint + {}
 
 ---@param point chartedit.Point
 function VisualPoint:new(point)

@@ -1,8 +1,8 @@
-local class = require("class")
+local IPoint = require("ncdk2.tp.IPoint")
 local table_util = require("table_util")
 local Fraction = require("ncdk.Fraction")
 
----@class chartedit.Point
+---@class chartedit.Point: ncdk2.IPoint
 ---@operator call: chartedit.Point
 ---@field _measure ncdk2.Measure?
 ---@field measure ncdk2.Measure?
@@ -11,7 +11,7 @@ local Fraction = require("ncdk.Fraction")
 ---@field absoluteTime number
 ---@field prev chartedit.Point?
 ---@field next chartedit.Point?
-local Point = class()
+local Point = IPoint + {}
 
 ---@param p chartedit.Point
 ---@param k any

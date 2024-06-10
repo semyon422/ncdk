@@ -1,10 +1,10 @@
-local class = require("class")
+local IVisualPoint = require("ncdk2.visual.IVisualPoint")
 
----@class ncdk2.VisualPoint
+---@class ncdk2.VisualPoint: ncdk2.IVisualPoint
 ---@operator call: ncdk2.VisualPoint
 ---@field _expand ncdk2.Expand?
 ---@field _velocity ncdk2.Velocity?
-local VisualPoint = class()
+local VisualPoint = IVisualPoint + {}
 
 VisualPoint.visualTime = 0
 VisualPoint.section = 0

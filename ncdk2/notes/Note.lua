@@ -5,7 +5,7 @@ local table_util = require("table_util")
 ---@operator call: ncdk2.Note
 local Note = class()
 
----@param visualPoint ncdk2.VisualPoint
+---@param visualPoint ncdk2.IVisualPoint
 function Note:new(visualPoint)
 	self.visualPoint = visualPoint
 end

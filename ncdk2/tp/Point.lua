@@ -1,11 +1,11 @@
-local class = require("class")
+local IPoint = require("ncdk2.tp.IPoint")
 local ffi = require("ffi")
 local bit = require("bit")
 
----@class ncdk2.Point
+---@class ncdk2.Point: ncdk2.IPoint
 ---@operator call: ncdk2.Point
 ---@field absoluteTime number
-local Point = class()
+local Point = IPoint + {}
 
 Point.absoluteTime = 0
 

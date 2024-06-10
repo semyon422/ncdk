@@ -5,7 +5,7 @@ local Point = require("ncdk2.tp.Point")
 ---@field _measure ncdk2.Measure?
 ---@field measure ncdk2.Measure?
 ---@field _interval ncdk2.Interval?
----@field interval ncdk2.Interval?
+---@field interval ncdk2.Interval
 local IntervalPoint = Point + {}
 
 ---@param time ncdk.Fraction
