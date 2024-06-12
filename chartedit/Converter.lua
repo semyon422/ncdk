@@ -73,13 +73,12 @@ function Converter:load(_layer)
 	end
 	layer.visual.head = table_util.to_linked(vps)
 
-	local point_notes = layer.point_notes
+	local lnotes = layer.notes
 	for column, notes in _layer.notes:iter() do
 		for _, note in ipairs(notes) do
 			local vp = vp_map[note.visualPoint  --[[@as ncdk2.VisualPoint]]]
 			note.visualPoint = vp
-			point_notes[vp] = point_notes[vp] or {}
-			point_notes[vp][column] = note
+			lnotes:addNote(note, column)
 		end
 	end
 
@@ -130,15 +129,14 @@ function Converter:save(_layer)
 		vp._expand = _vp._expand
 		vp_map[_vp] = vp
 		vps[i] = vp
-		local notes = _layer.point_notes[_vp]
-		if notes then
-			for column, note in pairs(notes) do
-				note.visualPoint = vp_map[_vp]
-				layer.notes:insert(note, column)
-			end
-		end
 	end
 	layer.visual.points = vps
+
+	for note, column in _layer.notes:iter() do
+		local _vp = note.visualPoint
+		note.visualPoint = vp_map[_vp]
+		layer.notes:insert(note, column)
+	end
 
 	layer:compute()
 

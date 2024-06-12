@@ -27,21 +27,21 @@ end
 ---@param b ncdk2.Note
 ---@return boolean
 function Note.__eq(a, b)
-	return a.visualPoint.point == b.visualPoint.point
+	return a.visualPoint == b.visualPoint
 end
 
 ---@param a ncdk2.Note
 ---@param b ncdk2.Note
 ---@return boolean
 function Note.__lt(a, b)
-	return a.visualPoint.point < b.visualPoint.point
+	return a.visualPoint < b.visualPoint
 end
 
 ---@param a ncdk2.Note
 ---@param b ncdk2.Note
 ---@return boolean
 function Note.__le(a, b)
-	return a.visualPoint.point <= b.visualPoint.point
+	return a.visualPoint <= b.visualPoint
 end
 
 return Note
