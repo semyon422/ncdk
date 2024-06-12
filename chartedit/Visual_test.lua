@@ -113,4 +113,24 @@ function test.remove_4(t)
 	t:tdeq(table_util.to_array(vp0), {vp0, vp1, vp3})
 end
 
+function test.lt(t)
+	local vis = Visual()
+
+	local p0 = Point()
+
+	local vp0 = vis:getPoint(p0)
+	local vp1 = vis:createAfter(vp0)
+	local vp2 = vis:createAfter(vp1)
+
+	t:assert(vp0 < vp1)
+	t:assert(vp0 < vp2)
+	t:assert(vp1 < vp2)
+	t:assert(not (vp0 < vp0))
+	t:assert(not (vp1 < vp0))
+	t:assert(not (vp2 < vp0))
+	t:assert(not (vp1 < vp1))
+	t:assert(not (vp2 < vp1))
+	t:assert(not (vp2 < vp2))
+end
+
 return test

@@ -13,16 +13,34 @@ function VisualPoint:new(point)
 	self.point = point
 end
 
+---@param vp chartedit.VisualPoint?
+---@return number
+function VisualPoint:getVisualTime(vp)
+	return self.point.absoluteTime
+end
+
 ---@param a chartedit.VisualPoint
 ---@return string
 function VisualPoint.__tostring(a)
 	return ("VisualPoint(%s)"):format(a.point)
 end
 
----@param vp chartedit.VisualPoint?
----@return number
-function VisualPoint:getVisualTime(vp)
-	return self.point.absoluteTime
+---@param a chartedit.VisualPoint
+---@param b chartedit.VisualPoint
+---@return boolean
+function VisualPoint.__lt(a, b)
+	local at, bt = a.point, b.point
+	if at ~= bt then
+		return at < bt
+	end
+	local p = a.point
+	while b and b.point == p do
+		b = b.prev
+		if b == a then
+			return true
+		end
+	end
+	return false
 end
 
 return VisualPoint
