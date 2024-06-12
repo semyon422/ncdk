@@ -54,7 +54,7 @@ function Visual:compute()
 	local section_time = {}
 	local section = 0
 
-	local _tempo = 0  -- ok for first point
+	local _tempo = self.primaryTempo  -- ok for first point
 
 	local visualTime = 0
 	local absoluteTime = points[1].point.absoluteTime
