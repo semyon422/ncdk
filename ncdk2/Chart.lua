@@ -13,12 +13,25 @@ function Chart:new()
 	self.resourceList = ResourceList()
 end
 
----@return fun(): ncdk2.Note[], ncdk2.Column, string, ncdk2.Layer
-function Chart:getNotesIterator()
+---@return fun(): ncdk2.Note[], ncdk2.Column, ncdk2.Layer
+function Chart:iterLayerNotes()
 	return coroutine.wrap(function()
-		for layerName, layer in pairs(self.layers) do
+		for _, layer in pairs(self.layers) do
 			for column, notes in layer.notes:iter() do
-				coroutine.yield(notes, column, layerName, layer)
+				coroutine.yield(notes, column, layer)
+			end
+		end
+	end)
+end
+
+---@return fun(): ncdk2.Note, ncdk2.Column
+function Chart:iterNotes()
+	return coroutine.wrap(function()
+		for _, layer in pairs(self.layers) do
+			for column, notes in layer.notes:iter() do
+				for _, note in ipairs(notes) do
+					coroutine.yield(note, column)
+				end
 			end
 		end
 	end)
