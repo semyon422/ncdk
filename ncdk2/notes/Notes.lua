@@ -1,6 +1,6 @@
 local class = require("class")
 
----@alias ncdk2.Column any
+---@alias ncdk2.Column string
 
 ---@class ncdk2.Notes
 ---@operator call: ncdk2.Notes
