@@ -27,6 +27,17 @@ function InputMode:set(s)
 	return self
 end
 
+---@param s string
+---@return string?
+---@return number?
+function InputMode:splitInput(s)
+	local inputType, inputIndex = s:match("^(.-)(%d+)$")
+	if not inputType then
+		return
+	end
+	return inputType, tonumber(inputIndex)
+end
+
 ---@return number
 function InputMode:getColumns()
 	local columns = 0
