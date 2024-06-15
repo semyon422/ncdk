@@ -1,5 +1,4 @@
 local class = require("class")
-local math_util = require("math_util")
 
 ---@class ncdk2.VisualEvent
 ---@field time number
@@ -91,6 +90,13 @@ function VisualEvents:toAbsolute(vps, events)
 		local next_visualTime = next_vp and next_vp.visualTime or _vp.visualTime + 1 * _vp.currentSpeed
 		local next_absoluteTime = next_vp and next_vp.point.absoluteTime or _vp.point.absoluteTime + 1
 
+		local dvt = next_visualTime - _vp.visualTime
+		local dat = next_absoluteTime - _vp.point.absoluteTime
+
+		if dvt == 0 and dat == 0 then
+			dvt, dat = 1, 1
+		end
+
 		local sctollTo = next_vp and next_visualTime or vps[#vps].currentSpeed / 0
 		if not next_vp and vps[#vps].currentSpeed == 0 then
 			break
@@ -101,13 +107,7 @@ function VisualEvents:toAbsolute(vps, events)
 			_offset = offset
 			visiblePoints[vp] = show
 			table.insert(abs_events, {
-				time = math_util.map(
-					event.time,
-					_vp.visualTime,
-					next_visualTime,
-					_vp.point.absoluteTime,
-					next_absoluteTime
-				),
+				time = (event.time - _vp.visualTime) * dat / dvt + _vp.point.absoluteTime,
 				action = show and 1 or -1,
 				point = vp,
 			})

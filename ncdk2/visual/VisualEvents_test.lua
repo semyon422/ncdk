@@ -134,4 +134,28 @@ function test.N2_validate(t)
 	eq_events(t, abs_events, eventsN2)
 end
 
+function test.equal_time(t)
+	local vps = {
+		new_vp(0),
+		new_vp(0),
+		new_vp(0),
+	}
+
+	local veN2 = VisualEventsN2()
+	local es2 = veN2:generate(vps, {-1, 1})
+
+	local ve = VisualEvents()
+	local es1 = ve:generate(vps, {-1, 1})
+
+	t:tdeq(es1, es2)
+	t:tdeq(es2, {
+		{action=1,point={point={absoluteTime=0},visualTime=0},time=-1},
+		{action=1,point={point={absoluteTime=0},visualTime=0},time=-1},
+		{action=1,point={point={absoluteTime=0},visualTime=0},time=-1},
+		{action=-1,point={point={absoluteTime=0},visualTime=0},time=1},
+		{action=-1,point={point={absoluteTime=0},visualTime=0},time=1},
+		{action=-1,point={point={absoluteTime=0},visualTime=0},time=1},
+	})
+end
+
 return test

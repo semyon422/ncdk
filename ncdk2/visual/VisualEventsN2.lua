@@ -17,13 +17,20 @@ local function intersect(vps, j, i, dt)
 	local next_visualTime = next_vp and next_vp.visualTime or _vp.visualTime + 1 * _vp.currentSpeed
 	local next_absoluteTime = next_vp and next_vp.point.absoluteTime or _vp.point.absoluteTime + 1
 
+	local dvt = next_visualTime - _vp.visualTime
+	local dat = next_absoluteTime - _vp.point.absoluteTime
+
+	if dvt == 0 and dat == 0 then
+		dvt, dat = 1, 1
+	end
+
 	local targetVisualTime = vp.visualTime - dt / vp.localSpeed
 
-	local k = (targetVisualTime - _vp.visualTime) / (next_visualTime - _vp.visualTime)
+	local k = (targetVisualTime - _vp.visualTime) / dvt
 	local gte = k >= 0
 	local lt = k < 1
 
-	local targetTime = k * (next_absoluteTime - _vp.point.absoluteTime) + _vp.point.absoluteTime
+	local targetTime = k * dat + _vp.point.absoluteTime
 
 	if targetTime == -math.huge and i == 1 or targetTime == math.huge and i == #vps then
 		return math.abs(vp.visualTime - vps[i].visualTime) <= math.abs(dt / vp.localSpeed) and targetTime
@@ -56,6 +63,7 @@ function VisualEventsN2:generate(vps, range)
 			local rightTime = intersect(vps, j, i, range[2])
 			local leftTime = intersect(vps, j, i, range[1])
 			local speed = vp.localSpeed * _vp.currentSpeed
+
 			if rightTime then
 				table.insert(events, {
 					time = rightTime,
