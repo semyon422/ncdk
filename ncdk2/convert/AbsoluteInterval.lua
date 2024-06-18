@@ -64,22 +64,25 @@ function AbsoluteInterval:computeTempos(points)
 
 	---@type {[ncdk.Fraction]: ncdk2.Interval}
 	local intervals = {}
-	intervals[Fraction(0)] = Interval(tempo_offsets[tempos[1]])
-
-	local total_beats = 0
-
 	---@type {[ncdk2.Tempo]: number}
 	local tempo_beat_offsets = {}
-	tempo_beat_offsets[tempos[1]] = total_beats
-
 	---@type {[ncdk2.Tempo]: ncdk.Fraction}
 	local tempo_beats = {}
+
+	if #tempos == 0 then
+		return intervals, tempo_beat_offsets, tempo_offsets, tempo_beats
+	end
+
+	local total_beats = 0
+	tempo_beat_offsets[tempos[1]] = total_beats
+	intervals[Fraction(0)] = Interval(tempo_offsets[tempos[1]])
 
 	for i = 2, #tempos  do
 		local prev_tempo, tempo = tempos[i - 1], tempos[i]
 		local offset = tempo_offsets[prev_tempo]
 		local beat_duration = prev_tempo:getBeatDuration()
 
+		beat_duration = math.max(beat_duration, 0.001)
 		local beats, aux_interval = self.tempoConnector:connect(
 			offset,
 			beat_duration,
@@ -116,6 +119,14 @@ function AbsoluteInterval:convert(layer, fraction_mode)
 	local points = layer:getPointList()
 
 	local intervals, tempo_beat_offsets, tempo_offsets, tempo_beats = self:computeTempos(points)
+
+	if not next(intervals) then
+		---@cast layer -ncdk2.AbsoluteLayer, +ncdk2.IntervalLayer
+		setmetatable(layer, IntervalLayer)
+		table_util.clear(layer)
+		layer:new()
+		return
+	end
 
 	---@type {[string]: ncdk2.IntervalPoint}
 	local points_map = {}
