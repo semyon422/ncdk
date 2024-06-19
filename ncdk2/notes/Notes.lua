@@ -26,6 +26,7 @@ end
 ---@param note ncdk2.Note
 ---@param column ncdk2.Column
 function Notes:insert(note, column)
+	assert(note, "missing note")
 	local notes = self.column_notes
 	notes[column] = notes[column] or {}
 	table.insert(notes[column], note)
