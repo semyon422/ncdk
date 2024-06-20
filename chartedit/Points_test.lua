@@ -1,4 +1,5 @@
 local Points = require("chartedit.Points")
+local Intervals = require("chartedit.Intervals")
 local Fraction = require("ncdk.Fraction")
 
 local test = {}
@@ -83,6 +84,38 @@ function test.int_frac(t)
 
 	p = points:interpolateFraction(ivl.next, Fraction(1, 2))
 	t:eq(p.absoluteTime, 1.5)
+end
+
+function test.int_close_to(t)
+	local points = Points()
+	points:initDefault()
+
+	local p0 = points:getFirstPoint()
+	local p100 = points:getLastPoint()
+
+	local intervals = Intervals(points)
+	intervals:moveInterval(p0._interval.next, 10)
+	intervals:updateInterval(p0._interval, 10)
+
+	points:interpolateAbsolute(16, 2.5)
+	local p25 = points:saveSearchPoint()
+
+	intervals:splitInterval(p25)
+
+	local p = points:interpolateAbsolute(16, 2.501)
+	t:eq(p.interval.offset, 2.5)
+	t:eq(p.time, Fraction(1, 2))
+	t:eq(p.absoluteTime, 2.5)
+
+	p = points:interpolateAbsolute(16, 2.499)
+	t:eq(p.interval.offset, 2.5)
+	t:eq(p.time, Fraction(1, 2))
+	t:eq(p.absoluteTime, 2.5)
+
+	p = points:interpolateAbsolute(16, 2.25)
+	t:eq(p.interval.offset, 0)
+	t:eq(p.time, Fraction(9, 4))
+	t:eq(p.absoluteTime, 2.25)
 end
 
 return test
