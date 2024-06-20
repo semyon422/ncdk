@@ -34,6 +34,8 @@ function Layer:compute()
 		end
 	end
 
+	self.notes:validate()
+
 	table_util.clear(self.testPoint)
 	self.visual:compute()
 end

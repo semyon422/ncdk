@@ -32,4 +32,47 @@ function Notes:insert(note, column)
 	table.insert(notes[column], note)
 end
 
+---@return {[ncdk2.VisualPoint]: {[ncdk2.Column]: ncdk2.Note}}
+function Notes:getPointNotes()
+	---@type {[ncdk2.VisualPoint]: {[ncdk2.Column]: ncdk2.Note}}
+	local point_notes = {}
+	for column, notes in self:iter() do
+		for _, note in ipairs(notes) do
+			local vp = note.visualPoint
+			---@cast vp ncdk2.VisualPoint
+
+			point_notes[vp] = point_notes[vp] or {}
+			local nds = point_notes[vp]
+			if nds[column] then
+				error(("column is not empty (vp: %s, col: %s, old: %s, new: %s)"):format(
+					vp, column, nds[column], note
+				))
+			end
+			nds[column] = note
+		end
+	end
+	return point_notes
+end
+
+function Notes:validate()
+	self:sort()
+	self:getPointNotes()  -- one Note per (VisualPoint, Column)
+
+	for column, notes in self:iter() do
+		---@type {[ncdk2.Note]: true}
+		local map = {}
+		for _, note in ipairs(notes) do
+			map[note] = true
+		end
+		for _, note in ipairs(notes) do
+			if note.endNote and not map[note.endNote] then
+				error(("missing endNote %s for note %s on column %s"):format(note.endNote, note, column))
+			end
+			if note.startNote and not map[note.startNote] then
+				error(("missing startNote %s for note %s on column %s"):format(note.startNote, note, column))
+			end
+		end
+	end
+end
+
 return Notes
