@@ -19,7 +19,7 @@ end
 ---@type number
 Visual.primaryTempo = 0
 
----@type "current"|"local"|"global"
+---@type "none"|"current"|"local"|"global"
 Visual.tempoMultiplyTarget = "current"
 
 ---@param point ncdk2.Point
