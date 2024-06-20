@@ -101,4 +101,48 @@ function test.split_after(t)
 	t:eq(p2.interval.offset, 1)
 end
 
+function test.split_after_merge_before(t)
+	local points = Points()
+	points:initDefault()
+	local intervals = Intervals(points)
+
+	points:interpolateAbsolute(16, 0.25)
+	local p25 = points:saveSearchPoint()
+
+	points:interpolateAbsolute(16, 0.5)
+	local p50 = points:saveSearchPoint()
+
+	points:interpolateAbsolute(16, 0.75)
+	local p75 = points:saveSearchPoint()
+
+	local p0 = p25.prev
+	local p100 = p75.next
+	t:assert(p0._interval)
+	t:assert(p100._interval)
+
+	intervals:splitInterval(p50)
+
+	t:eq(p0.interval, p0._interval)
+	t:eq(p25.interval, p0._interval)
+	t:eq(p50.interval, p50._interval)
+	t:eq(p75.interval, p50._interval)
+	t:eq(p100.interval, p100._interval)
+
+	intervals:mergeInterval(p0)
+
+	t:eq(p0.interval, p50._interval)
+	t:eq(p25.interval, p50._interval)
+	t:eq(p50.interval, p50._interval)
+	t:eq(p75.interval, p50._interval)
+	t:eq(p100.interval, p100._interval)
+
+	intervals:splitInterval(p0)
+
+	t:eq(p0.interval, p0._interval)
+	t:eq(p25.interval, p0._interval)
+	t:eq(p50.interval, p50._interval)
+	t:eq(p75.interval, p50._interval)
+	t:eq(p100.interval, p100._interval)
+end
+
 return test

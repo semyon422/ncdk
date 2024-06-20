@@ -42,7 +42,7 @@ function Intervals:splitInterval(point)
 		table_util.insert_linked(interval, nil, _interval)
 		point = self.points:getFirstPoint()
 	end
-	while point and point.interval == _interval do
+	while point and point.interval == _interval and point._interval ~= _interval do
 		point.interval = interval
 		point.time = point.time - _beats
 		point = point.next
