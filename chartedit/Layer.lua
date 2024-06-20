@@ -39,16 +39,4 @@ function Layer:iter(start_time, end_time)
 	end)
 end
 
----@param note ncdk2.Note
----@param column ncdk2.Column
-function Layer:addNote(note, column)
-	self.notes:addNote(note, column)
-end
-
----@param note ncdk2.Note
----@param column ncdk2.Column
-function Layer:removeNote(note, column)
-	self.notes:removeNote(note, column)
-end
-
 return Layer
