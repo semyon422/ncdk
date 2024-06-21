@@ -122,15 +122,20 @@ function Converter:save(_layer)
 	local vp_map = {}
 	---@type ncdk2.VisualPoint[]
 	local vps = {}
+	---@type {[ncdk2.Point]: ncdk2.VisualPoint}
+	local p2vp = {}
 	local _vps = table_util.to_array(vp_head)
 	for i, _vp in ipairs(_vps) do
-		local vp = NcdkVisualPoint(p_map[_vp.point])
+		local p = p_map[_vp.point]
+		local vp = NcdkVisualPoint(p)
 		vp._velocity = _vp._velocity
 		vp._expand = _vp._expand
 		vp_map[_vp] = vp
 		vps[i] = vp
+		p2vp[p] = vp
 	end
 	layer.visual.points = vps
+	layer.visual.p2vp = p2vp
 
 	for note, column in _layer.notes:iter() do
 		local _vp = note.visualPoint

@@ -9,11 +9,13 @@ local VisualPoint = require("ncdk2.visual.VisualPoint")
 ---@class ncdk2.Visual
 ---@operator call: ncdk2.Visual
 ---@field points ncdk2.VisualPoint[]
+---@field p2vp {[ncdk2.Point]: ncdk2.VisualPoint}
 local Visual = class()
 
 function Visual:new()
 	self.interpolator = VisualInterpolator()
 	self.points = {}
+	self.p2vp = {}
 end
 
 ---@type number
@@ -24,8 +26,21 @@ Visual.tempoMultiplyTarget = "current"
 
 ---@param point ncdk2.Point
 ---@return ncdk2.VisualPoint
+function Visual:getPoint(point)
+	local p2vp = self.p2vp
+	local vp = p2vp[point]
+	if vp then
+		return vp
+	end
+	return self:newPoint(point)
+end
+
+---@param point ncdk2.Point
+---@return ncdk2.VisualPoint
 function Visual:newPoint(point)
+	local p2vp = self.p2vp
 	local vp = VisualPoint(point)
+	p2vp[point] = vp
 	table.insert(self.points, vp)
 	return vp
 end

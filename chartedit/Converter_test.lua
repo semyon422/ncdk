@@ -38,6 +38,8 @@ input 4key
 	local nlayer = chart.layers.main
 	local layer = Converter:load(nlayer)
 	local _nlayer = Converter:save(layer)
+	_nlayer.visual.p2vp = nil
+	nlayer.visual.p2vp = nil
 	t:tdeq(_nlayer, nlayer)
 end
 
@@ -59,6 +61,8 @@ input 4key
 	local nlayer = chart.layers.main
 	local layer = Converter:load(nlayer)
 	local _nlayer = Converter:save(layer)
+	_nlayer.visual.p2vp = nil
+	nlayer.visual.p2vp = nil
 	t:tdeq(_nlayer, nlayer)
 end
 
@@ -83,6 +87,8 @@ input 4key
 	local nlayer = chart.layers.main
 	local layer = Converter:load(nlayer)
 	local _nlayer = Converter:save(layer)
+	_nlayer.visual.p2vp = nil
+	nlayer.visual.p2vp = nil
 	t:tdeq(_nlayer, nlayer)
 end
 
@@ -105,6 +111,8 @@ input 4key
 	local nlayer = chart.layers.main
 	local layer = Converter:load(nlayer)
 	local _nlayer = Converter:save(layer)
+	_nlayer.visual.p2vp = nil
+	nlayer.visual.p2vp = nil
 	t:tdeq(_nlayer, nlayer)
 end
 
