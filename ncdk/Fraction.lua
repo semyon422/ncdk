@@ -174,9 +174,9 @@ getmetatable(Fraction).__call = Fraction.new
 ---@return ncdk.Fraction
 local function fraction(n, d, round)
 	if type(n) ~= "table" then
-		return Fraction:new(n, d, round)
+		return Fraction(n, d, round)
 	elseif getmetatable(n) ~= Fraction then
-		return Fraction:new(n[1], n[2])
+		return Fraction(n[1], n[2])
 	end
 	return n
 end
