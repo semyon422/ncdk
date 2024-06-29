@@ -5,17 +5,17 @@ local Fraction = require("ncdk.Fraction")
 ---@operator call: ncdk2.Measure
 local Measure = class()
 
-Measure.start = Fraction(0)
+Measure.offset = Fraction(0)
 
----@param start ncdk.Fraction?
-function Measure:new(start)
-	self.start = start
+---@param offset ncdk.Fraction?
+function Measure:new(offset)
+	self.offset = offset
 end
 
 ---@param a ncdk2.Measure
 ---@return string
 function Measure.__tostring(a)
-	return ("Measure(%s)"):format(a.start)
+	return ("Measure(%s)"):format(a.offset)
 end
 
 return Measure

@@ -52,7 +52,7 @@ function Point:getBeatModulo()
 	if not measure then
 		return self.time % 1
 	end
-	return (self.time - measure.point.time + measure.start) % 1  -- TODO: fix measure.point
+	return (self.time + measure.offset) % 1
 end
 
 ---@param interval chartedit.Interval
@@ -122,16 +122,15 @@ end
 ---@param t number
 ---@param limit number
 ---@param measure ncdk2.Measure?
----@param round boolean?
-function Point:fromnumber(ivl, t, limit, measure, round)
+function Point:fromnumber(ivl, t, limit, measure)
 	local a, b, offset = ivl:getPair()
 	local time = (t - a.offset) / a:getBeatDuration() + a:startn()
 	if offset then
 		time = time - a.beats
 		a = b
 	end
-	local measureOffset = measure and measure.point.time - measure.start or 0  -- TODO: fix measure.point
-	time = Fraction(time - measureOffset, limit, not not round) + measureOffset  -- TODO: better code
+	local m_offset = measure and measure.offset or 0
+	time = Fraction(time + m_offset, limit, true) - m_offset  -- TODO: better code
 	if not offset and time == a:_end() then
 		time = b:start()
 		a = b

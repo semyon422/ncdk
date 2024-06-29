@@ -170,7 +170,7 @@ function Points:interpolateAbsolute(limit, time)
 
 	a = a or b
 
-	search_point:fromnumber(a.interval, time, limit, a.measure, true)
+	search_point:fromnumber(a.interval, time, limit, a.measure)
 	search_point.measure = a.measure
 
 	return search_point

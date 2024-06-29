@@ -19,7 +19,7 @@ function IntervalPoint:getBeatModulo()
 	if not measure then
 		return self.time % 1
 	end
-	return (self.time - measure.point.time + measure.start) % 1
+	return (self.time + measure.offset) % 1
 end
 
 ---@return number
