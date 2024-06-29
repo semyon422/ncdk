@@ -53,6 +53,7 @@ function Converter:load(_layer)
 			p._interval.point = p
 		end
 		p._measure = _p._measure
+		p.measure = _p.measure
 		p_map[_p] = p
 		tree:insert(p)
 		ps[i] = p
@@ -123,6 +124,7 @@ function Converter:save(_layer)
 			p._interval = ivl_map[_p._interval]
 		end
 		p._measure = _p._measure
+		p.measure = _p.measure
 		p_map[_p] = p
 		layer.points[tostring(p)] = p
 	end
