@@ -48,6 +48,7 @@ function Visual:removeAll(point)
 	local vp = assert(p2vp[point])
 	while vp and vp.point == point do
 		self:remove(vp)
+		vp = vp.next
 	end
 end
 
