@@ -22,18 +22,13 @@ end
 
 ---@param start_time number
 ---@param end_time number
----@return fun(): chartedit.Point, chartedit.VisualPoint, chartedit.PointNotes
+---@return fun(): chartedit.Point
 function Layer:iter(start_time, end_time)
-	local p2vp = self.visual.p2vp
 	return coroutine.wrap(function()
 		local _p = self.points:interpolateAbsolute(1, start_time)
 		local p = _p.prev or _p.next
 		while p and p.absoluteTime <= end_time do
-			local vp = p2vp[p]
-			while vp and vp.point == p do
-				coroutine.yield(p, vp)
-				vp = vp.next
-			end
+			coroutine.yield(p)
 			p = p.next
 		end
 	end)
