@@ -45,6 +45,7 @@ function test.point_merge(t)
 
 	local p_0 = layer:getPoint(0)
 	p_0._tempo = Tempo(120)
+	layer.visual:newPoint(p_0)
 
 	local p_1 = layer:getPoint(1)
 	local vp_1 = layer.visual:newPoint(p_1)
@@ -53,6 +54,7 @@ function test.point_merge(t)
 	local vp_2 = layer.visual:newPoint(p_2)
 
 	local p_3 = layer:getPoint(2)
+	layer.visual:newPoint(p_3)
 
 	layer:compute()
 

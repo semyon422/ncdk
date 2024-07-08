@@ -23,21 +23,9 @@ function Layer:newPoint(...)
 end
 
 function Layer:compute()
-	---@type {[ncdk2.Point]: true}
-	local p_has_vp = {}
-	for _, vp in ipairs(self.visual.points) do
-		p_has_vp[vp.point] = true
-	end
-	for _, p in pairs(self.points) do
-		if not p_has_vp[p] then
-			self.visual:newPoint(p)  -- each Point should have at least one VisualPoint
-		end
-	end
-
 	self.notes:validate()
-
-	table_util.clear(self.testPoint)
 	self.visual:compute()
+	table_util.clear(self.testPoint)
 end
 
 ---@param ... any
