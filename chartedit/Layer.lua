@@ -11,13 +11,13 @@ local Notes = require("chartedit.Notes")
 local Layer = class()
 
 function Layer:new()
-	self.visual = Visual()
+	self.notes = Notes()
+	self.visual = Visual(function(vp) self.notes:removeAll(vp) end)
 	self.points = Points(
 		function(p) self.visual:getPoint(p) end,
 		function(p) self.visual:removeAll(p) end
 	)
 	self.intervals = Intervals(self.points)
-	self.notes = Notes()
 end
 
 ---@param start_time number

@@ -8,7 +8,9 @@ local VisualPoint = require("chartedit.VisualPoint")
 ---@field p2vp {[chartedit.Point]: chartedit.VisualPoint}
 local Visual = class()
 
-function Visual:new()
+---@param on_remove function?
+function Visual:new(on_remove)
+	self.on_remove = on_remove
 	self.p2vp = {}
 end
 
@@ -65,6 +67,9 @@ function Visual:remove(vp)
 	local prev, _next = table_util.remove_linked(vp)
 	if not prev then
 		self.head = _next
+	end
+	if self.on_remove then
+		self.on_remove(vp)
 	end
 end
 

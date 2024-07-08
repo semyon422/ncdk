@@ -44,6 +44,23 @@ function Notes:removeNote(note, column)
 end
 
 ---@param note ncdk2.Note
+local function ex_vp(note)
+	return note.visualPoint
+end
+
+---@param vp chartedit.VisualPoint
+function Notes:removeAll(vp)
+	for _, tree in pairs(self.trees) do
+		local a = tree:findex(vp, ex_vp)
+		if a then
+			---@type ncdk2.Note
+			local note = a.key
+			tree:remove(note)
+		end
+	end
+end
+
+---@param note ncdk2.Note
 local function ex_time(note)
 	return note.visualPoint.point.absoluteTime
 end
