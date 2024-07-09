@@ -1,7 +1,6 @@
 local class = require("class")
 local table_util = require("table_util")
 local Point = require("ncdk2.tp.Point")
-local Notes = require("ncdk2.notes.Notes")
 local Visual = require("ncdk2.visual.Visual")
 
 ---@class ncdk2.Layer
@@ -10,7 +9,6 @@ local Visual = require("ncdk2.visual.Visual")
 local Layer = class()
 
 function Layer:new()
-	self.notes = Notes()
 	self.points = {}
 	self.testPoint = self:newPoint()
 	self.visual = Visual()
@@ -23,7 +21,6 @@ function Layer:newPoint(...)
 end
 
 function Layer:compute()
-	self.notes:validate()
 	self.visual:compute()
 	table_util.clear(self.testPoint)
 end

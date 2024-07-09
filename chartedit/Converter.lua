@@ -5,11 +5,14 @@ local Layer = require("chartedit.Layer")
 local Point = require("chartedit.Point")
 local Interval = require("chartedit.Interval")
 local VisualPoint = require("chartedit.VisualPoint")
+local ENotes = require("chartedit.Notes")
 
 local IntervalLayer = require("ncdk2.layers.IntervalLayer")
 local NcdkInterval = require("ncdk2.to.Interval")
 local NcdkVisualPoint = require("ncdk2.visual.VisualPoint")
 local IntervalPoint = require("ncdk2.tp.IntervalPoint")
+local Notes = require("ncdk2.notes.Notes")
+local Chart = require("ncdk2.Chart")
 
 local NoteCloner = require("ncdk2.notes.NoteCloner")
 
@@ -17,9 +20,41 @@ local NoteCloner = require("ncdk2.notes.NoteCloner")
 ---@operator call: chartedit.Converter
 local Converter = class()
 
+---@param _chart ncdk2.Chart
+---@return {[string]: chartedit.Layer}
+---@return chartedit.Notes
+function Converter:load(_chart)
+	---@type {[string]: chartedit.Layer}
+	local layers = {}
+
+	---@type {[ncdk2.VisualPoint]: chartedit.VisualPoint}
+	local vp_map = {}
+	for name, _layer in pairs(_chart.layers) do
+		if IntervalLayer * _layer then
+			---@cast _layer ncdk2.IntervalLayer
+			layers[name] = self:loadLayer(_layer, vp_map)
+		end
+	end
+
+	local notes = ENotes()
+	local note_cloner = NoteCloner()
+	for _, _note in _chart.notes:iter() do
+		local note = note_cloner:clone(_note)
+		local vp = vp_map[_note.visualPoint  --[[@as ncdk2.VisualPoint]]]
+		if vp then
+			note:new(vp, note.column)
+			notes:addNote(note, note.column)
+		end
+	end
+	note_cloner:assignStartEnd()
+
+	return layers, notes
+end
+
 ---@param _layer ncdk2.IntervalLayer
+---@param vp_map {[ncdk2.VisualPoint]: chartedit.VisualPoint}
 ---@return chartedit.Layer
-function Converter:load(_layer)
+function Converter:loadLayer(_layer, vp_map)
 	local layer = Layer()
 
 	---@type ncdk2.IntervalPoint[]
@@ -60,8 +95,6 @@ function Converter:load(_layer)
 	end
 	table_util.to_linked(ps)
 
-	---@type {[ncdk2.VisualPoint]: chartedit.VisualPoint}
-	local vp_map = {}
 	---@type chartedit.VisualPoint[]
 	local vps = {}
 	local _vps = _layer.visual.points
@@ -77,26 +110,40 @@ function Converter:load(_layer)
 	end
 	layer.visual.head = table_util.to_linked(vps)
 
-	local note_cloner = NoteCloner()
-
-	local lnotes = layer.notes
-	for column, notes in _layer.notes:iter() do
-		for _, _note in ipairs(notes) do
-			local note = note_cloner:clone(_note)
-			local vp = vp_map[_note.visualPoint  --[[@as ncdk2.VisualPoint]]]
-			note:new(vp)
-			lnotes:addNote(note, column)
-		end
-	end
-
-	note_cloner:assignStartEnd()
-
 	return layer
 end
 
+---@param _layers {[string]: chartedit.Layer}
+---@param _notes chartedit.Notes
+---@return ncdk2.Chart
+function Converter:save(_layers, _notes)
+	local chart = Chart()
+
+	---@type {[chartedit.VisualPoint]: ncdk2.VisualPoint}
+	local vp_map = {}
+	for name, _layer in pairs(_layers) do
+		chart.layers[name] = self:saveLayer(_layer, vp_map)
+	end
+
+	local notes = chart.notes
+	local note_cloner = NoteCloner()
+	for _note, column in _notes:iter() do
+		local note = note_cloner:clone(_note)
+		local vp = vp_map[_note.visualPoint  --[[@as chartedit.VisualPoint]]]
+		if vp then
+			note:new(vp, column)
+			notes:insert(note)
+		end
+	end
+	note_cloner:assignStartEnd()
+
+	return chart
+end
+
 ---@param _layer chartedit.Layer
+---@param vp_map {[chartedit.VisualPoint]: ncdk2.VisualPoint}
 ---@return ncdk2.IntervalLayer
-function Converter:save(_layer)
+function Converter:saveLayer(_layer, vp_map)
 	local layer = IntervalLayer()
 	local vp_head = _layer.visual.head
 	if not vp_head then
@@ -129,8 +176,6 @@ function Converter:save(_layer)
 		layer.points[tostring(p)] = p
 	end
 
-	---@type {[chartedit.VisualPoint]: ncdk2.VisualPoint}
-	local vp_map = {}
 	---@type ncdk2.VisualPoint[]
 	local vps = {}
 	---@type {[ncdk2.Point]: ncdk2.VisualPoint}
@@ -147,17 +192,6 @@ function Converter:save(_layer)
 	end
 	layer.visual.points = vps
 	layer.visual.p2vp = p2vp
-
-	local note_cloner = NoteCloner()
-
-	for _note, column in _layer.notes:iter() do
-		local note = note_cloner:clone(_note)
-		local vp = vp_map[_note.visualPoint  --[[@as chartedit.VisualPoint]]]
-		note:new(vp)
-		layer.notes:insert(note, column)
-	end
-
-	note_cloner:assignStartEnd()
 
 	layer:compute()
 

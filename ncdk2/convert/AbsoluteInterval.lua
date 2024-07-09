@@ -161,14 +161,13 @@ function AbsoluteInterval:convert(layer, fraction_mode)
 		-- possibly need to add expands here recovering 1ms SVs
 	end
 
-	local notes, visual = layer.notes, layer.visual
+	local visual = layer.visual
 
 	---@cast layer -ncdk2.AbsoluteLayer, +ncdk2.IntervalLayer
 	setmetatable(layer, IntervalLayer)
 	table_util.clear(layer)
 
 	layer:new()
-	layer.notes = notes
 	layer.points = points_map
 	layer.visual = visual
 

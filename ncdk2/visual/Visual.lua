@@ -9,12 +9,14 @@ local VisualPoint = require("ncdk2.visual.VisualPoint")
 ---@class ncdk2.Visual
 ---@operator call: ncdk2.Visual
 ---@field points ncdk2.VisualPoint[]
+---@field points_map {[ncdk2.VisualPoint]: true}
 ---@field p2vp {[ncdk2.Point]: ncdk2.VisualPoint}
 local Visual = class()
 
 function Visual:new()
 	self.interpolator = VisualInterpolator()
 	self.points = {}
+	self.points_map = {}
 	self.p2vp = {}
 end
 
@@ -42,6 +44,7 @@ function Visual:newPoint(point)
 	local vp = VisualPoint(point)
 	p2vp[point] = vp
 	table.insert(self.points, vp)
+	self.points_map[vp] = true
 	return vp
 end
 

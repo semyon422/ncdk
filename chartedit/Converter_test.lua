@@ -8,15 +8,15 @@ local test = {}
 
 function test.empty_load_save(t)
 	local nlayer = IntervalLayer()
-	local layer = Converter:load(nlayer)
-	local _nlayer = Converter:save(layer)
+	local layer = Converter:loadLayer(nlayer, {})
+	local _nlayer = Converter:saveLayer(layer, {})
 	t:tdeq(_nlayer, nlayer)
 end
 
 function test.empty_save_load(t)
 	local layer = Layer()
-	local nlayer = Converter:save(layer)
-	local _layer = Converter:load(nlayer)
+	local nlayer = Converter:saveLayer(layer, {})
+	local _layer = Converter:loadLayer(nlayer, {})
 	-- t:eq(stbl.encode(_layer), stbl.encode(layer))
 end
 
@@ -36,10 +36,12 @@ input 4key
 	local chart = dec:decode(s)[1]
 
 	local nlayer = chart.layers.main
-	local layer = Converter:load(nlayer)
-	local _nlayer = Converter:save(layer)
+	local layer = Converter:loadLayer(nlayer, {})
+	local _nlayer = Converter:saveLayer(layer, {})
 	_nlayer.visual.p2vp = nil
 	nlayer.visual.p2vp = nil
+	_nlayer.visual.points_map = nil
+	nlayer.visual.points_map = nil
 	t:tdeq(_nlayer, nlayer)
 end
 
@@ -59,10 +61,12 @@ input 4key
 	local chart = dec:decode(s)[1]
 
 	local nlayer = chart.layers.main
-	local layer = Converter:load(nlayer)
-	local _nlayer = Converter:save(layer)
+	local layer = Converter:loadLayer(nlayer, {})
+	local _nlayer = Converter:saveLayer(layer, {})
 	_nlayer.visual.p2vp = nil
 	nlayer.visual.p2vp = nil
+	_nlayer.visual.points_map = nil
+	nlayer.visual.points_map = nil
 	t:tdeq(_nlayer, nlayer)
 end
 
@@ -85,10 +89,12 @@ input 4key
 	local chart = dec:decode(s)[1]
 
 	local nlayer = chart.layers.main
-	local layer = Converter:load(nlayer)
-	local _nlayer = Converter:save(layer)
+	local layer = Converter:loadLayer(nlayer, {})
+	local _nlayer = Converter:saveLayer(layer, {})
 	_nlayer.visual.p2vp = nil
 	nlayer.visual.p2vp = nil
+	_nlayer.visual.points_map = nil
+	nlayer.visual.points_map = nil
 	t:tdeq(_nlayer, nlayer)
 end
 
@@ -109,12 +115,13 @@ input 4key
 	local chart = dec:decode(s)[1]
 
 	local nlayer = chart.layers.main
-	local layer = Converter:load(nlayer)
-	local _nlayer = Converter:save(layer)
+	local layer = Converter:loadLayer(nlayer, {})
+	local _nlayer = Converter:saveLayer(layer, {})
 	_nlayer.visual.p2vp = nil
 	nlayer.visual.p2vp = nil
+	_nlayer.visual.points_map = nil
+	nlayer.visual.points_map = nil
 	t:tdeq(_nlayer, nlayer)
 end
-
 
 return test

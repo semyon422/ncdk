@@ -55,14 +55,13 @@ function MeasureInterval:convert(layer)
 	local points = layer:getPointList()
 	local points_map = self:convertPoints(points)
 
-	local notes, visual = layer.notes, layer.visual
+	local visual = layer.visual
 
 	---@cast layer -ncdk2.MeasureLayer, +ncdk2.IntervalLayer
 	setmetatable(layer, IntervalLayer)
 	table_util.clear(layer)
 
 	layer:new()
-	layer.notes = notes
 	layer.points = points_map
 	layer.visual = visual
 

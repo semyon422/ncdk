@@ -1,5 +1,4 @@
 local IntervalLayer = require("ncdk2.layers.IntervalLayer")
-local Note = require("ncdk2.notes.Note")
 local Interval = require("ncdk2.to.Interval")
 local Velocity = require("ncdk2.visual.Velocity")
 local Fraction = require("ncdk.Fraction")
@@ -18,13 +17,10 @@ function test.basic(t)
 	p_1._interval = Interval(2)
 	local vp_1 = layer.visual:newPoint(p_1)
 
-	local note = Note(vp_1)
-	layer.notes:insert(note, 1)
-
 	layer:compute()
 
-	t:eq(note.visualPoint.visualTime, 4)
-	t:eq(note.visualPoint.point.absoluteTime, 2)
+	t:eq(vp_1.visualTime, 4)
+	t:eq(vp_1.point.absoluteTime, 2)
 end
 
 return test

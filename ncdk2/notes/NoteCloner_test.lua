@@ -5,8 +5,8 @@ local test = {}
 
 function test.basic(t)
 	local cloner = NoteCloner()
-	local a = Note()
-	local b = Note()
+	local a = Note({}, "1")
+	local b = Note({}, "1")
 	b.startNote = a
 	a.endNote = b
 
