@@ -15,15 +15,6 @@ function Chart:new()
 	self.resourceList = ResourceList()
 end
 
----@return {[ncdk2.Column]: ncdk2.Note[]}
-function Chart:getColumnNotes()  -- for logic engine
-	return self.notes:getColumnNotes()
-end
-
-function Chart:iterNotes()
-	return self.notes:iter()
-end
-
 ---@return ncdk2.Visual[]
 function Chart:getVisuals()
 	local visuals = {}
