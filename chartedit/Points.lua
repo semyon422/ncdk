@@ -60,6 +60,12 @@ function Points:getPoint(interval, time)
 	local prev_point = prev_node and prev_node.key
 	local next_point = next_node and next_node.key
 	table_util.insert_linked(point, prev_point, next_point)
+
+	local base_node = prev_node or next_node
+	if base_node then
+		point.measure = base_node.key.measure
+	end
+
 	if self.on_create then
 		self.on_create(point)
 	end
@@ -178,10 +184,7 @@ end
 
 ---@return chartedit.Point
 function Points:saveSearchPoint()
-	local sp = self.search_point
-	local p = self:getPoint(sp:unpack())
-	p.measure = sp.measure
-	return p
+	return self:getPoint(self.search_point:unpack())
 end
 
 return Points
