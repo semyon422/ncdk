@@ -9,6 +9,8 @@ local Notes = class()
 
 function Notes:new()
 	self.notes = {}
+	---@type {[ncdk2.VisualPoint]: {[ncdk2.Column]: ncdk2.Note}}
+	self.point_notes = {}
 end
 
 ---@return fun(t: ncdk2.Note[]): integer, ncdk2.Note
@@ -34,36 +36,38 @@ function Notes:sort()
 	table.sort(self.notes)
 end
 
+---@param vp ncdk2.VisualPoint
+---@param column ncdk2.Column
+---@return ncdk2.Note?
+function Notes:get(vp, column)
+	local point_notes = self.point_notes
+	local ps = point_notes[vp]
+	if not ps then
+		return
+	end
+	return ps[column]
+end
+
 ---@param note ncdk2.Note
 function Notes:insert(note)
 	assert(note, "missing note")
 	table.insert(self.notes, note)
-end
 
----@return {[ncdk2.VisualPoint]: {[ncdk2.Column]: ncdk2.Note}}
-function Notes:getPointNotes()
-	---@type {[ncdk2.VisualPoint]: {[ncdk2.Column]: ncdk2.Note}}
-	local point_notes = {}
-	for _, note in self:iter() do
-		local column = note.column
-		local vp = note.visualPoint
-		---@cast vp ncdk2.VisualPoint
+	local column = note.column
+	local vp = note.visualPoint
+	---@cast vp ncdk2.VisualPoint
 
-		point_notes[vp] = point_notes[vp] or {}
-		local nds = point_notes[vp]
-		if nds[column] then
-			error(("column is not empty (vp: %s, col: %s, old: %s, new: %s)"):format(
-				vp, column, nds[column], note
-			))
-		end
-		nds[column] = note
+	local point_notes = self.point_notes
+	point_notes[vp] = point_notes[vp] or {}
+	local ps = point_notes[vp]
+	if ps[column] then
+		error(("column is not empty (vp: %s, col: %s)"):format(vp, column))
 	end
-	return point_notes
+	ps[column] = note
 end
 
 function Notes:validate()
 	self:sort()
-	self:getPointNotes()  -- one Note per (VisualPoint, Column)
 
 	---@type {[ncdk2.Column]: {[ncdk2.Note]: true}}
 	local map = {}
