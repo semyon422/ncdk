@@ -38,10 +38,8 @@ input 4key
 	local nlayer = chart.layers.main
 	local layer = Converter:loadLayer(nlayer, {})
 	local _nlayer = Converter:saveLayer(layer, {})
-	_nlayer.visual.p2vp = nil
-	nlayer.visual.p2vp = nil
-	_nlayer.visual.points_map = nil
-	nlayer.visual.points_map = nil
+	_nlayer.visuals = {}
+	nlayer.visuals = {}
 	t:tdeq(_nlayer, nlayer)
 end
 
@@ -63,10 +61,8 @@ input 4key
 	local nlayer = chart.layers.main
 	local layer = Converter:loadLayer(nlayer, {})
 	local _nlayer = Converter:saveLayer(layer, {})
-	_nlayer.visual.p2vp = nil
-	nlayer.visual.p2vp = nil
-	_nlayer.visual.points_map = nil
-	nlayer.visual.points_map = nil
+	_nlayer.visuals = {}
+	nlayer.visuals = {}
 	t:tdeq(_nlayer, nlayer)
 end
 
@@ -91,10 +87,8 @@ input 4key
 	local nlayer = chart.layers.main
 	local layer = Converter:loadLayer(nlayer, {})
 	local _nlayer = Converter:saveLayer(layer, {})
-	_nlayer.visual.p2vp = nil
-	nlayer.visual.p2vp = nil
-	_nlayer.visual.points_map = nil
-	nlayer.visual.points_map = nil
+	_nlayer.visuals = {}
+	nlayer.visuals = {}
 	t:tdeq(_nlayer, nlayer)
 end
 
@@ -117,10 +111,8 @@ input 4key
 	local nlayer = chart.layers.main
 	local layer = Converter:loadLayer(nlayer, {})
 	local _nlayer = Converter:saveLayer(layer, {})
-	_nlayer.visual.p2vp = nil
-	nlayer.visual.p2vp = nil
-	_nlayer.visual.points_map = nil
-	nlayer.visual.points_map = nil
+	_nlayer.visuals = {}
+	nlayer.visuals = {}
 	t:tdeq(_nlayer, nlayer)
 end
 

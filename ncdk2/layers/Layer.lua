@@ -6,12 +6,13 @@ local Visual = require("ncdk2.visual.Visual")
 ---@class ncdk2.Layer
 ---@operator call: ncdk2.Layer
 ---@field points {[string]: ncdk2.Point}
+---@field visuals {[string]: ncdk2.Visual}
 local Layer = class()
 
 function Layer:new()
 	self.points = {}
+	self.visuals = {}
 	self.testPoint = self:newPoint()
-	self.visual = Visual()
 end
 
 ---@param ... any
@@ -21,7 +22,9 @@ function Layer:newPoint(...)
 end
 
 function Layer:compute()
-	self.visual:compute()
+	for _, visual in pairs(self.visuals) do
+		visual:compute()
+	end
 	table_util.clear(self.testPoint)
 end
 

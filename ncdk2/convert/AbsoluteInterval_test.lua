@@ -2,6 +2,7 @@ local AbsoluteInterval = require("ncdk2.convert.AbsoluteInterval")
 local AbsoluteLayer = require("ncdk2.layers.AbsoluteLayer")
 local Tempo = require("ncdk2.to.Tempo")
 local Fraction = require("ncdk.Fraction")
+local Visual = require("ncdk2.visual.Visual")
 
 local test = {}
 
@@ -42,19 +43,21 @@ function test.point_merge(t)
 	local conv = AbsoluteInterval({1, 2, 4}, 0.005)
 
 	local layer = AbsoluteLayer()
+	local visual = Visual()
+	layer.visuals.main = visual
 
 	local p_0 = layer:getPoint(0)
 	p_0._tempo = Tempo(120)
-	layer.visual:newPoint(p_0)
+	visual:newPoint(p_0)
 
 	local p_1 = layer:getPoint(1)
-	local vp_1 = layer.visual:newPoint(p_1)
+	local vp_1 = visual:newPoint(p_1)
 
 	local p_2 = layer:getPoint(1.001)
-	local vp_2 = layer.visual:newPoint(p_2)
+	local vp_2 = visual:newPoint(p_2)
 
 	local p_3 = layer:getPoint(2)
-	layer.visual:newPoint(p_3)
+	visual:newPoint(p_3)
 
 	layer:compute()
 
@@ -73,11 +76,11 @@ function test.point_merge(t)
 	t:eq(points[2].absoluteTime, 1)
 	t:eq(points[3].absoluteTime, 2)
 
-	t:eq(#layer.visual.points, 4)
-	t:eq(layer.visual.points[1].point, points[1])
-	t:eq(layer.visual.points[2].point, points[2])
-	t:eq(layer.visual.points[3].point, points[2])
-	t:eq(layer.visual.points[4].point, points[3])
+	t:eq(#visual.points, 4)
+	t:eq(visual.points[1].point, points[1])
+	t:eq(visual.points[2].point, points[2])
+	t:eq(visual.points[3].point, points[2])
+	t:eq(visual.points[4].point, points[3])
 end
 
 function test.single_tempo_wrong_snap(t)
@@ -211,6 +214,8 @@ function test.auxiliary_interval_frac_right_point(t)
 	local conv = AbsoluteInterval({1, 2, 4}, 0.005)
 
 	local layer = AbsoluteLayer()
+	local visual = Visual()
+	layer.visuals.main = visual
 
 	local p_0 = layer:getPoint(0)
 	-- 4.5 * 60 / 140 = 1.928571429
@@ -222,7 +227,7 @@ function test.auxiliary_interval_frac_right_point(t)
 	local p_2 = layer:getPoint(2.02)
 	p_2._tempo = Tempo(1)
 
-	local vp_1 = layer.visual:newPoint(p_1)
+	local vp_1 = visual:newPoint(p_1)
 
 	layer:compute()
 

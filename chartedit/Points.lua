@@ -11,10 +11,8 @@ local fraction_0 = Fraction(0)
 ---@operator call: chartedit.Points
 local Points = class()
 
----@param on_create function?
 ---@param on_remove function?
-function Points:new(on_create, on_remove)
-	self.on_create = on_create
+function Points:new(on_remove)
 	self.on_remove = on_remove
 	self.points_tree = rbtree.new()
 	self.search_point = Point()
@@ -64,10 +62,6 @@ function Points:getPoint(interval, time)
 	local base_node = prev_node or next_node
 	if base_node then
 		point.measure = base_node.key.measure
-	end
-
-	if self.on_create then
-		self.on_create(point)
 	end
 
 	return point

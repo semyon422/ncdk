@@ -19,7 +19,9 @@ end
 function Chart:getVisuals()
 	local visuals = {}
 	for _, layer in pairs(self.layers) do
-		table.insert(visuals, layer.visual)
+		for _, visual in pairs(layer.visuals) do
+			table.insert(visuals, visual)
+		end
 	end
 	return visuals
 end
@@ -28,8 +30,10 @@ end
 ---@return ncdk2.Visual?
 function Chart:getVisualByPoint(vp)
 	for _, layer in pairs(self.layers) do
-		if layer.visual.points_map[vp] then
-			return layer.visual
+		for _, visual in pairs(layer.visuals) do
+			if visual.points_map[vp] then
+				return visual
+			end
 		end
 	end
 end

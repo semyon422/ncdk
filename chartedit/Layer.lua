@@ -1,23 +1,25 @@
 local class = require("class")
 local Points = require("chartedit.Points")
 local Intervals = require("chartedit.Intervals")
-local Visual = require("chartedit.Visual")
-local Notes = require("chartedit.Notes")
 
 ---@alias chartedit.PointNotes {[ncdk2.Column]: ncdk2.Note}
 
 ---@class chartedit.Layer
 ---@operator call: chartedit.Layer
+---@field visuals {[string]: chartedit.Visual}
 local Layer = class()
 
 function Layer:new()
-	self.notes = Notes()
-	self.visual = Visual(function(vp) self.notes:removeAll(vp) end)
-	self.points = Points(
-		function(p) self.visual:getPoint(p) end,
-		function(p) self.visual:removeAll(p) end
-	)
+	self.visuals = {}
+	self.points = Points(function(p) self:removeAllPointsVisual(p) end)
 	self.intervals = Intervals(self.points)
+end
+
+---@param p chartedit.Point
+function Layer:removeAllPointsVisual(p)
+	for _, visual in pairs(self.visuals) do
+		visual:removeAll(p)
+	end
 end
 
 ---@param start_time number
