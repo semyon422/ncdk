@@ -40,9 +40,8 @@ end
 ---@param point ncdk2.Point
 ---@return ncdk2.VisualPoint
 function Visual:newPoint(point)
-	local p2vp = self.p2vp
 	local vp = VisualPoint(point)
-	p2vp[point] = vp
+	self.p2vp[point] = vp
 	table.insert(self.points, vp)
 	self.points_map[vp] = true
 	return vp
@@ -64,6 +63,15 @@ function Visual:compute()
 	end
 
 	mergesort.sort(points)
+
+	---@type {[ncdk2.Point]: integer}
+	local point_index = {}
+	for i, vp in ipairs(points) do
+		if not point_index[vp.point] then
+			point_index[vp.point] = i
+		end
+	end
+	self.point_index = point_index
 
 	local velocity = self:getFirstVelocity()
 
