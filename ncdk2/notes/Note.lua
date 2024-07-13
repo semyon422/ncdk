@@ -19,6 +19,17 @@ function Note:clone()
 	return note
 end
 
+---@return number
+function Note:getTime()
+	return self.visualPoint.point.absoluteTime
+end
+
+---@param vp ncdk2.IVisualPoint?
+---@return number
+function Note:getVisualTime(vp)
+	return self.visualPoint:getVisualTime(vp)
+end
+
 ---@param a ncdk2.Note
 ---@return string
 function Note.__tostring(a)

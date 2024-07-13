@@ -62,7 +62,7 @@ end
 
 ---@param note ncdk2.Note
 local function ex_time(note)
-	return note.visualPoint.point.absoluteTime
+	return note:getTime()
 end
 
 ---@param start_time number?
@@ -79,7 +79,7 @@ function Notes:iter(start_time, end_time)
 			while a do
 				---@type ncdk2.Note
 				local note = a.key
-				if note.visualPoint.point.absoluteTime > end_time then
+				if note:getTime() > end_time then
 					break
 				end
 				coroutine.yield(note, column)
