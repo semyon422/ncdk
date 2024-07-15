@@ -3,6 +3,7 @@ local table_util = require("table_util")
 local Interval = require("ncdk2.to.Interval")
 local IntervalPoint = require("ncdk2.tp.IntervalPoint")
 local IntervalLayer = require("ncdk2.layers.IntervalLayer")
+local Restorer = require("ncdk2.visual.Restorer")
 
 ---@class ncdk2.MeasureInterval
 ---@operator call: ncdk2.MeasureInterval
@@ -52,6 +53,10 @@ end
 
 ---@param layer ncdk2.MeasureLayer
 function MeasureInterval:convert(layer)
+	for _, visual in pairs(layer.visuals) do
+		Restorer:restore(visual.points)
+	end
+
 	local points = layer:getPointList()
 	local points_map = self:convertPoints(points)
 

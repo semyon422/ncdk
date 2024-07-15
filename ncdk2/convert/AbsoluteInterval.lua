@@ -5,6 +5,7 @@ local Interval = require("ncdk2.to.Interval")
 local IntervalPoint = require("ncdk2.tp.IntervalPoint")
 local IntervalLayer = require("ncdk2.layers.IntervalLayer")
 local TempoConnector = require("ncdk2.convert.TempoConnector")
+local Restorer = require("ncdk2.visual.Restorer")
 local Fraction = require("ncdk.Fraction")
 
 ---@class ncdk2.AbsoluteInterval
@@ -159,8 +160,8 @@ function AbsoluteInterval:convert(layer, fraction_mode)
 	for _, visual in pairs(layer.visuals) do
 		for _, visualPoint in ipairs(visual.points) do
 			visualPoint.point = points_map[tostring(visualPoint.point)]
-			-- possibly need to add expands here recovering 1ms SVs
 		end
+		Restorer:restore(visual.points)
 	end
 
 	local visuals = layer.visuals
