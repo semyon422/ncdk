@@ -11,6 +11,8 @@ local Fraction = require("ncdk.Fraction")
 ---@operator call: ncdk2.AbsoluteInterval
 local AbsoluteInterval = class()
 
+AbsoluteInterval.min_beat_duration = 0.080  -- 750 bpm, 1/16 = 5ms
+
 ---@param denoms number[]
 ---@param merge_time number
 function AbsoluteInterval:new(denoms, merge_time)
@@ -31,6 +33,19 @@ function AbsoluteInterval:bestFraction(n)
 		end
 	end
 	return Fraction(n, _denom, "round")
+end
+
+---@param dur number
+---@return number
+function AbsoluteInterval:clampTempo(dur)
+	local mbd = self.min_beat_duration
+	if dur < 0.001 then
+		return mbd
+	end
+	while dur < mbd do
+		dur = dur * 2
+	end
+	return dur
 end
 
 ---@param points ncdk2.AbsolutePoint[]
@@ -83,8 +98,7 @@ function AbsoluteInterval:computeTempos(points)
 	for i = 2, #tempos  do
 		local prev_tempo, tempo = tempos[i - 1], tempos[i]
 		local offset = tempo_offsets[prev_tempo]
-		local beat_duration = prev_tempo:getBeatDuration()
-		beat_duration = math.max(beat_duration, 0.001)
+		local beat_duration = self:clampTempo(prev_tempo:getBeatDuration())
 
 		local beats, aux_interval, int_beats = self.tempoConnector:connect(
 			offset,
@@ -144,8 +158,9 @@ function AbsoluteInterval:convert(layer, fraction_mode)
 	for i, p in ipairs(points) do
 		local absoluteTime = p.absoluteTime
 		local tempo = assert(p.tempo)
+
 		local tempo_offset = tempo_offsets[tempo]
-		local beat_duration = math.max(tempo:getBeatDuration(), 0.001)
+		local beat_duration = self:clampTempo(tempo:getBeatDuration())
 		local rel_time_n = (absoluteTime - tempo_offset) / beat_duration
 		local rel_time = self:bestFraction(rel_time_n)
 		if tempo_beats[tempo] and rel_time > tempo_beats[tempo] then
@@ -154,7 +169,11 @@ function AbsoluteInterval:convert(layer, fraction_mode)
 
 		local time = rel_time + tempo_beat_offsets[tempo]
 
-		if i == #points and not p._tempo then
+		if i == 1 and not p._tempo then
+			local time_ceil_n = time:floor()
+			local beats = time_ceil_n - tempo_beat_offsets[tempo]
+			intervals[Fraction(time_ceil_n)] = Interval(tempo_offset + beat_duration * beats)
+		elseif i == #points and not p._tempo then
 			local time_ceil_n = time:ceil()
 			local beats = time_ceil_n - tempo_beat_offsets[tempo]
 			intervals[Fraction(time_ceil_n)] = Interval(tempo_offset + beat_duration * beats)
@@ -211,7 +230,7 @@ function AbsoluteInterval:convert(layer, fraction_mode)
 			sum = sum + delta
 			sum2 = sum2 + delta ^ 2
 		end
-		print(name, sum2 / #vts, (sum / #vts) ^ 2, math.sqrt(math.abs(sum2 / #vts - (sum / #vts) ^ 2)))
+		print(name, math.sqrt(math.abs(sum2 / #vts - (sum / #vts) ^ 2)))
 	end
 
 	layer:validate()

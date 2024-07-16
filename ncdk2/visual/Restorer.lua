@@ -6,6 +6,8 @@ local Expand = require("ncdk2.visual.Expand")
 ---@operator call: ncdk2.Restorer
 local Restorer = class()
 
+Restorer.velocity_treshold = 10
+
 ---@param vps ncdk2.VisualPoint[]
 function Restorer:restore(vps)
 	for _, vp in ipairs(vps) do
@@ -21,26 +23,29 @@ function Restorer:restore(vps)
 		local next_vp = vps[i + 1]
 
 		---@type ncdk2.Interval?
-		local interval = vp.point.interval
+		local interval = next_vp.point.interval
 
 		local dvt = next_vp.visualTime - vp.visualTime
 		local dat = next_vp.point.absoluteTime - vp.point.absoluteTime
 
 		local cur_vel = dvt / dat
 
-		-- if i < 10 then
-		-- 	print(i, dvt, dat, dat == 0 and dvt > 0)
-		-- end
+		local duration = dvt
+		if interval then
+			duration = duration / interval:getBeatDuration()
+		end
 
 		if dat == 0 and dvt > 0 then
-			local duration = dvt
-			if interval then
-				duration = duration / interval:getBeatDuration()
-			end
 			next_vp._expand = Expand(duration)
 		elseif dat > 0 and cur_vel ~= vel then
-			vp._velocity = Velocity(cur_vel)
-			vel = cur_vel
+			if cur_vel > self.velocity_treshold then
+				vp._velocity = Velocity(0)
+				next_vp._expand = Expand(duration)
+				vel = 0
+			else
+				vp._velocity = Velocity(cur_vel)
+				vel = cur_vel
+			end
 		end
 	end
 end
