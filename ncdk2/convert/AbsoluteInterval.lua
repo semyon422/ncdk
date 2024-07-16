@@ -1,6 +1,5 @@
 local class = require("class")
 local table_util = require("table_util")
-local Tempo = require("ncdk2.to.Tempo")
 local Interval = require("ncdk2.to.Interval")
 local IntervalPoint = require("ncdk2.tp.IntervalPoint")
 local IntervalLayer = require("ncdk2.layers.IntervalLayer")
@@ -82,8 +81,8 @@ function AbsoluteInterval:computeTempos(points)
 		local prev_tempo, tempo = tempos[i - 1], tempos[i]
 		local offset = tempo_offsets[prev_tempo]
 		local beat_duration = prev_tempo:getBeatDuration()
-
 		beat_duration = math.max(beat_duration, 0.001)
+
 		local beats, aux_interval = self.tempoConnector:connect(
 			offset,
 			beat_duration,
@@ -100,7 +99,7 @@ function AbsoluteInterval:computeTempos(points)
 			end
 		end
 
-		total_beats = total_beats + beats:ceil()
+		total_beats = total_beats + math.max(1, beats:ceil())
 		intervals[Fraction(total_beats)] = Interval(tempo_offsets[tempo])
 
 		tempo_beat_offsets[tempo] = total_beats
@@ -132,10 +131,15 @@ function AbsoluteInterval:convert(layer, fraction_mode)
 	---@type {[string]: ncdk2.IntervalPoint}
 	local points_map = {}
 
+	---@type ncdk.Fraction
+	local prev_time
+
 	for i, p in ipairs(points) do
+		local absoluteTime = p.absoluteTime
 		local tempo = assert(p.tempo)
 		local tempo_offset = tempo_offsets[tempo]
-		local rel_time_n = (p.absoluteTime - tempo_offset) / tempo:getBeatDuration()
+		local beat_duration = math.max(tempo:getBeatDuration(), 0.001)
+		local rel_time_n = (absoluteTime - tempo_offset) / beat_duration
 		local rel_time = self:bestFraction(rel_time_n)
 		if tempo_beats[tempo] and rel_time > tempo_beats[tempo] then
 			rel_time = Fraction(rel_time:ceil())
@@ -153,6 +157,11 @@ function AbsoluteInterval:convert(layer, fraction_mode)
 		setmetatable(p, IntervalPoint)
 		table_util.clear(p)
 
+		if prev_time then
+			assert(time >= prev_time, "time is not monotonic")
+		end
+		prev_time = time
+
 		p:new(time)
 		points_map[tostring(p)] = p  -- more than one point can use same key, fix this below
 	end
@@ -161,7 +170,6 @@ function AbsoluteInterval:convert(layer, fraction_mode)
 		for _, visualPoint in ipairs(visual.points) do
 			visualPoint.point = points_map[tostring(visualPoint.point)]
 		end
-		Restorer:restore(visual.points)
 	end
 
 	local visuals = layer.visuals
@@ -179,7 +187,24 @@ function AbsoluteInterval:convert(layer, fraction_mode)
 		p._interval = interval
 	end
 
-	layer:compute()
+	layer.intervalAbsolute:convert(layer:getPointList())
+
+	for name, visual in pairs(layer.visuals) do
+		---@type number[]
+		local vts = {}
+		for i, vp in ipairs(visual.points) do
+			vts[i] = vp.visualTime
+		end
+		Restorer:restore(visual.points)
+		visual:compute()
+		local sum = 0
+		for i, vp in ipairs(visual.points) do
+			sum = sum + math.abs(vts[i] - vp.visualTime)
+		end
+		print(name, sum, sum / #vts)
+	end
+
+	layer:validate()
 end
 
 return AbsoluteInterval

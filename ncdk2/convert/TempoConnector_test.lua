@@ -11,6 +11,10 @@ function test.basic(t)
 	t:tdeq({tc:connect(0, 1, 2.006)}, {Fraction(2), true})
 	t:tdeq({tc:connect(0, 1, 1.994)}, {Fraction(7, 4), true})
 	t:tdeq({tc:connect(0, 1, 1.5)}, {Fraction(3, 2), true})
+
+	t:tdeq({tc:connect(0, 1, 0.5)}, {Fraction(1, 2), true})
+	t:tdeq({tc:connect(0, 1, 0.006)}, {Fraction(0), true})
+	t:tdeq({tc:connect(0, 1, 0.001)}, {Fraction(0), false})
 end
 
 return test

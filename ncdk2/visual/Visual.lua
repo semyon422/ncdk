@@ -56,13 +56,17 @@ function Visual:getFirstVelocity()
 	end
 end
 
+function Visual:sort()
+	mergesort.sort(self.points)
+end
+
 function Visual:compute()
 	local points = self.points
 	if #points == 0 then
 		return
 	end
 
-	mergesort.sort(points)
+	self:sort()
 
 	---@type {[ncdk2.Point]: integer}
 	local point_index = {}
@@ -111,7 +115,8 @@ function Visual:compute()
 		local expand = visualPoint._expand
 		if expand then
 			local clearCurrentSpeed = velocity and velocity.currentSpeed or 1
-			local duration = expand.duration * clearCurrentSpeed
+			local duration = expand.duration
+			-- local duration = expand.duration * clearCurrentSpeed
 			if tempo then
 				duration = duration * tempo:getBeatDuration()
 			elseif interval then

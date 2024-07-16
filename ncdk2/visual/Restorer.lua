@@ -13,27 +13,34 @@ function Restorer:restore(vps)
 		vp._expand = nil
 	end
 
+	---@type number
+	local vel
+
 	for i = 1, #vps - 1 do
 		local vp = vps[i]
 		local next_vp = vps[i + 1]
 
 		---@type ncdk2.Interval?
 		local interval = vp.point.interval
-		---@type ncdk2.Tempo?
-		local tempo = vp.point.tempo
 
 		local dvt = next_vp.visualTime - vp.visualTime
 		local dat = next_vp.point.absoluteTime - vp.point.absoluteTime
-		if dat > 0 then
-			vp._velocity = Velocity(dvt / dat)
-		else
+
+		local cur_vel = dvt / dat
+
+		-- if i < 10 then
+		-- 	print(i, dvt, dat, dat == 0 and dvt > 0)
+		-- end
+
+		if dat == 0 and dvt > 0 then
 			local duration = dvt
-			if tempo then
-				duration = duration / tempo:getBeatDuration()
-			elseif interval then
+			if interval then
 				duration = duration / interval:getBeatDuration()
 			end
-			vp._expand = Expand(duration)
+			next_vp._expand = Expand(duration)
+		elseif dat > 0 and cur_vel ~= vel then
+			vp._velocity = Velocity(cur_vel)
+			vel = cur_vel
 		end
 	end
 end

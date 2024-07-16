@@ -48,12 +48,25 @@ end
 
 ---@return ncdk2.Point[]
 function Layer:getPointList()
-	local pointList = {}
+	---@type ncdk2.Point[]
+	local points = {}
 	for _, point in pairs(self.points) do
-		table.insert(pointList, point)
+		table.insert(points, point)
 	end
-	table.sort(pointList)
-	return pointList
+	table.sort(points)
+	return points
+end
+
+function Layer:validate()
+	local points = self:getPointList()
+	for i = 1, #points - 1 do
+		local p = points[i]
+		local next_p = points[i + 1]
+		if p.absoluteTime == next_p.absoluteTime then
+			print(("points found with equal absoluteTime: %s, %s"):format(p, next_p))
+			print(p._interval, next_p._interval, p.absoluteTime, next_p.absoluteTime)
+		end
+	end
 end
 
 return Layer
