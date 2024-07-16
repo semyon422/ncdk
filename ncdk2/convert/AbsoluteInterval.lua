@@ -77,13 +77,16 @@ function AbsoluteInterval:computeTempos(points)
 	tempo_beat_offsets[tempos[1]] = total_beats
 	intervals[Fraction(0)] = Interval(tempo_offsets[tempos[1]])
 
+	---@type {[number]: ncdk2.Interval}
+	local offset_intervals = {}
+
 	for i = 2, #tempos  do
 		local prev_tempo, tempo = tempos[i - 1], tempos[i]
 		local offset = tempo_offsets[prev_tempo]
 		local beat_duration = prev_tempo:getBeatDuration()
 		beat_duration = math.max(beat_duration, 0.001)
 
-		local beats, aux_interval = self.tempoConnector:connect(
+		local beats, aux_interval, int_beats = self.tempoConnector:connect(
 			offset,
 			beat_duration,
 			tempo_offsets[tempo]
@@ -91,16 +94,20 @@ function AbsoluteInterval:computeTempos(points)
 
 		tempo_beats[prev_tempo] = beats
 
-		if aux_interval then
+		if aux_interval and beats[1] ~= 0 then
 			local aux_offset = beats:tonumber() * beat_duration + offset
-			intervals[beats + total_beats] = Interval(aux_offset)
-			if beats[2] == 1 then
-				total_beats = total_beats + 1
-			end
+			local interval = Interval(aux_offset)
+			assert(not offset_intervals[aux_offset], aux_offset)
+			offset_intervals[aux_offset] = interval
+			intervals[beats + total_beats] = interval
 		end
 
-		total_beats = total_beats + math.max(1, beats:ceil())
-		intervals[Fraction(total_beats)] = Interval(tempo_offsets[tempo])
+		total_beats = total_beats + int_beats
+		local _offset = tempo_offsets[tempo]
+		local interval = Interval(_offset)
+		assert(not offset_intervals[_offset], _offset)
+		offset_intervals[_offset] = interval
+		intervals[Fraction(total_beats)] = interval
 
 		tempo_beat_offsets[tempo] = total_beats
 	end
@@ -150,7 +157,7 @@ function AbsoluteInterval:convert(layer, fraction_mode)
 		if i == #points and not p._tempo then
 			local time_ceil_n = time:ceil()
 			local beats = time_ceil_n - tempo_beat_offsets[tempo]
-			intervals[Fraction(time_ceil_n)] = Interval(tempo_offset + tempo:getBeatDuration() * beats)
+			intervals[Fraction(time_ceil_n)] = Interval(tempo_offset + beat_duration * beats)
 		end
 
 		---@cast p -ncdk2.AbsolutePoint, +ncdk2.IntervalPoint
@@ -198,10 +205,13 @@ function AbsoluteInterval:convert(layer, fraction_mode)
 		Restorer:restore(visual.points)
 		visual:compute()
 		local sum = 0
+		local sum2 = 0
 		for i, vp in ipairs(visual.points) do
-			sum = sum + math.abs(vts[i] - vp.visualTime)
+			local delta = vts[i] - vp.visualTime
+			sum = sum + delta
+			sum2 = sum2 + delta ^ 2
 		end
-		print(name, sum, sum / #vts)
+		print(name, sum2 / #vts, (sum / #vts) ^ 2, math.sqrt(math.abs(sum2 / #vts - (sum / #vts) ^ 2)))
 	end
 
 	layer:validate()
