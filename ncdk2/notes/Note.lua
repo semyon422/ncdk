@@ -30,6 +30,20 @@ function Note:getVisualTime(vp)
 	return self.visualPoint:getVisualTime(vp)
 end
 
+---@return number
+function Note:getBeatModulo()
+	local b = self.visualPoint.point:getBeatModulo()
+	if type(b) == "number" then
+		return b
+	end
+	return b:tonumber()
+end
+
+---@return number
+function Note:getBeatDuration()
+	return self.visualPoint.point:getBeatDuration()
+end
+
 ---@param a ncdk2.Note
 ---@return string
 function Note.__tostring(a)

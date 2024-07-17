@@ -27,6 +27,16 @@ function MeasurePoint.__tostring(a)
 	return ("MeasurePoint(%s,%s)"):format(a.measureTime, a.isRightSide)
 end
 
+---@return number
+function MeasurePoint:getBeatModulo()
+	return self.beatTime % 1
+end
+
+---@return number
+function MeasurePoint:getBeatDuration()
+	return self.tempo:getBeatDuration()
+end
+
 ---@param a ncdk2.MeasurePoint
 ---@param b ncdk2.MeasurePoint
 ---@return boolean

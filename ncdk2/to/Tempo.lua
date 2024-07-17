@@ -2,6 +2,7 @@ local class = require("class")
 
 ---@class ncdk2.Tempo
 ---@operator call: ncdk2.Tempo
+---@field point ncdk2.Point
 local Tempo = class()
 
 ---@param tempo number

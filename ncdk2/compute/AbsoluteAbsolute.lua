@@ -19,9 +19,10 @@ function AbsoluteAbsolute:convert(points)
 	local tempo = self:getFirstTempo(points)
 
 	for _, point in ipairs(points) do
-		local nextTempo = point._tempo
-		if nextTempo then
-			tempo = nextTempo
+		local _tempo = point._tempo
+		if _tempo then
+			_tempo.point = point
+			tempo = _tempo
 		end
 
 		point.tempo = tempo
