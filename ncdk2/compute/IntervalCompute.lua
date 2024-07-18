@@ -1,12 +1,12 @@
 local class = require("class")
 
----@class ncdk2.IntervalAbsolute
----@operator call: ncdk2.IntervalAbsolute
-local IntervalAbsolute = class()
+---@class ncdk2.IntervalCompute
+---@operator call: ncdk2.IntervalCompute
+local IntervalCompute = class()
 
 ---@param points ncdk2.IntervalPoint[]
 ---@return ncdk2.Measure?
-function IntervalAbsolute:getFirstMeasure(points)
+function IntervalCompute:getFirstMeasure(points)
 	for _, p in ipairs(points) do
 		if p._measure then
 			return p._measure
@@ -15,7 +15,7 @@ function IntervalAbsolute:getFirstMeasure(points)
 end
 
 ---@param points ncdk2.IntervalPoint[]
-function IntervalAbsolute:convert(points)
+function IntervalCompute:compute(points)
 	local measure = self:getFirstMeasure(points)
 
 	---@type ncdk2.Interval[]
@@ -53,4 +53,4 @@ function IntervalAbsolute:convert(points)
 	end
 end
 
-return IntervalAbsolute
+return IntervalCompute

@@ -1,4 +1,4 @@
-local IntervalAbsolute = require("ncdk2.compute.IntervalAbsolute")
+local IntervalCompute = require("ncdk2.compute.IntervalCompute")
 local IntervalPoint = require("ncdk2.tp.IntervalPoint")
 local Interval = require("ncdk2.to.Interval")
 local Fraction = require("ncdk.Fraction")
@@ -12,7 +12,7 @@ local function newp(n)
 end
 
 function test.basic2(t)
-	local conv = IntervalAbsolute()
+	local conv = IntervalCompute()
 
 	local points = {
 		newp(0),
@@ -28,7 +28,7 @@ function test.basic2(t)
 	points[1]._interval = int_0
 	points[5]._interval = int_4
 
-	conv:convert(points)
+	conv:compute(points)
 
 	t:eq(points[1].absoluteTime, 0)
 	t:eq(points[2].absoluteTime, 1)

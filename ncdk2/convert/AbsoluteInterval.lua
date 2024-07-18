@@ -213,7 +213,7 @@ function AbsoluteInterval:convert(layer, fraction_mode)
 		p._interval = interval
 	end
 
-	layer.intervalAbsolute:convert(layer:getPointList())
+	layer.intervalCompute:compute(layer:getPointList())
 
 	for name, visual in pairs(layer.visuals) do
 		---@type number[]
@@ -230,7 +230,7 @@ function AbsoluteInterval:convert(layer, fraction_mode)
 			sum = sum + delta
 			sum2 = sum2 + delta ^ 2
 		end
-		print(name, math.sqrt(math.abs(sum2 / #vts - (sum / #vts) ^ 2)))
+		-- print(name, math.sqrt(math.abs(sum2 / #vts - (sum / #vts) ^ 2)))
 	end
 
 	layer:validate()

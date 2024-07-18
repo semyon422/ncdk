@@ -1,6 +1,6 @@
 local Layer = require("ncdk2.layers.Layer")
 local MeasurePoint = require("ncdk2.tp.MeasurePoint")
-local MeasureAbsolute = require("ncdk2.compute.MeasureAbsolute")
+local MeasureCompute = require("ncdk2.compute.MeasureCompute")
 
 ---@class ncdk2.MeasureLayer: ncdk2.Layer
 ---@operator call: ncdk2.MeasureLayer
@@ -8,7 +8,7 @@ local MeasureLayer = Layer + {}
 
 function MeasureLayer:new()
 	Layer.new(self)
-	self.measureAbsolute = MeasureAbsolute()
+	self.measureCompute = MeasureCompute()
 end
 
 ---@param mode string
@@ -33,8 +33,7 @@ function MeasureLayer:getPoint(time, isRightSide)
 end
 
 function MeasureLayer:compute()
-	local pointList = self:getPointList()
-	self.measureAbsolute:convert(pointList)
+	self.measureCompute:compute(self:getPointList())
 	Layer.compute(self)
 end
 

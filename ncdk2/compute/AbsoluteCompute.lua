@@ -1,12 +1,12 @@
 local class = require("class")
 
----@class ncdk2.AbsoluteAbsolute
----@operator call: ncdk2.AbsoluteAbsolute
-local AbsoluteAbsolute = class()
+---@class ncdk2.AbsoluteCompute
+---@operator call: ncdk2.AbsoluteCompute
+local AbsoluteCompute = class()
 
 ---@param points ncdk2.MeasurePoint[]
 ---@return ncdk2.Tempo?
-function AbsoluteAbsolute:getFirstTempo(points)
+function AbsoluteCompute:getFirstTempo(points)
 	for _, p in ipairs(points) do
 		if p._tempo then
 			return p._tempo
@@ -15,7 +15,7 @@ function AbsoluteAbsolute:getFirstTempo(points)
 end
 
 ---@param points ncdk2.AbsolutePoint[]
-function AbsoluteAbsolute:convert(points)
+function AbsoluteCompute:compute(points)
 	local tempo = self:getFirstTempo(points)
 
 	for _, point in ipairs(points) do
@@ -29,4 +29,4 @@ function AbsoluteAbsolute:convert(points)
 	end
 end
 
-return AbsoluteAbsolute
+return AbsoluteCompute

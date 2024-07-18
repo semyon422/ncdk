@@ -3,19 +3,19 @@ local Fraction = require("ncdk.Fraction")
 local Interpolator = require("ncdk2.Interpolator")
 local MeasurePoint = require("ncdk2.tp.MeasurePoint")
 
----@class ncdk2.MeasureAbsolute
----@operator call: ncdk2.MeasureAbsolute
-local MeasureAbsolute = class()
+---@class ncdk2.MeasureCompute
+---@operator call: ncdk2.MeasureCompute
+local MeasureCompute = class()
 
-function MeasureAbsolute:new()
+function MeasureCompute:new()
 	self.interpolator = Interpolator()
 end
 
-MeasureAbsolute.defaultSignature = Fraction(4)
+MeasureCompute.defaultSignature = Fraction(4)
 
 ---@param points ncdk2.MeasurePoint[]
 ---@return ncdk2.Tempo?
-function MeasureAbsolute:getFirstTempo(points)
+function MeasureCompute:getFirstTempo(points)
 	for _, p in ipairs(points) do
 		if p._tempo then
 			return p._tempo
@@ -24,7 +24,7 @@ function MeasureAbsolute:getFirstTempo(points)
 end
 
 ---@param points ncdk2.MeasurePoint[]
-function MeasureAbsolute:convert(points)
+function MeasureCompute:compute(points)
 	local tempo = assert(self:getFirstTempo(points), "missing tempo")
 
 	local defaultSignature = self.defaultSignature
@@ -87,4 +87,4 @@ function MeasureAbsolute:convert(points)
 	end
 end
 
-return MeasureAbsolute
+return MeasureCompute

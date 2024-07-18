@@ -1,4 +1,4 @@
-local MeasureAbsolute = require("ncdk2.compute.MeasureAbsolute")
+local MeasureCompute = require("ncdk2.compute.MeasureCompute")
 local MeasurePoint = require("ncdk2.tp.MeasurePoint")
 local Tempo = require("ncdk2.to.Tempo")
 local Stop = require("ncdk2.to.Stop")
@@ -14,7 +14,7 @@ local function newp(n)
 end
 
 function test.basic(t)
-	local conv = MeasureAbsolute()
+	local conv = MeasureCompute()
 
 	local points = {
 		newp(0),
@@ -24,7 +24,7 @@ function test.basic(t)
 
 	points[1]._tempo = Tempo(60)
 
-	conv:convert(points)
+	conv:compute(points)
 
 	t:eq(points[1].absoluteTime, 0)
 	t:eq(points[2].absoluteTime, 4)
@@ -32,7 +32,7 @@ function test.basic(t)
 end
 
 function test.no_zero_point(t)
-	local conv = MeasureAbsolute()
+	local conv = MeasureCompute()
 
 	local points = {
 		newp(-1),
@@ -41,14 +41,14 @@ function test.no_zero_point(t)
 
 	points[1]._tempo = Tempo(60)
 
-	conv:convert(points)
+	conv:compute(points)
 
 	t:eq(points[1].absoluteTime, -4)
 	t:eq(points[2].absoluteTime, 4)
 end
 
 function test.no_zero_point_right(t)
-	local conv = MeasureAbsolute()
+	local conv = MeasureCompute()
 
 	local points = {
 		newp(1),
@@ -56,13 +56,13 @@ function test.no_zero_point_right(t)
 
 	points[1]._tempo = Tempo(60)
 
-	conv:convert(points)
+	conv:compute(points)
 
 	t:eq(points[1].absoluteTime, 4)
 end
 
 function test.stop(t)
-	local conv = MeasureAbsolute()
+	local conv = MeasureCompute()
 
 	local points = {
 		newp(0),
@@ -73,7 +73,7 @@ function test.stop(t)
 	points[1]._tempo = Tempo(120)  -- use fraction beat time here to test stops
 	points[1]._stop = Stop(Fraction(1), false)  -- 1 beat
 
-	conv:convert(points)
+	conv:compute(points)
 
 	t:eq(points[1].absoluteTime, 0)
 	t:eq(points[2].absoluteTime, 0.5)
@@ -81,7 +81,7 @@ function test.stop(t)
 end
 
 function test.signature(t)
-	local conv = MeasureAbsolute()
+	local conv = MeasureCompute()
 
 	local points = {
 		newp(0),
@@ -97,7 +97,7 @@ function test.signature(t)
 	points[2]._signature = Signature(Fraction(8))
 	points[4]._signature = Signature(Fraction(2))
 
-	conv:convert(points)
+	conv:compute(points)
 
 	t:eq(points[1].absoluteTime, 0)
 	t:eq(points[2].absoluteTime, 4)
@@ -109,7 +109,7 @@ function test.signature(t)
 	points[3]._signature = Signature()
 	points[5]._signature = Signature()
 
-	conv:convert(points)
+	conv:compute(points)
 
 	t:eq(points[1].absoluteTime, 0)
 	t:eq(points[2].absoluteTime, 4)
