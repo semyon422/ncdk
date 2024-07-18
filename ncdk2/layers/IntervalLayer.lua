@@ -29,4 +29,10 @@ function IntervalLayer:compute()
 	Layer.compute(self)
 end
 
+function IntervalLayer:toAbsolute()
+	local IntervalAbsolute = require("ncdk2.convert.IntervalAbsolute")
+	local conv = IntervalAbsolute()
+	conv:convert(self)
+end
+
 return IntervalLayer

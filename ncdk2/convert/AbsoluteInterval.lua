@@ -13,9 +13,14 @@ local AbsoluteInterval = class()
 
 AbsoluteInterval.min_beat_duration = 0.080  -- 750 bpm, 1/16 = 5ms
 
+local default_denoms = {1, 2, 3, 4, 5, 6, 7, 8, 9, 12, 16}
+local default_merge_time = 0.002
+
 ---@param denoms number[]
 ---@param merge_time number
 function AbsoluteInterval:new(denoms, merge_time)
+	denoms = denoms or default_denoms
+	merge_time = merge_time or default_merge_time
 	self.denoms = denoms
 	self.tempoConnector = TempoConnector(denoms[#denoms], merge_time)
 end

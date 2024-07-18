@@ -69,4 +69,7 @@ function Layer:validate()
 	end
 end
 
+function Layer:toInterval() end
+function Layer:toAbsolute() end
+
 return Layer

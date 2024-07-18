@@ -37,4 +37,18 @@ function MeasureLayer:compute()
 	Layer.compute(self)
 end
 
+function MeasureLayer:toInterval()
+	local MeasureInterval = require("ncdk2.convert.MeasureInterval")
+	local conv = MeasureInterval()
+	conv:convert(self)
+end
+
+function MeasureLayer:toAbsolute()
+	local IntervalAbsolute = require("ncdk2.convert.IntervalAbsolute")
+	self:toInterval()
+	---@cast self -ncdk2.MeasureLayer, +ncdk2.IntervalLayer
+	local conv2 = IntervalAbsolute()
+	conv2:convert(self)
+end
+
 return MeasureLayer

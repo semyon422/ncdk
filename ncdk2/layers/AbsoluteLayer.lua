@@ -29,4 +29,10 @@ function AbsoluteLayer:compute()
 	Layer.compute(self)
 end
 
+function AbsoluteLayer:toInterval()
+	local AbsoluteInterval = require("ncdk2.convert.AbsoluteInterval")
+	local conv = AbsoluteInterval()
+	conv:convert(self)
+end
+
 return AbsoluteLayer
