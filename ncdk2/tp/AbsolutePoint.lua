@@ -4,6 +4,8 @@ local Point = require("ncdk2.tp.Point")
 ---@operator call: ncdk2.AbsolutePoint
 ---@field _tempo ncdk2.Tempo?
 ---@field tempo ncdk2.Tempo?
+---@field _measure ncdk2.Measure?
+---@field measure ncdk2.Measure?
 local AbsolutePoint = Point + {}
 
 ---@param a ncdk2.AbsolutePoint
@@ -18,7 +20,10 @@ function AbsolutePoint:getBeatModulo()
 	if not tempo then
 		return 0
 	end
-	return (self.absoluteTime - tempo.point.absoluteTime) / tempo:getBeatDuration()
+	local measure = self.measure
+	local measure_offset = measure and measure.offset or 0
+	local beat_time = (self.absoluteTime - tempo.point.absoluteTime) / tempo:getBeatDuration()
+	return (beat_time + measure_offset) % 1
 end
 
 ---@return number

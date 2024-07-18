@@ -14,9 +14,20 @@ function AbsoluteCompute:getFirstTempo(points)
 	end
 end
 
+---@param points ncdk2.IntervalPoint[]
+---@return ncdk2.Measure?
+function AbsoluteCompute:getFirstMeasure(points)
+	for _, p in ipairs(points) do
+		if p._measure then
+			return p._measure
+		end
+	end
+end
+
 ---@param points ncdk2.AbsolutePoint[]
 function AbsoluteCompute:compute(points)
 	local tempo = self:getFirstTempo(points)
+	local measure = self:getFirstMeasure(points)
 
 	for _, point in ipairs(points) do
 		local _tempo = point._tempo
@@ -25,7 +36,12 @@ function AbsoluteCompute:compute(points)
 			tempo = _tempo
 		end
 
+		if point._measure then
+			measure = point._measure
+		end
+
 		point.tempo = tempo
+		point.measure = measure
 	end
 end
 
