@@ -10,8 +10,8 @@ local Point = require("ncdk2.tp.Point")
 ---@field beatTime ncdk.Fraction?
 local MeasurePoint = Point + {}
 
--- Stop should be placed on isRightSide = true
--- In this case both false and true time points should exist
+-- Stop should be placed on isRightSide = false
+-- In this case isRightSide = true time point should be created
 MeasurePoint.isRightSide = false
 
 ---@param measureTime ncdk.Fraction
