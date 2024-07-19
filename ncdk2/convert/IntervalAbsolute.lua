@@ -26,7 +26,7 @@ function IntervalAbsolute:convertPoints(points)
 		end
 	end
 
-	local first_measure = false
+	local first_measure = points[1].measure ~= nil
 
 	for _, p in ipairs(points) do
 		local _interval = p._interval
@@ -52,8 +52,8 @@ function IntervalAbsolute:convertPoints(points)
 
 		if _interval or _measure then
 			p._tempo = Tempo(tempo)
-			local offset = time % 1 + (beat_offset or 0)
-			if offset:tonumber() ~= 0 then
+			local offset = (time + (beat_offset or 0)) % 1
+			if _measure or offset:tonumber() ~= 0 then
 				p._measure = Measure(offset)
 			end
 		end
@@ -72,10 +72,6 @@ end
 
 ---@param layer ncdk2.IntervalLayer
 function IntervalAbsolute:convert(layer)
-	for _, visual in pairs(layer.visuals) do
-		Restorer:restore(visual.points)
-	end
-
 	local points = layer:getPointList()
 	local points_map = self:convertPoints(points)
 
