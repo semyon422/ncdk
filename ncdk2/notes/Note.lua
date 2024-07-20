@@ -1,15 +1,21 @@
 local class = require("class")
 local table_util = require("table_util")
 
+---@alias ncdk2.NoteType string
+
 ---@class ncdk2.Note
 ---@operator call: ncdk2.Note
 local Note = class()
 
 ---@param visualPoint ncdk2.IVisualPoint
 ---@param column ncdk2.Column
-function Note:new(visualPoint, column)
+---@param weight integer
+---@param type ncdk2.NoteType
+function Note:new(visualPoint, column, weight, type)
 	self.visualPoint = assert(visualPoint, "missing visualPoint")
 	self.column = assert(column, "missing column")
+	self.weight = weight
+	self.type = type
 end
 
 ---@return ncdk2.Note
@@ -47,7 +53,7 @@ end
 ---@param a ncdk2.Note
 ---@return string
 function Note.__tostring(a)
-	return ("Note(%s,%s)"):format(a.visualPoint, a.column)
+	return ("Note(%s,%s,%s,%s)"):format(a.visualPoint, a.column, a.weight, a.type)
 end
 
 ---@param a ncdk2.Note

@@ -61,14 +61,12 @@ function Notes:insert(note)
 	point_notes[vp] = point_notes[vp] or {}
 	local ps = point_notes[vp]
 	if ps[column] then
-		error(("column is not empty (vp: %s, col: %s)"):format(vp, column))
+		error(("column is not empty: %s"):format(note))
 	end
 	ps[column] = note
 end
 
-function Notes:validate()
-	self:sort()
-
+function Notes:isValid()
 	---@type {[ncdk2.Column]: {[ncdk2.Note]: true}}
 	local map = {}
 	for _, note in self:iter() do
@@ -76,15 +74,29 @@ function Notes:validate()
 		map[column] = map[column] or {}
 		map[column][note] = true
 	end
+
+	---@type {[ncdk2.Column]: {[ncdk2.NoteType]: integer}}
+	local weights = {}
+
 	for _, note in self:iter() do
 		local column = note.column
-		if note.endNote and not map[column][note.endNote] then
-			error(("missing endNote %s for note %s on column %s"):format(note.endNote, note, column))
-		end
-		if note.startNote and not map[column][note.startNote] then
-			error(("missing startNote %s for note %s on column %s"):format(note.startNote, note, column))
+		local _type = note.type
+		weights[column] = weights[column] or {}
+		weights[column][_type] = (weights[column][_type] or 0) + note.weight
+	end
+
+	local errors = {}
+	for column, t in pairs(weights) do
+		for _type, weight in pairs(t) do
+			if weight ~= 0 then
+				table.insert(errors, ("%s:%s"):format(column, _type))
+			end
 		end
 	end
+	if #errors == 0 then
+		return true
+	end
+	return false, "non-zero weights in " .. table.concat(errors, ", ")
 end
 
 return Notes
