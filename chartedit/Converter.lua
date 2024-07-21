@@ -15,8 +15,6 @@ local nVisual = require("ncdk2.visual.Visual")
 local IntervalPoint = require("ncdk2.tp.IntervalPoint")
 local Chart = require("ncdk2.Chart")
 
-local NoteCloner = require("ncdk2.notes.NoteCloner")
-
 ---@class chartedit.Converter
 ---@operator call: chartedit.Converter
 local Converter = class()
@@ -43,16 +41,14 @@ function Converter:load(_chart)
 		end
 	end
 
-	local note_cloner = NoteCloner()
 	for _, _note in _chart.notes:iter() do
-		local note = note_cloner:clone(_note)
+		local note = _note:clone()
 		local vp = vp_map[_note.visualPoint  --[[@as ncdk2.VisualPoint]]]
 		if vp then
-			note:new(vp, note.column)
+			note.visualPoint = vp
 			notes:addNote(note, note.column)
 		end
 	end
-	note_cloner:assignStartEnd()
 
 	return layers, notes
 end
@@ -136,16 +132,15 @@ function Converter:save(_layers, _notes)
 	end
 
 	local notes = chart.notes
-	local note_cloner = NoteCloner()
 	for _note, column in _notes:iter() do
-		local note = note_cloner:clone(_note)
+		local note = _note:clone()
 		local vp = vp_map[_note.visualPoint  --[[@as chartedit.VisualPoint]]]
 		if vp then
-			note:new(vp, column)
+			note.visualPoint = vp
+			note.column = column
 			notes:insert(note)
 		end
 	end
-	note_cloner:assignStartEnd()
 
 	return chart
 end
