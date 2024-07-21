@@ -7,15 +7,17 @@ local table_util = require("table_util")
 ---@operator call: ncdk2.Note
 local Note = class()
 
+Note.weight = 0
+
 ---@param visualPoint ncdk2.IVisualPoint
 ---@param column ncdk2.Column
+---@param _type ncdk2.NoteType
 ---@param weight integer
----@param type ncdk2.NoteType
-function Note:new(visualPoint, column, weight, type)
+function Note:new(visualPoint, column, _type, weight)
 	self.visualPoint = assert(visualPoint, "missing visualPoint")
 	self.column = assert(column, "missing column")
+	self.type = _type
 	self.weight = weight
-	self.type = type
 end
 
 ---@return ncdk2.Note
