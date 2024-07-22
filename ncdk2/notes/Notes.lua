@@ -1,4 +1,5 @@
 local class = require("class")
+local LinkedNote = require("ncdk2.notes.LinkedNote")
 
 ---@alias ncdk2.Column string
 
@@ -20,16 +21,36 @@ function Notes:iter()
 	return ipairs(self.notes)
 end
 
+---@return ncdk2.Note[]
+function Notes:getNotes()
+	return self.notes
+end
+
+---@return ncdk2.LinkedNote[]
+function Notes:getLinkedNotes()
+	return self:link(self.notes)
+end
+
 ---@return {[ncdk2.Column]: ncdk2.Note[]}
 function Notes:getColumnNotes()
 	---@type {[ncdk2.Column]: ncdk2.Note[]}
-	local column_notes = {}
+	local _notes = {}
 	for _, note in self:iter() do
 		local column = note.column
-		column_notes[column] = column_notes[column] or {}
-		table.insert(column_notes[column], note)
+		_notes[column] = _notes[column] or {}
+		table.insert(_notes[column], note)
 	end
-	return column_notes
+	return _notes
+end
+
+---@return {[ncdk2.Column]: ncdk2.LinkedNote[]}
+function Notes:getColumnLinkedNotes()
+	---@type {[ncdk2.Column]: ncdk2.LinkedNote[]}
+	local _notes = {}
+	for column, notes in pairs(self:getColumnNotes()) do
+		_notes[column] = self:link(notes)
+	end
+	return _notes
 end
 
 function Notes:sort()
@@ -97,6 +118,34 @@ function Notes:isValid()
 		return true
 	end
 	return false, "non-zero weights in " .. table.concat(errors, ", ")
+end
+
+---@param notes ncdk2.Note[]
+---@return ncdk2.LinkedNote[]
+function Notes:link(notes)
+	---@type ncdk2.LinkedNote[]
+	local lnotes = {}
+
+	---@type {[ncdk2.Column]: {[ncdk2.NoteType]: integer[]}}
+	local istack = {}
+
+	for _, note in ipairs(notes) do
+		if note.weight == 0 then
+			table.insert(lnotes, LinkedNote(note))
+		elseif note.weight == 1 then
+			table.insert(lnotes, LinkedNote(note))
+			local c, t = note.column, note.type
+			istack[c] = istack[c] or {}
+			istack[c][t] = istack[c][t] or {}
+			table.insert(istack[c][t], #lnotes)
+		elseif note.weight == -1 then
+			local c, t = note.column, note.type
+			local index = table.remove(istack[c][t])
+			lnotes[index].endNote = note
+		end
+	end
+
+	return lnotes
 end
 
 return Notes
