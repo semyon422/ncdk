@@ -22,9 +22,36 @@ function LinkedNote:getSize()
 	return self.endNote and 2 or 1
 end
 
+function LinkedNote:unlink()
+	self.startNote.weight = 0
+	if self.endNote then
+		self.endNote.weight = 0
+		self.endNote = nil
+	end
+end
+
 ---@return ncdk2.Column
 function LinkedNote:getColumn()
 	return self.startNote.column
+end
+
+---@return number
+function LinkedNote:getStartTime()
+	return self.startNote:getTime()
+end
+
+---@return number
+function LinkedNote:getEndTime()
+	local n = self.endNote or self.startNote
+	return n:getTime()
+end
+
+---@return number
+function LinkedNote:getDuration()
+	if not self.endNote then
+		return 0
+	end
+	return self.endNote:getTime() - self.startNote:getTime()
 end
 
 ---@param column ncdk2.Column
