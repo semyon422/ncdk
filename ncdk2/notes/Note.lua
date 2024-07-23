@@ -55,7 +55,7 @@ end
 ---@param a ncdk2.Note
 ---@return string
 function Note.__tostring(a)
-	return ("Note(%s,%s,%s,%s)"):format(a.visualPoint, a.column, a.weight, a.type)
+	return ("Note(%s,%s,%s,%s)"):format(a.visualPoint, a.column, a.type, a.weight)
 end
 
 ---@param a ncdk2.Note
