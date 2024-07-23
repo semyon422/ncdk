@@ -57,7 +57,7 @@ function Notes:sort()
 	table.sort(self.notes)
 end
 
----@param vp ncdk2.VisualPoint
+---@param vp ncdk2.IVisualPoint
 ---@param column ncdk2.Column
 ---@return ncdk2.Note?
 function Notes:get(vp, column)
@@ -85,6 +85,14 @@ function Notes:insert(note)
 		error(("column is not empty: %s"):format(note))
 	end
 	ps[column] = note
+end
+
+---@param note ncdk2.LinkedNote
+function Notes:insertLinked(note)
+	self:insert(note.startNote)
+	if note.endNote then
+		self:insert(note.endNote)
+	end
 end
 
 function Notes:isValid()
