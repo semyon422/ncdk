@@ -1,6 +1,7 @@
 local class = require("class")
 local rbtree = require("rbtree")
 local table_util = require("table_util")
+local LinkedNote = require("ncdk2.notes.LinkedNote")
 
 ---@class chartedit.Notes
 ---@operator call: chartedit.Notes
@@ -83,6 +84,59 @@ function Notes:iter(start_time, end_time)
 					break
 				end
 				coroutine.yield(note, column)
+				a = a:next()
+			end
+		end
+	end)
+end
+
+---@param ctn_stack {[ncdk2.Column]: {[ncdk2.NoteType]: ncdk2.Note[]}}
+local function is_ctn_stack_empty(ctn_stack)
+	for _, t in pairs(ctn_stack) do
+		for _, notes in pairs(t) do
+			if notes[1] then
+				return false
+			end
+		end
+	end
+	return true
+end
+
+---@param start_time number?
+---@param end_time number?
+---@return fun(): ncdk2.LinkedNote, ncdk2.Column
+function Notes:iterLinked(start_time, end_time)
+	start_time = start_time or -math.huge
+	end_time = end_time or math.huge
+
+	return coroutine.wrap(function()
+		for column, tree in pairs(self.trees) do
+			local a, b = tree:findex(start_time, ex_time)
+			a = a or b
+			a = a and a:prev() or a
+
+			---@type {[ncdk2.Column]: {[ncdk2.NoteType]: ncdk2.Note[]}}
+			local ctn_stack = {}
+
+			while a do
+				---@type ncdk2.Note
+				local note = a.key
+				if note:getTime() > end_time and is_ctn_stack_empty(ctn_stack) then
+					break
+				end
+
+				local c, t = note.column, note.type
+				if note.weight == 0 then
+					coroutine.yield(LinkedNote(note), column)
+				elseif note.weight == 1 then
+					ctn_stack[c] = ctn_stack[c] or {}
+					ctn_stack[c][t] = ctn_stack[c][t] or {}
+					table.insert(ctn_stack[c][t], note)
+				elseif note.weight == -1 and ctn_stack[c] and ctn_stack[c][t] then
+					local start_note = table.remove(ctn_stack[c][t])
+					coroutine.yield(LinkedNote(start_note, note), column)
+				end
+
 				a = a:next()
 			end
 		end
