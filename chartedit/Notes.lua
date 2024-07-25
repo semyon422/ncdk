@@ -19,28 +19,25 @@ function Notes:getTree(column)
 end
 
 ---@param note ncdk2.Note
----@param column ncdk2.Column
 ---@return rbtree.Node?
-function Notes:findNote(note, column)
-	local tree = self:getTree(column)
+function Notes:findNote(note)
+	local tree = self:getTree(note.column)
 	return (tree:find(note))
 end
 
 ---@param note ncdk2.Note
----@param column ncdk2.Column
 ---@return rbtree.Node?
 ---@return string?
-function Notes:addNote(note, column)
-	local tree = self:getTree(column)
+function Notes:addNote(note)
+	local tree = self:getTree(note.column)
 	return tree:insert(note)
 end
 
 ---@param note ncdk2.Note
----@param column ncdk2.Column
 ---@return rbtree.Node?
 ---@return string?
-function Notes:removeNote(note, column)
-	local tree = self:getTree(column)
+function Notes:removeNote(note)
+	local tree = self:getTree(note.column)
 	return tree:remove(note)
 end
 
