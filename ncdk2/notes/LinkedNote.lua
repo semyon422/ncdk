@@ -18,8 +18,12 @@ function LinkedNote:clone()
 	return note
 end
 
-function LinkedNote:getSize()
-	return self.endNote and 2 or 1
+function LinkedNote:isShort()
+	return self.endNote == nil
+end
+
+function LinkedNote:isLong()
+	return self.endNote ~= nil
 end
 
 function LinkedNote:unlink()

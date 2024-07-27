@@ -36,13 +36,13 @@ function test.link(t)
 	local lnotes = notes:link(notes.notes)
 	t:eq(#lnotes, 3)
 
-	t:eq(lnotes[1]:getSize(), 2)
+	t:assert(lnotes[1]:isLong())
 	t:eq(lnotes[1]:getType(), "hold")
 
-	t:eq(lnotes[2]:getSize(), 2)
+	t:assert(lnotes[2]:isLong())
 	t:eq(lnotes[2]:getType(), "hold")
 
-	t:eq(lnotes[3]:getSize(), 1)
+	t:assert(lnotes[3]:isShort())
 	t:eq(lnotes[3]:getType(), "note")
 end
 
