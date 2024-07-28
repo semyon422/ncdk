@@ -78,4 +78,11 @@ function LinkedNote:setType(_type)
 	end
 end
 
+---@param a ncdk2.Note
+---@param b ncdk2.Note
+---@return boolean
+function LinkedNote.__lt(a, b)
+	return a.startNote < b.startNote
+end
+
 return LinkedNote
