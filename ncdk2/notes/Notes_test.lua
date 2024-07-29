@@ -46,4 +46,25 @@ function test.link(t)
 	t:eq(lnotes[3]:getType(), "note")
 end
 
+function test.mutated_invalid(t)
+	local notes = Notes()
+
+	local note = Note(1, "key1", "note", 0)
+	notes:insert(note)
+
+	t:assert(notes:isValid())
+
+	note.visualPoint, note.column = 2, "key1"
+	t:assert(not notes:isValid())
+
+	note.visualPoint, note.column = 1, "key2"
+	t:assert(not notes:isValid())
+
+	note.visualPoint, note.column = 2, "key2"
+	t:assert(not notes:isValid())
+
+	note.visualPoint, note.column = 1, "key1"
+	t:assert(notes:isValid())
+end
+
 return test

@@ -96,12 +96,16 @@ function Notes:insertLinked(note)
 end
 
 function Notes:isValid()
-	---@type {[ncdk2.Column]: {[ncdk2.Note]: true}}
-	local map = {}
+	local point_notes = self.point_notes
+
 	for _, note in self:iter() do
+		local vp = note.visualPoint
 		local column = note.column
-		map[column] = map[column] or {}
-		map[column][note] = true
+		---@cast vp ncdk2.VisualPoint
+		local check_note = point_notes[vp] and point_notes[vp][column]
+		if check_note ~= note then
+			return false, ("note was mutated: %s"):format(note)
+		end
 	end
 
 	---@type {[ncdk2.Column]: {[ncdk2.NoteType]: integer}}
