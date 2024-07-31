@@ -1,6 +1,5 @@
 local class = require("class")
 local math_util = require("math_util")
-local mergesort = require("mergesort")
 local VisualInterpolator = require("ncdk2.visual.VisualInterpolator")
 local FullEventScroller = require("ncdk2.visual.FullEventScroller")
 local Point = require("ncdk2.tp.Point")
@@ -43,6 +42,7 @@ function Visual:newPoint(point)
 	local vp = VisualPoint(point)
 	self.p2vp[point] = vp
 	table.insert(self.points, vp)
+	vp.compare_index = #self.points
 	self.points_map[vp] = true
 	return vp
 end
@@ -57,7 +57,10 @@ function Visual:getFirstVelocity()
 end
 
 function Visual:sort()
-	mergesort.sort(self.points)
+	table.sort(self.points)
+	for i, vp in ipairs(self.points) do
+		vp.compare_index = i
+	end
 end
 
 function Visual:compute()

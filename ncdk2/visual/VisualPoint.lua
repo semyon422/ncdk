@@ -4,6 +4,7 @@ local IVisualPoint = require("ncdk2.visual.IVisualPoint")
 ---@operator call: ncdk2.VisualPoint
 ---@field _expand ncdk2.Expand?
 ---@field _velocity ncdk2.Velocity?
+---@field compare_index integer
 local VisualPoint = IVisualPoint + {}
 
 VisualPoint.visualTime = 0
@@ -65,7 +66,10 @@ end
 ---@param b ncdk2.VisualPoint
 ---@return boolean
 function VisualPoint.__lt(a, b)
-	return a.point.absoluteTime < b.point.absoluteTime
+	if a.point.absoluteTime ~= b.point.absoluteTime then
+		return a.point.absoluteTime < b.point.absoluteTime
+	end
+	return a.compare_index < b.compare_index
 end
 
 return VisualPoint

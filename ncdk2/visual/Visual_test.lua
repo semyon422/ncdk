@@ -198,4 +198,35 @@ function test.interval_expand(t)
 	t:eq(vp1.visualTime, 0.5)  -- 1 beat in 120 bpm is 0.5 seconds
 end
 
+function test.compare(t)
+	local vis = Visual()
+
+	local p0 = Point(0)
+	local p1 = Point(1)
+
+	local vp0 = vis:newPoint(p0)
+	local vp1 = vis:newPoint(p1)
+
+	t:eq(vp0.compare_index, 1)
+	t:eq(vp1.compare_index, 2)
+	t:lt(vp0, vp1)
+
+	local p05 = Point(0.5)
+	local vp05 = vis:newPoint(p05)
+
+	t:eq(vp05.compare_index, 3)
+	t:lt(vp0, vp1)
+	t:lt(vp0, vp05)
+	t:lt(vp05, vp1)
+
+	vis:sort()
+
+	t:eq(vp0.compare_index, 1)
+	t:eq(vp05.compare_index, 2)
+	t:eq(vp1.compare_index, 3)
+	t:lt(vp0, vp1)
+	t:lt(vp0, vp05)
+	t:lt(vp05, vp1)
+end
+
 return test

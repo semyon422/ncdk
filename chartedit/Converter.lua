@@ -194,6 +194,7 @@ function Converter:saveLayer(_layer, vp_map)
 			local vp = nVisualPoint(p)
 			vp._velocity = _vp._velocity
 			vp._expand = _vp._expand
+			vp.compare_index = i
 			vp_map[_vp] = vp
 			vps[i] = vp
 			p2vp[p] = vp
