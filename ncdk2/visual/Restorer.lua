@@ -22,25 +22,23 @@ function Restorer:restore(vps)
 		local vp = vps[i]
 		local next_vp = vps[i + 1]
 
-		---@type ncdk2.Interval?
-		local interval = next_vp.point.interval
-
 		local dvt = next_vp.visualTime - vp.visualTime
 		local dat = next_vp.point.absoluteTime - vp.point.absoluteTime
 
 		local cur_vel = dvt / dat
 
-		local duration = dvt
+		---@type ncdk2.Interval?
+		local interval = next_vp.point.interval
 		if interval then
-			duration = duration / interval:getBeatDuration()
+			dvt = dvt / interval:getBeatDuration()
 		end
 
 		if dat == 0 and dvt > 0 then
-			next_vp._expand = Expand(duration)
+			vp._expand = Expand(dvt)
 		elseif dat > 0 and cur_vel ~= vel then
 			if cur_vel > self.velocity_treshold then
 				vp._velocity = Velocity(0)
-				next_vp._expand = Expand(duration)
+				vp._expand = Expand(dvt)
 				vel = 0
 			else
 				vp._velocity = Velocity(cur_vel)

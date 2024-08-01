@@ -115,11 +115,12 @@ function Visual:compute()
 		end
 		visualPoint:setSpeeds(self:multiply(velocity, _tempo))
 
+		visualPoint.visualTime = visualTime
+		visualPoint.section = section
+
 		local expand = visualPoint._expand
 		if expand then
-			local clearCurrentSpeed = velocity and velocity.currentSpeed or 1
 			local duration = expand.duration
-			-- local duration = expand.duration * clearCurrentSpeed
 			if tempo then
 				duration = duration * tempo:getBeatDuration()
 			elseif interval then
@@ -133,9 +134,6 @@ function Visual:compute()
 				visualTime = visualTime + duration
 			end
 		end
-
-		visualPoint.visualTime = visualTime
-		visualPoint.section = section
 	end
 
 	local zero_vp = VisualPoint(Point(0))

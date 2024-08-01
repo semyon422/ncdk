@@ -29,7 +29,7 @@ function test.basic_expand(t)
 
 	Restorer:restore({vp0, vp1})
 
-	t:eq(vp1._expand.duration, 2)
+	t:eq(vp0._expand.duration, 2)
 end
 
 function test.velocity_single(t)

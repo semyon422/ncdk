@@ -52,7 +52,7 @@ function test.inf_expand(t)
 
 	local vp10 = vis:newPoint(Point(10))
 
-	vp2._expand = Expand(math.huge)
+	vp1._expand = Expand(math.huge)
 
 	vis:compute()
 
@@ -79,9 +79,9 @@ function test.inf_expand_back(t)
 
 	local vp10 = vis:newPoint(Point(10))
 
-	vp2._expand = Expand(math.huge)
-	vp3._expand = Expand(1)
-	vp4._expand = Expand(-math.huge)
+	vp1._expand = Expand(math.huge)
+	vp2._expand = Expand(1)
+	vp3._expand = Expand(-math.huge)
 
 	vis:compute()
 
@@ -175,7 +175,7 @@ function test.tempo_expand(t)
 	local vp0 = vis:newPoint(point)
 	local vp1 = vis:newPoint(point)
 
-	vp1._expand = Expand(1)  -- 1 beat
+	vp0._expand = Expand(1)  -- 1 beat
 
 	vis:compute()
 
@@ -191,7 +191,7 @@ function test.interval_expand(t)
 	local vp0 = vis:newPoint(point)
 	local vp1 = vis:newPoint(point)
 
-	vp1._expand = Expand(1)  -- 1 beat
+	vp0._expand = Expand(1)  -- 1 beat
 
 	vis:compute()
 

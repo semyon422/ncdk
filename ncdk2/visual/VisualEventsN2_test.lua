@@ -58,7 +58,7 @@ function test.expand(t)
 		vis:newPoint(Point(0)),
 		vis:newPoint(Point(100)),
 	}
-	vps[3]._expand = Expand(50)
+	vps[2]._expand = Expand(50)
 
 	vis:compute()
 
