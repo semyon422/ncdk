@@ -122,7 +122,7 @@ function Notes:isValid()
 	for column, t in pairs(weights) do
 		for _type, weight in pairs(t) do
 			if weight ~= 0 then
-				table.insert(errors, ("%s:%s"):format(column, _type))
+				table.insert(errors, ("%s:%s (%s)"):format(column, _type, weight))
 			end
 		end
 	end
