@@ -1,7 +1,6 @@
 local class = require("class")
 local table_util = require("table_util")
 local Point = require("ncdk2.tp.Point")
-local Visual = require("ncdk2.visual.Visual")
 
 ---@class ncdk2.Layer
 ---@operator call: ncdk2.Layer
@@ -26,6 +25,7 @@ function Layer:compute()
 		visual:compute()
 	end
 	table_util.clear(self.testPoint)
+	self:validate()
 end
 
 ---@param ... any
@@ -63,8 +63,18 @@ function Layer:validate()
 		local p = points[i]
 		local next_p = points[i + 1]
 		if p.absoluteTime == next_p.absoluteTime then
-			print(("points found with equal absoluteTime: %s, %s"):format(p, next_p))
-			print(p._interval, next_p._interval, p.absoluteTime, next_p.absoluteTime)
+			error(("time is equal: %s, %s"):format(p, next_p))
+		elseif p.absoluteTime > next_p.absoluteTime then
+			error(("time is not monotonic: %s, %s"):format(p, next_p))
+		end
+	end
+
+	local points_map = self.points
+	for _, visual in pairs(self.visuals) do
+		for _, visualPoint in ipairs(visual.points) do
+			if not points_map[tostring(visualPoint.point)] then
+				error(("missing Point for %s"):format(visualPoint))
+			end
 		end
 	end
 end

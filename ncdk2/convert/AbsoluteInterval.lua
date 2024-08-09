@@ -207,12 +207,7 @@ function AbsoluteInterval:convert(layer, fraction_mode)
 
 	for _, visual in pairs(layer.visuals) do
 		for _, visualPoint in ipairs(visual.points) do
-			local point_str = tostring(visualPoint.point)
-			local point = points_map[point_str]
-			if not point then
-				error(("%s not found"):format(point_str))  -- for debug
-			end
-			visualPoint.point = point
+			visualPoint.point = points_map[tostring(visualPoint.point)]
 		end
 	end
 
