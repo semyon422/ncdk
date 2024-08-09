@@ -21,9 +21,8 @@ local double_ptr = ffi.cast("double*", uint64_ptr)
 
 ---@return string
 function Point:getAbsoluteTimeKey()
-	local time = self.absoluteTime
-	double_ptr[0] = time
-	return ("%s[%s]"):format(bit.tohex(uint64_ptr[0]), time)
+	double_ptr[0] = self.absoluteTime
+	return bit.tohex(uint64_ptr[0])
 end
 
 ---@param point ncdk2.Point

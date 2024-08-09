@@ -11,7 +11,7 @@ local AbsolutePoint = Point + {}
 ---@param a ncdk2.AbsolutePoint
 ---@return string
 function AbsolutePoint.__tostring(a)
-	return ("AbsolutePoint(%s)"):format(a.absoluteTime)
+	return ("AbsolutePoint(%s)[%s]"):format(a.absoluteTime, a:getAbsoluteTimeKey())
 end
 
 ---@return number
