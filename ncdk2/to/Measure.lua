@@ -7,7 +7,7 @@ local Measure = class()
 
 Measure.offset = Fraction(0)
 
----@param offset ncdk.Fraction?
+---@param offset ncdk.Fraction
 function Measure:new(offset)
 	self.offset = offset
 end
