@@ -1,4 +1,4 @@
-local Refer = require("refchart.Refer")
+local RefChart = require("refchart.RefChart")
 local Fraction = require("ncdk.Fraction")
 local Chart = require("ncdk2.Chart")
 local AbsoluteLayer = require("ncdk2.layers.AbsoluteLayer")
@@ -34,9 +34,7 @@ function test.basic(t)
 
 	chart:compute()
 
-	local refer = Refer(chart)
-
-	local refchart = refer:ref()
+	local refchart = RefChart(chart)
 
 	t:tdeq(refchart, {
 		inputmode = {},
