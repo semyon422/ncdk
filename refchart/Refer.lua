@@ -15,7 +15,7 @@ function Refer:new(chart)
 	self.chart = chart
 end
 
----@return table
+---@return refchart.RefChart
 function Refer:ref()
 	local chart = self.chart
 
@@ -85,7 +85,8 @@ function Refer:refVisualPoints(visual, p_to_index, vp_ref, l_name, v_name)
 		_vp.point = p_index
 		if vp._expand then
 			_vp.expand = vp._expand.duration
-		elseif vp._velocity then
+		end
+		if vp._velocity then
 			_vp.velocity = {
 				vp._velocity.currentSpeed,
 				vp._velocity.localSpeed,
@@ -138,6 +139,7 @@ function Refer:refNotes(vp_ref)
 		_note.column = note.column
 		_note.type = note.type
 		_note.weight = note.weight
+		notes[i] = _note
 	end
 
 	return notes
