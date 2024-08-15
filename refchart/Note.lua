@@ -8,4 +8,13 @@ local class = require("class")
 ---@field weight integer
 local Note = class()
 
+---@param note ncdk2.Note
+---@param point refchart.VisualPointReference
+function Note:new(note, point)
+	self.point = point
+	self.column = note.column
+	self.type = note.type
+	self.weight = note.weight
+end
+
 return Note

@@ -1,6 +1,6 @@
 local class = require("class")
 local Layer = require("refchart.Layer")
-local Notes = require("refchart.Notes")
+local Note = require("refchart.Note")
 
 ---@class refchart.RefChart
 ---@operator call: refchart.RefChart
@@ -12,17 +12,21 @@ local RefChart = class()
 ---@param chart ncdk2.Chart
 function RefChart:new(chart)
 	self.inputmode = chart.inputMode
-	self.layers = {}
 
 	---@type {[ncdk2.VisualPoint]: refchart.VisualPointReference}
 	local vp_ref = {}
 
+	self.layers = {}
+	local layers = self.layers
 	for l_name, layer in pairs(chart.layers) do
-		local _layer = Layer(layer, l_name, vp_ref)
-		self.layers[l_name] = _layer
+		layers[l_name] = Layer(layer, l_name, vp_ref)
 	end
 
-	self.notes = Notes(chart.notes, vp_ref)
+	self.notes = {}
+	local notes = self.notes
+	for i, note in ipairs(chart.notes.notes) do
+		notes[i] = Note(note, vp_ref[note.visualPoint])
+	end
 end
 
 return RefChart

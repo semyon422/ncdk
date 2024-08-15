@@ -15,27 +15,10 @@ local Visual = class()
 function Visual:new(visual, p_to_index, vp_ref, l_name, v_name)
 	for i, vp in ipairs(visual.points) do
 		vp_ref[vp] = VisualPointReference(l_name, v_name, i)
-
-		local p = vp.point
-		---@cast p ncdk2.AbsolutePoint
-
-		local p_index = p_to_index[p]
-
-		local _vp = VisualPoint()
-
-		_vp.point = p_index
-		if vp._expand then
-			_vp.expand = vp._expand.duration
-		end
-		if vp._velocity then
-			_vp.velocity = {
-				vp._velocity.currentSpeed,
-				vp._velocity.localSpeed,
-				vp._velocity.globalSpeed,
-			}
-		end
-
-		self[i] = _vp
+		self[i] = VisualPoint(
+			vp,
+			p_to_index[vp.point --[[@as ncdk2.AbsolutePoint]]]
+		)
 	end
 end
 
