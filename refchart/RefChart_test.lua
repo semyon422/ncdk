@@ -8,6 +8,7 @@ local Measure = require("ncdk2.to.Measure")
 local Visual = require("ncdk2.visual.Visual")
 local Expand = require("ncdk2.visual.Expand")
 local Velocity = require("ncdk2.visual.Velocity")
+local Restorer = require("refchart.Restorer")
 
 local test = {}
 
@@ -34,9 +35,7 @@ function test.basic(t)
 
 	chart:compute()
 
-	local refchart = RefChart(chart)
-
-	t:tdeq(refchart, {
+	local test_refchart = {
 		inputmode = {},
 		layers = {
 			main = {
@@ -68,7 +67,16 @@ function test.basic(t)
 			type = "note",
 			weight = 0,
 		}},
-	})
+	}
+
+	local refchart = RefChart(chart)
+
+	t:tdeq(refchart, test_refchart)
+
+	local restorer = Restorer()
+	local _chart = restorer:restore(refchart)
+
+	t:tdeq(RefChart(_chart), test_refchart)
 end
 
 return test
