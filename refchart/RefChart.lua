@@ -7,6 +7,7 @@ local Note = require("refchart.Note")
 ---@field inputmode ncdk.InputMode
 ---@field layers {[string]: refchart.Layer}
 ---@field notes refchart.Note[]
+---@field resources string[][]
 local RefChart = class()
 
 ---@param chart ncdk2.Chart
@@ -26,6 +27,12 @@ function RefChart:new(chart)
 	local notes = self.notes
 	for i, note in ipairs(chart.notes.notes) do
 		notes[i] = Note(note, vp_ref[note.visualPoint])
+	end
+
+	self.resources = {}
+	local resources = self.resources
+	for _type, paths in chart.resources:iter() do
+		table.insert(resources, {_type, unpack(paths)})
 	end
 end
 

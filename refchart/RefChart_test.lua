@@ -33,6 +33,8 @@ function test.basic(t)
 
 	chart.notes:insert(note)
 
+	chart.resources:add("sound", "audio.ogg", "audio_fallback.ogg")
+
 	chart:compute()
 
 	local test_refchart = {
@@ -67,6 +69,9 @@ function test.basic(t)
 			type = "note",
 			weight = 0,
 		}},
+		resources = {
+			{"sound", "audio.ogg", "audio_fallback.ogg"},
+		}
 	}
 
 	local refchart = RefChart(chart)

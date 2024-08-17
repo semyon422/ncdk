@@ -70,6 +70,10 @@ function Restorer:restore(refchart)
 		chart.notes:insert(note)
 	end
 
+	for _, res in ipairs(refchart.resources) do
+		chart.resources:add(unpack(res))
+	end
+
 	chart:compute()
 
 	return chart
