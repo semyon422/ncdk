@@ -1,6 +1,6 @@
 local class = require("class")
 local InputMode = require("ncdk.InputMode")
-local ResourceList = require("ncdk.ResourceList")
+local Resources = require("ncdk.Resources")
 local Notes = require("ncdk2.notes.Notes")
 
 ---@class ncdk2.Chart
@@ -12,7 +12,7 @@ function Chart:new()
 	self.layers = {}
 	self.notes = Notes()
 	self.inputMode = InputMode()
-	self.resourceList = ResourceList()
+	self.resources = Resources()
 end
 
 ---@return ncdk2.Visual[]
