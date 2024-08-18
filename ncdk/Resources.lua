@@ -1,6 +1,6 @@
 local class = require("class")
 
----@alias ncdk.ResourceType "sound"|"image"
+---@alias ncdk.ResourceType "sound"|"image"|"ojm"
 
 ---@class ncdk.Resources
 ---@operator call: ncdk.Resources
