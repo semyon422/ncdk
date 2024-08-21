@@ -57,41 +57,50 @@ local function sort(a, b)
 	return a[1] < b[1]
 end
 
----@return table
+---@return {[1]: string, [2]: integer}[]
 function InputMode:getList()
+	---@type {[1]: string, [2]: integer}[]
 	local inputs = {}
 	for inputType, inputCount in pairs(self) do
-		inputs[#inputs + 1] = {inputType, inputCount}
+		table.insert(inputs, {inputType, inputCount})
 	end
 	table.sort(inputs, sort)
 	return inputs
 end
 
----@return table
+---@return ncdk2.Column[]
 function InputMode:getInputs()
-	local list = self:getList()
-	local inputs = {}
-	for _, input in ipairs(list) do
-		for i = 1, input[2] do
-			table.insert(inputs, input[1] .. i)
+	local inputs = self:getList()
+
+	---@type ncdk2.Column[]
+	local i2c = {}
+
+	for i = 1, #inputs do
+		for j = 1, inputs[i][2] do
+			table.insert(i2c, inputs[i][1] .. j)
 		end
 	end
-	return inputs
+
+	return i2c
 end
 
----@return table
+---@return {[ncdk2.Column]: integer}
 function InputMode:getInputMap()
 	local inputs = self:getList()
 
-	local map = {}
+	---@type {[ncdk2.Column]: integer}
+	local c2i = {}
+
+	local count = 0
 	for i = 1, #inputs do
 		for j = 1, inputs[i][2] do
-			map[#map + 1] = {inputs[i][1], j}
-			map[inputs[i][1] .. j] = #map
+			count = count + 1
+			local column = inputs[i][1] .. j
+			c2i[column] = count
 		end
 	end
 
-	return map
+	return c2i
 end
 
 ---@param a ncdk.InputMode
