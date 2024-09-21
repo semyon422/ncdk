@@ -105,4 +105,25 @@ function test.fractions(t)
 	t:eq(p_1._interval.offset, 1.75)
 end
 
+function test.single_point(t)
+	local conv = MeasureInterval()
+
+	local layer = MeasureLayer()
+
+	local p_0 = layer:getPoint(Fraction(0))
+	p_0._tempo = Tempo(120)
+
+	layer:compute()
+
+	conv:convert(layer)
+	---@cast layer -ncdk2.MeasureLayer, +ncdk2.IntervalLayer
+
+	---@type ncdk2.IntervalPoint[]
+	local points = layer:getPointList()
+
+	t:eq(#points, 2)
+	t:eq(points[1].time, Fraction(0))
+	t:eq(points[2].time, Fraction(1))
+end
+
 return test

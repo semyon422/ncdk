@@ -14,6 +14,10 @@ local MeasureInterval = class()
 function MeasureInterval:convertPoints(points)
 	---@type {[string]: ncdk2.IntervalPoint}
 	local points_map = {}
+	if #points == 0 then
+		return points_map
+	end
+
 	local absoluteTime = 0
 
 	---@type ncdk2.IntervalPoint
@@ -21,9 +25,11 @@ function MeasureInterval:convertPoints(points)
 
 	local prev_stop = false
 
+	---@type ncdk2.Tempo?
+	local _tempo
 	local stop_beats = 0
 	for _, p in ipairs(points) do
-		local _tempo = p._tempo
+		_tempo = p._tempo
 		local _stop = p._stop
 
 		if prev_stop then
@@ -45,9 +51,20 @@ function MeasureInterval:convertPoints(points)
 		end
 		last_point = p
 	end
+
+	-- Non empty MeasureLayer always have at least one Tempo object
+	---@cast _tempo ncdk2.Tempo
+
+	if #points == 1 then
+		last_point = IntervalPoint(last_point.time + 1)
+		points_map[tostring(last_point)] = last_point
+		absoluteTime = absoluteTime + _tempo:getBeatDuration()
+	end
+
 	if not last_point._interval then
 		last_point._interval = Interval(absoluteTime)
 	end
+
 	return points_map
 end
 
