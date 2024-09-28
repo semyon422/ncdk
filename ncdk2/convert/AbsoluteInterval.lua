@@ -12,6 +12,8 @@ local Fraction = require("ncdk.Fraction")
 local AbsoluteInterval = class()
 
 AbsoluteInterval.min_beat_duration = 0.080  -- 750 bpm, 1/16 = 5ms
+
+AbsoluteInterval.min_absolute_time = -24 * 60 * 60  -- -1 day
 AbsoluteInterval.max_absolute_time = 24 * 60 * 60  -- 1 day
 
 local default_denoms = {1, 2, 3, 4, 5, 6, 7, 8, 9, 12, 16}
@@ -163,12 +165,22 @@ function AbsoluteInterval:convert(layer, fraction_mode)
 
 	local prev_absoluteTime = 0
 
+	local min_time = math.huge
+	local max_time = -math.huge
+
+	-- fix for 1e300 time
+	local min_abs_time = self.min_absolute_time
+	local max_abs_time = self.max_absolute_time
 	for i, p in ipairs(points) do
-		local absoluteTime = p.absoluteTime
-		if absoluteTime >= self.max_absolute_time then  -- fix for 1e300 time
-			absoluteTime = prev_absoluteTime
+		local t = p.absoluteTime
+		if t >= min_abs_time and t <= max_abs_time then
+			min_time = math.min(min_time, t)
+			max_time = math.max(max_time, t)
 		end
-		prev_absoluteTime = absoluteTime
+	end
+
+	for i, p in ipairs(points) do
+		local absoluteTime = math.min(math.max(p.absoluteTime, min_time), max_time)
 
 		local tempo = assert(p.tempo)
 
