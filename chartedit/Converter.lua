@@ -108,6 +108,7 @@ function Converter:loadLayer(_layer, vp_map)
 			local vp = eVisualPoint(p)
 			vp._velocity = _vp._velocity
 			vp._expand = _vp._expand
+			vp.comment = _vp.comment
 			visual.p2vp[p] = vp
 			vp_map[_vp] = vp
 			vps[i] = vp
@@ -194,6 +195,7 @@ function Converter:saveLayer(_layer, vp_map)
 			local vp = nVisualPoint(p)
 			vp._velocity = _vp._velocity
 			vp._expand = _vp._expand
+			vp.comment = _vp.comment
 			vp.compare_index = i
 			vp_map[_vp] = vp
 			vps[i] = vp
