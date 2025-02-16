@@ -161,7 +161,7 @@ function Converter:saveLayer(_layer, vp_map)
 	local ivl_map = {}
 	---@type {[chartedit.Interval]: number}
 	local ivl_beats = {}
-	local ivl_total_beats = -first_point.time:ceil() + 1
+	local ivl_total_beats = 0
 	local ivls = table_util.to_array(first_point.interval)
 	for _, _ivl in ipairs(ivls) do
 		ivl_map[_ivl] = nInterval(_ivl.offset)
