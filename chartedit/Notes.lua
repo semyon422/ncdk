@@ -140,4 +140,30 @@ function Notes:iterLinked(start_time, end_time)
 	end)
 end
 
+---@param start_time number?
+---@param end_time number?
+---@return ncdk2.Note[]
+function Notes:getNotes(start_time, end_time)
+	---@type ncdk2.Note[]
+	local notes = {}
+	for note in self:iter(start_time, end_time) do
+		table.insert(notes, note)
+	end
+	table.sort(notes)
+	return notes
+end
+
+---@param start_time number?
+---@param end_time number?
+---@return ncdk2.LinkedNote[]
+function Notes:getLinkedNotes(start_time, end_time)
+	---@type ncdk2.LinkedNote[]
+	local notes = {}
+	for note in self:iterLinked(start_time, end_time) do
+		table.insert(notes, note)
+	end
+	table.sort(notes)
+	return notes
+end
+
 return Notes
