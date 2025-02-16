@@ -118,4 +118,34 @@ function test.int_close_to(t)
 	t:eq(p.absoluteTime, 2.25)
 end
 
+---@param t testing.T
+function test.global_time(t)
+	local points = Points()
+	points:initDefault()
+
+	local p0 = points:getFirstPoint()
+	local p10 = points:getLastPoint()
+	---@cast p0 -?
+	---@cast p10 -?
+
+	points:interpolateAbsolute(16, -1.5)
+	local p_15 = points:saveSearchPoint()
+
+	points:interpolateAbsolute(16, 3.5)
+	local p35 = points:saveSearchPoint()
+
+	points:interpolateAbsolute(16, 5)
+	local p50 = points:saveSearchPoint()
+
+	local intervals = Intervals(points)
+
+	intervals:splitInterval(p35)
+
+	t:eq(p_15:getGlobalTime(), Fraction(-3, 2))
+	t:eq(p0:getGlobalTime(), Fraction(0))
+	t:eq(p10:getGlobalTime(), Fraction(1))
+	t:eq(p35:getGlobalTime(), Fraction(7, 2))
+	t:eq(p50:getGlobalTime(), Fraction(5))
+end
+
 return test

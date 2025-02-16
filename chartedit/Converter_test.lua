@@ -163,4 +163,48 @@ input 4key
 	t:tdeq(_nlayer, nlayer)
 end
 
+function test.sph_global_time(t)
+	local s = [[
+# metadata
+input 4key
+
+# notes
+- =-1
+1000
+1000 +1/2
+-
+-
+- =0
+- =1
+-
+-
+1000
+1000 +1/2
+- =2
+]]
+
+	local dec = ChartDecoder()
+
+	local chart = dec:decode(s)[1]
+
+	local _layers, _notes = Converter:load(chart)
+
+	local notes = chart.notes:getNotes()
+	---@type ncdk2.Note[]
+	local enotes = {}
+	for n in _notes:iter() do
+		table.insert(enotes, n)
+	end
+
+	t:eq(#notes, 4)
+
+	for i, n in ipairs(notes) do
+		local a = n.visualPoint.point
+		local b = enotes[i].visualPoint.point
+		---@cast a ncdk2.IntervalPoint
+		---@cast b chartedit.Point
+		t:eq(a.time, b:getGlobalTime())
+	end
+end
+
 return test

@@ -55,6 +55,17 @@ function Point:getBeatModulo()
 	return (self.time + measure.offset) % 1
 end
 
+---@return ncdk.Fraction
+function Point:getGlobalTime()
+	local beat_offset = 0
+	local ivl = self.interval.prev
+	while ivl do
+		beat_offset = beat_offset + ivl.beats
+		ivl = ivl.prev
+	end
+	return self.time + beat_offset
+end
+
 ---@param interval chartedit.Interval
 ---@param time ncdk.Fraction
 ---@return chartedit.Interval

@@ -117,6 +117,9 @@ function test.split_after_merge_before(t)
 
 	local p0 = p25.prev
 	local p100 = p75.next
+	---@cast p0 -?
+	---@cast p100 -?
+
 	t:assert(p0._interval)
 	t:assert(p100._interval)
 
@@ -143,6 +146,33 @@ function test.split_after_merge_before(t)
 	t:eq(p50.interval, p50._interval)
 	t:eq(p75.interval, p50._interval)
 	t:eq(p100.interval, p100._interval)
+end
+
+---@param t testing.T
+function test.beats(t)
+	local points = Points()
+	points:initDefault()
+
+	local p0 = points:getFirstPoint()
+	local p10 = points:getLastPoint()
+	---@cast p0 -?
+	---@cast p10 -?
+
+	points:interpolateAbsolute(16, -1.5)
+	local p_15 = points:saveSearchPoint()
+
+	points:interpolateAbsolute(16, 3.5)
+	local p35 = points:saveSearchPoint()
+
+	local intervals = Intervals(points)
+
+	intervals:splitInterval(p_15)
+	intervals:splitInterval(p35)
+
+	t:eq(p_15._interval.beats, 2)
+	t:eq(p0._interval.beats, 1)
+	t:eq(p10._interval.beats, 2)
+	t:eq(p35._interval.beats, 1)
 end
 
 return test
