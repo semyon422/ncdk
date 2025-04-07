@@ -24,6 +24,10 @@ end
 function test.sph_early_frac(t)
 	local s = [[
 # metadata
+title Title
+artist Artist
+name Name
+creator Creator
 input 4key
 
 # notes
@@ -38,7 +42,7 @@ input 4key
 	local dec = ChartDecoder()
 
 	do
-		local chart = dec:decode(s)[1]
+		local chart = dec:decode(s)[1].chart
 
 		local _layers, _notes = Converter:load(chart)
 
@@ -56,7 +60,7 @@ input 4key
 	end
 
 	do
-		local chart = dec:decode(s)[1]
+		local chart = dec:decode(s)[1].chart
 
 		local nlayer = chart.layers.main
 		local layer = Converter:loadLayer(nlayer, {})
@@ -70,6 +74,10 @@ end
 function test.sph_early_int(t)
 	local s = [[
 # metadata
+title Title
+artist Artist
+name Name
+creator Creator
 input 4key
 
 # notes
@@ -84,7 +92,7 @@ input 4key
 	local dec = ChartDecoder()
 
 	do
-		local chart = dec:decode(s)[1]
+		local chart = dec:decode(s)[1].chart
 
 		local _layers, _notes = Converter:load(chart)
 
@@ -102,7 +110,7 @@ input 4key
 	end
 
 	do
-		local chart = dec:decode(s)[1]
+		local chart = dec:decode(s)[1].chart
 
 		local nlayer = chart.layers.main
 		local layer = Converter:loadLayer(nlayer, {})
@@ -116,6 +124,10 @@ end
 function test.sph_frac_offset(t)
 	local s = [[
 # metadata
+title Title
+artist Artist
+name Name
+creator Creator
 input 4key
 
 # notes
@@ -129,7 +141,7 @@ input 4key
 ]]
 
 	local dec = ChartDecoder()
-	local chart = dec:decode(s)[1]
+	local chart = dec:decode(s)[1].chart
 
 	local nlayer = chart.layers.main
 	local layer = Converter:loadLayer(nlayer, {})
@@ -142,6 +154,10 @@ end
 function test.sph_sv(t)
 	local s = [[
 # metadata
+title Title
+artist Artist
+name Name
+creator Creator
 input 4key
 
 # notes
@@ -153,7 +169,7 @@ input 4key
 ]]
 
 	local dec = ChartDecoder()
-	local chart = dec:decode(s)[1]
+	local chart = dec:decode(s)[1].chart
 
 	local nlayer = chart.layers.main
 	local layer = Converter:loadLayer(nlayer, {})
@@ -166,6 +182,10 @@ end
 function test.sph_global_time(t)
 	local s = [[
 # metadata
+title Title
+artist Artist
+name Name
+creator Creator
 input 4key
 
 # notes
@@ -185,7 +205,7 @@ input 4key
 
 	local dec = ChartDecoder()
 
-	local chart = dec:decode(s)[1]
+	local chart = dec:decode(s)[1].chart
 
 	local _layers, _notes = Converter:load(chart)
 
