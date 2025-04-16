@@ -29,7 +29,7 @@ function test.basic(t)
 	vp._velocity = Velocity(2, 3, 4)
 	vp._expand = Expand(1)
 
-	local note = Note(vp, "key1", "note", 0)
+	local note = Note(vp, "key1", "tap", 0)
 
 	chart.notes:insert(note)
 
@@ -66,7 +66,7 @@ function test.basic(t)
 				layer = "main",
 				visual = "main",
 			},
-			type = "note",
+			type = "tap",
 			weight = 0,
 		}},
 		resources = {
