@@ -1,4 +1,5 @@
 local class = require("class")
+local valid = require("valid")
 local table_util = require("table_util")
 
 ---@alias ncdk2.NoteType string
@@ -13,11 +14,13 @@ Note.weight = 0
 ---@param column ncdk2.Column
 ---@param _type ncdk2.NoteType
 ---@param weight integer
-function Note:new(visualPoint, column, _type, weight)
+---@param data table
+function Note:new(visualPoint, column, _type, weight, data)
 	self.visualPoint = assert(visualPoint, "missing visualPoint")
 	self.column = assert(column, "missing column")
 	self.type = _type
 	self.weight = weight
+	self.data = data or {}
 end
 
 ---@return ncdk2.Note
@@ -70,6 +73,20 @@ end
 ---@return boolean
 function Note.__lt(a, b)
 	return a.visualPoint < b.visualPoint or a.visualPoint == b.visualPoint and a.column < b.column
+end
+
+local validate_note = valid.struct({
+	visualPoint = valid.any,
+	column = valid.any,
+	type = valid.any,
+	weight = valid.any,
+	data = valid.any,
+})
+
+---@return boolean?
+---@return string?
+function Note:validate()
+	return valid.format(validate_note(self))
 end
 
 return Note

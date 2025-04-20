@@ -1,4 +1,5 @@
 local class = require("class")
+local table_util = require("table_util")
 local LinkedNote = require("ncdk2.notes.LinkedNote")
 
 ---@alias ncdk2.Column string
@@ -72,6 +73,7 @@ end
 ---@param note ncdk2.Note
 function Notes:insert(note)
 	assert(note, "missing note")
+	assert(note:validate())
 	table.insert(self.notes, note)
 
 	local column = note.column
@@ -104,7 +106,12 @@ function Notes:isValid()
 		---@cast vp ncdk2.VisualPoint
 		local check_note = point_notes[vp] and point_notes[vp][column]
 		if check_note ~= note then
-			return false, ("note was mutated: %s"):format(note)
+			return nil, ("note was mutated: %s"):format(note)
+		end
+
+		local valid, err = note:validate()
+		if not valid then
+			return nil, err
 		end
 	end
 
@@ -129,7 +136,7 @@ function Notes:isValid()
 	if #errors == 0 then
 		return true
 	end
-	return false, "non-zero weights in " .. table.concat(errors, ", ")
+	return nil, "non-zero weights in " .. table.concat(errors, ", ")
 end
 
 ---@param notes ncdk2.Note[]
