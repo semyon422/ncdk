@@ -15,6 +15,8 @@ local test = {}
 function test.basic(t)
 	local chart = Chart()
 
+	chart.inputMode:set("4key")
+
 	local layer = AbsoluteLayer()
 	chart.layers.main = layer
 
@@ -25,20 +27,24 @@ function test.basic(t)
 	p._tempo = Tempo(120)
 	p._measure = Measure(Fraction(1, 2))
 
-	local vp = visual:getPoint(p)
-	vp._velocity = Velocity(2, 3, 4)
-	vp._expand = Expand(1)
+	local vp_1 = visual:getPoint(p)
+	vp_1._velocity = Velocity(2, 3, 4)
+	vp_1._expand = Expand(1)
 
-	local note = Note(vp, "key1", "tap", 0, {sounds = {{"hit.ogg", 0.1}}})
+	local note_1 = Note(vp_1, "key1", "tap", 0, {sounds = {{"hit.ogg", 0.1}}})
+	chart.notes:insert(note_1)
 
-	chart.notes:insert(note)
+	local vp_2 = visual:newPoint(p)
+
+	local note_2 = Note(vp_2, "key1", "tap", 0)
+	chart.notes:insert(note_2)
 
 	chart.resources:add("sound", "audio.ogg", "audio_fallback.ogg")
 
 	chart:compute()
 
 	local test_refchart = {
-		inputmode = {},
+		inputmode = {key = 4},
 		layers = {
 			main = {
 				points = {
@@ -52,26 +58,44 @@ function test.basic(t)
 					main = {
 						primaryTempo = 0,
 						tempoMultiplyTarget = "current",
-						points = {{
-							expand = 1,
-							point = 1,
-							velocity = {2, 3, 4},
-						}},
+						points = {
+							{
+								point = 1,
+								expand = 1,
+								velocity = {2, 3, 4},
+							},
+							{
+								point = 1
+							},
+						},
 					},
 				},
 			},
 		},
-		notes = {{
-			column = "key1",
-			point = {
-				index = 1,
-				layer = "main",
-				visual = "main",
+		notes = {
+			{
+				point = {
+					index = 1,
+					layer = "main",
+					visual = "main",
+				},
+				column = "key1",
+				type = "tap",
+				weight = 0,
+				data = {sounds = {{"hit.ogg", 0.1}}},
 			},
-			type = "tap",
-			weight = 0,
-			data = {sounds = {{"hit.ogg", 0.1}}},
-		}},
+			{
+				point = {
+					index = 2,
+					layer = "main",
+					visual = "main",
+				},
+				column = "key1",
+				type = "tap",
+				weight = 0,
+				data = {},
+			}
+		},
 		resources = {
 			{"sound", "audio.ogg", "audio_fallback.ogg"},
 		}

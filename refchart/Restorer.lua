@@ -1,5 +1,6 @@
 local class = require("class")
 local Fraction = require("ncdk.Fraction")
+local InputMode = require("ncdk.InputMode")
 local Chart = require("ncdk2.Chart")
 local AbsoluteLayer = require("ncdk2.layers.AbsoluteLayer")
 local Note = require("ncdk2.notes.Note")
@@ -17,6 +18,8 @@ local Restorer = class()
 ---@return ncdk2.Chart
 function Restorer:restore(refchart)
 	local chart = Chart()
+
+	chart.inputMode = InputMode(refchart.inputmode)
 
 	---@type {[string]: {[string]: ncdk2.VisualPoint[]}}
 	local ps = {}
@@ -54,7 +57,7 @@ function Restorer:restore(refchart)
 
 			for j, _vp in ipairs(_visual.points) do
 				local p = points[_vp.point]
-				local vp = visual:getPoint(p)
+				local vp = visual:newPoint(p)
 				vis[j] = vp
 				if _vp.velocity then
 					vp._velocity = Velocity(unpack(_vp.velocity))
