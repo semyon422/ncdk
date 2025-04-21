@@ -15,6 +15,7 @@ function Note:new(note, point)
 	self.column = note.column
 	self.type = note.type
 	self.weight = note.weight
+	self.data = note.data
 end
 
 return Note

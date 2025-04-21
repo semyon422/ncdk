@@ -5,7 +5,7 @@ local Visual = require("refchart.Visual")
 ---@class refchart.Layer
 ---@operator call: refchart.Layer
 ---@field points refchart.Point[]
----@field visuals {[string]: refchart.VisualPoint[]}
+---@field visuals {[string]: refchart.Visual}
 local Layer = class()
 
 ---@param layer ncdk2.Layer

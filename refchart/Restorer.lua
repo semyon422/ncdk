@@ -49,7 +49,10 @@ function Restorer:restore(refchart)
 			local visual = Visual()
 			layer.visuals[v_name] = visual
 
-			for j, _vp in ipairs(_visual) do
+			visual.primaryTempo = _visual.primaryTempo
+			visual.tempoMultiplyTarget = _visual.tempoMultiplyTarget
+
+			for j, _vp in ipairs(_visual.points) do
 				local p = points[_vp.point]
 				local vp = visual:getPoint(p)
 				vis[j] = vp
@@ -66,7 +69,7 @@ function Restorer:restore(refchart)
 	for _, _note in ipairs(refchart.notes) do
 		local vp_ref = _note.point
 		local vp = ps[vp_ref.layer][vp_ref.visual][vp_ref.index]
-		local note = Note(vp, _note.column, _note.type, _note.weight)
+		local note = Note(vp, _note.column, _note.type, _note.weight, _note.data)
 		chart.notes:insert(note)
 	end
 

@@ -29,7 +29,7 @@ function test.basic(t)
 	vp._velocity = Velocity(2, 3, 4)
 	vp._expand = Expand(1)
 
-	local note = Note(vp, "key1", "tap", 0)
+	local note = Note(vp, "key1", "tap", 0, {sounds = {{"hit.ogg", 0.1}}})
 
 	chart.notes:insert(note)
 
@@ -50,11 +50,13 @@ function test.basic(t)
 				},
 				visuals = {
 					main = {
-						{
+						primaryTempo = 0,
+						tempoMultiplyTarget = "current",
+						points = {{
 							expand = 1,
 							point = 1,
 							velocity = {2, 3, 4},
-						},
+						}},
 					},
 				},
 			},
@@ -68,6 +70,7 @@ function test.basic(t)
 			},
 			type = "tap",
 			weight = 0,
+			data = {sounds = {{"hit.ogg", 0.1}}},
 		}},
 		resources = {
 			{"sound", "audio.ogg", "audio_fallback.ogg"},
