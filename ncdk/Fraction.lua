@@ -128,7 +128,7 @@ function Fraction:new(n, d, round)
 	n, d = _n, _d
 
 	if d % 1 ~= 0 or d == 0 then
-		error(("invalid denominator: %s"):format(d))
+		error(("invalid denominator: %0.20g (d %% 1 = %0.20g)"):format(d, d % 1))
 	end
 
 	if round ~= nil then
