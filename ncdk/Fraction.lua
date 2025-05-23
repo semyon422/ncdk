@@ -127,8 +127,9 @@ function Fraction:new(n, d, round)
 	end
 	n, d = _n, _d
 
-	if d % 1 ~= 0 or d == 0 then
-		error(("invalid denominator: %0.20g (d %% 1 = %0.20g)"):format(d, d % 1))
+	-- strange bug was here in openresty environment
+	if floor(d) ~= d then
+		error(("invalid denominator: %0.20g"):format(d))
 	end
 
 	if round ~= nil then

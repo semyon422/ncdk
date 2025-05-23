@@ -100,7 +100,10 @@ function test.basic(t)
 	t:eq(Fraction(0, 16, "closest_gte"), Fraction(0, 1))
 	t:eq(Fraction(0, 16, "closest_lte"), Fraction(0, 1))
 
-	t:eq(t:has_error(Fraction, 0, 1.1), "invalid denominator: 1.1000000000000000888 (d % 1 = 0.10000000000000008882)")
+	t:eq(
+		t:has_error(Fraction, 0, 1.1),
+		"invalid denominator: 1.1000000000000000888"
+	)
 end
 
 return test
