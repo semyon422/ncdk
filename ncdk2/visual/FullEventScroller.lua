@@ -6,7 +6,7 @@ local EventScroller = require("ncdk2.visual.EventScroller")
 ---@operator call: ncdk2.FullEventScroller
 local FullEventScroller = class()
 
-local start_po2 = -1  -- 0.5s
+local start_po2 = -1 -- 0.5s
 
 ---@param points ncdk2.VisualPoint[]
 function FullEventScroller:generate(points)
@@ -50,7 +50,7 @@ function FullEventScroller:getVisualDuration(points)
 end
 
 ---@param currentTime number
----@param f fun(vp: ncdk2.VisualPoint, action: -1|1)
+---@param f fun(vp: ncdk2.VisualPoint, action: -1|1)?
 function FullEventScroller:scroll(currentTime, f)
 	local scrollers = self.scrollers
 	local scroller_index = self.scroller_index
@@ -68,8 +68,8 @@ end
 ---@return {[ncdk2.VisualPoint]: true}
 ---@return {[ncdk2.VisualPoint]: true}
 local function map_update(_new, _old)
-	local old = {}
-	local new = {}
+	---@type {[ncdk2.VisualPoint]: true}, {[ncdk2.VisualPoint]: true}
+	local old, new = {}, {}
 	for v in pairs(_new) do
 		if not _old[v] then
 			new[v] = true
@@ -89,16 +89,16 @@ function FullEventScroller:scale(range, f)
 	local scrollers = self.scrollers
 
 	local index = self.scroller_index
-	local new_index = math.ceil(math.log(range, 2)) + 1
+	local new_index = math.ceil(math.log(range, 2))
 	new_index = math.min(math.max(new_index, start_po2), self.end_po2)
 	if new_index == index then
 		return
 	end
 
-	self.scroller_index = new_index
-
 	local points = scrollers[index].visible_points
 	local new_points = scrollers[new_index].visible_points
+
+	self.scroller_index = new_index
 
 	local new_ps, old_ps = map_update(new_points, points)
 	for vp in pairs(old_ps) do

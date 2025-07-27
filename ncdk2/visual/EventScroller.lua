@@ -4,31 +4,37 @@ local class = require("class")
 ---@operator call: ncdk2.EventScroller
 local EventScroller = class()
 
+---@param action -1|1
+---@return true?
+local function true_from_action(action)
+	if action == 1 then
+		return true
+	end
+end
+
 ---@param events ncdk2.VisualEvent[]
 function EventScroller:new(events)
 	self.events = events
 	self.offset = 0
 
+	--- Only used by FullEventScroller
 	---@type {[ncdk2.VisualPoint]: true}
 	self.visible_points = {}
 end
 
----@param currentTime number
+---@param time number
 ---@param f fun(vp: ncdk2.VisualPoint, action: -1|1)?
-function EventScroller:scroll(currentTime, f)
+function EventScroller:scroll(time, f)
 	local events = self.events
 	local visible_points = self.visible_points
 
 	local event = events[self.offset + 1]
-	while event and event.time <= currentTime do
+	while event and event.time <= time do
+		local p, a = event.point, event.action
 		if f then
-			f(event.point, event.action)
+			f(p, a)
 		end
-		if event.action == 1 then
-			visible_points[event.point] = true
-		else
-			visible_points[event.point] = nil
-		end
+		visible_points[p] = true_from_action(a)
 		self.offset = self.offset + 1
 		event = events[self.offset + 1]
 	end
