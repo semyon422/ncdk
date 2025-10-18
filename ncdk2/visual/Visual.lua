@@ -147,6 +147,7 @@ function Visual:compute()
 
 	for _, vp in ipairs(points) do
 		vp.visualTime = vp.visualTime - zero_vp.visualTime
+		vp.monotonicVisualTime = vp.monotonicVisualTime - zero_vp.monotonicVisualTime
 	end
 end
 

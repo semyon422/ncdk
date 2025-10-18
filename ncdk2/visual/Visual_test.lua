@@ -24,6 +24,9 @@ function test.basic(t)
 	t:eq(vp1.visualTime, 2)
 	t:eq(vp2.visualTime, 4)
 	t:eq(vp3.visualTime, 7)
+
+	t:eq(vp0.monotonicVisualTime, -2)
+	t:eq(vp3.monotonicVisualTime, 7)
 end
 
 function test.no_zero_point(t)
@@ -38,6 +41,9 @@ function test.no_zero_point(t)
 
 	t:eq(vp1.visualTime, -1)
 	t:eq(vp2.visualTime, 1)
+
+	t:eq(vp1.monotonicVisualTime, -1)
+	t:eq(vp2.monotonicVisualTime, 1)
 end
 
 function test.inf_expand(t)
