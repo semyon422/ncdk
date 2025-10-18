@@ -8,6 +8,7 @@ local IVisualPoint = require("ncdk2.visual.IVisualPoint")
 local VisualPoint = IVisualPoint + {}
 
 VisualPoint.visualTime = 0
+VisualPoint.monotonicVisualTime = 0
 VisualPoint.section = 0
 VisualPoint.currentSpeed = 1
 VisualPoint.localSpeed = 1
@@ -47,8 +48,8 @@ function VisualPoint:compare(vp)
 	if self.section ~= vp.section then
 		return self.section < vp.section
 	end
-	if self.visualTime ~= vp.visualTime then
-		return self.visualTime < vp.visualTime
+	if self.monotonicVisualTime ~= vp.monotonicVisualTime then
+		return self.monotonicVisualTime < vp.monotonicVisualTime
 	end
 	if self.point.absoluteTime ~= vp.point.absoluteTime then
 		return self.point.absoluteTime < vp.point.absoluteTime

@@ -1,3 +1,4 @@
+local math_util = require("math_util")
 local Interpolator = require("ncdk2.Interpolator")
 
 ---@class ncdk2.VisualInterpolator: ncdk2.Interpolator
@@ -27,9 +28,13 @@ function VisualInterpolator:interpolate(list, index, vp, mode)
 	local vp_p = vp.point
 
 	if mode == "absolute" then
-		vp.visualTime = a.visualTime + (vp_p.absoluteTime - a_p.absoluteTime) * a.currentSpeed
+		local da = vp_p.absoluteTime - a_p.absoluteTime
+		vp.visualTime = a.visualTime + da * a.currentSpeed
+		vp.monotonicVisualTime = a.monotonicVisualTime + da * math.abs(a.currentSpeed)
 	elseif mode == "visual" then
-		vp_p.absoluteTime = a_p.absoluteTime + (vp.visualTime - a.visualTime) / a.currentSpeed
+		local dm = vp.monotonicVisualTime - a.monotonicVisualTime
+		vp.visualTime = a.visualTime + dm / math_util.sign(a.currentSpeed)
+		vp_p.absoluteTime = a_p.absoluteTime + dm / math.abs(a.currentSpeed)
 	end
 
 	vp.section = a.section

@@ -89,6 +89,7 @@ function Visual:compute()
 	local _tempo = self.primaryTempo  -- ok for first point
 
 	local visualTime = 0
+	local monotonicVisualTime = 0
 	local absoluteTime = points[1].point.absoluteTime
 	for _, visualPoint in ipairs(points) do
 		---@type ncdk2.Point|ncdk2.AbsolutePoint|ncdk2.MeasurePoint|ncdk2.IntervalPoint
@@ -106,7 +107,11 @@ function Visual:compute()
 		end
 
 		local _absoluteTime = point.absoluteTime
-		visualTime = visualTime + (_absoluteTime - absoluteTime) * _currentSpeed
+
+		local visualDeltaTime = (_absoluteTime - absoluteTime) * _currentSpeed
+		visualTime = visualTime + visualDeltaTime
+		monotonicVisualTime = monotonicVisualTime + math.abs(visualDeltaTime)
+
 		absoluteTime = _absoluteTime
 
 		local _velocity = visualPoint._velocity
@@ -116,6 +121,7 @@ function Visual:compute()
 		visualPoint:setSpeeds(self:multiply(velocity, _tempo))
 
 		visualPoint.visualTime = visualTime
+		visualPoint.monotonicVisualTime = monotonicVisualTime
 		visualPoint.section = section
 
 		local expand = visualPoint._expand
