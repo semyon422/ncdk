@@ -42,7 +42,7 @@ function Chart:compute()
 	for _, layer in pairs(self.layers) do
 		layer:compute()
 	end
-	self.notes:sort()
+	self.notes:compute()
 	assert(self.notes:isValid())
 end
 

@@ -6,11 +6,15 @@ local LinkedNote = require("ncdk2.notes.LinkedNote")
 
 ---@class ncdk2.Notes
 ---@operator call: ncdk2.Notes
----@field notes ncdk2.Note[]
 local Notes = class()
 
 function Notes:new()
+	---@type ncdk2.Note[]
 	self.notes = {}
+
+	---@type ncdk2.LinkedNote[]
+	self.linked_notes = {}
+
 	---@type {[ncdk2.VisualPoint]: {[ncdk2.Column]: ncdk2.Note}}
 	self.point_notes = {}
 end
@@ -29,7 +33,7 @@ end
 
 ---@return ncdk2.LinkedNote[]
 function Notes:getLinkedNotes()
-	return self:link(self.notes)
+	return self.linked_notes
 end
 
 ---@return {[ncdk2.Column]: ncdk2.Note[]}
@@ -54,8 +58,9 @@ function Notes:getColumnLinkedNotes()
 	return _notes
 end
 
-function Notes:sort()
+function Notes:compute()
 	table.sort(self.notes)
+	self.linked_notes = self:link(self.notes)
 end
 
 ---@param vp ncdk2.IVisualPoint
