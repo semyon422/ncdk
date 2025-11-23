@@ -110,6 +110,8 @@ end
 ---@operator mod: ncdk.Fraction
 ---@operator unm: ncdk.Fraction
 ---@operator concat: string
+---@field [1] number
+---@field [2] number
 local Fraction = class()
 
 ---@param n number|table|ncdk.Fraction?
