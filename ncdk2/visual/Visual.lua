@@ -182,10 +182,27 @@ function Visual:multiply(velocity, tempo)
 	return currentSpeed, localSpeed, globalSpeed
 end
 
-function Visual:generateEvents()
-	local fes = FullEventScroller()
-	fes:generate(self.points)
-	self.scroller = fes
+function Visual:isForwardOnly()
+	for _, vp in ipairs(self.points) do
+		if vp.currentSpeed < 0 then
+			return false
+		end
+	end
+	return true
+end
+
+local MonotonicEventScroller = require("ncdk2.visual.MonotonicEventScroller")
+
+---@param lazy boolean?
+function Visual:generateEvents(lazy)
+	if self:isForwardOnly() then
+		local scroller = MonotonicEventScroller(self)
+		self.scroller = scroller
+	else
+		local fes = FullEventScroller()
+		fes:generate(self.points, lazy)
+		self.scroller = fes
+	end
 end
 
 return Visual
