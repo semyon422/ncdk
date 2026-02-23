@@ -9,30 +9,48 @@ local FullEventScroller = class()
 local start_po2 = -1 -- 0.5s
 
 ---@param points ncdk2.VisualPoint[]
-function FullEventScroller:generate(points)
+---@param lazy boolean?
+function FullEventScroller:generate(points, lazy)
+	self.points = points
 	local duration = self:getVisualDuration(points)
 	local end_po2 = start_po2
 	if duration > 0 then
 		end_po2 = math.max(math.ceil(math.log(duration, 2)), start_po2)
 	end
 
-	local ve = VisualEvents()
+	self.ve = VisualEvents()
 
 	---@type ncdk2.EventScroller[]
-	local scrollers = {}
-	self.scrollers = scrollers
-
-	for i = start_po2, end_po2 do
-		local range = 2 ^ i
-		if i == end_po2 then
-			range = math.huge
-		end
-		local events = ve:generate(points, {-range, range})
-		scrollers[i] = EventScroller(events)
-	end
-
+	self.scrollers = {}
 	self.end_po2 = end_po2
 	self.scroller_index = start_po2
+
+	if not lazy then
+		for i = start_po2, end_po2 do
+			self:getScroller(i)
+		end
+	else
+		self:getScroller(start_po2)
+	end
+end
+
+---@param index integer
+---@return ncdk2.EventScroller
+function FullEventScroller:getScroller(index)
+	local scrollers = self.scrollers
+	if not scrollers[index] then
+		local range = 2 ^ index
+		if index == self.end_po2 then
+			range = math.huge
+		end
+		local events = self.ve:generate(self.points, {-range, range})
+		local scroller = EventScroller(events)
+		scrollers[index] = scroller
+		if self.currentTime then
+			scroller:scroll(self.currentTime)
+		end
+	end
+	return scrollers[index]
 end
 
 ---@param points ncdk2.VisualPoint[]
@@ -52,13 +70,14 @@ end
 ---@param currentTime number
 ---@param f fun(vp: ncdk2.VisualPoint, action: -1|1)?
 function FullEventScroller:scroll(currentTime, f)
+	self.currentTime = currentTime
 	local scrollers = self.scrollers
 	local scroller_index = self.scroller_index
-	for i = start_po2, self.end_po2 do
+	for i, scroller in pairs(scrollers) do
 		if i == scroller_index then
-			scrollers[i]:scroll(currentTime, f)
+			scroller:scroll(currentTime, f)
 		else
-			scrollers[i]:scroll(currentTime)
+			scroller:scroll(currentTime)
 		end
 	end
 end
@@ -86,8 +105,6 @@ end
 ---@param range number
 ---@param f fun(vp: ncdk2.VisualPoint, action: -1|1)
 function FullEventScroller:scale(range, f)
-	local scrollers = self.scrollers
-
 	local index = self.scroller_index
 	local new_index = math.ceil(math.log(range, 2))
 	new_index = math.min(math.max(new_index, start_po2), self.end_po2)
@@ -95,12 +112,12 @@ function FullEventScroller:scale(range, f)
 		return
 	end
 
-	local points = scrollers[index].visible_points
-	local new_points = scrollers[new_index].visible_points
+	local old_scroller = self:getScroller(index)
+	local new_scroller = self:getScroller(new_index)
 
 	self.scroller_index = new_index
 
-	local new_ps, old_ps = map_update(new_points, points)
+	local new_ps, old_ps = map_update(new_scroller.visible_points, old_scroller.visible_points)
 	for vp in pairs(old_ps) do
 		f(vp, -1)
 	end
