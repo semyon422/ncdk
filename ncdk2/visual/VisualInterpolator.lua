@@ -12,15 +12,15 @@ local function ext_point(p)
 end
 
 ---@param list ncdk2.VisualPoint[]
----@param index number
 ---@param vp ncdk2.VisualPoint
 ---@param mode "absolute"|"visual"
----@return number
-function VisualInterpolator:interpolate(list, index, vp, mode)
+function VisualInterpolator:interpolate(list, vp, mode)
+	---@type integer
+	local index
 	if mode == "absolute" then
-		index = self:getBaseIndex(list, index, vp, ext_point)
+		index = self:getBaseIndex(list, vp, ext_point)
 	else
-		index = self:getBaseIndex(list, index, vp)
+		index = self:getBaseIndex(list, vp)
 	end
 
 	local a = list[index]

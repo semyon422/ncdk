@@ -26,13 +26,13 @@ function test.absolute(t)
 
 	local vp = VisualPoint(Point(0.5))
 
-	local index = itp:interpolate(visualPoints, 1, vp, "absolute")
+	local index = itp:interpolate(visualPoints, vp, "absolute")
 	t:eq(index, 1)
 	t:eq(vp.visualTime, 3)
 	t:eq(vp.monotonicVisualTime, 3)
 
 	vp.point.absoluteTime = -1
-	index = itp:interpolate(visualPoints, 1, vp, "absolute")
+	index = itp:interpolate(visualPoints, vp, "absolute")
 	t:eq(index, 1)
 	t:eq(vp.visualTime, 0)
 	t:eq(vp.monotonicVisualTime, 0)
@@ -61,13 +61,13 @@ function test.visual(t)
 	local vp = VisualPoint(Point())
 	vp.monotonicVisualTime = 3
 
-	local index = itp:interpolate(visualPoints, 1, vp, "visual")
+	local index = itp:interpolate(visualPoints, vp, "visual")
 	t:eq(index, 1)
 	t:eq(vp.point.absoluteTime, 0.5)
 	t:eq(vp.visualTime, 3)
 
 	vp.monotonicVisualTime = 0
-	index = itp:interpolate(visualPoints, 1, vp, "visual")
+	index = itp:interpolate(visualPoints, vp, "visual")
 	t:eq(index, 1)
 	t:eq(vp.point.absoluteTime, -1)
 	t:eq(vp.visualTime, 0)
@@ -87,13 +87,13 @@ function test.sections(t)
 	end
 
 	local vp = VisualPoint(Point(0))
-	itp:interpolate(visualPoints, 1, vp, "absolute")
+	itp:interpolate(visualPoints, vp, "absolute")
 	t:eq(vp.monotonicVisualTime, 0)
 	t:eq(vp.visualTime, 0)
 	t:eq(vp.section, 0)
 
 	vp.section = 1
-	itp:interpolate(visualPoints, 1, vp, "visual")
+	itp:interpolate(visualPoints, vp, "visual")
 	t:eq(vp.monotonicVisualTime, 0)
 	t:eq(vp.visualTime, 0)
 	t:eq(vp.section, 1)
@@ -133,27 +133,27 @@ function test.negative(t)
 	end
 
 	local vp = VisualPoint(Point(9.5))
-	local index = itp:interpolate(visualPoints, 1, vp, "absolute")
+	local index = itp:interpolate(visualPoints, vp, "absolute")
 	t:eq(index, 3)
 	t:eq(vp.monotonicVisualTime, 9.5)
 	t:eq(vp.visualTime, 4.5)
 
-	index = itp:interpolate(visualPoints, 1, vp, "visual")
+	index = itp:interpolate(visualPoints, vp, "visual")
 	t:eq(index, 3)
 	t:eq(vp.visualTime, 4.5)
 	t:eq(vp.point.absoluteTime, 9.5)
 
-	index = itp:interpolate(visualPoints, 2, vp, "visual")
+	index = itp:interpolate(visualPoints, vp, "visual")
 	t:eq(index, 3)
 	t:eq(vp.visualTime, 4.5)
 	t:eq(vp.point.absoluteTime, 9.5)
 
-	index = itp:interpolate(visualPoints, 3, vp, "visual")
+	index = itp:interpolate(visualPoints, vp, "visual")
 	t:eq(index, 3)
 	t:eq(vp.visualTime, 4.5)
 	t:eq(vp.point.absoluteTime, 9.5)
 
-	index = itp:interpolate(visualPoints, 4, vp, "visual")
+	index = itp:interpolate(visualPoints, vp, "visual")
 	t:eq(index, 3)
 	t:eq(vp.visualTime, 4.5)
 	t:eq(vp.point.absoluteTime, 9.5)

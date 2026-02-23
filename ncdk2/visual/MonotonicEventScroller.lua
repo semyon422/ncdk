@@ -61,7 +61,7 @@ function MonotonicEventScroller:update(f)
 	end
 	local cvp = self.cvp
 	cvp.point.absoluteTime = self.currentTime
-	visual.interpolator:interpolate(points, 1, cvp, "absolute")
+	visual.interpolator:interpolate(points, cvp, "absolute")
 	local current_vt = cvp.visualTime
 
 	local range = self.last_range

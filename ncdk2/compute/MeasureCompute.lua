@@ -74,7 +74,7 @@ function MeasureCompute:compute(points)
 	local zero_p = MeasurePoint()
 	zero_p.measureTime = Fraction(0)
 
-	local index = self.interpolator:getBaseIndex(points, 1, zero_p)
+	local index = self.interpolator:getBaseIndex(points, zero_p)
 	local a = points[index]
 
 	---@type number

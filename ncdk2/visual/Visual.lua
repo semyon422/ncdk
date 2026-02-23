@@ -143,7 +143,7 @@ function Visual:compute()
 	end
 
 	local zero_vp = VisualPoint(Point(0))
-	self.interpolator:interpolate(points, 1, zero_vp, "absolute")
+	self.interpolator:interpolate(points, zero_vp, "absolute")
 
 	for _, vp in ipairs(points) do
 		vp.visualTime = vp.visualTime - zero_vp.visualTime
