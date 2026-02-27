@@ -7,9 +7,11 @@ local VisualColumns = class()
 -- automatically manages visual points for stacked notes
 
 ---@param visual ncdk2.Visual
-function VisualColumns:new(visual)
+---@param shareColumns boolean?
+function VisualColumns:new(visual, shareColumns)
 	self.visual = visual
-	---@type {[ncdk2.Point]: ncdk2.VisualPoint[]}
+	self.shareColumns = shareColumns ~= false
+	---@type {[ncdk2.Point]: ncdk2.VisualPoint[] | {[ncdk2.Column]: ncdk2.VisualPoint[]}}
 	self.points = {}
 	---@type {[ncdk2.Point]: {[ncdk2.Column]: integer}}
 	self.indexes = {}
@@ -23,8 +25,13 @@ function VisualColumns:getPoint(point, column)
 
 	points[point] = points[point] or {}
 	indexes[point] = indexes[point] or {}
-	local _points = points[point]
 	local _columns = indexes[point]
+
+	local _points = points[point]
+	if not self.shareColumns then
+		points[point][column] = points[point][column] or {}
+		_points = points[point][column]
+	end
 
 	_columns[column] = (_columns[column] or 0) + 1
 	local index = _columns[column]
